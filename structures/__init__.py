@@ -4,7 +4,9 @@
 import copy
 from .fields import *
 
-OLD_LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx")
+##########
+## Core ##
+##########
 
 class DBStructure(list):
 	"""A database structure."""
@@ -96,6 +98,9 @@ class _Generated(DBStructure):
 		DBStructure.__init__(self)
 
 
+####################
+## WDB structures ##
+####################
 
 class CreatureCache(DBStructure):
 	"""
@@ -672,6 +677,9 @@ class PageTextCache(DBStructure):
 	)
 
 
+####################
+## DBC structures ##
+####################
 
 class Achievement(DBStructure):
 	"""

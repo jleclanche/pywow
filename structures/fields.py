@@ -1,11 +1,17 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Database fields"""
 
 from datetime import timedelta
-
 from ..parser.bitmask import BitMask
 from ..parser.spellstrings import SpellString
 
+
+##########
+## Core ##
+##########
+
+OLD_LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx")
 LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx",
 	"ruru", "unk1", "unk2", "unk3", "unk4", "unk5", "unk6", "unk7")
 
@@ -33,7 +39,11 @@ class DBField(object):
 	def getvalue(self):
 		return self.value
 
-# Base types
+
+################
+## Base types ##
+################
+
 class ByteField(DBField):
 	"""1-byte field."""
 	char = "b"
@@ -55,7 +65,10 @@ class FloatField(DBField):
 	char = "f"
 
 
-# Core custom types
+#######################
+## Core custom types ##
+#######################
+
 class IDField(IntegerField):
 	def __init__(self, name="_id", **kwargs):
 		IntegerField.__init__(self, name=name, **kwargs)
@@ -69,7 +82,10 @@ class StringIDField(IDField):
 	char = "s"
 
 
-# Dynamic types
+###################
+## Dynamic types ##
+###################
+
 class DynamicFields(list):
 	"""
 	A dynamic column master, followed by the full list of dynamic columns.
@@ -99,7 +115,10 @@ class LocalizedFields(list):
 		self.append(BitMaskField("%s_locflags" % name, group=self))
 
 
-# Custom types
+##################
+## Custom types ##
+##################
+
 class RecLenField(IntegerField):
 	def __init__(self, name="_reclen", **kwargs):
 		IntegerField.__init__(self, name=name, **kwargs)
