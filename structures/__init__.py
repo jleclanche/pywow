@@ -3,6 +3,8 @@
 
 import copy
 from .fields import *
+from .common import *
+
 
 ##########
 ## Core ##
@@ -427,7 +429,7 @@ class ItemCache(DBStructure):
 			(IntegerField, "id"),
 			(IntegerField, "amt"),
 		), 10]), before="dmgmin1")
-		base.insert_field(IntegerField("scalingdist"), before="dmgmin1")
+		base.insert_field(BitMaskField("scalingstats", flags=STATS), before="dmgmin1")
 		base.insert_field(IntegerField("scalingflags"), before="dmgmin1")
 	
 	def changed_8478(self, base):
@@ -716,7 +718,7 @@ class Achievement_Category(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("parentcategory", "achievement_category"),
+		ForeignKey("parent", "achievement_category"),
 		LocalizedFields("name"),
 		IntegerField(),
 	)
@@ -1834,6 +1836,34 @@ class QuestSort(DBStructure):
 	base = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
+	)
+
+
+class ScalingStatValues(DBStructure):
+	"""
+	ScalingStatValues.dbc
+	Heirloom stat scaling (one row per level)
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("level"),
+		IntegerField("resiliencerating"), # hitrating?
+		IntegerField("hitrating"), # resiliencerating?
+		IntegerField(),
+		IntegerField("manaperfive"),
+		IntegerField(),
+		IntegerField("armorcloth"),
+		IntegerField("armorleather"),
+		IntegerField("armormail"),
+		IntegerField("armorplate"),
+		IntegerField("dpsmeleeonehand"), # 44096
+		IntegerField("dpsmeleetwohand"), # reforged truesilver champ
+		IntegerField("dpscasteronehand"),
+		IntegerField("dpscastertwohand"),
+		IntegerField("dpsranged"),
+		IntegerField("attackpower"),
+		IntegerField("spellpower"), # staff of jordan
+		IntegerField(),
 	)
 
 
