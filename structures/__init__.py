@@ -1744,24 +1744,27 @@ class Map(DBStructure):
 		IntegerField("type"), # 0: normal, 1: instance, 2: raid, 3: battleground, 4: arena
 		BooleanField("battleground"),
 		LocalizedFields("name"),
-		IntegerField(), # instance zone id
+		ForeignKey("parentzone", "areatable"), # instance zone id
 		LocalizedFields("descriptionhorde"),
 		LocalizedFields("descriptionalliance"),
-		IntegerField(),
-		FloatField(), # vision range?
+		UnknownField(),
+		FloatField("visionrange"),
 		LocalizedFields("normalreqs"),
 		LocalizedFields("heroicreqs"),
-		LocalizedFields("epicreqs", unused=True),
+		LocalizedFields("epicreqs"),
 		ForeignKey("continent", "map"),
-		CoordField(),
-		CoordField(),
+		CoordField("entrancex"),
+		CoordField("entrancey"),
 		DurationField("normalreset", unit="seconds"),
 		DurationField("heroicreset", unit="seconds"),
-		DurationField("epicreset", unit="seconds", unused=True),
-		IntegerField(),
-		IntegerField(),
-		DurationField(unit="seconds", unused=True),
+		DurationField("epicreset", unit="seconds"),
+		IntegerField("someunknownfield1"),
+		IntegerField("someunknownfield2"),
+		DurationField(unit="seconds"),
 	)
+	
+	def changed_10026(self, base):
+		base.delete_fields("normalreqs", "heroicreqs", "epicreqs", "normalreset", "heroicreset", "epicreset")
 
 
 class Movie(DBStructure):
