@@ -448,6 +448,10 @@ class ItemCache(DBStructure):
 			"dmgmin4", "dmgmax4", "dmgtype4",
 			"dmgmin5", "dmgmax5", "dmgtype5")
 		base.append_fields(IntegerField())
+	
+	def changed_10026(self, base):
+		self.changed_9614(base)
+		base.insert_field(BitMaskField("flags2"), before="buyprice")
 
 
 class ItemNameCache(DBStructure):
