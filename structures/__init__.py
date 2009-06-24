@@ -660,13 +660,17 @@ class QuestCache(DBStructure):
 		IntegerField("itemamtreq3"),
 		ForeignKey("itemreq4", "item"),
 		IntegerField("itemamtreq4"),
-		IntegerField(unused=True),
-		IntegerField(unused=True),
+		ForeignKey("itemreq5", "item"),
+		IntegerField("itemamtreq5"),
 		StringField("objectivetext1"),
 		StringField("objectivetext2"),
 		StringField("objectivetext3"),
 		StringField("objectivetext4"),
 	)
+	
+	def changed_10026(self, base):
+		base.insert_field(ForeignKey("itemreq6", "item"), before="objectivetext1")
+		base.insert_field(IntegerField("itemamtreq6"), before="objectivetext1")
 
 
 class PageTextCache(DBStructure):
