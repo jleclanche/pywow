@@ -11,8 +11,9 @@ from .paperdoll import Paperdoll
 booleans = "gl"
 functions = ["cond", "eq", "max", "min"]
 macros = "FMRSabderfhimnoqrstuvxz"
-variables = ["HND", "MWB", "MWS", "RAP", "RWB", "SPH", "SPI", "mwb", "rwb", "AP", "AR", "MW", "PL", "mw"]
-
+variables = ["pbhd", "spfi", "spfr", "bc2", "hnd", "mwb", "mws", "pbh", "pfi", "pfr", "rap", "rwb", "spa", "sph", "spi", "spn", "sps", "mwb", "rwb", "ap", "ar", "bh", "mw", "mw", "pa", "pl", "ph", "pn", "ps", "sp"]
+variables_upper = [k.upper() for k in variables]
+variables.extend(variables_upper)
 functions_s = "|".join(functions)
 macros_s = "|".join(macros)
 variables_s = "|".join(variables)
@@ -255,7 +256,7 @@ class SpellString(object):
 		sre = sre_variables.match(string)
 		var = sre.group(1)
 		self.pos += len(sre.group())
-		self.appendvar(getattr(self, "variable_%s" % var)())
+		self.appendvar(getattr(self, "variable_%s" % var.lower())())
 	
 	
 	def boolean_g(self, arg1, arg2):
@@ -272,61 +273,113 @@ class SpellString(object):
 		return arg2
 	
 	
-	def variable_AP(self):
+	def variable_ap(self):
 		"Attack power"
 		return self.paperdoll["ATTACK_POWER"]
 	
-	def variable_AR(self):
+	def variable_ar(self):
 		"Armor"
 		return self.paperdoll["ARMOR"]
 	
-	def variable_HND(self):
+	def variable_bh(self):
+		"Bonus healing"
+		return self.paperdoll["BONUS_HEALING"]
+	
+	def variable_hnd(self):
 		"Melee weapon hands requirement"
 		return self.paperdoll["MAIN_WPN_HANDS"]
 	
-	def variable_MW(self):
-		"Max melee weapon damage"
-		return self.paperdoll["MAX_MAIN_WPN_DMG"]
-	
 	def variable_mw(self):
-		"Min melee weapon damage"
-		return self.paperdoll["MIN_MAIN_WPN_DMG"]
-	
-	def variable_MWB(self):
-		"Max melee weapon base damage"
-		return self.paperdoll["MAX_MAIN_WPN_BASEDMG"]
+		"Melee weapon damage"
+		return self.paperdoll["MAIN_WPN_DMG"]
 	
 	def variable_mwb(self):
-		"Min melee weapon base damage"
-		return self.paperdoll["MIN_MAIN_WPN_BASEDMG"]
+		"Melee weapon base damage"
+		return self.paperdoll["MAIN_WPN_BASEDMG"]
 	
-	def variable_MWS(self):
+	def variable_mws(self):
 		"Melee weapon speed"
 		return self.paperdoll["MAIN_WPN_SPEED"]
 	
-	def variable_PL(self):
+	def variable_pa(self):
+		"Percent arcane"
+		return self.paperdoll["PERCENT_ARCANE"]
+	
+	def variable_pfi(self):
+		"Percent fire"
+		return self.paperdoll["PERCENT_FIRE"]
+	
+	def variable_pfr(self):
+		"Percent frost"
+		return self.paperdoll["PERCENT_FROST"]
+	
+	def variable_ph(self):
+		"Percent holy"
+		return self.paperdoll["PERCENT_HOLY"]
+	
+	def variable_pn(self):
+		"Percent nature"
+		return self.paperdoll["PERCENT_NATURE"]
+	
+	def variable_ps(self):
+		"Percent shadow"
+		return self.paperdoll["PERCENT_SHADOW"]
+	
+	def variable_pbh(self):
+		"Percent bonus healing"
+		return self.paperdoll["PERCENT_BONUS_HEALING"]
+	
+	def variable_pbhd(self):
+		"Percent bonus healing damage"
+		return self.paperdoll["PERCENT_BONUS_HEALING_DAMAGE"]
+	
+	def variable_bc2(self):
+		"Percent bc2???"
+		return self.paperdoll["PERCENT_BC2"]
+	
+	def variable_pl(self):
 		"Player level"
 		return self.paperdoll["PLAYER_LVL"]
 	
-	def variable_RAP(self):
+	def variable_rap(self):
 		"Ranged attack power"
 		return self.paperdoll["RANGED_ATTACK_POWER"]
 	
-	def variable_RWB(self):
-		"Ranged weapon max base damage"
-		return self.paperdoll["MAX_RANGED_WPN_BASEDMG"]
-	
 	def variable_rwb(self):
-		"Ranged weapon min base damage"
-		return self.paperdoll["MAX_RANGED_WPN_BASEDMG"]
+		"Ranged weapon base damage"
+		return self.paperdoll["RANGED_WPN_BASEDMG"]
 	
-	def variable_SPH(self):
-		"Holy spell power"
+	def variable_sp(self):
+		"Spell power"
+		return self.paperdoll["SPELL_POWER"]
+	
+	def variable_spa(self):
+		"Spell power arcane"
+		return self.paperdoll["SPELL_POWER_ARCANE"]
+	
+	def variable_spfi(self):
+		"Spell power fire"
+		return self.paperdoll["SPELL_POWER_FIRE"]
+	
+	def variable_spfr(self):
+		"Spell power frost"
+		return self.paperdoll["SPELL_POWER_FROST"]
+	
+	def variable_sph(self):
+		"Spell power holy"
 		return self.paperdoll["SPELL_POWER_HOLY"]
 	
-	def variable_SPI(self):
+	def variable_spi(self):
 		"Spirit"
 		return self.paperdoll["SPIRIT"]
+	
+	def variable_spn(self):
+		"Spell power nature"
+		return self.paperdoll["SPELL_POWER_NATURE"]
+	
+	def variable_sps(self):
+		"Spell power shadow"
+		return self.paperdoll["SPELL_POWER_SHADOW"]
 	
 	
 	def function_cond(self, arg1, arg2, arg3):
