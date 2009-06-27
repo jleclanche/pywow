@@ -56,6 +56,10 @@ class IntegerField(DBField):
 	"""An int32 field."""
 	char = "i"
 
+class UnsignedIntegerField(DBField):
+	"""An uint32 field."""
+	char = "I"
+
 class StringField(DBField):
 	"""A string field."""
 	char = "s"
@@ -197,7 +201,7 @@ class DurationField(IntegerField):
 	def getvalue(self):
 		return self.duration
 
-class MoneyField(IntegerField):
+class MoneyField(UnsignedIntegerField):
 	pass
 
 class UnknownField(IntegerField):
