@@ -1949,6 +1949,9 @@ class Spell(DBStructure):
 		BitMaskField("flags1"),
 		BitMaskField("flags2"),
 		BitMaskField("flags3"),
+		IntegerField(), ## XXX
+		IntegerField(), ## XXX
+		IntegerField(), ## XXX
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
@@ -2110,6 +2113,10 @@ class Spell(DBStructure):
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -2395,6 +2402,7 @@ class SpellItemEnchantment(DBStructure):
 		IntegerField(), # SpellItemEnchantmentCondition?
 		ForeignKey("skillreq", "skillline"),
 		IntegerField("skilllevelreq"),
+		UnknownField(), # added 9447?
 	)
 
 
