@@ -532,7 +532,7 @@ class SpellString(object):
 		return "%.0f" % val
 	
 	def macro_S(self, spell, effect):
-		"FIXME 11069"
+		"TODO 11069"
 		return self.macro_s(spell, effect)
 	
 	def macro_s(self, spell, effect):
@@ -540,6 +540,10 @@ class SpellString(object):
 		m = self.macro_m(spell, effect)
 		M = self.macro_M(spell, effect)
 		return Range(m, M)
+	
+	def macro_T(self, spell, effect):
+		"TODO 48391"
+		return self.macro_t(spell, effect)
 	
 	def macro_t(self, spell, effect):
 		"Spelleffect time interval"
