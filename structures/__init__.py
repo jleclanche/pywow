@@ -447,7 +447,7 @@ class ItemCache(DBStructure):
 		base.delete_fields("dmgmin3", "dmgmax3", "dmgtype3",
 			"dmgmin4", "dmgmax4", "dmgtype4",
 			"dmgmin5", "dmgmax5", "dmgtype5")
-		base.append_fields(IntegerField())
+		base.append_fields(ForeignKey("holidayreq", "holidays"))
 	
 	def changed_10026(self, base):
 		self.changed_9614(base)
@@ -1380,6 +1380,90 @@ class HelmetGeosetVisData(DBStructure):
 		IntegerField(),
 	)
 
+
+class HolidayDescriptions(DBStructure):
+	"""
+	HolidayDescriptions.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("description"),
+	)
+
+
+class HolidayNames(DBStructure):
+	"""
+	HolidayNames.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+	)
+
+
+class Holidays(DBStructure):
+	"""
+	Holidays.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("name", "holidaynames"),
+		ForeignKey("description", "holidaydescriptions"),
+		StringField("calendaricon"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
 class Item(DBStructure):
 	"""
 	Item.dbc
@@ -1433,6 +1517,7 @@ class ItemCondExtCost(DBStructure):
 		ForeignKey("extcost", "itemextendedcost"),
 		IntegerField(),
 	)
+
 
 class ItemDisplayInfo(DBStructure):
 	"""
