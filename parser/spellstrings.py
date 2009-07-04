@@ -10,7 +10,7 @@ from .paperdoll import Paperdoll
 
 
 booleans = "gl"
-functions = ["cond", "eq", "floor", "max", "min"]
+functions = ["cond", "eq", "floor", "gt", "max", "min"]
 macros = "FMRSabderfhimnoqrstuvxz"
 variables = ["pbhd", "spfi", "spfr", "bc2", "hnd", "mwb", "mws", "pbh", "pfi", "pfr", "rap", "rwb", "spa", "sph", "spi", "spn", "sps", "mwb", "rwb", "ap", "ar", "bh", "mw", "mw", "pa", "pl", "ph", "pn", "ps", "sp"]
 variables_upper = [k.upper() for k in variables]
@@ -414,6 +414,18 @@ class SpellString(object):
 			return "<Floor: %s>" % (arg1)
 		
 		return floor(arg1)
+	
+	def function_gt(self, arg1, arg2):
+		"Return true if arg1 > arg2"
+		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
+		arg2 = SpellString(arg2).format(self.row, self.paperdoll)
+		
+		try:
+			arg1, arg2 = int(arg1), int(arg2)
+		except ValueError:
+			return "<Greater than: %s, %s>" % (arg1, arg2)
+		
+		return arg1 > arg2 and True or False
 	
 	def function_max(self, arg1, arg2, arg3=None):
 		"Return highest value"
