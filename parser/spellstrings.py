@@ -241,7 +241,7 @@ class SpellString(object):
 			func, arg1, arg2, arg3 = sre.groups()
 			self.pos += len(sre.group())
 		
-		self.appendvar(getattr(self, "function_%s" % func)(arg1, arg2, arg3))
+		self.appendvar(getattr(self, "function_%s" % func.lower())(arg1, arg2, arg3))
 	
 	def fmt_macro(self):
 		string = self.string[self.pos:]
