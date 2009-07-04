@@ -9,12 +9,16 @@ from math import floor
 from .paperdoll import Paperdoll
 
 
+def case_insensitive(lower):
+	upper = [k.upper() for k in lower]
+	lower.extend(upper)
+
 booleans = "gl"
 functions = ["cond", "eq", "floor", "gt", "max", "min"]
+case_insensitive(functions)
 macros = "FMRSabderfhimnoqrstuvxz"
 variables = ["pbhd", "spfi", "spfr", "bc2", "hnd", "mwb", "mws", "pbh", "pfi", "pfr", "rap", "rwb", "spa", "sph", "spi", "spn", "sps", "mwb", "rwb", "ap", "ar", "bh", "mw", "mw", "pa", "pl", "ph", "pn", "ps", "sp"]
-variables_upper = [k.upper() for k in variables]
-variables.extend(variables_upper)
+case_insensitive(variables)
 functions_s = "|".join(functions)
 macros_s = "|".join(macros)
 variables_s = "|".join(variables)
