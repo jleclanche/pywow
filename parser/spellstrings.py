@@ -230,7 +230,7 @@ class SpellString(object):
 	def fmt_function(self):
 		"Function call (2-3 args)"
 		string = self.string[self.pos:]
-		if re.search(r"\$(%s)\(" % "|".join(functions), string[2:]): # nested function call
+		if re.search(r"\$(%s)\(" % functions_s, string[2:]): # nested function call
 			func = string.split("(")[0]
 			args = getarglist(string[len(func)+1:]) #we don't want the opening (
 			self.pos += len("%s(%s)" % (func, ",".join(args)))
