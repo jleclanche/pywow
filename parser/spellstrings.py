@@ -228,13 +228,13 @@ class SpellString(object):
 		self.appendvar(val)
 	
 	def fmt_function(self):
-		"Function call (2-3 args)"
+		"Function call (1-3 args)"
 		string = self.string[self.pos:]
 		if re.search(r"\$(%s)\(" % functions_s, string[2:]): # nested function call
 			func = string.split("(")[0]
 			args = getarglist(string[len(func)+1:]) #we don't want the opening (
 			self.pos += len("%s(%s)" % (func, ",".join(args)))
-			args.append(None)
+			args.extend([None, None]) # FIXME We really shouldn't hardcode the amount of args
 			arg1, arg2, arg3 = args[:3]
 		else:
 			sre = sre_function.match(string)
@@ -408,7 +408,7 @@ class SpellString(object):
 		
 		return False
 	
-	def function_floor(self, arg1):
+	def function_floor(self, arg1, arg2=None, arg3=None):
 		"Return the floor of a float"
 		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
 		
@@ -419,7 +419,7 @@ class SpellString(object):
 		
 		return floor(arg1)
 	
-	def function_gt(self, arg1, arg2):
+	def function_gt(self, arg1, arg2, arg3=None):
 		"Return true if arg1 > arg2"
 		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
 		arg2 = SpellString(arg2).format(self.row, self.paperdoll)
