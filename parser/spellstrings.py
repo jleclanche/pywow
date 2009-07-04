@@ -4,12 +4,13 @@
 import re
 from datetime import timedelta
 from decimal import Decimal
+from math import floor
 
 from .paperdoll import Paperdoll
 
 
 booleans = "gl"
-functions = ["cond", "eq", "max", "min"]
+functions = ["cond", "eq", "floor", "max", "min"]
 macros = "FMRSabderfhimnoqrstuvxz"
 variables = ["pbhd", "spfi", "spfr", "bc2", "hnd", "mwb", "mws", "pbh", "pfi", "pfr", "rap", "rwb", "spa", "sph", "spi", "spn", "sps", "mwb", "rwb", "ap", "ar", "bh", "mw", "mw", "pa", "pl", "ph", "pn", "ps", "sp"]
 variables_upper = [k.upper() for k in variables]
@@ -402,6 +403,17 @@ class SpellString(object):
 			return True
 		
 		return False
+	
+	def function_floor(self, arg1):
+		"Return the floor of a float"
+		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
+		
+		try:
+			arg1 = float(arg1)
+		except ValueError:
+			return "<Floor: %s>" % (arg1)
+		
+		return floor(arg1)
 	
 	def function_max(self, arg1, arg2, arg3=None):
 		"Return highest value"
