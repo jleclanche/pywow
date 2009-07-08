@@ -16,7 +16,7 @@ def case_insensitive(lower):
 booleans = "gl"
 functions = ["cond", "eq", "floor", "gt", "max", "min"]
 case_insensitive(functions)
-macros = "FMRSabderfhimnoqrstuvxz"
+macros = "AFMRSabderfhimnoqrstuvxz"
 variables = ["pbhd", "spfi", "spfr", "bc2", "hnd", "mwb", "mws", "pbh", "pfi", "pfr", "rap", "rwb", "spa", "sph", "spi", "spn", "sps", "mwb", "rwb", "ap", "ar", "bh", "mw", "mw", "pa", "pl", "ph", "pn", "ps", "sp"]
 case_insensitive(variables)
 functions_s = "|".join(functions)
@@ -453,6 +453,10 @@ class SpellString(object):
 			return "<Min: %s, %s>" % (arg1, arg2)
 		return arg1 < arg2 and arg1 or arg2
 	
+	
+	def macro_A(self, spell, effect):
+		"TODO 49158"
+		return self.macro_a(spell, effect)
 	
 	def macro_a(self, spell, effect):
 		"Spelleffect radius"
