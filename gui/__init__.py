@@ -13,7 +13,8 @@ import wdbc
 #fname = "/home/adys/wow/Cache/WDB/enGB/itemcache.wdb"
 #fname = "/home/adys/bin/reader/DBFilesClientOriginal/Spell.dbc"
 fname = sys.argv[1]
-f = wdbc.fopen(fname)
+build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
+f = wdbc.fopen(fname, build=build)
 _array = f.rows()
 headerdata = f.structure.column_names
 

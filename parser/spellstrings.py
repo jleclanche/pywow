@@ -83,7 +83,7 @@ class Duration(timedelta):
 
 class Range(Decimal): # used in $s
 	def __init__(self, start, stop):
-		Decimal.__init__(self, start)
+		Decimal.__init__(self)
 		self.start = Decimal(abs(start))
 		self.stop = Decimal(abs(stop))
 	
