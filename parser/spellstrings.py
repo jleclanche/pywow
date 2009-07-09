@@ -40,6 +40,35 @@ sre_macro = re.compile(r"(\d*)(%s)([123]?)" % "|".join(macros))
 sre_variables = re.compile(r"(%s)" % "|".join(variables))
 
 
+variabledict = {
+	"ap":   "ATTACK_POWER",
+	"ar":   "ARMOR",
+	"bc2":  "PERCENT_BC2",
+	"bh":   "BONUS_HEALING",
+	"hnd":  "MAIN_WPN_HANDS",
+	"mw":   "MAIN_WPN_DMG",
+	"mws":  "MAIN_WPN_SPEED",
+	"pa":   "PERCENT_ARCANE",
+	"pfi":  "PERCENT_FIRE",
+	"pfr":  "PERCENT_FROST",
+	"ph":   "PERCENT_HOLY",
+	"pn":   "PERCENT_NATURE",
+	"ps":   "PERCENT_SHADOW",
+	"pbh":  "PERCENT_BONUS_HEALING",
+	"pbhd": "PERCENT_BONUS_HEALING_DAMAGE",
+	"pl":   "PLAYER_LEVEL",
+	"rap":  "RANGED_ATTACK_POWER",
+	"rwb":  "RANGED_WPN_BASEDMG",
+	"sp":   "SPELL_POWER",
+	"spa":  "SPELL_POWER_ARCANE",
+	"spfi": "SPELL_POWER_FIRE",
+	"spfr": "SPELL_POWER_FROST",
+	"sph":  "SPELL_POWER_HOLY",
+	"spi":  "SPIRIT",
+	"spn":  "SPELL_POWER_NATURE",
+	"sps":  "SPELL_POWER_SHADOW",	
+}
+	
 
 class WSMLSyntaxError(SyntaxError):
 	pass
@@ -275,7 +304,7 @@ class SpellString(object):
 		sre = sre_variables.match(string)
 		var = sre.group(1)
 		self.pos += len(sre.group())
-		self.appendvar(getattr(self, "variable_%s" % var.lower())())
+		self.appendvar(self.assign_variable(var.lower()))
 	
 	
 	def boolean_g(self, arg1, arg2):
@@ -291,115 +320,8 @@ class SpellString(object):
 			return arg1
 		return arg2
 	
-	
-	def variable_ap(self):
-		"Attack power"
-		return self.paperdoll["ATTACK_POWER"]
-	
-	def variable_ar(self):
-		"Armor"
-		return self.paperdoll["ARMOR"]
-	
-	def variable_bh(self):
-		"Bonus healing"
-		return self.paperdoll["BONUS_HEALING"]
-	
-	def variable_hnd(self):
-		"Melee weapon hands requirement"
-		return self.paperdoll["MAIN_WPN_HANDS"]
-	
-	def variable_mw(self):
-		"Melee weapon damage"
-		return self.paperdoll["MAIN_WPN_DMG"]
-	
-	def variable_mwb(self):
-		"Melee weapon base damage"
-		return self.paperdoll["MAIN_WPN_BASEDMG"]
-	
-	def variable_mws(self):
-		"Melee weapon speed"
-		return self.paperdoll["MAIN_WPN_SPEED"]
-	
-	def variable_pa(self):
-		"Percent arcane"
-		return self.paperdoll["PERCENT_ARCANE"]
-	
-	def variable_pfi(self):
-		"Percent fire"
-		return self.paperdoll["PERCENT_FIRE"]
-	
-	def variable_pfr(self):
-		"Percent frost"
-		return self.paperdoll["PERCENT_FROST"]
-	
-	def variable_ph(self):
-		"Percent holy"
-		return self.paperdoll["PERCENT_HOLY"]
-	
-	def variable_pn(self):
-		"Percent nature"
-		return self.paperdoll["PERCENT_NATURE"]
-	
-	def variable_ps(self):
-		"Percent shadow"
-		return self.paperdoll["PERCENT_SHADOW"]
-	
-	def variable_pbh(self):
-		"Percent bonus healing"
-		return self.paperdoll["PERCENT_BONUS_HEALING"]
-	
-	def variable_pbhd(self):
-		"Percent bonus healing damage"
-		return self.paperdoll["PERCENT_BONUS_HEALING_DAMAGE"]
-	
-	def variable_bc2(self):
-		"Percent bc2???"
-		return self.paperdoll["PERCENT_BC2"]
-	
-	def variable_pl(self):
-		"Player level"
-		return self.paperdoll["PLAYER_LVL"]
-	
-	def variable_rap(self):
-		"Ranged attack power"
-		return self.paperdoll["RANGED_ATTACK_POWER"]
-	
-	def variable_rwb(self):
-		"Ranged weapon base damage"
-		return self.paperdoll["RANGED_WPN_BASEDMG"]
-	
-	def variable_sp(self):
-		"Spell power"
-		return self.paperdoll["SPELL_POWER"]
-	
-	def variable_spa(self):
-		"Spell power arcane"
-		return self.paperdoll["SPELL_POWER_ARCANE"]
-	
-	def variable_spfi(self):
-		"Spell power fire"
-		return self.paperdoll["SPELL_POWER_FIRE"]
-	
-	def variable_spfr(self):
-		"Spell power frost"
-		return self.paperdoll["SPELL_POWER_FROST"]
-	
-	def variable_sph(self):
-		"Spell power holy"
-		return self.paperdoll["SPELL_POWER_HOLY"]
-	
-	def variable_spi(self):
-		"Spirit"
-		return self.paperdoll["SPIRIT"]
-	
-	def variable_spn(self):
-		"Spell power nature"
-		return self.paperdoll["SPELL_POWER_NATURE"]
-	
-	def variable_sps(self):
-		"Spell power shadow"
-		return self.paperdoll["SPELL_POWER_SHADOW"]
-	
+	def assign_variable(self, var):
+		return self.paperdoll[variabledict[var]]
 	
 	def function_cond(self, arg1, arg2, arg3):
 		"Return value depending on condition"
