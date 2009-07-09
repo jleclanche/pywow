@@ -253,7 +253,7 @@ class SpellString(object):
 		spell = self.file[int(spell)]["name_enus"]
 		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
 		arg2 = SpellString(arg2).format(self.row, self.paperdoll)
-		s = "<%s: %s>" % (spell, arg2 and " | ".join([arg1, arg2]) or arg1)
+		s = "[%s: %s]" % (spell, arg2 and " | ".join([arg1, arg2]) or arg1)
 		self.pos += len(sre.group())
 		self.appendvar(s)
 	
@@ -282,7 +282,7 @@ class SpellString(object):
 		"Player gender"
 		gender = self.paperdoll["GENDER"]
 		if gender not in (1, 2):
-			return "<%s/%s>" % (arg1, arg2)
+			return "[%s/%s]" % (arg1, arg2)
 		return (arg1, arg2)[gender]
 	
 	def boolean_l(self, arg1, arg2):
@@ -429,7 +429,7 @@ class SpellString(object):
 		try:
 			arg1 = float(arg1)
 		except ValueError:
-			return "<Floor: %s>" % (arg1)
+			return "[Floor: %s]" % (arg1)
 		
 		return floor(arg1)
 	
@@ -441,7 +441,7 @@ class SpellString(object):
 		try:
 			arg1, arg2 = int(arg1), int(arg2)
 		except ValueError:
-			return "<Greater than: %s, %s>" % (arg1, arg2)
+			return "[Greater than: %s, %s]" % (arg1, arg2)
 		
 		return arg1 > arg2 and True or False
 	
@@ -453,7 +453,7 @@ class SpellString(object):
 		try:
 			arg1, arg2 = int(arg1), int(arg2)
 		except ValueError:
-			return "<Max: %s, %s>" % (arg1, arg2)
+			return "[Max: %s, %s]" % (arg1, arg2)
 		return arg1 > arg2 and arg1 or arg2
 	
 	def function_min(self, arg1, arg2, arg3=None):
@@ -464,7 +464,7 @@ class SpellString(object):
 		try:
 			arg1, arg2 = int(arg1), int(arg2)
 		except ValueError:
-			return "<Min: %s, %s>" % (arg1, arg2)
+			return "[Min: %s, %s]" % (arg1, arg2)
 		return arg1 < arg2 and arg1 or arg2
 	
 	
