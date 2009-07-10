@@ -309,7 +309,7 @@ class SpellString(object):
 		spell = self.file[int(spell)]["name_enus"]
 		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
 		arg2 = SpellString(arg2).format(self.row, self.paperdoll)
-		s = "[%s: %s]" % (spell, arg2 and " | ".join([arg1, arg2]) or arg1)
+		s = LearnedValue(int(spellid), spell, arg1, arg2)
 		self.pos += len(sre.group())
 		self.appendvar(s)
 	
