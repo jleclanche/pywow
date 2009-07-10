@@ -13,32 +13,6 @@ def case_insensitive(lower):
 	upper = [k.upper() for k in lower]
 	lower.extend(upper)
 
-booleans = "gl"
-functions = ["cond", "eq", "floor", "gt", "max", "min"]
-case_insensitive(functions)
-macros = "AFMRSabderfhimnoqrstuvxz"
-variables = ["pbhd", "spfi", "spfr", "bc2", "hnd", "mwb", "mws", "pbh", "pfi", "pfr", "rap", "rwb", "spa", "sph", "spi", "spn", "sps", "mwb", "rwb", "ap", "ar", "bh", "mw", "mw", "pa", "pl", "ph", "pn", "ps", "sp"]
-case_insensitive(variables)
-functions_s = "|".join(functions)
-macros_s = "|".join(macros)
-variables_s = "|".join(variables)
-
-sre_function = re.compile(r"(%s)\(([^,]+),([^,)]+),?([^)]?)\)" % "|".join(functions)) # cond|eq|max|min(arg1, arg2[, arg3])
-# (cond|eq|max|min) # NO EMBEDDED FUNCTION SUPPORT
-# \(                # opening parenthese
-#   ([^,]+),        # grab anything except a "," followed by a ","
-#   ([^,)]+)        # grab anything except ",)"
-#         ,?        # followed by , (optional if third arg exists)
-#   ([^)]?)         # grab anything but a parenthese (optional)
-# \)                # closing parenthese
-
-sre_boolean = re.compile(r"(%s)([^:]+):([^;]+);" % "|".join(booleans)) # g|lFirst String:Second String;
-sre_braces = re.compile(r"\{([^}]+)\}\.?(\d+)?") # ${} not supported
-sre_learned = re.compile(r"\?(%s)(\d+)\[([^\]]*)\]\[([^\]]*)\]" % macros_s)
-sre_operator = re.compile(r"[*/](\d+);(\d*)(%s)([123]?)" % macros_s) # /1000;54055o2
-sre_macro = re.compile(r"(\d*)(%s)([123]?)" % macros_s)
-sre_variables = re.compile(r"(%s)" % variables_s)
-
 
 variabledict = {
 	"ap":   "ATTACK_POWER",
@@ -69,6 +43,33 @@ variabledict = {
 	"spn":  "SPELL_POWER_NATURE",
 	"sps":  "SPELL_POWER_SHADOW",	
 }
+variables = variabledict.keys()
+case_insensitive(variables)
+variables.sort(key=lambda i: i + "\xff\xff\xff\xff") # pbhd needs to come before pbh, so on
+variables_s = "|".join(variables)
+
+booleans = "gl"
+functions = ["cond", "eq", "floor", "gt", "max", "min"]
+case_insensitive(functions)
+macros = "AFMRSabderfhimnoqrstuvxz"
+functions_s = "|".join(functions)
+macros_s = "|".join(macros)
+
+sre_function = re.compile(r"(%s)\(([^,]+),([^,)]+),?([^)]?)\)" % "|".join(functions)) # cond|eq|max|min(arg1, arg2[, arg3])
+# (cond|eq|max|min) # NO EMBEDDED FUNCTION SUPPORT
+# \(                # opening parenthese
+#   ([^,]+),        # grab anything except a "," followed by a ","
+#   ([^,)]+)        # grab anything except ",)"
+#         ,?        # followed by , (optional if third arg exists)
+#   ([^)]?)         # grab anything but a parenthese (optional)
+# \)                # closing parenthese
+
+sre_boolean = re.compile(r"(%s)([^:]+):([^;]+);" % "|".join(booleans)) # g|lFirst String:Second String;
+sre_braces = re.compile(r"\{([^}]+)\}\.?(\d+)?") # ${} not supported
+sre_learned = re.compile(r"\?(%s)(\d+)\[([^\]]*)\]\[([^\]]*)\]" % macros_s)
+sre_operator = re.compile(r"[*/](\d+);(\d*)(%s)([123]?)" % macros_s) # /1000;54055o2
+sre_macro = re.compile(r"(\d*)(%s)([123]?)" % macros_s)
+sre_variables = re.compile(r"(%s)" % variables_s)
 	
 
 class WSMLSyntaxError(SyntaxError):
