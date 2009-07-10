@@ -334,18 +334,18 @@ class SpellString(object):
 		self.appendvar(self.assign_variable(var.lower()))
 	
 	
-	def boolean_g(self, arg1, arg2):
+	def boolean_g(self, male, female):
 		"Player gender"
 		gender = self.paperdoll["GENDER"]
 		if gender not in (0, 1):
-			return "[%s/%s]" % (arg1, arg2)
-		return (arg1, arg2)[gender]
+			return "[%s/%s]" % (male, female)
+		return (male, female)[gender]
 	
-	def boolean_l(self, arg1, arg2):
+	def boolean_l(self, singular, plural):
 		"Pluralization by last value"
 		if int(self.last) == 1:
-			return arg1
-		return arg2
+			return singular
+		return plural
 	
 	def assign_variable(self, var):
 		return self.paperdoll[variabledict[var]]
