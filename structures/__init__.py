@@ -135,8 +135,13 @@ class CreatureCache(DBStructure):
 	
 	def changed_9614(self, base):
 		base.insert_field(IntegerField(), before="model")
-		base.append_fields(IntegerField(), IntegerField(),
-			IntegerField(), IntegerField(), IntegerField())
+		base.append_fields(
+			IntegerField(),
+			IntegerField(),
+			IntegerField(),
+			IntegerField(),
+			IntegerField(),
+		)
 
 
 
@@ -415,7 +420,8 @@ class ItemCache(DBStructure):
 		- New scalingdist and scalingflags fields after the new stats columns
 		"""
 		self.changed_8391(base)
-		base.delete_fields("stats_id_dyn1", "stats_amt_dyn1",
+		base.delete_fields(
+			"stats_id_dyn1", "stats_amt_dyn1",
 			"stats_id_dyn2", "stats_amt_dyn2",
 			"stats_id_dyn3", "stats_amt_dyn3",
 			"stats_id_dyn4", "stats_amt_dyn4",
@@ -424,7 +430,8 @@ class ItemCache(DBStructure):
 			"stats_id_dyn7", "stats_amt_dyn7",
 			"stats_id_dyn8", "stats_amt_dyn8",
 			"stats_id_dyn9", "stats_amt_dyn9",
-			"stats_id_dyn10", "stats_amt_dyn10")
+			"stats_id_dyn10", "stats_amt_dyn10",
+		)
 		base.insert_field(DynamicFields("stats", [(
 			(IntegerField, "id"),
 			(IntegerField, "amt"),
@@ -2198,11 +2205,15 @@ class Spell(DBStructure):
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
 	)
+	
+	def changed_10026(self, base):
+		base.append_fields(
+			FloatField("coeffeffect1"),
+			FloatField("coeffeffect2"),
+			FloatField("coeffeffect3"),
+			UnknownField(),
+		)
 
 
 # XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX
