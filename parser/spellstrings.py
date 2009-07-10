@@ -337,7 +337,7 @@ class SpellString(object):
 	def boolean_g(self, arg1, arg2):
 		"Player gender"
 		gender = self.paperdoll["GENDER"]
-		if gender not in (1, 2):
+		if gender not in (0, 1):
 			return "[%s/%s]" % (arg1, arg2)
 		return (arg1, arg2)[gender]
 	
