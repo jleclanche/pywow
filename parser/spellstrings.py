@@ -136,6 +136,32 @@ class Range(Decimal): # used in $s
 		return Decimal.__div__(self, div)
 
 
+class HtmlValue(object):
+	def __init__(self, value, tag="a", href=None, classes=[]):
+		self.value = value
+		self.tag = tag
+		self.href = href and ' href="%s"' % (href) or ""
+		self.classes = classes and ' class="%s"' % (" ".join(classes)) or ""
+	
+	def __str__(self):
+		if not self.tag:
+			return str(self.value)
+		return """<%(tag)s%(href)s%(classes)s>%(value)s</%(tag)s>""" % (self.__dict__)
+
+
+class LearnedValue(object):
+	def __init__(self, id, spell, arg1, arg2):
+		self.args = [
+			str(HtmlValue(arg1, tag="span", classes=["learned-s1"])),
+			str(HtmlValue(arg2, tag="span", classes=["learned-s2"])),
+		]
+		self.id = id
+		self.spell = spell
+	
+	def __str__(self):
+		return ' <a href="/s/%i/" class="learned-s">&lt;%s&gt;</a>%s' % (self.id, self.spell, "".join(self.args))
+
+
 class SpellString(object):
 	def __init__(self, string):
 		self.string = string
