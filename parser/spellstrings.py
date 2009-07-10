@@ -305,8 +305,8 @@ class SpellString(object):
 	def fmt_learned(self):
 		string = self.string[self.pos:]
 		sre = sre_learned.match(string)
-		char, spell, arg1, arg2 = sre.groups()
-		spell = self.file[int(spell)]["name_enus"]
+		char, spellid, arg1, arg2 = sre.groups()
+		spell = self.file[int(spellid)]["name_enus"]
 		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
 		arg2 = SpellString(arg2).format(self.row, self.paperdoll)
 		s = LearnedValue(int(spellid), spell, arg1, arg2)
