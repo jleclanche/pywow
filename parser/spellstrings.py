@@ -34,7 +34,7 @@ sre_function = re.compile(r"(%s)\(([^,]+),([^,)]+),?([^)]?)\)" % "|".join(functi
 
 sre_boolean = re.compile(r"(%s)([^:]+):([^;]+);" % "|".join(booleans)) # g|lFirst String:Second String;
 sre_braces = re.compile(r"\{([^}]+)\}\.?(\d+)?") # ${} not supported
-sre_learned = re.compile(r"\?s(\d+)\[([^\]]*)\]\[([^\]]*)\]") # ?s59307[foo][bar]
+sre_learned = re.compile(r"\?(%s)(\d+)\[([^\]]*)\]\[([^\]]*)\]" % macros_s)
 sre_operator = re.compile(r"[*/](\d+);(\d*)(%s)([123]?)" % "|".join(macros)) # /1000;54055o2
 sre_macro = re.compile(r"(\d*)(%s)([123]?)" % "|".join(macros))
 sre_variables = re.compile(r"(%s)" % "|".join(variables))
