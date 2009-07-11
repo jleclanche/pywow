@@ -100,7 +100,9 @@ def getarglist(obj):
 
 class Duration(timedelta):
 	def __str__(self):
-		if self < timedelta(minutes=1):
+		if self == timedelta(milliseconds=0):
+			return "until cancelled"
+		elif self < timedelta(minutes=1):
 			return "%d sec" % self.seconds
 		elif self < timedelta(hours=1):
 			return "%d min" % (self.seconds / 60)
@@ -446,9 +448,10 @@ class SpellString(object):
 		"Spell duration"
 		key = self.file[spell]["duration"]
 		if key == 0:
-			return "until cancelled"
-		val = self.env["spellduration"][key][1]
-		return str(Duration(milliseconds=int(val)))
+			val = 0
+		else:
+			val = int(self.env["spellduration"][key][1])
+		return Duration(milliseconds=val)
 	
 	def macro_e(self, spell, effect):
 		"Spelleffect proc value"
