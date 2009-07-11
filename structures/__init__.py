@@ -1857,6 +1857,10 @@ class Map(DBStructure):
 	
 	def changed_10026(self, base):
 		base.delete_fields("normalreqs", "heroicreqs", "epicreqs", "normalreset", "heroicreset", "epicreset")
+	
+	def changed_10083(self, base):
+		self.changed_10026(base)
+		base.append_fields(IntegerField("playeramount"))
 
 
 class Movie(DBStructure):
