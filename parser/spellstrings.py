@@ -349,7 +349,11 @@ class SpellString(object):
 		return plural
 	
 	def assign_variable(self, var):
-		return self.paperdoll[variabledict[var]]
+		p = self.paperdoll[variabledict[var]]
+		try:
+			int(p)
+		except ValueError:
+			return var.upper()
 	
 	def function_cond(self, arg1, arg2, arg3):
 		"Return value depending on condition"
