@@ -1580,8 +1580,11 @@ class ItemExtendedCost(DBStructure):
 		IntegerField("itemamt4"),
 		IntegerField("itemamt5"),
 		IntegerField("personalratingreq"),
-		IntegerField(unused=True), # maybe pvprankreq?
+		UnknownField(unused=True), # maybe pvprankreq?
 	)
+	
+	def changed_10026(self, base):
+		base.insert_field(UnknownField(), before="item1")
 
 
 class ItemLimitCategory(DBStructure):
