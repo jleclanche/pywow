@@ -202,7 +202,7 @@ class ItemCache(DBStructure):
 	"""
 	signature = "BDIW"
 	
-	flags = ["unk1", "conjured", "openable", "unk8",
+	flags = ["unk1", "conjured", "openable", "heroic",
 		"deprecated", "totem", "unk64", "no_equip_cooldown",
 		"unk256", "wrapper", "ignore_bagspace", "group_loot",
 		"refundable", "chart", "unk16384", "unk32768",
