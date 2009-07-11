@@ -66,7 +66,7 @@ sre_function = re.compile(r"(%s)\(([^,]+),([^,)]+),?([^)]?)\)" % "|".join(functi
 
 sre_boolean = re.compile(r"(%s)([^:]+):([^;]+);" % "|".join(booleans)) # g|lFirst String:Second String;
 sre_braces = re.compile(r"\{([^}]+)\}\.?(\d+)?") # ${} not supported
-sre_learned = re.compile(r"\?(%s)(\d+)\[([^\]]*)\]\[([^\]]*)\]" % macros_s)
+sre_conditional = re.compile(r"\?(%s)(\d+)\[([^\]]*)\]\[([^\]]*)\]" % macros_s)
 sre_operator = re.compile(r"[*/](\d+);(\d*)(%s)([123]?)" % macros_s) # /1000;54055o2
 sre_macro = re.compile(r"(\d*)(%s)([123]?)" % macros_s)
 sre_variables = re.compile(r"(%s)" % variables_s)
@@ -204,7 +204,7 @@ class SpellString(object):
 		if char == "{":
 			return self.fmt_braced()
 		elif char == "?":
-			return self.fmt_learned()
+			return self.fmt_conditional()
 		elif char == "/":
 			return self.fmt_divisor()
 		elif char == "*":
@@ -310,9 +310,9 @@ class SpellString(object):
 		
 		self.appendvar(getattr(self, "function_%s" % func.lower())(arg1, arg2, arg3))
 	
-	def fmt_learned(self):
+	def fmt_conditional(self):
 		string = self.string[self.pos:]
-		sre = sre_learned.match(string)
+		sre = sre_conditional.match(string)
 		char, spellid, arg1, arg2 = sre.groups()
 		spell = self.file[int(spellid)]["name_enus"]
 		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
