@@ -51,7 +51,7 @@ variables_s = "|".join(variables)
 booleans = "gl"
 functions = ["cond", "eq", "floor", "gt", "max", "min"]
 case_insensitive(functions)
-macros = "AFMRSabderfhimnoqrstuvxz"
+macros = "ADFMRSabderfhimnoqrstuvxz"
 functions_s = "|".join(functions)
 macros_s = "|".join(macros)
 
@@ -239,6 +239,11 @@ class SpellString(object):
 			s += str(k)
 		return s
 	
+	def get_macro(self, char, spell, effect):
+		if not hasattr(self, "macro_%s" % char):
+			char = char.lower()
+		return getattr(self, "macro_%s" % char)(spell, effect)
+	
 	
 	def fmt_boolean(self):
 		string = self.string[self.pos:]
@@ -268,7 +273,7 @@ class SpellString(object):
 		if spell not in self.file:
 			self.pos += len(sre.group())
 			return self.appendvar("$%s%i" % (char, effect))
-		val = getattr(self, "macro_%s" % char)(spell, effect)
+		val = self.get_macro(char, spell, effect)
 		val = val / Decimal(amount)
 		self.pos += len(sre.group())
 		self.appendvar(val)
@@ -282,7 +287,7 @@ class SpellString(object):
 		if spell not in self.file:
 			self.pos += len(sre.group())
 			return self.appendvar("$%s%i" % (char, effect))
-		val = getattr(self, "macro_%s" % char)(spell, effect)
+		val = self.get_macro(char, spell, effect)
 		val = val * int(amount)
 		self.pos += len(sre.group())
 		self.appendvar(val)
@@ -325,7 +330,8 @@ class SpellString(object):
 		self.pos += len(sre.group())
 		if spell not in self.file:
 			return self.appendvar("$%s" % sre.group())
-		self.appendvar(getattr(self, "macro_%s" % char)(spell, effect))
+		val = self.get_macro(char, spell, effect)
+		self.appendvar(val)
 	
 	def fmt_variable(self):
 		string = self.string[self.pos:]
@@ -422,10 +428,6 @@ class SpellString(object):
 		return arg1 < arg2 and arg1 or arg2
 	
 	
-	def macro_A(self, spell, effect):
-		"TODO 49158"
-		return self.macro_a(spell, effect)
-	
 	def macro_a(self, spell, effect):
 		"Spelleffect radius"
 		key = self.file[spell]["radiuseffect%i" % effect]
@@ -453,12 +455,6 @@ class SpellString(object):
 		val = self.file[spell]["valueeffect%i" % effect]
 		self.last = val
 		return val
-	
-	def macro_F(self, spell, effect):
-		"Spelleffect finisher coefficient"
-		val = self.file[spell]["finishercoeffect%i" % effect]
-		self.last = val
-		return "%.0f" % val
 	
 	def macro_f(self, spell, effect):
 		"Spelleffect finisher coefficient"
@@ -531,19 +527,11 @@ class SpellString(object):
 		self.last = val
 		return "%.0f" % val
 	
-	def macro_S(self, spell, effect):
-		"TODO 11069"
-		return self.macro_s(spell, effect)
-	
 	def macro_s(self, spell, effect):
 		"Spelleffect damage range"
 		m = self.macro_m(spell, effect)
 		M = self.macro_M(spell, effect)
 		return Range(m, M)
-	
-	def macro_T(self, spell, effect):
-		"TODO 48391"
-		return self.macro_t(spell, effect)
 	
 	def macro_t(self, spell, effect):
 		"Spelleffect time interval"
