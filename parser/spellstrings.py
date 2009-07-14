@@ -14,7 +14,7 @@ def case_insensitive(lower):
 	lower.extend(upper)
 
 
-variabledict = {
+paperdolldict = {
 	"ap":   "ATTACK_POWER",
 	"ar":   "ARMOR",
 	"bc2":  "PERCENT_BC2",
@@ -43,10 +43,10 @@ variabledict = {
 	"spn":  "SPELL_POWER_NATURE",
 	"sps":  "SPELL_POWER_SHADOW",	
 }
-variables = variabledict.keys()
-case_insensitive(variables)
-variables.sort(key=lambda i: i + "\xff\xff\xff\xff") # pbhd needs to come before pbh, so on
-variables_s = "|".join(variables)
+paperdolls = paperdolldict.keys()
+case_insensitive(paperdolls)
+paperdolls.sort(key=lambda i: i + "\xff\xff\xff\xff") # pbhd needs to come before pbh, so on
+paperdolls_s = "|".join(paperdolls)
 
 booleans = "gl"
 functions = ["cond", "eq", "floor", "gt", "max", "min"]
@@ -69,7 +69,7 @@ sre_braces = re.compile(r"\{([^}]+)\}\.?(\d+)?") # ${} not supported
 sre_conditional = re.compile(r"\?(%s)(\d+)\[([^\]]*)\]\[([^\]]*)\]" % macros_s)
 sre_operator = re.compile(r"[*/](\d+);(\d*)(%s)([123]?)" % macros_s) # /1000;54055o2
 sre_macro = re.compile(r"(\d*)(%s)([123]?)" % macros_s)
-sre_variables = re.compile(r"(%s)" % variables_s)
+sre_paperdoll = re.compile(r"(%s)" % paperdolls_s)
 	
 
 class WSMLSyntaxError(SyntaxError):
@@ -217,17 +217,17 @@ class SpellString(object):
 			return self.checkvar()
 	
 	def checkvar(self):
-		"Checks whether value is a function, variable or macro"
+		"Checks whether value is a function, paperdoll or macro"
 		string = self.string[self.pos:]
 		
 		sre_func = re.match(functions_s, string)
 		sre_macs = re.match(macros_s, string)
-		sre_vars = re.match(variables_s, string)
+		sre_vars = re.match(paperdolls_s, string)
 		
 		if sre_func:
 			return self.fmt_function()
 		elif sre_vars:
-			return self.fmt_variable()
+			return self.fmt_paperdoll()
 		elif sre_macs:
 			return self.fmt_macro()
 #		else:
@@ -335,12 +335,12 @@ class SpellString(object):
 		val = self.get_macro(char, spell, effect)
 		self.appendvar(val)
 	
-	def fmt_variable(self):
+	def fmt_paperdoll(self):
 		string = self.string[self.pos:]
-		sre = sre_variables.match(string)
+		sre = sre_paperdoll.match(string)
 		var = sre.group(1)
 		self.pos += len(sre.group())
-		self.appendvar(self.assign_variable(var.lower()))
+		self.appendvar(self.assign_paperdoll(var.lower()))
 	
 	
 	def boolean_g(self, male, female):
@@ -356,8 +356,8 @@ class SpellString(object):
 			return singular
 		return plural
 	
-	def assign_variable(self, var):
-		p = self.paperdoll[variabledict[var]]
+	def assign_paperdoll(self, var):
+		p = self.paperdoll[paperdolldict[var]]
 		try:
 			int(p)
 		except ValueError:
