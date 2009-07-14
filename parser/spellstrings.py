@@ -4,7 +4,7 @@
 import re
 from datetime import timedelta
 from decimal import Decimal
-from math import floor
+from math import ceil, floor
 
 from .paperdoll import Paperdoll
 
@@ -49,7 +49,7 @@ paperdolls.sort(key=lambda i: i + "\xff\xff\xff\xff") # pbhd needs to come befor
 paperdolls_s = "|".join(paperdolls)
 
 booleans = "gl"
-functions = ["cond", "eq", "floor", "gt", "max", "min"]
+functions = ["ceil", "cond", "eq", "floor", "gt", "max", "min"]
 case_insensitive(functions)
 macros = "ADFMRSabderfhimnoqrstuvxz"
 functions_s = "|".join(functions)
@@ -373,6 +373,17 @@ class SpellString(object):
 			int(p)
 		except ValueError:
 			return var.upper()
+	
+	def function_floor(self, arg1, arg2=None, arg3=None):
+		"Return the ceil of a float"
+		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
+		
+		try:
+			arg1 = float(arg1)
+		except ValueError:
+			return "ceil(%s)" % (arg1)
+		
+		return ceil(arg1)
 	
 	def function_cond(self, arg1, arg2, arg3):
 		"Return value depending on condition"
