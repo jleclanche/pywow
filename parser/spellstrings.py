@@ -220,15 +220,15 @@ class SpellString(object):
 		"Checks whether value is a function, paperdoll or macro"
 		string = self.string[self.pos:]
 		
-		sre_func = re.match(functions_s, string)
-		sre_macs = re.match(macros_s, string)
-		sre_vars = re.match(paperdolls_s, string)
+		is_function = sre_function.match(string)
+		is_macro = sre_macro.match(string)
+		is_paperdoll = sre_paperdoll.match(string)
 		
-		if sre_func:
+		if is_function:
 			return self.fmt_function()
-		elif sre_vars:
+		elif is_paperdoll:
 			return self.fmt_paperdoll()
-		elif sre_macs:
+		elif is_macro:
 			return self.fmt_macro()
 #		else:
 #			raise WSMLSyntaxError
