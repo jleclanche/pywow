@@ -2219,7 +2219,7 @@ class Spell(DBStructure):
 			FloatField("coeffeffect1"),
 			FloatField("coeffeffect2"),
 			FloatField("coeffeffect3"),
-			UnknownField(),
+			ForeignKey("descriptionvars", "spelldescriptionvariables"),
 		)
 
 
@@ -2439,6 +2439,17 @@ class SpellCastTimes(DBStructure):
 		DurationField("casttime1", unit="milliseconds"),
 		IntegerField("modifier"),
 		DurationField("casttime2", unit="milliseconds"),
+	)
+
+
+class SpellDescriptionVariables(DBStructure):
+	"""
+	SpellDescriptionVariables.dbc
+	Used in spellstrings
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField(),
 	)
 
 
