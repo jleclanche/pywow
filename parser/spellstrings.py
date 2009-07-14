@@ -70,6 +70,7 @@ sre_conditional = re.compile(r"\?(%s)(\d+)\[([^\]]*)\]\[([^\]]*)\]" % macros_s)
 sre_operator = re.compile(r"[*/](\d+);(\d*)(%s)([123]?)" % macros_s) # /1000;54055o2
 sre_macro = re.compile(r"(\d*)(%s)([123]?)" % macros_s)
 sre_paperdoll = re.compile(r"(%s)" % paperdolls_s)
+sre_variable = re.compile(r"<([A-Za-z]+)>")
 	
 
 class WSMLSyntaxError(SyntaxError):
@@ -223,6 +224,7 @@ class SpellString(object):
 		is_function = sre_function.match(string)
 		is_macro = sre_macro.match(string)
 		is_paperdoll = sre_paperdoll.match(string)
+		is_variable = sre_variable.match(string)
 		
 		if is_function:
 			return self.fmt_function()
@@ -230,6 +232,8 @@ class SpellString(object):
 			return self.fmt_paperdoll()
 		elif is_macro:
 			return self.fmt_macro()
+		elif is_variable:
+			return self.fmt_variable()
 #		else:
 #			raise WSMLSyntaxError
 	
@@ -341,6 +345,13 @@ class SpellString(object):
 		var = sre.group(1)
 		self.pos += len(sre.group())
 		self.appendvar(self.assign_paperdoll(var.lower()))
+	
+	def fmt_variable(self):
+		string = self.string[self.pos:]
+		sre = sre_variable.match(string)
+		var = sre.group(1)
+		self.pos += len(sre.group())
+		self.appendvar("$"+var)
 	
 	
 	def boolean_g(self, male, female):
