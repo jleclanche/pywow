@@ -130,7 +130,7 @@ class CreatureCache(DBStructure):
 		IntegerField("model4"),
 		FloatField(),
 		FloatField(),
-		ByteField(),
+		ByteField("leader"),
 	)
 	
 	def changed_9614(self, base):
@@ -141,6 +141,13 @@ class CreatureCache(DBStructure):
 			IntegerField(),
 			IntegerField(),
 			IntegerField(),
+		)
+	
+	def changed_10072(self, base):
+		self.changed_9614(base)
+		base.append_fields(
+			UnknownField(),
+			UnknownField(),
 		)
 
 
