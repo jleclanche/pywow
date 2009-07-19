@@ -1873,6 +1873,20 @@ class Map(DBStructure):
 		base.append_fields(IntegerField("playeramount"))
 
 
+class MapDifficulty(DBStructure):
+	"""
+	MapDifficulty.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("instance", "map"),
+		IntegerField("mode"),
+		LocalizedFields("requirements"),
+		DurationField("resettime"),
+		IntegerField("raidsize"),
+		UnknownField(),
+	)
+
 class Movie(DBStructure):
 	"""
 	Movie.dbc
