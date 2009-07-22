@@ -48,7 +48,7 @@ case_insensitive(paperdolls)
 paperdolls.sort(key=lambda i: i + "\xff\xff\xff\xff") # pbhd needs to come before pbh, so on
 paperdolls_s = "|".join(paperdolls)
 
-booleans = "gl"
+booleans = "Ggl"
 functions = ["ceil", "cond", "eq", "floor", "gt", "max", "min"]
 case_insensitive(functions)
 macros = "ADFMRSabderfhimnoqrstuvxz"
@@ -353,6 +353,10 @@ class SpellString(object):
 		self.pos += len(sre.group())
 		self.appendvar("$"+var)
 	
+	
+	def boolean_G(self, male, female):
+		"Redirect to boolean_g"
+		return self.boolean_g(male, female)
 	
 	def boolean_g(self, male, female):
 		"Player gender"
