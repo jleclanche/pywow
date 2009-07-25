@@ -210,8 +210,6 @@ class SpellString(object):
 			return self.fmt_divisor()
 		elif char == "*":
 			return self.fmt_multiplicator()
-		elif char in booleans:
-			return self.fmt_boolean()
 		elif char.isdigit():
 			return self.fmt_macro()
 		else:
@@ -222,8 +220,9 @@ class SpellString(object):
 		string = self.string[self.pos:]
 		
 		is_function = sre_function.match(string)
-		is_macro = sre_macro.match(string)
 		is_paperdoll = sre_paperdoll.match(string)
+		is_macro = sre_macro.match(string)
+		is_boolean = sre_boolean.match(string)
 		is_variable = sre_variable.match(string)
 		
 		if is_function:
@@ -232,6 +231,8 @@ class SpellString(object):
 			return self.fmt_paperdoll()
 		elif is_macro:
 			return self.fmt_macro()
+		elif is_macro:
+			return self.fmt_boolean()
 		elif is_variable:
 			return self.fmt_variable()
 #		else:
