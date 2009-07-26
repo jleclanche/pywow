@@ -561,7 +561,9 @@ class SpellString(object):
 		"Spelleffect damage range"
 		m = self.macro_m(spell, effect)
 		M = self.macro_M(spell, effect)
-		return Range(m, M)
+		val = Range(m, M)
+		self.last = val
+		return val
 	
 	def macro_t(self, spell, effect):
 		"Spelleffect time interval"
