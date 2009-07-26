@@ -264,12 +264,14 @@ class SpellString(object):
 		sre = sre_braces.match(string)
 		self.pos += len(sre.group())
 		calc, decimals = sre.groups()
+		decimals = decimals and int(decimals) or 0
 		val = SpellString(calc).format(self.row, self.paperdoll)
+		format = "%%.%if" % (decimals)
 		try:
 			val = abs(eval(val))
 		except Exception:
 			val = "{%s}" % val
-		self.appendvar(str(val))
+		self.appendvar(format % val)
 	
 	def fmt_divisor(self):
 		string = self.string[self.pos:]
