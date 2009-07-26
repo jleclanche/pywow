@@ -231,7 +231,7 @@ class SpellString(object):
 			return self.fmt_paperdoll()
 		elif is_macro:
 			return self.fmt_macro()
-		elif is_macro:
+		elif is_boolean:
 			return self.fmt_boolean()
 		elif is_variable:
 			return self.fmt_variable()
