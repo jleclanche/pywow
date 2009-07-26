@@ -268,10 +268,11 @@ class SpellString(object):
 		val = SpellString(calc).format(self.row, self.paperdoll)
 		format = "%%.%if" % (decimals)
 		try:
-			val = abs(eval(val))
+			val = eval(val)
+			val = format % abs(val)
 		except Exception:
 			val = "{%s}" % val
-		self.appendvar(format % val)
+		self.appendvar(val)
 	
 	def fmt_divisor(self):
 		string = self.string[self.pos:]
