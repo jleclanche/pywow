@@ -266,7 +266,7 @@ class SpellString(object):
 		calc, decimals = sre.groups()
 		val = SpellString(calc).format(self.row, self.paperdoll)
 		try:
-			val = eval(val)
+			val = abs(eval(val))
 		except Exception:
 			val = "{%s}" % val
 		self.appendvar(str(val))
