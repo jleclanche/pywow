@@ -332,11 +332,11 @@ class SpellString(object):
 		if not sre: # FIXME 3826
 			return self.appendvar("$")
 		spell, char, effect = sre.groups()
-		spell = spell and int(spell) or self.row["_id"]
-		effect = effect and int(effect) or 1
 		self.pos += len(sre.group())
+		spell = spell and int(spell) or self.row["_id"]
 		if spell not in self.file:
-			return self.appendvar("$%s" % sre.group())
+			return self.appendvar("$" + char + effect)
+		effect = effect and int(effect) or 1
 		val = self.get_macro(char, spell, effect)
 		self.appendvar(val)
 	
