@@ -2045,6 +2045,29 @@ class SkillLine(DBStructure):
 	)
 
 
+class SkillLineAbility(DBStructure):
+	"""
+	SkillLineAbility.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("skill", "skillline"),
+		ForeignKey("spell", "spell"),
+		BitMaskField(), #racemask
+		BitMaskField(), #classmask
+		BitMaskField(), #raceexclude
+		BitMaskField(), #classexclude
+		BitMaskField("skillrankreq"),
+		ForeignKey("parent", "spell"),
+		IntegerField("skilllevelreq"),
+		IntegerField("turnsgrey"),
+		IntegerField("turnsgreen"),
+		UnknownField(),
+		UnknownField(),
+		#UnknownField(), Deleted somewhere between 4125 and 9551
+	)
+
+
 class SkillLineCategory(DBStructure):
 	"""
 	SkillLineCategory.dbc
