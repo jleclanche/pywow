@@ -2030,7 +2030,7 @@ class ServerMessages(DBStructure):
 
 class SkillLine(DBStructure):
 	"""
-	SkilLline.dbc
+	SkillLine.dbc
 	Contains all skill-related data.
 	"""
 	base = Skeleton(
@@ -2042,6 +2042,17 @@ class SkillLine(DBStructure):
 		IntegerField(),
 		LocalizedFields("action"),
 		BooleanField("tradeskill"),
+	)
+
+
+class SkillLineCategory(DBStructure):
+	"""
+	SkillLineCategory.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+		IntegerField("sort")
 	)
 
 
