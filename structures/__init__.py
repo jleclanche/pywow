@@ -2827,5 +2827,5 @@ class ZoneMusic(DBStructure):
 
 wowfiles = dict((cls.lower(), globals()[cls]) for cls in globals())
 
-def GetStructure(name, build=0):
+def getstructure(name, build=0):
 	return wowfiles[name](build)
