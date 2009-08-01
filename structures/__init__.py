@@ -2097,7 +2097,7 @@ class Spell(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField("category"),
+		ForeignKey("category", "spellcategory"),
 		IntegerField("dispeltype"),
 		IntegerField("mechanic"),
 		BitMaskField("flags1"),
