@@ -5,7 +5,7 @@ from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack
 from struct import error as structerror
 
-from .structures import GetStructure, _Generated
+from .structures import getstructure, _Generated
 from .locales import L
 
 def getfilename(val):
@@ -19,7 +19,7 @@ def getsignature(path):
 	f.close()
 	return sig
 
-caches = {
+magic = {
 	"BDIW": "itemcache",
 	"BDNW": "itemnamecache",
 	"BOMW": "creaturecache",
@@ -31,7 +31,7 @@ caches = {
 	"XTPW": "pagetextcache",
 }
 
-signatures = dict([(caches[k], k) for k in caches])
+signatures = dict([(magic[k], k) for k in magic])
 
 
 # A couple of notes on DBHeader:
@@ -119,15 +119,15 @@ class DBFile(dict):
 	writable = True
 	
 	def __init__(self, path="", build=0, name="", environment={}, mode="r"):
-		self.path = path
-		self.filename = name
-		self.structure = None
-		self.sort = []
-		self.build = build
-		self.header = DBHeader(self)
-		self.strblk = ""
-		self.environment = environment
-		self.mode = mode
+		self.path = path				# Read/Write location
+		self.filename = name			# Logical filename
+		self.structure = None			# Absolute structure
+		self.sort = []				# Row sort order
+		self.build = build			# Build number
+		self.header = DBHeader(self)		# Full header
+		self.strblk = ""				# Stringblock
+		self.environment = environment	# Full environment
+		self.mode = mode				# Mode (read/write)
 		
 		self._postinit()
 	
@@ -148,7 +148,7 @@ class DBFile(dict):
 		
 		if not self.filename:
 			if self.signature != "WDBC":
-				self.filename = caches[self.signature]
+				self.filename = magic[self.signature]
 			else:
 				self.filename = getfilename(self.path)
 		
@@ -191,7 +191,7 @@ class DBFile(dict):
 		self.parse()
 	
 	def load_structure(self, filename=None, build=None):
-		self.structure = GetStructure(filename or self.filename, build or self.build)
+		self.structure = getstructure(filename or self.filename, build or self.build)
 		self.signature = self.structure.signature
 		print L["USING_STRUCTURE"] % (self.filename, self.build)
 	
@@ -563,7 +563,7 @@ class GtDBCFile(SimpleDBCFile):
 def fopen(*pargs, **kwargs):
 	if pargs:
 		sig = getsignature(pargs[0])
-		if sig in caches:
+		if sig in magic:
 			return WDBFile(*pargs, **kwargs)
 		elif sig == "WDBC":
 			filename = "name" in kwargs and kwargs["name"] or getfilename(pargs[0]).lower()
@@ -572,7 +572,7 @@ def fopen(*pargs, **kwargs):
 			if filename == "itemsubclassmask": #TODO
 				return SimpleDBCFile(*pargs, **kwargs)
 			try:
-				GetStructure(filename)
+				getstructure(filename)
 			except KeyError:
 				return UnknownDBCFile(*pargs, **kwargs)
 			return DBCFile(*pargs, **kwargs)
@@ -585,11 +585,11 @@ def new(*pargs, **kwargs):
 		raise TypeError(L["FILENAME_NOT_SPECIFIED"])
 	name = kwargs["name"]
 	try:
-		s = GetStructure(name)
+		s = getstructure(name)
 	except KeyError:
 		raise KeyError(L["NO_STRUCTURE_FOUND"] % name)
 	
-	if s.signature in caches:
+	if s.signature in magic:
 		return WDBFile(mode="w", *pargs, **kwargs)
 	
 	return DBCFile(mode="w", *pargs, **kwargs)
