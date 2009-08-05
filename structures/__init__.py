@@ -16,6 +16,7 @@ class DBStructure(list):
 	def __init__(self, build=0):
 		self.name = type(self).__name__.lower()
 		self.pkeys = []
+		self.reclen = 0
 		names = []
 		_scheduled = []
 		def _schedule_change(col):
@@ -52,6 +53,8 @@ class DBStructure(list):
 			else:
 				if isinstance(col, IDField):
 					self.pkeys.append(col)
+				elif isinstance(col, RecLenField):
+					self.reclen = len(self) + 1
 				names.append(col.name)
 				names.count(col.name) < 2 or _schedule_change(col)
 				self.append(col)
