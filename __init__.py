@@ -118,16 +118,19 @@ class DBFile(dict):
 	"""A generic WDB or DBC file."""
 	writable = True
 	
-	def __init__(self, path="", build=0, name="", environment={}, mode="r"):
+	def __init__(self, path="", build=0, name="", environment={}, mode="r", structure=None):
 		self.path = path				# Read/Write location
 		self.filename = name			# Logical filename
-		self.structure = None			# Absolute structure
+		self.structure = structure		# Absolute structure
 		self.sort = []				# Row sort order
 		self.build = build			# Build number
 		self.header = DBHeader(self)		# Full header
 		self.strblk = ""				# Stringblock
 		self.environment = environment	# Full environment
 		self.mode = mode				# Mode (read/write)
+		
+		if hasattr(self.structure, "signature"):
+			self.signature = self.structure.signature
 		
 		self._postinit()
 	
@@ -147,7 +150,7 @@ class DBFile(dict):
 		self.signature = self.header.signature
 		
 		if not self.filename:
-			if self.signature != "WDBC":
+			if self.signature != "WDBC" and self.signature in magic:
 				self.filename = magic[self.signature]
 			else:
 				self.filename = getfilename(self.path)
@@ -169,7 +172,8 @@ class DBFile(dict):
 		elif self.mode == "w":
 			if not self.writable:
 				raise TypeError(L["FILETYPE_NOT_WRITABLE"] % self.__class__.__name__)
-			self.load_structure()
+			if not self.structure:
+				self.load_structure()
 	
 	def clear(self):
 		"Deletes every row in the file"
@@ -330,7 +334,8 @@ class DBRow(list):
 			else:
 				_data = pack("<%s" % k.char, v)
 			data.append(str(_data))
-		data[1] = pack("<i", len("".join(data[2:]))) # reclen
+		if self.structure.reclen:
+			data[self.structure.reclen-1] = pack("<i", len("".join(data[2:])))
 		data = "".join(data)
 		
 		return data
@@ -563,9 +568,7 @@ class GtDBCFile(SimpleDBCFile):
 def fopen(*pargs, **kwargs):
 	if pargs:
 		sig = getsignature(pargs[0])
-		if sig in magic:
-			return WDBFile(*pargs, **kwargs)
-		elif sig == "WDBC":
+		if sig == "WDBC":
 			filename = "name" in kwargs and kwargs["name"] or getfilename(pargs[0]).lower()
 			if filename == "itemsubclass": #TODO
 				return ComplexDBCFile(*pargs, **kwargs)
@@ -577,7 +580,7 @@ def fopen(*pargs, **kwargs):
 				return UnknownDBCFile(*pargs, **kwargs)
 			return DBCFile(*pargs, **kwargs)
 		
-		raise ValueError(L["UNREADABLE_FILE"])
+		return WDBFile(*pargs, **kwargs)
 
 
 def new(*pargs, **kwargs):
@@ -585,12 +588,12 @@ def new(*pargs, **kwargs):
 		raise TypeError(L["FILENAME_NOT_SPECIFIED"])
 	name = kwargs["name"]
 	try:
-		s = getstructure(name)
+		s = "structure" in kwargs and kwargs["structure"] or getstructure(name)
 	except KeyError:
 		raise KeyError(L["NO_STRUCTURE_FOUND"] % name)
 	
-	if s.signature in magic:
-		return WDBFile(mode="w", *pargs, **kwargs)
+	if s.signature == "WDBC":
+		return DBCFile(mode="w", *pargs, **kwargs)
 	
-	return DBCFile(mode="w", *pargs, **kwargs)
-
+	return WDBFile(mode="w", *pargs, **kwargs)
+	
