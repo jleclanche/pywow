@@ -566,21 +566,24 @@ class GtDBCFile(SimpleDBCFile):
 
 
 def fopen(*pargs, **kwargs):
-	if pargs:
-		sig = getsignature(pargs[0])
-		if sig == "WDBC":
-			filename = "name" in kwargs and kwargs["name"] or getfilename(pargs[0]).lower()
-			if filename == "itemsubclass": #TODO
-				return ComplexDBCFile(*pargs, **kwargs)
-			if filename == "itemsubclassmask": #TODO
-				return SimpleDBCFile(*pargs, **kwargs)
-			try:
-				getstructure(filename)
-			except KeyError:
-				return UnknownDBCFile(*pargs, **kwargs)
-			return DBCFile(*pargs, **kwargs)
-		
-		return WDBFile(*pargs, **kwargs)
+	try:
+		name = "name" in kwargs and kwargs["name"] or pargs[0]
+	except IndexError:
+		raise TypeError("Required argument 'name' (pos 1) not found")
+	sig = getsignature(name)
+	if sig == "WDBC":
+		filename = "name" in kwargs and kwargs["name"] or getfilename(name).lower()
+		if filename == "itemsubclass": #TODO
+			return ComplexDBCFile(*pargs, **kwargs)
+		if filename == "itemsubclassmask": #TODO
+			return SimpleDBCFile(*pargs, **kwargs)
+		try:
+			getstructure(filename)
+		except KeyError:
+			return UnknownDBCFile(*pargs, **kwargs)
+		return DBCFile(*pargs, **kwargs)
+	
+	return WDBFile(*pargs, **kwargs)
 
 
 def new(*pargs, **kwargs):
