@@ -359,6 +359,10 @@ class DBRow(list):
 	
 	def reclen(self):
 		return len(self.data())-8
+	
+	def update(self, other):
+		for k in other:
+			self[k] = other[k]
 
 
 
