@@ -2,7 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import wdbc
+import os
+import sys
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
 from xml.dom import minidom
+from optparse import OptionParser
+from sigrie.owdb.models import *
 
 SOCKETS = {
 	"Meta": 1,
@@ -63,7 +68,13 @@ STATS = {
 	"bonusSpellPower": 45,
 }
 
-class ArmoryItem(object):	
+def _getNode(tag, dom, type=str):
+	try:
+		return type(dom.getElementsByTagName(tag)[0].firstChild.data)
+	except IndexError:
+		return type()
+
+class ArmoryItem(object):
 	def __repr__(self):
 		return "<Item: %s>" % self.name
 	
@@ -85,13 +96,12 @@ class ArmoryItem(object):
 		_dura = dom.getElementsByTagName("durability")
 		_desc = [k for k in dom.childNodes if k.nodeName == "desc"]
 		if _desc:
-			self.desc = _desc[0].firstChild.data
+			self.note = _desc[0].firstChild.data
 		self.id = _getNode("id", dom, int)
 		self.name = _getNode("name", dom)
 		self.bind = _getNode("bonding", dom, int)
 		self.quality = _getNode("overallQualityId", dom, int)
 		self.durability = _dura and int(_dura[0].getAttribute("max")) or 0
-		self.speed = int(_getNode("speed", dom, float) * 1000)
 		self.unique = _getNode("maxCount", dom, int)
 		self.queststart = _getNode("startQuestId", dom, int)
 		self.block = _getNode("blockValue", dom, int)
@@ -100,9 +110,21 @@ class ArmoryItem(object):
 		self.natureresist = _getNode("natureResist", dom, int)
 		self.shadowresist = _getNode("shadowResist", dom, int)
 		self.arcaneresist = _getNode("arcaneResist", dom, int)
-#		self.note = _getNode("desc", dom)
 		self.armor = _getNode("armor", dom, int)
 		self.levelreq = _lvlreq > 0 and _lvlreq or 0
+		
+		_gemprops = _getNode("gemProperties", dom)
+		if _gemprops:
+			self.gemproperties = Enchant.objects.filter(name=_gemprops)[:1][0].id
+		
+		_spellreq = _getNode("requiredAbility", dom)
+		if _spellreq:
+			self.spellreq = Spell.objects.filter(name=_spellreq)[:1][0].id
+		
+		_skillreq = dom.getElementsByTagName("requiredSkill")
+		if _skillreq:
+			self.skillreq = Skill.objects.filter(name=_skillreq[0].getAttribute("name"))[:1][0].id
+			self.skilllevelreq = int(_skillreq[0].getAttribute("rank"))
 		
 		classes = dom.getElementsByTagName("class")
 		self.classreq = 0
@@ -127,13 +149,32 @@ class ArmoryItem(object):
 				setattr(self, "dmgmin%i" % i, _getNode("min", e, int))
 				setattr(self, "dmgmax%i" % i, _getNode("max", e, int))
 				setattr(self, "dmgtype%i" % i, _getNode("type", e, int))
+		self.speed = int(_getNode("speed", dom, float) * 1000)
 		
-		sockets = dom.getElementsByTagName("socket")
-		if sockets:
+		socketdata = dom.getElementsByTagName("socketData")
+		if socketdata:
+			sockets = dom.getElementsByTagName("socket")
 			i = 0
 			for e in sockets:
 				i+=1
 				setattr(self, "socket%i" % i, SOCKETS[e.getAttribute("color")])
+			sb = _getNode("socketMatchEnchant", dom)
+			if sb:
+				self.socketbonus = Enchant.objects.filter(name=sb)[:1][0].id
+		
+		spelldata = dom.getElementsByTagName("spellData")
+		if spelldata:
+			spells = dom.getElementsByTagName("spell")
+			i = 0
+			for e in spells:
+				i+=1
+				setattr(self, "spelltrigger%i" % i, _getNode("trigger", e, int))
+				try:
+					setattr(self, "spell%i" % i, Spell.objects.filter(spell_text=_getNode("desc", e))[:1][0].id)
+				except IndexError:
+					continue
+	
+	
 	
 	def assignTo(self, f):
 		kwargs = self.__dict__
@@ -142,13 +183,15 @@ class ArmoryItem(object):
 
 
 def main():
-	ls = listdir(sys.argv[1])
+	ls = os.listdir(sys.argv[1])
 	d = {}
 	i = 0
 	for f in ls:
 		i += 1
-		id = int(f.split("i=")[1])
-		if id < 44000: continue
+		try:
+			id = int(f.split("i=")[1])
+		except IndexError:
+			continue
 		
 		txt = minidom.parse("%s/%s" % (sys.argv[1], f))
 		
@@ -169,18 +212,18 @@ def main():
 			if elements:
 				if id not in d:
 					d[id] = ArmoryItem()
-				d[id].addData(elements[0])
-	import wdbc
+				d[id].addInfo(elements[0])
 	
-	f = wdbc.new(name="itemcache", build=9806)
+	f = wdbc.new(name="itemcache", build=10192)
 	for item in d:
 		d[item].assignTo(f)
-	f.header.wdb4 = 512
+	f.header.locale = "BGne"
+	f.header.wdb4 = 516
 	f.header.wdb5 = 5
-	f.header.version = 1
+	f.header.version = 0
 	f.update_dynfields()
 	f.update_reclens()
-	f.write("/home/adys/armory.wdb")
+	f.write("/home/adys/eu/Cache/WDB/enGB/armory.wdb")
 	
 
 if __name__ == "__main__":
