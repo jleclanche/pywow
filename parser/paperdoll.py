@@ -30,7 +30,7 @@ default = {
 	"SPELL_POWER_NATURE": "[Nature Spell Power]",
 	"SPELL_POWER_SHADOW": "[Shadow Spell Power]",
 	"SPIRIT": "[Spirit]",
-	"HOME": "[Home]",
+	"HOME": "Northshire Valley",
 	"GENDER": 1,
 }
 
