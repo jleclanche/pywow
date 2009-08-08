@@ -31,7 +31,7 @@ default = {
 	"SPELL_POWER_SHADOW": "[Shadow Spell Power]",
 	"SPIRIT": "[Spirit]",
 	"HOME": "[Home]",
-	"GENDER": "[Gender]",
+	"GENDER": 1,
 }
 
 class Paperdoll(dict):
