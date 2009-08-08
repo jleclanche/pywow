@@ -2647,6 +2647,19 @@ class Startup_Strings(DBStructure):
 	)
 
 
+class Stationery(DBStructure):
+	"""
+	Stationery.dbc
+	In-game mail background
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("item", "itemcache"),
+		StringField("name"),
+		UnknownField(),
+	)
+
+
 class TalentTab(DBStructure):
 	"""
 	TalentTab.dbc
