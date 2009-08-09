@@ -11,6 +11,7 @@ from sigrie.owdb.models import *
 
 CONJURED = 2
 UNIQUE_EQUIPPED = 524288
+ACCOUNT_BOUND = 134217728
 
 SOCKETS = {
 	"Meta": 1,
@@ -107,8 +108,8 @@ class ArmoryItem(object):
 			buy = cost.getAttribute("buyPrice")
 			self.buyprice = buy and int(buy) or 0
 		
-		disenchanting = dom.getElementsByTagName("disenchantLoot")
-		self.disenchanting = disenchanting and int(disenchanting[0].getAttribute("requiredSkillRank")) or -1
+		disenchant = dom.getElementsByTagName("disenchantLoot")
+		self.disenchant = disenchant and int(disenchant[0].getAttribute("requiredSkillRank")) or -1
 	
 	def addTooltip(self, dom):
 		_lvlreq = _getNode("requiredLevel", dom, int)
@@ -130,7 +131,8 @@ class ArmoryItem(object):
 			self.unique = int(_unique[0].firstChild.data)
 			unique_equipped = _unique[0].getAttribute("uniqueEquippable")
 			self.flags += unique_equipped and UNIQUE_EQUIPPED or 0
-		self.flags = dom.getElementsByTagName("conjured") and CONJURED or 0
+		self.flags += dom.getElementsByTagName("accountBound") and ACCOUNT_BOUND or 0
+		self.flags += dom.getElementsByTagName("conjured") and CONJURED or 0
 		self.unique = _getNode("maxCount", dom, int)
 		self.queststart = _getNode("startQuestId", dom, int)
 		self.block = _getNode("blockValue", dom, int)
@@ -151,12 +153,14 @@ class ArmoryItem(object):
 		armor = dom.getElementsByTagName("armor")
 		if armor:
 			self.armor = int(armor[0].firstChild.data)
-			armorBonus = armor[0].getAttribute("armorBonus")
-			self.armordmgmod = armorBonus and 1 or 0
+			self.armordmgmod = int(armor[0].getAttribute("armorBonus"))
 		
 		_gemprops = _getNode("gemProperties", dom)
 		if _gemprops:
-			self.gemproperties = Enchant.objects.filter(name=_gemprops)[:1][0].id
+			try:
+				self.gemproperties = Enchant.objects.filter(name=_gemprops)[:1][0].id
+			except IndexError:
+				print "Enchant not found:", repr(_gemprops)
 		
 		_spellreq = _getNode("requiredAbility", dom)
 		if _spellreq:
@@ -214,21 +218,42 @@ class ArmoryItem(object):
 				setattr(self, "socket%i" % i, SOCKETS[e.getAttribute("color")])
 			sb = _getNode("socketMatchEnchant", dom)
 			if sb:
-				self.socketbonus = Enchant.objects.filter(name=sb)[:1][0].id
+				try:
+					self.socketbonus = Enchant.objects.filter(name=sb)[:1][0].id
+				except IndexError:
+					print "Socket bonus not found:", repr(sb)
 		
 		spells = dom.getElementsByTagName("spellData")
 		if spells:
-			spells = spells[0].getElementsByTagName("spell")
 			i = 0
+			spells = spells[0]
+			createdItem = spells.getElementsByTagName("itemTooltip")
+			if createdItem:
+				createdItem = createdItem[0]
+				spells = [node for node in spells.childNodes if node.nodeName == "spell"]
+				for _i, e in enumerate(spells):
+					if createdItem.parentNode == e:
+						spells.pop(_i)
+						i += 1
+						try:
+							self.spell1 = Spell.objects.filter(created_item__name=_getNode("name", createdItem))[:1][0].id
+						except IndexError:
+							self.spell1 = 2 # dead spell
+						self.note = _getNode("desc", e)
+						self.spellcharges1 = _getNode("charges", e, int)
+						self.spelltrigger1 = 6 # learning
+						break
+			else:
+				spells = spells.getElementsByTagName("spell")
+			
 			for e in spells:
 				i+=1
 				trigger = _getNode("trigger", e, int)
 				text = _getNode("desc", e)
 				charges = _getNode("charges", e, int)
-				if charges:
-					setattr(self, "spellcharges%i", charges)
-				
+				setattr(self, "spellcharges%i", charges)
 				setattr(self, "spelltrigger%i" % i, trigger)
+				
 				if trigger == 6: # learning
 					self.note = text
 					setattr(self, "spell%i" % i, 2) # use a dead spell
@@ -241,8 +266,8 @@ class ArmoryItem(object):
 						_text = text.split("\n")[0][:-1]
 						setattr(self, "spell%i" % i, Spell.objects.filter(spell_text__istartswith=_text)[:1][0].id)
 					except IndexError:
-						print "Spell not found: %r" % text
-
+						print "Spell not found:", repr(text)
+		
 		itemset = dom.getElementsByTagName("setData")
 		if itemset:
 			itemset = _getNode("name", itemset[0])
