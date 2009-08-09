@@ -156,7 +156,10 @@ class ArmoryItem(object):
 		
 		_gemprops = _getNode("gemProperties", dom)
 		if _gemprops:
-			self.gemproperties = Enchant.objects.filter(name=_gemprops)[:1][0].id
+			try:
+				self.gemproperties = Enchant.objects.filter(name=_gemprops)[:1][0].id
+			except IndexError:
+				pass
 		
 		_spellreq = _getNode("requiredAbility", dom)
 		if _spellreq:
@@ -242,7 +245,7 @@ class ArmoryItem(object):
 						setattr(self, "spell%i" % i, Spell.objects.filter(spell_text__istartswith=_text)[:1][0].id)
 					except IndexError:
 						print "Spell not found: %r" % text
-
+		
 		itemset = dom.getElementsByTagName("setData")
 		if itemset:
 			itemset = _getNode("name", itemset[0])
