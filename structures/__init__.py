@@ -1594,7 +1594,7 @@ class ItemExtendedCost(DBStructure):
 	)
 	
 	def changed_10026(self, base):
-		base.insert_field(UnknownField(), before="item1")
+		base.insert_field(IntegerField("bracket"), before="item1")
 
 
 class ItemLimitCategory(DBStructure):
