@@ -175,6 +175,13 @@ class DBFile(dict):
 			if not self.structure:
 				self.load_structure()
 	
+	def append(self, row):
+		"Appends a row at the end of the file. Returns the new row's index."
+		l = len(self) + 1
+		self[l] = row
+		
+		return l
+	
 	def clear(self):
 		"Deletes every row in the file"
 		for k in self.keys():
