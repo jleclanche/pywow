@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import division
 import re
 from datetime import timedelta
 from decimal import Decimal
