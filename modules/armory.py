@@ -124,6 +124,7 @@ class ArmoryItem(object):
 		self.bind = _getNode("bonding", dom, int)
 		self.stack = _getNode("stackable", dom, int)
 		self.slot = _getNode("inventoryType", dom, int)
+		self.bagslots = _getNode("containerSlots", dom, int)
 		self.quality = _getNode("overallQualityId", dom, int)
 		self.durability = _dura and int(_dura[0].getAttribute("max")) or 0
 		_unique = dom.getElementsByTagName("maxCount")
@@ -300,8 +301,9 @@ def main():
 		
 		txt = minidom.parse("%s/%s" % (sys.argv[1], f))
 		
+		print "Reading %s - %i / %i" % (f, i, len(ls))
+		
 		if f.startswith("item-tooltip"):
-			print "Reading %s - %i / %i" % (f, i, len(ls))
 			elements = txt.getElementsByTagName("itemTooltip")
 			if elements:
 				for item in elements:
