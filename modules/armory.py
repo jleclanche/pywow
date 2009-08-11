@@ -161,7 +161,11 @@ class ArmoryItem(object):
 			try:
 				self.gemproperties = Enchant.objects.filter(name=_gemprops)[:1][0].id
 			except IndexError:
+<<<<<<< TREE
 				print "Enchant not found:", repr(_gemprops)
+=======
+				pass
+>>>>>>> MERGE-SOURCE
 		
 		_spellreq = _getNode("requiredAbility", dom)
 		if _spellreq:
@@ -267,7 +271,11 @@ class ArmoryItem(object):
 						_text = text.split("\n")[0][:-1]
 						setattr(self, "spell%i" % i, Spell.objects.filter(spell_text__istartswith=_text)[:1][0].id)
 					except IndexError:
+<<<<<<< TREE
 						print "Spell not found:", repr(text)
+=======
+						print "Spell not found: %r" % text
+>>>>>>> MERGE-SOURCE
 		
 		itemset = dom.getElementsByTagName("setData")
 		if itemset:
