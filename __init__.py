@@ -189,20 +189,19 @@ class DBFile(dict):
 		for k in self.keys():
 			del self[k]
 	
-	def filter(self, **kwargs):
-		if not kwargs:
-			return [self[k] for k in self]
-		
+	def filter(self, args, limit=0):
 		results = []
-		match = len(kwargs)
+		match = len(args)
 		for k in self:
 			i = 0
-			for arg in kwargs:
-				if self[k][arg] != kwargs[arg]:
+			for arg in args:
+				if self[k][arg] != args[arg]:
 					break
 				i += 1
 			if i == match:
 				results.append(k)
+				if len(results) >= limit:
+					return results
 		
 		return results
 			
