@@ -310,7 +310,7 @@ class DBRow(list):
 	
 	def __getattr__(self, attr):
 		if attr in self.structure.column_names:
-			index = self.structure.column_names.index(key)
+			index = self.structure.column_names.index(attr)
 			value = list.__getitem__(self, index)
 			return self.structure[index].new(value=value, parent=self)
 		return list.__getattr__(self, attr)
