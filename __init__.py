@@ -187,14 +187,6 @@ class DBFile(dict):
 		for k in self.keys():
 			del self[k]
 	
-	def find(self, key, col):
-		"Return a list of matches on term in col on all rows"
-		return [row for row in self if key in self[row][col]]
-	
-	def find_ext(self, key, col):
-		"Return a list of matches on term in col.getvalue() on all rows"
-		return [row for row in self if key in self[row].getvalue(col)]
-	
 	def filter(self, **kwargs):
 		if not kwargs:
 			return [self[k] for k in self]
