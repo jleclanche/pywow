@@ -194,11 +194,15 @@ class DBFile(dict):
 			return [self[k] for k in self]
 		
 		results = []
-		
+		match = len(kwargs)
 		for k in self:
+			i = 0
 			for arg in kwargs:
-				if self[k][arg] == kwargs[arg]:
-					results.append(k)
+				if self[k][arg] != kwargs[arg]:
+					break
+				i += 1
+			if i == match:
+				results.append(k)
 		
 		return results
 			
