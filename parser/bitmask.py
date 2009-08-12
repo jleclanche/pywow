@@ -20,8 +20,14 @@ class BitMask(object):
 		self.array[-len(value):] = bitarray(value)
 		self.array = self.array[::-1]
 	
+	def __int__(self):
+		return int(self.array.to01(), 2)
+	
 	def __repr__(self):
 		return self.array.__repr__()
+	
+	def __setitem__(self, key, value):
+		self.array[key] = bool(value)
 	
 	def expand(self, flags):
 		return dict(zip(flags, self.array))
