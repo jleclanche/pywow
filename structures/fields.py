@@ -22,22 +22,29 @@ class DBField(object):
 		self.dyn = dynamic
 		self.group = group
 		if "value" in kwargs:
-			self.value = kwargs["value"]
+			self.real_value = kwargs["value"]
 			self.parent = kwargs["parent"]
 			del kwargs["value"], kwargs["parent"]
 		self.kwargs = kwargs.copy()
 	
 	def __repr__(self):
-		if hasattr(self, "value"):
+		if hasattr(self, "real_value"):
 			return self.value.__repr__()
 		return "<%s: %s>" % (self.__class__.__name__, self.name)
-	
 	
 	def new(self, value, parent):
 		return self.__class__(value=value, parent=parent, name=self.name, dynamic=self.dyn, **self.kwargs)
 	
 	def to_python(self):
 		return self.value
+	
+	@property
+	def value(self):
+		return self.real_value
+	
+	@value.setter
+	def _set_value(self, value):
+		self.real_value = value
 
 
 ################
@@ -159,8 +166,8 @@ class BitMaskField(IntegerField):
 	def __init__(self, name="", flags=[], **kwargs):
 		IntegerField.__init__(self, name, flags=flags, **kwargs)
 		self.flags = flags
-		if hasattr(self, "value"):
-			self.bitmask = BitMask(self.value)
+		if hasattr(self, "real_value"):
+			self.bitmask = BitMask(self.real_value)
 	
 	def to_python(self):
 		return self.bitmask.expand(self.flags)
@@ -174,7 +181,12 @@ class BitMaskField(IntegerField):
 	
 	def set(self, key, val):
 		i = self.flags.index(key)
-		self.bitmask[i] = bool(val)
+		self.bitmask[i] = val
+		self.parent[self.name] = self.value
+	
+	@property
+	def value(self):
+		return int(self.bitmask)
 
 class BooleanField(IntegerField):
 	pass
@@ -196,8 +208,8 @@ class DurationField(IntegerField):
 		if unit not in self.units:
 			raise ValueError
 		self.unit = unit
-		if hasattr(self, "value"):
-			self.duration = self.timedelta(self.value)
+		if hasattr(self, "real_value"):
+			self.duration = self.timedelta(self.real_value)
 	
 	def timedelta(self, value):
 		return timedelta(microseconds=value*self.units[self.unit])
