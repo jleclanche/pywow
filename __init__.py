@@ -178,6 +178,8 @@ class DBFile(dict):
 	def append(self, row):
 		"Appends a row at the end of the file. Returns the new row's index."
 		l = len(self) + 1
+		if "_id" not in row:
+			row["_id"] = l
 		self[l] = row
 		
 		return l
