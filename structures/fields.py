@@ -36,7 +36,7 @@ class DBField(object):
 	def new(self, value, parent):
 		return self.__class__(value=value, parent=parent, name=self.name, dynamic=self.dyn, **self.kwargs)
 	
-	def getvalue(self):
+	def to_python(self):
 		return self.value
 
 
@@ -133,7 +133,7 @@ class ForeignKey(IntegerField):
 		IntegerField.__init__(self, name=name, relation=relation, **kwargs)
 		self.relation = relation
 	
-	def getvalue(self):
+	def to_python(self):
 		f = self.parent.parent.environment[self.relation]
 		return f[self.value]
 
@@ -151,7 +151,7 @@ class GenericForeignKey(IntegerField):
 	def get_value(self):
 		return self._get_value(self)
 	
-	def getvalue(self):
+	def to_python(self):
 		f = self.parent.parent.environment[self.get_relation()]
 		return f[self.get_value()]
 
@@ -162,7 +162,7 @@ class BitMaskField(IntegerField):
 		if hasattr(self, "value"):
 			self.bitmask = BitMask(self.value)
 	
-	def getvalue(self):
+	def to_python(self):
 		return self.bitmask.expand(self.flags)
 	
 	def explode(self):
@@ -198,7 +198,7 @@ class DurationField(IntegerField):
 	def timedelta(self, value):
 		return timedelta(microseconds=value*self.units[self.unit])
 	
-	def getvalue(self):
+	def to_python(self):
 		return self.duration
 
 class MoneyField(UnsignedIntegerField):
@@ -211,7 +211,7 @@ class FilePathField(StringField):
 	pass
 
 class SpellMacroField(StringField):
-	def getvalue(self):
+	def to_python(self):
 		val = SpellString(self.value)
 		return val.format(self.parent)
 

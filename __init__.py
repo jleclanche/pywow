@@ -373,7 +373,7 @@ class DBRow(list):
 		return dict(zip(self.structure.column_names, self))
 	
 	def getvalue(self, key, **kwargs):
-		return self.get(key).getvalue(**kwargs)
+		return self.get(key).to_python(**kwargs)
 	
 	def reclen(self):
 		return len(self.data())-8
