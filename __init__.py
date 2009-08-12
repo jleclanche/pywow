@@ -195,6 +195,20 @@ class DBFile(dict):
 		"Return a list of matches on term in col.getvalue() on all rows"
 		return [row for row in self if key in self[row].getvalue(col)]
 	
+	def filter(self, **kwargs):
+		if not kwargs:
+			return [self[k] for k in self]
+		
+		results = []
+		
+		for k in self:
+			for arg in kwargs:
+				if self[k][arg] == kwargs[arg]:
+					results.append(k)
+		
+		return results
+			
+	
 	def load(self, path=""):
 		"Load a file. If path is not given, reloads the current file."
 		path = path or self.path
