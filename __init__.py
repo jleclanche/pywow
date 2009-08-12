@@ -308,6 +308,13 @@ class DBRow(list):
 				if cursor != reclen+8:
 					print "Warning:", L["RECLEN_NOT_RESPECTED"] % (self["_id"], reclen+8, cursor, reclen+8-cursor)
 	
+	def __getattr__(self, attr):
+		if attr in self.structure.column_names:
+			index = self.structure.column_names.index(key)
+			value = list.__getitem__(self, index)
+			return self.structure[index].new(value=value, parent=self)
+		return list.__getattr__(self, attr)
+	
 	def __getitem__(self, key):
 		if isinstance(key, int): 
 			return list.__getitem__(self, key)
@@ -333,9 +340,7 @@ class DBRow(list):
 			return self.structure[key].new(value=value, parent=self)
 		else:
 			if key in self.structure.column_names:
-				index = self.structure.column_names.index(key)
-				value = list.__getitem__(self, index)
-				return self.structure[index].new(value=value, parent=self)
+				return getattr(self, key)
 			else:
 				raise KeyError(L["COLUMN_NOT_FOUND"] % key)
 	
