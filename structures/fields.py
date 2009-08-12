@@ -171,6 +171,10 @@ class BitMaskField(IntegerField):
 		except ValueError:
 			val = []
 		return val
+	
+	def set(self, key, val):
+		i = self.flags.index(key)
+		self.bitmask[i] = bool(val)
 
 class BooleanField(IntegerField):
 	pass
