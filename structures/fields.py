@@ -35,6 +35,9 @@ class DBField(object):
 	def new(self, value, parent):
 		return self.__class__(value=value, parent=parent, name=self.name, dynamic=self.dyn, **self.kwargs)
 	
+	def from_python(self, value):
+		return value
+	
 	def to_python(self):
 		return self.value
 	
@@ -168,6 +171,11 @@ class BitMaskField(IntegerField):
 		self.flags = flags
 		if hasattr(self, "real_value"):
 			self.bitmask = BitMask(self.real_value)
+	
+	def from_python(self, value):
+		if isinstance(value, dict):
+			return sum([2**(self.flags.index(i)+1) for i in value if value[i]])
+		return value
 	
 	def to_python(self):
 		return self.bitmask.expand(self.flags)
