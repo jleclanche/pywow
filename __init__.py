@@ -325,13 +325,14 @@ class DBRow(list):
 				raise KeyError(L["COLUMN_NOT_FOUND"] % repr(key))
 	
 	def __setitem__(self, key, value):
-		if isinstance(key, int): 
-			return list.__setitem__(self, key, value)
-		else:
+		if not isinstance(key, int):
 			if key in self.structure.column_names:
-				return list.__setitem__(self, self.structure.column_names.index(key), value)
+				key = self.structure.column_names.index(key)
 			else:
 				raise KeyError(L["COLUMN_NOT_FOUND"] % repr(key))
+		
+		value = self.structure[key].from_python(value)
+		return list.__setitem__(self, key, value)
 	
 	
 	def get(self, key):
