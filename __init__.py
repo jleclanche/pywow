@@ -616,8 +616,12 @@ def fopen(*pargs, **kwargs):
 
 def new(*pargs, **kwargs):
 	if not "name" in kwargs:
-		raise TypeError(L["FILENAME_NOT_SPECIFIED"])
-	name = kwargs["name"]
+		if not "structure" in kwargs:
+			raise TypeError(L["FILENAME_NOT_SPECIFIED"])
+		name = kwargs["structure"].__class__.__name__.lower()
+	else:
+		name = kwargs["name"]
+	
 	try:
 		s = "structure" in kwargs and kwargs["structure"] or getstructure(name)
 	except KeyError:
