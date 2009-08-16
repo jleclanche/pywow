@@ -21,7 +21,7 @@ class BitMask(object):
 		self.array = self.array[::-1]
 	
 	def __int__(self):
-		return int(self.array.to01(), 2)
+		return int(self.array.to01()[::-1], 2)
 	
 	def __repr__(self):
 		return self.array.__repr__()
