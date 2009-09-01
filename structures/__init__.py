@@ -4,6 +4,7 @@
 import copy
 from .fields import *
 from .common import *
+from .custom import *
 
 
 ##########
@@ -173,9 +174,9 @@ class GameObjectCache(DBStructure):
 		StringField(),
 		StringField("description"),
 		StringField(),
-		IntegerField(),
+		IntegerField("health"), # not always
 		IntegerField("action"),
-		IntegerField(),#gfk: spell, envdmg?
+		IntegerField(), # gfk: spell, envdmg?
 		BitMaskField(),
 		BitMaskField(),
 		BitMaskField(),
@@ -203,6 +204,15 @@ class GameObjectCache(DBStructure):
 		IntegerField(),
 		IntegerField(),
 	)
+	
+	def changed_10314(self, base):
+		"""
+		TODO
+		"""
+		base.append_fields(
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class ItemCache(DBStructure):
