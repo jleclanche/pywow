@@ -1983,6 +1983,17 @@ class Package(DBStructure):
 	)
 
 
+class Petloyalty(DBStructure):
+	"""
+	PetLoyalty.dbc
+	Hunter pet loyalty
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+	)
+
+
 class QuestInfo(DBStructure):
 	"""
 	QuestInfo.dbc
