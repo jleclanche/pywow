@@ -2725,6 +2725,18 @@ class TaxiNodes(DBStructure):
 		IntegerField(),
 	)
 
+class TotemCategory(DBStructure):
+	"""
+	TotemCategory.dbc
+	Item tools, totems etc
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+		IntegerField("category"),
+		BitMaskField("flags"),
+	)
+
 
 class TransportPhysics(DBStructure):
 	"""
