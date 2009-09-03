@@ -2011,6 +2011,19 @@ class PetPersonality(DBStructure):
 	)
 
 
+class Resistances(DBStructure):
+	"""
+	Resistances.dbc
+	TODO
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(), # is_armor
+		UnknownField(),
+		LocalizedFields("name"),
+	)
+
+
 class QuestInfo(DBStructure):
 	"""
 	QuestInfo.dbc
