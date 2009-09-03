@@ -1983,7 +1983,7 @@ class Package(DBStructure):
 	)
 
 
-class Petloyalty(DBStructure):
+class PetLoyalty(DBStructure):
 	"""
 	PetLoyalty.dbc
 	Hunter pet loyalty
@@ -1991,6 +1991,23 @@ class Petloyalty(DBStructure):
 	base = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
+	)
+
+
+class PetPersonality(DBStructure):
+	"""
+	PetPersonality.dbc
+	UNUSED
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
 	)
 
 
