@@ -1087,6 +1087,18 @@ class ChatChannels(DBStructure):
 	)
 
 
+class ChatProfanity(DBStructure):
+	"""
+	ChatProfanity.dbc
+	Chat filtering
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("filter"),
+		IntegerField("language"),
+	)
+
+
 class ChrClasses(DBStructure):
 	"""
 	ChrClasses.dbc
