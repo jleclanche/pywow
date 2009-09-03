@@ -1402,6 +1402,16 @@ class GlyphProperties(DBStructure):
 		IntegerField(),
 	)
 
+class GlyphSlot(DBStructure):
+	"""
+	GlyphSlot.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("type"),
+		IntegerField("ordering"),
+	)
+
 
 class HelmetGeosetVisData(DBStructure):
 	"""
