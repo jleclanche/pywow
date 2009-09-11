@@ -2054,6 +2054,11 @@ class ScalingStatValues(DBStructure):
 	base = Skeleton(
 		IDField(),
 		IntegerField("level"),
+		IntegerField("coeff1"),
+		IntegerField("coeff2"),
+		IntegerField("coeff3"),
+		IntegerField("coeff4"),
+		IntegerField("coeff1"),
 		IntegerField("resiliencerating"), # hitrating?
 		IntegerField("hitrating"), # resiliencerating?
 		IntegerField(),
@@ -2072,6 +2077,12 @@ class ScalingStatValues(DBStructure):
 		IntegerField("spellpower"), # staff of jordan
 		IntegerField(),
 	)
+	
+	def changed_10026(self, base):
+		"""
+		5 new fields
+		"""
+		pass
 
 
 class ScreenEffect(DBStructure):
