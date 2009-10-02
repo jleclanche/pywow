@@ -698,6 +698,28 @@ class QuestCache(DBStructure):
 	def changed_10026(self, base):
 		base.insert_field(ForeignKey("itemreq6", "item"), before="objectivetext1")
 		base.insert_field(IntegerField("itemamtreq6"), before="objectivetext1")
+	
+	def changed_10522(self, base):
+		self.changed_10026(base)
+		base.insert_field(UnknownField(), before="bonustalents")
+		base.insert_field(UnknownField(), before="rewarditem1")
+		base.insert_field(UnknownField(), before="rewarditem1")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(StringField("quicksummary"), before="killreq1")
 
 
 class PageTextCache(DBStructure):
@@ -2401,11 +2423,8 @@ class Spell(DBStructure):
 		)
 	
 	def changed_10522(self, base):
+		self.changed_10026(base)
 		base.append_fields(
-			FloatField(),
-			FloatField(),
-			FloatField(),
-			UnknownField(),
 			UnknownField(),
 		)
 
