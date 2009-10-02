@@ -1313,11 +1313,11 @@ class Faction(DBStructure):
 		IntegerField(), # class-friendly (DK/Mage/Druid etc)?
 		IntegerField(),
 		IntegerField(),
-		IntegerField(), # Start rep: Friendly
-		IntegerField(), # Start rep: Hostile
-		IntegerField(), # Start rep: case3
-		IntegerField(), # Start rep: case4
-		IntegerField(),
+		IntegerField("startrep1"),
+		IntegerField("startrep2"),
+		IntegerField("startrep3"),
+		IntegerField("startrep4"),
+		BitMaskField("flags"),
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
@@ -1325,6 +1325,12 @@ class Faction(DBStructure):
 		LocalizedFields("name"),
 		LocalizedFields("description"),
 	)
+	
+	def changed_10522(self, base):
+		base.insert_field(UnknownField(), before="parentfaction")
+		base.insert_field(FloatField(), before="parentfaction")
+		base.insert_field(FloatField(), before="parentfaction")
+		base.insert_field(UnknownField(), before="parentfaction")
 
 
 class FactionGroup(DBStructure):
