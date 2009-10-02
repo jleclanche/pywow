@@ -2393,6 +2393,11 @@ class Spell(DBStructure):
 			FloatField("coeffeffect3"),
 			ForeignKey("descriptionvars", "spelldescriptionvariables"),
 		)
+	
+	def changed_10522(self, base):
+		base.append_fields(
+			UnknownField(),
+		)
 
 
 # XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX
