@@ -2402,6 +2402,10 @@ class Spell(DBStructure):
 	
 	def changed_10522(self, base):
 		base.append_fields(
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			UnknownField(),
 			UnknownField(),
 		)
 
