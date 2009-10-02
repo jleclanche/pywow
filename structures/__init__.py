@@ -456,8 +456,8 @@ class ItemCache(DBStructure):
 			(IntegerField, "id"),
 			(IntegerField, "amt"),
 		), 10]), before="dmgmin1")
-		base.insert_field(BitMaskField("scalingstats", flags=STATS), before="dmgmin1")
-		base.insert_field(IntegerField("scalingflags"), before="dmgmin1")
+		base.insert_field(ForeignKey("scalingstats", "scalingstatdistribution"), before="dmgmin1")
+		base.insert_field(BitMaskField("scalingflags"), before="dmgmin1")
 	
 	def changed_8478(self, base):
 		self.changed_8268(base)
@@ -2046,6 +2046,36 @@ class QuestSort(DBStructure):
 	)
 
 
+class ScalingStatDistribution(DBStructure):
+	"""
+	ScalingStatDistribution.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("stat1"),
+		IntegerField("stat2"),
+		IntegerField("stat3"),
+		IntegerField("stat4"),
+		IntegerField("stat5"),
+		IntegerField("stat6"),
+		IntegerField("stat7"),
+		IntegerField("stat8"),
+		IntegerField("stat9"),
+		IntegerField("stat10"),
+		IntegerField("modifier1"),
+		IntegerField("modifier2"),
+		IntegerField("modifier3"),
+		IntegerField("modifier4"),
+		IntegerField("modifier5"),
+		IntegerField("modifier6"),
+		IntegerField("modifier7"),
+		IntegerField("modifier8"),
+		IntegerField("modifier9"),
+		IntegerField("modifier10"),
+		IntegerField("maxlevel"),
+	)
+
+
 class ScalingStatValues(DBStructure):
 	"""
 	ScalingStatValues.dbc
@@ -2058,24 +2088,24 @@ class ScalingStatValues(DBStructure):
 		IntegerField("coeff2"),
 		IntegerField("coeff3"),
 		IntegerField("coeff4"),
-		IntegerField("coeff1"),
-		IntegerField("resiliencerating"), # hitrating?
-		IntegerField("hitrating"), # resiliencerating?
-		IntegerField(),
-		IntegerField("manaperfive"),
-		IntegerField(),
-		IntegerField("armorcloth"),
-		IntegerField("armorleather"),
-		IntegerField("armormail"),
-		IntegerField("armorplate"),
-		IntegerField("dpsmeleeonehand"), # 44096
-		IntegerField("dpsmeleetwohand"), # reforged truesilver champ
-		IntegerField("dpscasteronehand"),
-		IntegerField("dpscastertwohand"),
-		IntegerField("dpsranged"),
-		IntegerField("attackpower"),
-		IntegerField("spellpower"), # staff of jordan
-		IntegerField(),
+		IntegerField("armormod1"),
+		IntegerField("armormod2"),
+		IntegerField("armormod3"),
+		IntegerField("armormod4"),
+		IntegerField("dpsmod1"),
+		IntegerField("dpsmod2"),
+		IntegerField("dpsmod3"),
+		IntegerField("dpsmod4"),
+		IntegerField("dpsmod5"),
+		IntegerField("dpsmod6"),
+		IntegerField("spellpower"),
+		IntegerField("coeff5"),
+		UnknownField(),
+		IntegerField("noarmor"),
+		IntegerField("cloth"),
+		IntegerField("leather"),
+		IntegerField("mail"),
+		IntegerField("plate"),
 	)
 	
 	def changed_10026(self, base):
