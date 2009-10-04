@@ -633,7 +633,7 @@ class QuestCache(DBStructure):
 		IntegerField("moneyrewardcap"),
 		ForeignKey("spellreward", "spell"),
 		ForeignKey("spelltrigger", "spell"),
-		IntegerField(), #added 3.0.8, unused apart from 200 in 13233/13234
+		IntegerField("unknown_308"), #added 3.0.8, unused apart from 200 in 13233/13234
 		ForeignKey("provideditem", "item"),
 		BitMaskField("flags", flags=flags),
 		IntegerField("titlereward"), #added 2.4
@@ -701,24 +701,24 @@ class QuestCache(DBStructure):
 	
 	def changed_10522(self, base):
 		self.changed_10026(base)
-		base.insert_field(UnknownField(), before="bonustalents")
+		base.insert_field(FloatField("honorreward"), before="provideditem")
 		base.insert_field(UnknownField(), before="rewarditem1")
-		base.insert_field(UnknownField(), before="rewarditem1")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
+		base.insert_field(IntegerField("arenareward"), before="rewarditem1")
+		base.insert_field(ForeignKey("factionreward1", "faction"), before="instance")
+		base.insert_field(ForeignKey("factionreward2", "faction"), before="instance")
+		base.insert_field(ForeignKey("factionreward3", "faction"), before="instance")
+		base.insert_field(ForeignKey("factionreward4", "faction"), before="instance")
+		base.insert_field(ForeignKey("factionreward5", "faction"), before="instance")
+		base.insert_field(IntegerField("reputationcap1"), before="instance")
+		base.insert_field(IntegerField("reputationcap2"), before="instance")
+		base.insert_field(IntegerField("reputationcap3"), before="instance")
+		base.insert_field(IntegerField("reputationcap4"), before="instance")
+		base.insert_field(IntegerField("reputationcap5"), before="instance")
+		base.insert_field(ForeignKey("reputationreward1", "faction"), before="instance")
+		base.insert_field(ForeignKey("reputationreward2", "faction"), before="instance")
+		base.insert_field(ForeignKey("reputationreward3", "faction"), before="instance")
+		base.insert_field(ForeignKey("reputationreward4", "faction"), before="instance")
+		base.insert_field(ForeignKey("reputationreward5", "faction"), before="instance")
 		base.insert_field(StringField("quicksummary"), before="killreq1")
 
 
