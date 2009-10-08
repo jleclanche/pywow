@@ -622,7 +622,7 @@ class QuestCache(DBStructure):
 		IntegerField("tag"),
 		IntegerField("level"),
 		IntegerField("category"),
-		IntegerField("type"),
+		ForeignKey("type", "questinfo"),
 		IntegerField("suggestedplayers"),
 		IntegerField("factionreq1"),
 		IntegerField("reputationreq1"),
