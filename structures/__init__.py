@@ -1939,6 +1939,10 @@ class Map(DBStructure):
 	def changed_10083(self, base):
 		self.changed_10026(base)
 		base.append_fields(IntegerField("playeramount"))
+	
+	def changed_10522(self, base):
+		self.changed_10083(base)
+		base.insert_field(UnknownField(), before="battleground")
 
 
 class MapDifficulty(DBStructure):
