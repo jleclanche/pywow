@@ -720,6 +720,11 @@ class QuestCache(DBStructure):
 		base.insert_field(ForeignKey("reputationreward4", "faction"), before="instance")
 		base.insert_field(ForeignKey("reputationreward5", "faction"), before="instance")
 		base.insert_field(StringField("quicksummary"), before="killreq1")
+	
+	def changed_10554(self, base):
+		self.changed_10522(base)
+		base.insert_field(UnknownField(), before="suggestedplayers")
+		base.insert_field(UnknownField(), before="moneyreward")
 
 
 class PageTextCache(DBStructure):
