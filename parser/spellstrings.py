@@ -261,7 +261,7 @@ class SpellString(object):
 		self.appendvar(getattr(self, "boolean_%s" % char)(arg1, arg2))
 	
 	def fmt_braced(self):
-		""""
+		"""
 		s58644:10147
 		${58644m1/-10} => -5864
 		"""
