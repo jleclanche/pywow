@@ -636,8 +636,8 @@ class QuestCache(DBStructure):
 		IntegerField("unknown_308"), #added 3.0.8, unused apart from 200 in 13233/13234
 		ForeignKey("provideditem", "item"),
 		BitMaskField("flags", flags=flags),
-		IntegerField("titlereward"), #added 2.4
-		IntegerField("opponentreq"), #added 8334
+		ForeignKey("titlereward", "chartitles"), #added 2.4
+		IntegerField("playerkillsreq"), #added 8334
 		IntegerField("bonustalents"), #added 8471
 		ForeignKey("rewarditem1", "item"),
 		IntegerField("rewarditemamt1"),
@@ -662,7 +662,7 @@ class QuestCache(DBStructure):
 		ForeignKey("instance", "map"),
 		CoordField("xcoord"),
 		CoordField("ycoord"),
-		IntegerField(),
+		UnknownField(),
 		StringField("name"),
 		StringField("objective"),
 		StringField("description"),
@@ -723,7 +723,7 @@ class QuestCache(DBStructure):
 	
 	def changed_10554(self, base):
 		self.changed_10522(base)
-		base.insert_field(UnknownField(), before="suggestedplayers")
+		base.insert_field(IntegerField("levelobtained"), before="category")
 		base.insert_field(UnknownField(), before="moneyreward")
 
 
