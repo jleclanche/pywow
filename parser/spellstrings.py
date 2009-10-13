@@ -282,6 +282,8 @@ class SpellString(object):
 	def fmt_divisor(self):
 		string = self.string[self.pos:]
 		sre = sre_operator.match(string)
+		if not sre: # 71182 @ 10571
+			return self.appendvar("$")
 		amount, spell, char, effect = sre.groups()
 		spell = spell and int(spell) or self.row["_id"]
 		effect = effect and int(effect) or 1
@@ -326,6 +328,8 @@ class SpellString(object):
 	def fmt_conditional(self):
 		string = self.string[self.pos:]
 		sre = sre_conditional.match(string)
+		if not sre:
+			raise NotImplementedError()
 		char, spellid, arg1, arg2 = sre.groups()
 		spell = self.file[int(spellid)]["name_enus"]
 		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
@@ -616,7 +620,10 @@ class SpellString(object):
 		while self.pos < len(string):
 			if string[self.pos] == "$":
 				self.pos += 1
-				self.checkfmt()
+				try:
+					self.checkfmt()
+				except NotImplementedError:
+					continue
 			else:
 				self.appendchr()
 				self.pos += 1
