@@ -2202,6 +2202,7 @@ class SkillLine(DBStructure):
 class SkillLineAbility(DBStructure):
 	"""
 	SkillLineAbility.dbc
+	turns_green is averaged with: a + (b-a)/2
 	"""
 	base = Skeleton(
 		IDField(),
@@ -2211,16 +2212,15 @@ class SkillLineAbility(DBStructure):
 		BitMaskField(), #classmask
 		BitMaskField(), #raceexclude
 		BitMaskField(), #classexclude
-		BitMaskField("skillrankreq"),
-		ForeignKey("parent", "spell"),
 		IntegerField("skilllevelreq"),
+		ForeignKey("parent", "spell"),
+		UnknownField(),
 		IntegerField("turnsgrey"),
-		IntegerField("turnsgreen"),
+		IntegerField("turnsyellow"),
 		UnknownField(),
 		UnknownField(),
 		#UnknownField(), Deleted somewhere between 4125 and 9551
 	)
-
 
 class SkillLineCategory(DBStructure):
 	"""
