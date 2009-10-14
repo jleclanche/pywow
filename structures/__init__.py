@@ -1539,7 +1539,7 @@ class Holidays(DBStructure):
 		UnknownField(),
 		ForeignKey("name", "holidaynames"),
 		ForeignKey("description", "holidaydescriptions"),
-		StringField("calendaricon"),
+		StringField("icon"),
 		UnknownField(),
 		UnknownField(),
 		UnknownField(),
