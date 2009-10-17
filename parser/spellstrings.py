@@ -67,11 +67,12 @@ sre_function = re.compile(r"(%s)\(([^,]+),([^,)]+),?([^)]?)\)" % "|".join(functi
 
 sre_boolean = re.compile(r"(%s)([^:]+):([^;]+);" % "|".join(booleans)) # g|lFirst String:Second String;
 sre_braces = re.compile(r"\{([^}]+)\}\.?(\d+)?") # ${} not supported
-sre_conditional = re.compile(r"\?(%s)(\d+)\[([^\]]*)\]\[([^\]]*)\]" % macros_s)
+sre_conditional = re.compile(r"\?(a|s)(\d+)\[([^\]]*)\]\[([^\]]*)\]")
 sre_operator = re.compile(r"[*/](\d+);(\d*)(%s)([123]?)" % macros_s) # /1000;54055o2
 sre_macro = re.compile(r"(\d*)(%s)([123]?)" % macros_s)
 sre_paperdoll = re.compile(r"(%s)" % paperdolls_s)
 sre_variable = re.compile(r"<([A-Za-z]+)>")
+sre_variable_dbc = re.compile(r"\$([A-Za-z]+)=(.+)")
 	
 
 class WSMLSyntaxError(SyntaxError):
@@ -141,7 +142,7 @@ class Range(Decimal): # used in $s
 		return Decimal.__div__(self, div)
 
 
-class HtmlValue(object):
+class HtmlValue(object): # XXX
 	def __init__(self, value, tag="a", href=None, classes=[]):
 		self.value = value
 		self.tag = tag
@@ -154,7 +155,7 @@ class HtmlValue(object):
 		return """<%(tag)s%(href)s%(classes)s>%(value)s</%(tag)s>""" % (self.__dict__)
 
 
-class LearnedValue(object):
+class LearnedValue(object): # XXX
 	def __init__(self, id, spell, arg1, arg2):
 		self.args = [
 			str(HtmlValue(arg1, tag="span", classes=["learned-s1"])),
@@ -181,6 +182,7 @@ class SpellString(object):
 		self.object = [""]
 		self.count = 0
 		self.pos = 0
+		self.variables = {}
 	
 	
 	def __str__(self):
@@ -252,6 +254,14 @@ class SpellString(object):
 			char = char.lower()
 		return getattr(self, "macro_%s" % char)(spell, effect)
 	
+	def get_variable(self, var):
+		if not self.variables:
+			defs = self.row.getvalue("descriptionvars")["variables"]
+			for _var in defs.split("\n"): # XXX splits on whitespace?
+				sre = sre_variable_dbc.search(_var)
+				k, v = sre.groups()
+				self.variables[k] = v
+		return self.variables[var]
 	
 	def fmt_boolean(self):
 		string = self.string[self.pos:]
@@ -331,11 +341,14 @@ class SpellString(object):
 		if not sre:
 			raise NotImplementedError()
 		char, spellid, arg1, arg2 = sre.groups()
+		self.pos += len(sre.group())
 		spell = self.file[int(spellid)]["name_enus"]
 		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
 		arg2 = SpellString(arg2).format(self.row, self.paperdoll)
-		s = LearnedValue(int(spellid), spell, arg1, arg2)
-		self.pos += len(sre.group())
+		if arg1.isdigit(): # XXX
+			s = arg2
+		else:
+			s = LearnedValue(int(spellid), spell, arg1, arg2)
 		self.appendvar(s)
 	
 	def fmt_macro(self):
@@ -358,13 +371,6 @@ class SpellString(object):
 		var = sre.group(1)
 		self.pos += len(sre.group())
 		self.appendvar(self.assign_paperdoll(var.lower()))
-	
-	def fmt_variable(self):
-		string = self.string[self.pos:]
-		sre = sre_variable.match(string)
-		var = sre.group(1)
-		self.pos += len(sre.group())
-		self.appendvar("$"+var)
 	
 	
 	def boolean_G(self, male, female):
@@ -613,9 +619,16 @@ class SpellString(object):
 		self.paperdoll = paperdoll
 		string = self.string
 		
-		if not string.count("$"):
+		if not string.count("$"): # No variables in the string
 			self.pos = len(string)
 			self.object[0] = string
+		else:
+			sre = sre_variable.search(string)
+			while sre:
+				var, = sre.groups()
+				string = string[:sre.start()] + self.get_variable(var) + string[sre.end():]
+				sre = sre_variable.search(string)
+			self.string = string
 		
 		while self.pos < len(string):
 			if string[self.pos] == "$":
