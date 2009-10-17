@@ -257,7 +257,7 @@ class SpellString(object):
 	def get_variable(self, var):
 		if not self.variables:
 			defs = self.row.getvalue("descriptionvars")["variables"]
-			for _var in defs.split("\n"): # XXX splits on whitespace?
+			for _var in defs.split(): # XXX splits on whitespace?
 				sre = sre_variable_dbc.search(_var)
 				k, v = sre.groups()
 				self.variables[k] = v
@@ -277,6 +277,8 @@ class SpellString(object):
 		"""
 		string = self.string[self.pos:]
 		sre = sre_braces.match(string)
+		if not sre:
+			return self.appendvar("$") # FIXME: Needs token parsing for nested {}
 		self.pos += len(sre.group())
 		calc, decimals = sre.groups()
 		decimals = decimals and int(decimals) or 0
