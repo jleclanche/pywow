@@ -782,7 +782,7 @@ class Achievement_Category(DBStructure):
 		IDField(),
 		ForeignKey("parent", "achievement_category"),
 		LocalizedFields("name"),
-		IntegerField(),
+		IntegerField("groupsort"),
 	)
 
 
@@ -2664,7 +2664,7 @@ class SpellDescriptionVariables(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		StringField(),
+		StringField("variables"),
 	)
 
 
