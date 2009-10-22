@@ -35,3 +35,19 @@ class SoldItemCache(DBStructure):
 		ForeignKey("item_cost_5", "itemcache"),
 		IntegerField("item_amount_5"),
 	)
+
+class TrainedSpellCache(DBStructure):
+	signature = "CSTW"
+	
+	base = Skeleton(
+		IDField(),
+		RecLenField(),
+		ForeignKey("trainer", "creaturecache"),
+		ForeignKey("spell", "spell"),
+		IntegerField("cost"),
+		IntegerField("required_level"),
+		ForeignKey("required_skill", "skillline"),
+		IntegerField("required_skill_level"),
+		ForeignKey("required_spell_1", "spell"),
+		ForeignKey("required_spell_2", "spell"),
+	)
