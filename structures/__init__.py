@@ -456,8 +456,8 @@ class ItemCache(DBStructure):
 			(IntegerField, "id"),
 			(IntegerField, "amt"),
 		), 10]), before="dmgmin1")
-		base.insert_field(ForeignKey("scalingstats", "scalingstatdistribution"), before="dmgmin1")
-		base.insert_field(BitMaskField("scalingflags"), before="dmgmin1")
+		base.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="dmgmin1")
+		base.insert_field(BitMaskField("scaling_flags"), before="dmgmin1")
 	
 	def changed_8478(self, base):
 		self.changed_8268(base)
@@ -810,7 +810,7 @@ class Achievement_Criteria(DBStructure):
 	)
 
 
-class AreaGroup(DBStructure):
+class AnimationData(DBStructure):
 	"""
 	AnimationData.dbc
 	Animation data
@@ -2075,7 +2075,9 @@ class QuestInfo(DBStructure):
 class QuestSort(DBStructure):
 	"""
 	QuestSort.dbc
-	Additional sort fields for quests (no zone)
+	Additional sort fields for quests
+	Note: Zones are directly gathered from AreaTable.dbc
+	linked by a negative id in questcache.wdb
 	"""
 	base = Skeleton(
 		IDField(),
@@ -2089,27 +2091,27 @@ class ScalingStatDistribution(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField("stat1"),
-		IntegerField("stat2"),
-		IntegerField("stat3"),
-		IntegerField("stat4"),
-		IntegerField("stat5"),
-		IntegerField("stat6"),
-		IntegerField("stat7"),
-		IntegerField("stat8"),
-		IntegerField("stat9"),
-		IntegerField("stat10"),
-		IntegerField("modifier1"),
-		IntegerField("modifier2"),
-		IntegerField("modifier3"),
-		IntegerField("modifier4"),
-		IntegerField("modifier5"),
-		IntegerField("modifier6"),
-		IntegerField("modifier7"),
-		IntegerField("modifier8"),
-		IntegerField("modifier9"),
-		IntegerField("modifier10"),
-		IntegerField("maxlevel"),
+		IntegerField("stat_1"),
+		IntegerField("stat_2"),
+		IntegerField("stat_3"),
+		IntegerField("stat_4"),
+		IntegerField("stat_5"),
+		IntegerField("stat_6"),
+		IntegerField("stat_7"),
+		IntegerField("stat_8"),
+		IntegerField("stat_9"),
+		IntegerField("stat_10"),
+		IntegerField("modifier_1"),
+		IntegerField("modifier_2"),
+		IntegerField("modifier_3"),
+		IntegerField("modifier_4"),
+		IntegerField("modifier_5"),
+		IntegerField("modifier_6"),
+		IntegerField("modifier_7"),
+		IntegerField("modifier_8"),
+		IntegerField("modifier_9"),
+		IntegerField("modifier_10"),
+		IntegerField("max_level"),
 	)
 
 
@@ -2121,24 +2123,24 @@ class ScalingStatValues(DBStructure):
 	base = Skeleton(
 		IDField(),
 		IntegerField("level"),
-		IntegerField("coeff1"),
-		IntegerField("coeff2"),
-		IntegerField("coeff3"),
-		IntegerField("coeff4"),
-		IntegerField("armormod1"),
-		IntegerField("armormod2"),
-		IntegerField("armormod3"),
-		IntegerField("armormod4"),
-		IntegerField("dpsmod1"),
-		IntegerField("dpsmod2"),
-		IntegerField("dpsmod3"),
-		IntegerField("dpsmod4"),
-		IntegerField("dpsmod5"),
-		IntegerField("dpsmod6"),
+		IntegerField("coefficient_1"),
+		IntegerField("coefficient_2"),
+		IntegerField("coefficient_3"),
+		IntegerField("coefficient_4"),
+		IntegerField("armor_modifier_1"),
+		IntegerField("armor_modifier_2"),
+		IntegerField("armor_modifier_3"),
+		IntegerField("armor_modifier_4"),
+		IntegerField("dps_modifier_1"),
+		IntegerField("dps_modifier_2"),
+		IntegerField("dps_modifier_3"),
+		IntegerField("dps_modifier_4"),
+		IntegerField("dps_modifier_5"),
+		IntegerField("dps_modifier_6"),
 		IntegerField("spellpower"),
-		IntegerField("coeff5"),
+		IntegerField("coefficient_5"),
 		UnknownField(),
-		IntegerField("noarmor"),
+		IntegerField("no_armor"),
 		IntegerField("cloth"),
 		IntegerField("leather"),
 		IntegerField("mail"),
