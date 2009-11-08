@@ -393,7 +393,7 @@ class ItemCache(DBStructure):
 		- New unknown IntegerField
 		"""
 		self.changed_6022(base)
-		base.insert_field(IntegerField("randomenchantment2"), before="block")
+		base.insert_field(ForeignKey("randomenchantment2", "itemrandomsuffix"), before="block")
 	
 	def changed_6577(self, base):
 		"""
@@ -2146,7 +2146,7 @@ class ScalingStatValues(DBStructure):
 		IntegerField("dps_modifier_6"),
 		IntegerField("spellpower"),
 		IntegerField("coefficient_5"),
-		UnknownField(),
+		IntegerField("coefficient_6"),
 		IntegerField("no_armor"),
 		IntegerField("cloth"),
 		IntegerField("leather"),
