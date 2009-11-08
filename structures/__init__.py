@@ -725,6 +725,13 @@ class QuestCache(DBStructure):
 		self.changed_10522(base)
 		base.insert_field(IntegerField("levelobtained"), before="category")
 		base.insert_field(UnknownField(), before="moneyreward")
+	
+	def changed_10772(self, base):
+		self.changed_10554(base)
+		base.insert_field(UnknownField(), before="killreq2")
+		base.insert_field(UnknownField(), before="killreq3")
+		base.insert_field(UnknownField(), before="killreq4")
+		base.insert_field(UnknownField(), before="itemreq1")
 
 
 class PageTextCache(DBStructure):
