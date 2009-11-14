@@ -138,6 +138,9 @@ def parse_conditional_args(string):
 	while c == " ": # ignore whitespace
 		c = string.read(1)
 	
+	if c == "$": # Weird.
+		c = string.read(1)
+	
 	if c == "?": # "elif"
 		cond_elif = parse_conditional_id(string)
 		arg_elif = parse_brackets(string)
@@ -419,7 +422,7 @@ class SpellString(object):
 		string.read(1) # "?"
 		cond_if = parse_conditional_id(string)
 		arg_if = parse_brackets(string)
-		
+		print _string
 		arg_else = parse_conditional_args(string)
 		arg_else = SpellString(arg_else).format(self.row, self.paperdoll)
 		
