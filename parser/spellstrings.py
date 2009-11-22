@@ -2,10 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import division
-import re
+
+from cStringIO import StringIO
 from datetime import timedelta
 from decimal import Decimal
 from math import ceil, floor
+
+import re
 
 from .paperdoll import Paperdoll
 
@@ -67,17 +70,27 @@ sre_function = re.compile(r"(%s)\(([^,]+),([^,)]+),?([^)]?)\)" % "|".join(functi
 
 sre_boolean = re.compile(r"(%s)([^:]+):([^;]+);" % "|".join(booleans)) # g|lFirst String:Second String;
 sre_braces = re.compile(r"\{([^}]+)\}\.?(\d+)?") # ${} not supported
-sre_conditional = re.compile(r"\?(a|s)(\d+)\[([^\]]*)\]\[([^\]]*)\]")
 sre_operator = re.compile(r"[*/](\d+);(\d*)(%s)([123]?)" % macros_s) # /1000;54055o2
 sre_macro = re.compile(r"(\d*)(%s)([123]?)" % macros_s)
 sre_paperdoll = re.compile(r"(%s)" % paperdolls_s)
-sre_variable = re.compile(r"<([A-Za-z]+)>")
-sre_variable_dbc = re.compile(r"\$([A-Za-z]+)=(.+)")
-	
+sre_variable = re.compile(r"<([A-Za-z0-9]+)>")
+sre_variable_dbc = re.compile(r"^\$([A-Za-z0-9]+)=(.+)$")
 
 class WSMLSyntaxError(SyntaxError):
 	pass
 
+
+def parse_sdv(file):
+	"Parse a SpellDescriptionVariables.dbc file, return a dict"
+	ret = {}
+	for row in file:
+		_row = {}
+		for variable in file[row]["variables"].split():
+			sre = sre_variable_dbc.search(variable)
+			k, v = sre.groups()
+			_row[k] = v
+		ret[file[row]["_id"]] = _row
+	return ret
 
 def getarglist(obj):
 	"Finds arguments given to a function"
@@ -87,9 +100,9 @@ def getarglist(obj):
 	for c in obj:
 		if c == "(":
 			parens += 1
-		if c == ")":
+		elif c == ")":
 			parens -= 1
-		if c == "," and parens == 1:
+		elif c == "," and parens == 1:
 			values.append(buffer)
 			buffer = ""
 			continue
@@ -98,8 +111,72 @@ def getarglist(obj):
 			return values
 		buffer += c
 	
-	raise WSMLSyntaxError("Expected closing ')' on string %r" % obj)
+	raise WSMLSyntaxError("Expected closing ')' on string %r" % (obj))
 
+def get_braced(string):
+	"Get calculation values from braces"
+	braces = 1
+	ret = []
+	c = string.read(1)
+	while True:
+		c = string.read(1)
+		if c == "{":
+			braces += 1
+		elif c == "}":
+			braces -= 1
+			if not braces:
+				return "".join(ret)
+		ret.append(c)
+	
+	string.seek(0)
+	raise WSMLSyntaxError("Expected closing '}' on string %r" % (string.read()))
+
+def parse_conditional_args(string):
+	"TODO make use of if/elif"
+	c = string.read(1)
+	
+	while c == " ": # ignore whitespace
+		c = string.read(1)
+	
+	if c == "$": # Weird.
+		c = string.read(1)
+	
+	if c == "?": # "elif"
+		cond_elif = parse_conditional_id(string)
+		arg_elif = parse_brackets(string)
+		return parse_conditional_args(string)
+	
+	elif c == "[":
+		arg_else = parse_brackets(string)
+		return arg_else
+	
+	raise WSMLSyntaxError("Expected opening '[' for else condition on string %r (got %r instead)" % (string.read(), c))
+
+def parse_conditional_id(string):
+	"TODO (s25306|!((!a48165)|a66109)) == s25306 or not (not a48165 or a66109)"
+	ret = []
+	c = string.read(1)
+	while c != "[":
+		ret.append(c)
+		c = string.read(1)
+	return "".join(ret)
+
+def parse_brackets(string):
+	"Get the next brackets in a StringIO"
+	brackets = 1
+	ret = []
+	while True:
+		c = string.read(1)
+		if c == "[":
+			brackets += 1
+		elif c == "]":
+			brackets -= 1
+			if not brackets:
+				return "".join(ret)
+		ret.append(c)
+	
+	string.seek(0)
+	raise WSMLSyntaxError("Expected closing ']' on string %r" % (string.read()))
 
 class Duration(timedelta):
 	def __str__(self):
@@ -168,6 +245,7 @@ class LearnedValue(object): # XXX
 		return ' <a href="/s/%i/" class="learned-s">&lt;%s&gt;</a>%s' % (self.id, self.spell, "".join(self.args))
 
 
+SPELL_DESCRIPTION_VARIABLES = {}
 class SpellString(object):
 	def __init__(self, string):
 		self.string = string
@@ -226,7 +304,6 @@ class SpellString(object):
 		is_paperdoll = sre_paperdoll.match(string)
 		is_macro = sre_macro.match(string)
 		is_boolean = sre_boolean.match(string)
-		is_variable = sre_variable.match(string)
 		
 		if is_function:
 			return self.fmt_function()
@@ -236,10 +313,6 @@ class SpellString(object):
 			return self.fmt_macro()
 		elif is_boolean:
 			return self.fmt_boolean()
-		elif is_variable:
-			return self.fmt_variable()
-#		else:
-#			raise WSMLSyntaxError
 	
 	
 	def expand(self):
@@ -255,13 +328,12 @@ class SpellString(object):
 		return getattr(self, "macro_%s" % char)(spell, effect)
 	
 	def get_variable(self, var):
-		if not self.variables:
-			defs = self.row.getvalue("descriptionvars")["variables"]
-			for _var in defs.split(): # XXX splits on whitespace?
-				sre = sre_variable_dbc.search(_var)
-				k, v = sre.groups()
-				self.variables[k] = v
-		return self.variables[var]
+		global SPELL_DESCRIPTION_VARIABLES
+		if not SPELL_DESCRIPTION_VARIABLES: # Cache the dbc
+			SPELL_DESCRIPTION_VARIABLES = parse_sdv(self.env["spelldescriptionvariables"])
+		i = self.row["descriptionvars"]
+		row = SPELL_DESCRIPTION_VARIABLES[i]
+		return row[var]
 	
 	def fmt_boolean(self):
 		string = self.string[self.pos:]
@@ -275,20 +347,27 @@ class SpellString(object):
 		s58644:10147
 		${58644m1/-10} => -5864
 		"""
-		string = self.string[self.pos:]
-		sre = sre_braces.match(string)
-		if not sre:
-			return self.appendvar("$") # FIXME: Needs token parsing for nested {}
-		self.pos += len(sre.group())
-		calc, decimals = sre.groups()
-		decimals = decimals and int(decimals) or 0
+		_string = self.string[self.pos:]
+		string = StringIO(str(_string))
+		calc = get_braced(string)
+		self.pos += string.tell()
+		if string.read(1) == ".":
+			decimals = []
+			c = string.read(1)
+			while c.isdigit():
+				decimals.append(c)
+				c = string.read(1)
+			self.pos += len(decimals) + 1 # additional dot
+			decimals = int("".join(decimals or ["0"]))
+		else:
+			decimals = 0
 		val = SpellString(calc).format(self.row, self.paperdoll)
 		format = "%%.%if" % (decimals)
 		try:
 			val = eval(val)
 			val = format % abs(val)
 		except Exception:
-			val = "{%s}" % val
+			val = str(val)
 		self.appendvar(val)
 	
 	def fmt_divisor(self):
@@ -326,7 +405,7 @@ class SpellString(object):
 		string = self.string[self.pos:]
 		if re.search(r"\$(%s)\(" % functions_s, string[2:]): # nested function call
 			func = string.split("(")[0]
-			args = getarglist(string[len(func)+1:]) #we don't want the opening (
+			args = getarglist(string[len(func)+1:]) # we don't want the opening (
 			self.pos += len("%s(%s)" % (func, ",".join(args)))
 			args.extend([None, None]) # FIXME We really shouldn't hardcode the amount of args
 			arg1, arg2, arg3 = args[:3]
@@ -335,23 +414,20 @@ class SpellString(object):
 			func, arg1, arg2, arg3 = sre.groups()
 			self.pos += len(sre.group())
 		
-		self.appendvar(getattr(self, "function_%s" % func.lower())(arg1, arg2, arg3))
+		self.appendvar(getattr(self, "function_%s" % (func.lower()))(arg1, arg2, arg3))
 	
 	def fmt_conditional(self):
-		string = self.string[self.pos:]
-		sre = sre_conditional.match(string)
-		if not sre:
-			raise NotImplementedError()
-		char, spellid, arg1, arg2 = sre.groups()
-		self.pos += len(sre.group())
-		spell = self.file[int(spellid)]["name_enus"]
-		arg1 = SpellString(arg1).format(self.row, self.paperdoll)
-		arg2 = SpellString(arg2).format(self.row, self.paperdoll)
-		if arg1.isdigit(): # XXX
-			s = arg2
-		else:
-			s = LearnedValue(int(spellid), spell, arg1, arg2)
-		self.appendvar(s)
+		_string = self.string[self.pos:]
+		string = StringIO(str(_string))
+		string.read(1) # "?"
+		cond_if = parse_conditional_id(string)
+		arg_if = parse_brackets(string)
+		print _string
+		arg_else = parse_conditional_args(string)
+		arg_else = SpellString(arg_else).format(self.row, self.paperdoll)
+		
+		self.pos += string.tell()
+		self.appendvar(arg_else)
 	
 	def fmt_macro(self):
 		string = self.string[self.pos:]
@@ -615,6 +691,7 @@ class SpellString(object):
 	
 	
 	def format(self, row, paperdoll=Paperdoll()):
+		#print "Formatting ...", self
 		self.row = row
 		self.env = self.row.parent.environment
 		self.file = self.row.parent
@@ -628,7 +705,8 @@ class SpellString(object):
 			sre = sre_variable.search(string)
 			while sre:
 				var, = sre.groups()
-				string = string[:sre.start()] + self.get_variable(var) + string[sre.end():]
+				_var = self.get_variable(var)
+				string = string[:sre.start()-1] + _var + string[sre.end():]
 				sre = sre_variable.search(string)
 			self.string = string
 		
@@ -638,7 +716,7 @@ class SpellString(object):
 				try:
 					self.checkfmt()
 				except NotImplementedError:
-					continue
+					raise
 			else:
 				self.appendchr()
 				self.pos += 1
