@@ -1355,16 +1355,16 @@ class Faction(DBStructure):
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
-		ForeignKey("parentfaction", "faction"),
+		ForeignKey("parent", "faction"),
 		LocalizedFields("name"),
 		LocalizedFields("description"),
 	)
 	
 	def changed_10522(self, base):
-		base.insert_field(UnknownField(), before="parentfaction")
-		base.insert_field(FloatField(), before="parentfaction")
-		base.insert_field(FloatField(), before="parentfaction")
-		base.insert_field(UnknownField(), before="parentfaction")
+		base.insert_field(FloatField(), before="name")
+		base.insert_field(FloatField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
 
 
 class FactionGroup(DBStructure):
