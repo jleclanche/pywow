@@ -1,12 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
 from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack
 from struct import error as structerror
 
-from .structures import getstructure, _Generated
+from .structures import _Generated, StructureError, getstructure
 from .locales import L
+from .logger import log
+
 
 def getfilename(val):
 	"Returns 'item' from /home/adys/Item.dbc"
@@ -157,14 +160,14 @@ class DBFile(dict):
 		
 		if not self.build:
 			if self.signature == "WDBC":
-				print "Warning:", L["BUILD_NOT_SET"]
+				log.warning(L["BUILD_NOT_SET"]) 
 			else:
 				self.build = self.header.build
 			
 		if not self.structure:
 			self.load_structure(self.filename, self.build)
 		
-		print L["READING_FILE"] % self.path
+		log.info(L["READING_FILE"] % self.path) 
 	
 	def _postinit(self):
 		if self.mode == "r" and self.path:
@@ -215,7 +218,7 @@ class DBFile(dict):
 	def load_structure(self, filename=None, build=None):
 		self.structure = getstructure(filename or self.filename, build or self.build)
 		self.signature = self.structure.signature
-		print L["USING_STRUCTURE"] % (self.filename, self.build)
+		log.info(L["USING_STRUCTURE"] % (self.filename, self.build))
 	
 	def merge(self, other):
 		"Merge another file into self"
@@ -239,7 +242,7 @@ class DBFile(dict):
 		f = open(filename, "w")
 		f.write(data)
 		f.close()
-		print L["WRITTEN_BYTES"] % (len(data), filename)
+		log.info(L["WRITTEN_BYTES"] % (len(data), filename))
 
 
 
@@ -261,7 +264,7 @@ class DBRow(list):
 						self[_cols.index(k)] = columns[k]
 					except ValueError:
 						pass
-						#print "Warning:", L["COLUMN_NOT_FOUND"] % k
+						#log.warning(L["COLUMN_NOT_FOUND"] % k)
 		
 		elif data:
 			dynfields = 0
@@ -306,7 +309,7 @@ class DBRow(list):
 				self.append(_data)
 			if reclen:
 				if cursor != reclen+8:
-					print "Warning:", L["RECLEN_NOT_RESPECTED"] % (self["_id"], reclen+8, cursor, reclen+8-cursor)
+					log.warning(L["RECLEN_NOT_RESPECTED"] % (self["_id"], reclen+8, cursor, reclen+8-cursor))
 	
 	def __getattr__(self, attr):
 		if attr in self.structure.column_names:
@@ -412,7 +415,7 @@ class WDBFile(DBFile):
 	def _setrow(self, data, reclen):
 		row = DBRow(self, data=data, reclen=reclen)
 		if row[0] in self:
-			print "Warning:", L["MULTIPLE_ROW_INSTANCE"] % row[0]
+			log.warning(L["MULTIPLE_ROW_INSTANCE"] % row[0])
 		self[row[0]] = row
 		self.sort.append(row[0])
 	
@@ -438,7 +441,7 @@ class WDBFile(DBFile):
 			self._setrow(data, reclen)
 		
 		f.close()
-		print L["TOTAL_ROWS"] % len(self.rows())
+		log.info(L["TOTAL_ROWS"] % len(self.rows()))
 	
 	def update_dynfields(self):
 		"Update all the dynfields in the file"
@@ -453,7 +456,6 @@ class WDBFile(DBFile):
 					elif None in values: # TODO log event
 						for col in fields:
 							if self[k][col.name] != None:
-								print 
 								self[k][col.name] = 0
 					self[k][group[0].name] += 1
 	
@@ -486,7 +488,7 @@ class DBCFile(DBFile):
 	def _setrow(self, data):
 		row = DBRow(self, data=data, reclen=self.header.reclen-8)
 		if row[0] in self:
-			print "Warning:", L["MULTIPLE_ROW_INSTANCE"] % row[0]
+			log.warning(L["MULTIPLE_ROW_INSTANCE"] % row[0])
 		self[row[0]] = row
 	
 	
@@ -505,7 +507,7 @@ class DBCFile(DBFile):
 			self._setrow(f.read(reclen))
 		
 		f.close()
-		print L["TOTAL_ROWS"] % len(self.rows())
+		log.info(L["TOTAL_ROWS"] % len(self.rows()))
 	
 	
 	def data(self):
@@ -517,7 +519,7 @@ class DBCFile(DBFile):
 	
 	
 	def _init_strblk(self):
-		print L["READING_STRINGBLOCK"] % self.path
+		log.info(L["READING_STRINGBLOCK"] % self.path)
 		f = open(self.path, "rb")
 		f.seek(-self.header.stringblocksize, 2)
 		self.strblk = f.read()
@@ -534,7 +536,7 @@ class DBCFile(DBFile):
 			try:
 				val = self.strblk[addr:addr+self.strblk[addr:addr+2048].index("\x00")]
 			except ValueError:
-				print L["SUBSTRING_NOT_FOUND"] % addr
+				log.critical(L["SUBSTRING_NOT_FOUND"] % addr)
 				raise
 		return val
 	
@@ -585,13 +587,11 @@ class UnknownDBCFile(SimpleDBCFile):
 	writable = False
 	def load_structure(self, filename=None, build=None):
 		self.structure = self._generate_structure()
-		print L["USING_GENERATED_STRUCTURE"] % (self.filename, self.build)
+		log.info(L["USING_GENERATED_STRUCTURE"] % (self.filename, self.build))
 
 
 class GtDBCFile(SimpleDBCFile):
 	pass
-
-
 
 def fopen(*pargs, **kwargs):
 	try:
@@ -605,9 +605,11 @@ def fopen(*pargs, **kwargs):
 			return ComplexDBCFile(*pargs, **kwargs)
 		if filename == "itemsubclassmask": #TODO
 			return SimpleDBCFile(*pargs, **kwargs)
+		if filename.startswith("gt"):
+			return GtDBCFile(*pargs, **kwargs)
 		try:
 			getstructure(filename)
-		except KeyError:
+		except StructureError:
 			return UnknownDBCFile(*pargs, **kwargs)
 		return DBCFile(*pargs, **kwargs)
 	
@@ -622,13 +624,9 @@ def new(*pargs, **kwargs):
 	else:
 		name = kwargs["name"]
 	
-	try:
-		s = "structure" in kwargs and kwargs["structure"] or getstructure(name)
-	except KeyError:
-		raise KeyError(L["NO_STRUCTURE_FOUND"] % name)
+	s = "structure" in kwargs and kwargs["structure"] or getstructure(name)
 	
 	if s.signature == "WDBC":
 		return DBCFile(mode="w", *pargs, **kwargs)
 	
 	return WDBFile(mode="w", *pargs, **kwargs)
-	

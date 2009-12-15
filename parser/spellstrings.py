@@ -422,7 +422,6 @@ class SpellString(object):
 		string.read(1) # "?"
 		cond_if = parse_conditional_id(string)
 		arg_if = parse_brackets(string)
-		print _string
 		arg_else = parse_conditional_args(string)
 		arg_else = SpellString(arg_else).format(self.row, self.paperdoll)
 		
@@ -691,7 +690,6 @@ class SpellString(object):
 	
 	
 	def format(self, row, paperdoll=Paperdoll()):
-		#print "Formatting ...", self
 		self.row = row
 		self.env = self.row.parent.environment
 		self.file = self.row.parent
