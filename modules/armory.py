@@ -6,12 +6,21 @@ import os
 import sys
 os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
 from xml.dom import minidom
-from optparse import OptionParser
 from sigrie.owdb.models import *
 
-CONJURED = 2
-UNIQUE_EQUIPPED = 524288
-ACCOUNT_BOUND = 134217728
+from optparse import OptionParser
+o = OptionParser()
+o.add_option("-b", "--build", type="int", dest="build")
+o.add_option("-l", "--locale", type="string", dest="locale", default="enUS")
+o.add_option("-v", "--version", type="int", dest="version", default=0)
+o.add_option("-D", "--item-dbc", type="string", dest="item_dbc", default=None)
+
+args = o.parse_args(sys.argv[3:])[0]
+
+CONJURED        = 0x00000002
+HEROIC          = 0x00000008
+UNIQUE_EQUIPPED = 0x00080000
+ACCOUNT_BOUND   = 0x08000000
 
 SOCKETS = {
 	"Meta": 1,
@@ -92,6 +101,9 @@ def _getNode(tag, dom, type=str):
 		return type()
 
 class ArmoryItem(object):
+	
+	ITEM_DBC = None
+	
 	def __repr__(self):
 		return "<Item: %s>" % self.name
 	
@@ -132,8 +144,9 @@ class ArmoryItem(object):
 			self.unique = int(_unique[0].firstChild.data)
 			unique_equipped = _unique[0].getAttribute("uniqueEquippable")
 			self.flags += unique_equipped and UNIQUE_EQUIPPED or 0
-		self.flags += dom.getElementsByTagName("accountBound") and ACCOUNT_BOUND or 0
 		self.flags += dom.getElementsByTagName("conjured") and CONJURED or 0
+		self.flags += dom.getElementsByTagName("heroic") and HEROIC or 0
+		self.flags += dom.getElementsByTagName("accountBound") and ACCOUNT_BOUND or 0
 		self.unique = _getNode("maxCount", dom, int)
 		self.queststart = _getNode("startQuestId", dom, int)
 		self.block = _getNode("blockValue", dom, int)
@@ -273,6 +286,15 @@ class ArmoryItem(object):
 		if itemset:
 			itemset = _getNode("name", itemset[0])
 			self.itemset = ItemSet.objects.filter(name=itemset)[:1][0].id
+		
+		if ArmoryItem.ITEM_DBC and self.id in ArmoryItem.ITEM_DBC:
+			item = ArmoryItem.ITEM_DBC[self.id]
+			self.category = item["category"]
+			self.subcategory = item["subcategory"]
+			self.depclass = item["depclass"]
+			self.display = item["display"]
+			self.slot = item["slot"]
+			self.sheathtype = item["sheathtype"]
 	
 	
 	def assignTo(self, f):
@@ -289,9 +311,13 @@ def main():
 		exit()
 	
 	ls = os.listdir(sys.argv[1])
-#	ls.sort()
+	ls.sort()
 	d = {}
 	i = 0
+	
+	if args.item_dbc:
+		ArmoryItem.ITEM_DBC = wdbc.fopen(args.item_dbc, build=args.build)
+	
 	for f in ls:
 		i += 1
 		try:
@@ -321,7 +347,7 @@ def main():
 					d[id] = ArmoryItem()
 				d[id].addInfo(elements[0])
 	
-	f = wdbc.new(name="itemcache", build=10192)
+	f = wdbc.new(name="itemcache", build=args.build)
 	for item in d:
 		d[item].assignTo(f)
 	f.header.locale = "BGne"
