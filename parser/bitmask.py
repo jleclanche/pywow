@@ -2,14 +2,11 @@
 # -*- coding: utf-8 -*-
 """A simple bitmask class."""
 
-from bitarray import bitarray
-
 try:
-	bin
-except NameError:
-	_bin = lambda n: n>0 and (_bin(n>>1).lstrip('0')+str(n&1)) or "0"
-	bin = lambda n: "0b%s" % _bin(n)
-
+	from bitarray import bitarray
+except ImportError:
+	raise ImportError("Please install the bitarray module:\n"
+	                  "sudo apt-get install python-bitarray")
 
 class BitMask(object):
 	def __init__(self, value):
