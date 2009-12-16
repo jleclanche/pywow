@@ -1015,7 +1015,7 @@ class ChatChannels(DBStructure):
 	base = Skeleton(
 		IDField(),
 		BitMaskField("flags"),
-		IntegerField(unused=True),
+		IntegerField(),
 		LocalizedFields("localname"),
 		LocalizedFields("name"),
 	)
@@ -1606,7 +1606,7 @@ class ItemExtendedCost(DBStructure):
 		IntegerField("itemamt4"),
 		IntegerField("itemamt5"),
 		IntegerField("personalratingreq"),
-		UnknownField(unused=True), # maybe pvprankreq?
+		UnknownField(), # maybe pvprankreq?
 	)
 
 	def changed_10026(self, base):
@@ -1667,8 +1667,8 @@ class ItemRandomProperties(DBStructure):
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
-		IntegerField(unused=True),
-		IntegerField(unused=True),
+		IntegerField(),
+		IntegerField(),
 		LocalizedFields("name"),
 	)
 
@@ -2707,7 +2707,7 @@ class SpellRadius(DBStructure):
 	base = Skeleton(
 		IDField(),
 		FloatField("minradius"),
-		IntegerField(unused=True),
+		IntegerField(),
 		FloatField("maxradius"),
 	)
 
