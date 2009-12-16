@@ -3,8 +3,8 @@
 """Database fields"""
 
 from datetime import timedelta
-from ..parser.bitmask import BitMask
 from ..parser.spellstrings import SpellString
+from ..parser.bitflags import BitFlags
 
 
 ##########
@@ -17,37 +17,27 @@ LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx",
 
 class DBField(object):
 	"""A database field."""
-	def __init__(self, name="", dynamic=0, group=None, **kwargs):
+	def __init__(self, name="", dynamic=0, group=None, dead=False):
 		self.name = name or "unknown"
 		self.dyn = dynamic
 		self.group = group
-		if "value" in kwargs:
-			self.real_value = kwargs["value"]
-			self.parent = kwargs["parent"]
-			del kwargs["value"], kwargs["parent"]
-		self.kwargs = kwargs.copy()
 	
 	def __repr__(self):
-		if hasattr(self, "real_value"):
-			return self.value.__repr__()
 		return "<%s: %s>" % (self.__class__.__name__, self.name)
-	
-	def new(self, value, parent):
-		return self.__class__(value=value, parent=parent, name=self.name, dynamic=self.dyn, **self.kwargs)
 	
 	def from_python(self, value):
 		return value
 	
-	def to_python(self):
-		return self.value
+	def to_python(self, value):
+		return value
 	
-	@property
-	def value(self):
-		return self.real_value
+	def set_value(self, value, storage):
+		""" Used in DBRow class to store raw field data in storage (DBRow._values) """
+		storage[self.name] = self.to_python(value)
 	
-	@value.setter
-	def _set_value(self, value):
-		self.real_value = value
+	def get_value(self, value, storage):
+		""" Used in DBRow class to get stored 'pythoned' field data from storage (DBRow._values) """
+		return storage[self.name]
 
 
 ################
@@ -84,8 +74,8 @@ class FloatField(DBField):
 #######################
 
 class IDField(IntegerField):
-	def __init__(self, name="_id", **kwargs):
-		IntegerField.__init__(self, name=name, **kwargs)
+	def __init__(self, name="_id"):
+		IntegerField.__init__(self, name=name)
 
 class DynamicMaster(IntegerField):
 	"""Masterfield for dynamic columns, determining how many will be present."""
@@ -100,22 +90,32 @@ class StringIDField(IDField):
 ## Dynamic types ##
 ###################
 
-class DynamicFields(list):
+class DynamicFieldsBase(list):
+	def get_fields(self):
+		return self
+
+class DynamicFields(DynamicFieldsBase):
 	"""
 	A dynamic column master, followed by the full list of dynamic columns.
 	Usage:
 	DynamicFields("name", [((Field, "x"), (Field, "y"), ...), 10])
 	"""
 	
-	def __init__(self, name, columns, **kwargs):
+	def __init__(self, name, columns):
 		self.name = name
 		self.master = DynamicMaster(name, group=self)
 		self.append(self.master)
 		cols, amt = columns
-		for i in range(amt):
-			self.append([v[0](name="%s_%s_dyn%i" % (name, v[1], i+1), dynamic=i+1, group=self, **kwargs) for v in cols])
+		for i in xrange(amt):
+			self.append([v[0](name="%s_%s_dyn%i" % (name, v[1], i+1), dynamic=i+1, group=self) for v in cols])
+			
+	def get_fields(self):
+		yield self.master
+		for v in self[1:]:
+			for f in v:
+				yield f
 
-class LocalizedFields(list):
+class LocalizedFields(DynamicFieldsBase):
 	"""
 	Localized StringField.
 	16 StringField, 1 BitMaskField
@@ -126,7 +126,18 @@ class LocalizedFields(list):
 		for loc in locales:
 			self.append(field_type(name="%s_%s" % (name, loc), group=self, **kwargs))
 		
-		self.append(BitMaskField("%s_locflags" % name, group=self))
+		self.append(BitMaskField("%s_locflags" % name, group=self, **kwargs))
+		
+class ListField(DynamicFieldsBase):
+	"""
+	Helpful on unknown fields
+	"""
+	
+	def __init__(self, name, length, field_type=IntegerField, **kwargs):
+		self.name = name
+		for i in xrange(length):
+			self.append(field_type(name="%s_%d" % (name, i), group=self, **kwargs))
+		
 
 
 ##################
@@ -134,67 +145,100 @@ class LocalizedFields(list):
 ##################
 
 class RecLenField(IntegerField):
-	def __init__(self, name="_reclen", **kwargs):
-		IntegerField.__init__(self, name=name, **kwargs)
+	def __init__(self, name="_reclen"):
+		IntegerField.__init__(self, name=name)
+		
+class UnresolvedObjectRef(int):
+	def __repr__(self):
+		return "<%s: %d>" % (self.__class__.__name__, int(self))
 
-class ForeignKey(IntegerField):
+class UnresolvedRelation(Exception):
+	pass
+		
+class ForeignKeyBase(IntegerField):
+	
+	def from_python(self, value):
+		if isinstance(value, int):
+			return value
+		if not value.structure.pkeys:
+			raise Exception("Relation target has no primary key") # TODO: return row index ?
+		pkey = value.structure.pkeys[0] # TODO: what about multiple pkeys ?
+		index = value.structure.index(pkey.name)
+		return value[index]
+	
+	def to_python(self, value):
+		if isinstance(value, int):
+			env = self.parent.parent.environment
+			rel = self.get_relation(value)
+			try:
+				f = env[rel]
+			except KeyError:
+				raise UnresolvedRelation("Relation for %s not exist" % rel)  # TODO: auto-load from master storage ..
+			rel_key = self.get_rel_key(value)
+			return f[rel_key]	
+		return value
+	
+	def get_value(self, value, storage):
+		value = storage[self.name]
+		if isinstance(value, UnresolvedObjectRef):
+			# try resolve relation again
+			try:
+				value = self.to_python(value)
+				storage[self.name] = value
+			except UnresolvedRelation:
+				pass
+		return value
+	
+	def set_value(self, value, storage):
+		try:
+			storage[self.name] = self.to_python(value)
+		except UnresolvedRelation:
+			storage[self.name] = UnresolvedObjectRef(value)
+		
+
+class ForeignKey(ForeignKeyBase):
 	"""Integer link to another table's primary key. Relation required."""
 	def __init__(self, name, relation, **kwargs):
-		IntegerField.__init__(self, name=name, relation=relation, **kwargs)
+		IntegerField.__init__(self, name, **kwargs)
 		self.relation = relation
+		
+	def get_relation(self, value):
+		return self.relation
 	
-	def to_python(self):
-		f = self.parent.parent.environment[self.relation]
-		return f[self.value]
+	def get_rel_key(self, value):
+		return value
+	
 
-class GenericForeignKey(IntegerField):
-	def __init__(self, name="", get_relation=None, get_value=lambda x: x.value, **kwargs):
-		IntegerField.__init__(self, name, get_relation=get_relation, get_value=get_value, **kwargs)
+
+class GenericForeignKey(ForeignKeyBase):
+	def __init__(self, name="", get_relation=None, get_value=lambda x, value: x.value):
+		IntegerField.__init__(self, name)
 		if not callable(get_relation):
 			raise TypeError
 		self._get_relation = get_relation
 		self._get_value = get_value
 	
-	def get_relation(self):
-		return self._get_relation(self)
+	def get_relation(self, value):
+		return self._get_relation(self, value)
 	
-	def get_value(self):
-		return self._get_value(self)
-	
-	def to_python(self):
-		f = self.parent.parent.environment[self.get_relation()]
-		return f[self.get_value()]
+	def get_rel_key(self, value):
+		return self._get_value(self, value)
 
 class BitMaskField(IntegerField):
+	
 	def __init__(self, name="", flags=[], **kwargs):
-		IntegerField.__init__(self, name, flags=flags, **kwargs)
+		IntegerField.__init__(self, name, **kwargs)
 		self.flags = flags
-		if hasattr(self, "real_value"):
-			self.bitmask = BitMask(self.real_value)
 	
 	def from_python(self, value):
-		if isinstance(value, dict):
-			return sum([2**(self.flags.index(i)+1) for i in value if value[i]])
-		return value
+		assert isinstance(value, BitFlags)
+		return int(value)
 	
-	def to_python(self):
-		return self.bitmask.expand(self.flags)
+	def to_python(self, value):
+		if isinstance(value, BitFlags):
+			return value
+		return BitFlags(value, self.flags)
 	
-	def explode(self):
-		try:
-			val = self.bitmask.explode()
-		except ValueError:
-			val = []
-		return val
-	
-	def set(self, key, val):
-		i = self.flags.index(key)
-		self.bitmask[i] = val
-		self.parent[self.name] = self.value
-	
-	@property
-	def value(self):
-		return int(self.bitmask)
 
 class BooleanField(IntegerField):
 	pass
@@ -212,18 +256,16 @@ class DurationField(IntegerField):
 		"microseconds": 1,
 	}
 	def __init__(self, name="", unit="seconds", **kwargs):
-		IntegerField.__init__(self, name, unit=unit, **kwargs)
+		IntegerField.__init__(self, name, **kwargs)
 		if unit not in self.units:
 			raise ValueError
 		self.unit = unit
-		if hasattr(self, "real_value"):
-			self.duration = self.timedelta(self.real_value)
 	
 	def timedelta(self, value):
 		return timedelta(microseconds=value*self.units[self.unit])
 	
-	def to_python(self):
-		return self.duration
+	def to_python(self, value):
+		return self.timedelta(value)
 
 class MoneyField(UnsignedIntegerField):
 	pass
@@ -235,11 +277,30 @@ class FilePathField(StringField):
 	pass
 
 class SpellMacroField(StringField):
-	def to_python(self):
-		val = SpellString(self.value)
+	def to_python(self, value):
+		val = SpellString(value)
 		return val.format(self.parent)
 
 class CoordField(FloatField):
 	"""X/Y/Z coordinate field (floating point)"""
 	pass
 
+
+def get_field_by_char(char):
+	"""
+	TODO: optimize, wtire like StructureLoader
+	"""
+	_globals = globals()
+	for name in _globals:
+		cls = _globals[name]
+		try:
+			if not issubclass(cls, DBField):
+				continue
+		except TypeError:
+			continue
+		
+		if not hasattr(cls, 'char'):
+			continue
+		
+		if cls.char == char:
+			return cls
