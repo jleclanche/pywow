@@ -18,15 +18,16 @@ class StructureLoader():
 			cls.wowfiles = {}
 			for name in globals():
 				try:
-					issubclass(globals()[name], DBStructure)
+					if not issubclass(globals()[name], DBStructure):
+						continue
 				except TypeError:
 					continue
 				cls.wowfiles[name.lower()] = globals()[name]
 			
 	@classmethod
-	def getstructure(cls, name, build=0):
+	def getstructure(cls, name, build=0, parent=None):
 		if name in cls.wowfiles:
-			return cls.wowfiles[name](build)
+			return cls.wowfiles[name](build, parent)
 		raise StructureError(L["NO_STRUCTURE_FOUND"] % name)
 
 StructureLoader.setup()
