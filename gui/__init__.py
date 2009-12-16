@@ -3,6 +3,7 @@
 
 import operator
 import os
+import signal
 import sys
 
 from PyQt4 import QtCore, QtGui
@@ -20,6 +21,7 @@ headerdata = f.structure.column_names
 
 
 def main():
+	signal.signal(signal.SIGINT, signal.SIG_DFL)
 	app = QtGui.QApplication(sys.argv)
 	w = MainWindow()
 	w.show()
