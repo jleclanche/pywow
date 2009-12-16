@@ -161,7 +161,7 @@ class ItemCache(DBStructure):
 		IntegerField("skilllevelreq"),
 		ForeignKey("spellreq", "spell"),
 		IntegerField("pvprankreq"),
-		IntegerField("pvpmedalreq", unused=True),
+		IntegerField("pvpmedalreq"),
 		ForeignKey("factionreq", "faction"),
 		IntegerField("reputationreq"),
 		IntegerField("unique"),
@@ -512,8 +512,8 @@ class QuestCache(DBStructure):
 		"unk256", "unk512", "flagger", "unk2048",
 		"daily", "flags_pvp", "unk16384"]
 
-	get_kill_relation = lambda x: x.value == x.value & 0x7fffffff and "creaturecache" or "gameobjectcache"
-	get_kill_value = lambda x: x.value & 0x7fffffff
+	get_kill_relation = lambda x, value: value == value & 0x7fffffff and "creaturecache" or "gameobjectcache"
+	get_kill_value = lambda x, value: value & 0x7fffffff
 
 	base = Skeleton(
 		IDField(),
@@ -778,7 +778,7 @@ class AreaPOI(DBStructure):
 		LocalizedFields("name"),
 		LocalizedFields("description"),
 		IntegerField(),
-		IntegerField(unused=True),
+		IntegerField(),
 	)
 
 
@@ -802,12 +802,12 @@ class AreaTable(DBStructure):
 		LocalizedFields("name"),
 		IntegerField(),
 		IntegerField(),
-		IntegerField(unused=True),
-		IntegerField(unused=True),
+		IntegerField(),
+		IntegerField(),
 		IntegerField(),
 		FloatField(),
 		FloatField(),
-		IntegerField(unused=True),
+		IntegerField(),
 	)
 
 
@@ -877,7 +877,7 @@ class BarberShopStyle(DBStructure):
 		IDField(),
 		IntegerField(),
 		LocalizedFields("name"),
-		LocalizedFields("unknown", unused=True),
+		LocalizedFields("unknown"),
 		FloatField(), #scale?
 		IntegerField(),
 		IntegerField(), #gender?
@@ -897,9 +897,9 @@ class BattlemasterList(DBStructure):
 		ForeignKey("joinmap3", "map"),
 		ForeignKey("joinmap4", "map"),
 		ForeignKey("joinmap5", "map"),
-		ForeignKey("joinmap6", "map", unused=True),
-		ForeignKey("joinmap7", "map", unused=True),
-		ForeignKey("joinmap8", "map", unused=True),
+		ForeignKey("joinmap6", "map"),
+		ForeignKey("joinmap7", "map"),
+		ForeignKey("joinmap8", "map"),
 		IntegerField("instancetype"), # 3 for bg, 4 for arena
 		IntegerField("levelreq"),
 		IntegerField("levelmax"),
@@ -1692,13 +1692,13 @@ class ItemSet(DBStructure):
 		ForeignKey("item8", "itemtextcache"),
 		ForeignKey("item9", "itemtextcache"),
 		ForeignKey("item10", "itemtextcache"),
-		ForeignKey("item11", "itemtextcache", unused=True),
-		ForeignKey("item12", "itemtextcache", unused=True),
-		ForeignKey("item13", "itemtextcache", unused=True),
-		ForeignKey("item14", "itemtextcache", unused=True),
-		ForeignKey("item15", "itemtextcache", unused=True),
-		ForeignKey("item16", "itemtextcache", unused=True),
-		ForeignKey("item17", "itemtextcache", unused=True),
+		ForeignKey("item11", "itemtextcache"),
+		ForeignKey("item12", "itemtextcache"),
+		ForeignKey("item13", "itemtextcache"),
+		ForeignKey("item14", "itemtextcache"),
+		ForeignKey("item15", "itemtextcache"),
+		ForeignKey("item16", "itemtextcache"),
+		ForeignKey("item17", "itemtextcache"),
 		ForeignKey("bonus1", "spell"),
 		ForeignKey("bonus2", "spell"),
 		ForeignKey("bonus3", "spell"),
@@ -2769,6 +2769,36 @@ class Stationery(DBStructure):
 		UnknownField(),
 	)
 
+class Talent(DBStructure):
+	"""
+	Talent.dbc		
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey('tab', 'talenttab'),
+		UnsignedIntegerField('row'),
+		UnsignedIntegerField('col'),
+		#UnsignedIntegerField('rankid1'),
+		#UnsignedIntegerField('rankid2'),
+		#UnsignedIntegerField('rankid3'),
+		#UnsignedIntegerField('rankid4'),
+		#UnsignedIntegerField('rankid5'),
+		ListField('rankid', length=5),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnsignedIntegerField('depends_on'),
+		UnknownField(),
+		UnknownField(),
+		UnsignedIntegerField('depends_on_rank'),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
 
 class TalentTab(DBStructure):
 	"""
@@ -2782,7 +2812,7 @@ class TalentTab(DBStructure):
 		IntegerField("spellicon"),
 		BitMaskField("classmask"),
 		IntegerField("petmask"), #petflags?
-		IntegerField("index"),
+		IntegerField("tabpage"),
 		StringField("internalname"),
 	)
 
