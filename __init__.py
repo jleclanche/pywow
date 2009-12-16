@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
+import os
 from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack
 from struct import error as structerror
@@ -178,6 +178,7 @@ class DBFile(dict):
 			if not self.structure:
 				self.load_structure()
 	
+	
 	def append(self, row):
 		"Appends a row at the end of the file. Returns the new row's index."
 		l = len(self) + 1
@@ -207,7 +208,9 @@ class DBFile(dict):
 					return results
 		
 		return results
-			
+	
+	def parse(self):
+		raise NotImplementedError
 	
 	def load(self, path=""):
 		"Load a file. If path is not given, reloads the current file."
@@ -216,7 +219,7 @@ class DBFile(dict):
 		self.parse()
 	
 	def load_structure(self, filename=None, build=None):
-		self.structure = getstructure(filename or self.filename, build or self.build)
+		self.structure = getstructure(filename or self.filename, build or self.build, parent=self)
 		self.signature = self.structure.signature
 		log.info(L["USING_STRUCTURE"] % (self.filename, self.build))
 	
@@ -237,19 +240,23 @@ class DBFile(dict):
 	
 	def write(self, filename=""):
 		"Write the cache to disk, defaulting filename to original file"
-		filename = filename or self.path or "/dev/null"
+		filename = filename or self.path or os.devnull
 		data = self.data()
 		f = open(filename, "w")
 		f.write(data)
 		f.close()
 		log.info(L["WRITTEN_BYTES"] % (len(data), filename))
 
-
-
 class DBRow(list):
-	"""A database row."""
+	"""
+	A database row.
+	Names of the variables of that class should not be used in field names of structures
+	"""
+	initialized = False
+	
 	def __init__(self, parent, data=None, columns=None, reclen=0):
-		self.parent = parent
+		self._parent = parent 
+		self._values = {} # Columns values storage
 		self.structure = parent.structure
 		
 		if columns:
@@ -263,8 +270,7 @@ class DBRow(list):
 					try:
 						self[_cols.index(k)] = columns[k]
 					except ValueError:
-						pass
-						#log.warning(L["COLUMN_NOT_FOUND"] % k)
+						log.warning(L["COLUMN_NOT_FOUND"] % k)
 		
 		elif data:
 			dynfields = 0
@@ -306,50 +312,60 @@ class DBRow(list):
 					except structerror:
 						_data = None # There is no data left in the row, we set it to None
 					cursor += 4
-				self.append(_data)
+				self._add_data(_data, col)
 			if reclen:
 				if cursor != reclen+8:
 					log.warning(L["RECLEN_NOT_RESPECTED"] % (self["_id"], reclen+8, cursor, reclen+8-cursor))
+		self.initialized = True
+		
+	def save(self):
+		for name in self._values:
+			index = self.structure.index(name)
+			col = self.structure[index]
+			self[index] = col.from_python(self._values[name])
+		
+	def _add_data(self, value, col):
+		""" Adds data and then fills in the field "_values" appropriate value """
+		self.append(value)
+		col.set_value(value, self._values)
 	
 	def __getattr__(self, attr):
-		if attr in self.structure.column_names:
-			index = self.structure.column_names.index(attr)
-			value = list.__getitem__(self, index)
-			return self.structure[index].new(value=value, parent=self)
-		return list.__getattr__(self, attr)
+		if self.initialized and self.structure.has_column(attr):
+			index = self.structure.index(attr)
+			col = self.structure[index]
+			raw_value = self[index]
+			return col.get_value(raw_value, self._values)
+		return list.__getattribute__(self, attr)
 	
-	def __getitem__(self, key):
-		if isinstance(key, int): 
-			return list.__getitem__(self, key)
-		else:
-			if key in self.structure.column_names:
-				return list.__getitem__(self, self.structure.column_names.index(key))
-			else:
-				raise KeyError(L["COLUMN_NOT_FOUND"] % repr(key))
-	
-	def __setitem__(self, key, value):
-		if not isinstance(key, int):
-			if key in self.structure.column_names:
-				key = self.structure.column_names.index(key)
-			else:
-				raise KeyError(L["COLUMN_NOT_FOUND"] % repr(key))
+	def __setattr__(self, attr, value):
+		"""
+		Do not preserve the value in dbrow!
+		Use the save method to save.
+		"""
+		if self.initialized and self.structure.has_column(attr):
+			col = self.structure.get_column(attr)	
+			col.set_value(value, self._values)
+		list.__setattr__(self, attr, value)
 		
-		value = self.structure[key].from_python(value)
-		return list.__setitem__(self, key, value)
+	def __setitem__(self, index, value):
+		if not isinstance(index, int):
+			raise TypeError
+		list.__setitem(index, value)
+		col = self.structure[index]
+		self._values[col.name] = col.to_python(value)
 	
+	def __dir__(self):
+		result = self.__dict__.keys()
+		result.extend(self.structure.column_names)
+		return result
 	
-	def get(self, key):
-		if isinstance(key, int):
-			value = list.__getitem__(self, key)
-			return self.structure[key].new(value=value, parent=self)
-		else:
-			if key in self.structure.column_names:
-				return getattr(self, key)
-			else:
-				raise KeyError(L["COLUMN_NOT_FOUND"] % key)
+	# introspection support:
+	__members__ = property(lambda self: self.__dir__())
+	
 	
 	def data(self):
 		"Convert the column list into a byte stream"
+		self.save()
 		data = []
 		for k, v in zip(self.structure, self):
 			if v == None:
@@ -370,6 +386,7 @@ class DBRow(list):
 	def default(self):
 		"Default all the columns out"
 		del self[:]
+		self._values = {}
 		for col in self.structure:
 			char = col.char
 			if col.dyn: self.append(None)
@@ -381,8 +398,8 @@ class DBRow(list):
 		"Return a dict of the row as colname: value"
 		return dict(zip(self.structure.column_names, self))
 	
-	def getvalue(self, key, **kwargs):
-		return self.get(key).to_python(**kwargs)
+	def getvalue(self, key):
+		return getattr(self, key)
 	
 	def reclen(self):
 		return len(self.data())-8
@@ -390,7 +407,7 @@ class DBRow(list):
 	def update(self, other):
 		for k in other:
 			self[k] = other[k]
-
+		
 
 
 # WDB class
@@ -419,6 +436,7 @@ class WDBFile(DBFile):
 		self[row[0]] = row
 		self.sort.append(row[0])
 	
+	
 	def data(self):
 		"Convert the data dict into a byte stream"
 		header = self.header.data()
@@ -445,7 +463,8 @@ class WDBFile(DBFile):
 	
 	def update_dynfields(self):
 		"Update all the dynfields in the file"
-		dyns = [k for k in self.structure.columns if k.__class__.__name__ == "DynamicFields"]
+		from .structures.fields import DynamicFields
+		dyns = [k for k in self.structure.columns if isinstance(k, DynamicFields)]
 		for k in self:
 			for group in dyns:
 				self[k][group[0].name] = 0 # set master to 0
@@ -491,6 +510,36 @@ class DBCFile(DBFile):
 			log.warning(L["MULTIPLE_ROW_INSTANCE"] % row[0])
 		self[row[0]] = row
 	
+	def _init_strblk(self):
+		log.info(L["READING_STRINGBLOCK"] % self.path)
+		f = open(self.path, "rb")
+		f.seek(-self.header.stringblocksize, 2)
+		self.strblk = f.read()
+		f.close()
+	
+	def _getstring(self, addr):
+		"Return a string, given a pointer in the blockstring"
+		if not self.strblk:
+			self._init_strblk()
+		try:
+			val = self.strblk[addr:addr+self.strblk[addr:addr+1024].index("\x00")]
+		except ValueError:
+			try:
+				val = self.strblk[addr:addr+self.strblk[addr:addr+2048].index("\x00")]
+			except ValueError:
+				log.critical(L["SUBSTRING_NOT_FOUND"] % addr)
+				raise
+		return val
+	
+	def _generate_structure(self):
+		"Generates a structure based on header data"
+		# TODO
+		if self.header.fieldamount * 4 == self.header.reclen:
+			structure_string = "i" * self.header.fieldamount
+		else:
+			raise NotImplementedError
+		return _Generated(structure_string)
+
 	
 	def parse(self):
 		"Parse a dbc file and build dict out of it"
@@ -516,40 +565,6 @@ class DBCFile(DBFile):
 		data = "".join([self[k].data() for k in self])
 		eof = "\x00" * 8
 		return header+data+eof
-	
-	
-	def _init_strblk(self):
-		log.info(L["READING_STRINGBLOCK"] % self.path)
-		f = open(self.path, "rb")
-		f.seek(-self.header.stringblocksize, 2)
-		self.strblk = f.read()
-		f.close()
-	
-	
-	def _getstring(self, addr):
-		"Return a string, given a pointer in the blockstring"
-		if not self.strblk:
-			self._init_strblk()
-		try:
-			val = self.strblk[addr:addr+self.strblk[addr:addr+1024].index("\x00")]
-		except ValueError:
-			try:
-				val = self.strblk[addr:addr+self.strblk[addr:addr+2048].index("\x00")]
-			except ValueError:
-				log.critical(L["SUBSTRING_NOT_FOUND"] % addr)
-				raise
-		return val
-	
-	
-	def _generate_structure(self):
-		"Generates a structure based on header data"
-		# TODO
-		if self.header.fieldamount * 4 == self.header.reclen:
-			structure_string = "i" * self.header.fieldamount
-		else:
-			raise NotImplementedError
-		return _Generated(structure_string)
-
 
 
 class SimpleDBCFile(DBCFile):
@@ -560,7 +575,6 @@ class SimpleDBCFile(DBCFile):
 	def _setrow(self, data):
 		row = DBRow(self, data=data)
 		self[len(self)+1] = row
-
 
 
 class ComplexDBCFile(DBCFile):
@@ -592,6 +606,7 @@ class UnknownDBCFile(SimpleDBCFile):
 
 class GtDBCFile(SimpleDBCFile):
 	pass
+
 
 def fopen(*pargs, **kwargs):
 	try:
