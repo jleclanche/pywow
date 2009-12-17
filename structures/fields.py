@@ -161,7 +161,7 @@ class ForeignKeyBase(IntegerField):
 		if isinstance(value, int):
 			return value
 		if not value.structure.pkeys:
-			raise Exception("Relation target has no primary key") # TODO: return row index ?
+			raise ValueError("Relation target has no primary key") # TODO: return row index ?
 		pkey = value.structure.pkeys[0] # TODO: what about multiple pkeys ?
 		index = value.structure.index(pkey.name)
 		return value[index]
@@ -173,7 +173,7 @@ class ForeignKeyBase(IntegerField):
 			try:
 				f = env[rel]
 			except KeyError:
-				raise UnresolvedRelation("Relation for %s not exist" % rel)  # TODO: auto-load from master storage ..
+				raise UnresolvedRelation("Relation for %r does not exist" % (rel))  # TODO: auto-load from master storage ..
 			rel_key = self.get_rel_key(value)
 			return f[rel_key]	
 		return value
