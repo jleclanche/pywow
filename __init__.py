@@ -257,6 +257,7 @@ class DBRow(list):
 	def __init__(self, parent, data=None, columns=None, reclen=0):
 		self._parent = parent 
 		self._values = {} # Columns values storage
+		self._postload = [] # temporarily store col/val for _add_data once the column is loaded
 		self.structure = parent.structure
 		
 		if columns:
@@ -308,7 +309,7 @@ class DBRow(list):
 				
 				else:
 					try:
-						_data = unpack("<%s" % char, data[cursor:cursor+4])[0]
+						_data = unpack("<%s" % (char), data[cursor:cursor+4])[0]
 					except structerror:
 						_data = None # There is no data left in the row, we set it to None
 					cursor += 4
@@ -316,8 +317,15 @@ class DBRow(list):
 			if reclen:
 				if cursor != reclen+8:
 					log.warning(L["RECLEN_NOT_RESPECTED"] % (self._id, reclen+8, cursor, reclen+8-cursor))
-		self.initialized = True
 		
+		for k in self._postload:
+			k[1].set_value(k[0], self._values, row=self)
+		del self._postload
+		self.initialized = True
+	
+	def __int__(self):
+		return self._id
+	
 	def save(self):
 		for name in self._values:
 			index = self.structure.index(name)
@@ -327,7 +335,7 @@ class DBRow(list):
 	def _add_data(self, value, col):
 		""" Adds data and then fills in the field "_values" appropriate value """
 		self.append(value)
-		col.set_value(value, self._values)
+		self._postload.append((value, col))
 	
 	def __getattr__(self, attr):
 		if self.initialized:
@@ -335,11 +343,14 @@ class DBRow(list):
 				index = self.structure.index(attr)
 				col = self.structure[index]
 				raw_value = self[index]
-				return col.get_value(raw_value, self._values)
+				try:
+					return col.get_value(raw_value, self._values, self)
+				except KeyError: # We attempted to load a missing fkey, or 0
+					return None
 		else:
 			index = self.structure.index(attr)
 			if index != -1:
-				log.warning("Row not initialized yet, returning raw value.")
+				#log.warning("Row not initialized yet, returning raw value.")
 				col = self.structure[index]
 				raw_value = self[index]
 				return raw_value
@@ -348,12 +359,12 @@ class DBRow(list):
 	
 	def __setattr__(self, attr, value):
 		"""
-		Do not preserve the value in dbrow!
+		Do not preserve the value in DBRow!
 		Use the save method to save.
 		"""
 		if self.initialized and self.structure.has_column(attr):
-			col = self.structure.get_column(attr)	
-			col.set_value(value, self._values)
+			col = self.structure.get_column(attr)
+			col.set_value(value, self._values, row=self)
 		list.__setattr__(self, attr, value)
 		
 	def __setitem__(self, index, value):
@@ -361,7 +372,7 @@ class DBRow(list):
 			raise TypeError
 		list.__setitem(index, value)
 		col = self.structure[index]
-		self._values[col.name] = col.to_python(value)
+		self._values[col.name] = col.to_python(value, row=row)
 	
 	def __dir__(self):
 		result = self.__dict__.keys()

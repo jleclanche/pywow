@@ -25,17 +25,20 @@ class DBField(object):
 	def __repr__(self):
 		return "<%s: %s>" % (self.__class__.__name__, self.name)
 	
+	def __str__(self):
+		return self.name
+	
 	def from_python(self, value):
 		return value
 	
-	def to_python(self, value):
+	def to_python(self, value, row):
 		return value
 	
-	def set_value(self, value, storage):
+	def set_value(self, value, storage, row):
 		""" Used in DBRow class to store raw field data in storage (DBRow._values) """
-		storage[self.name] = self.to_python(value)
+		storage[self.name] = self.to_python(value, row=row)
 	
-	def get_value(self, value, storage):
+	def get_value(self, value, storage, row):
 		""" Used in DBRow class to get stored 'pythoned' field data from storage (DBRow._values) """
 		return storage[self.name]
 
@@ -166,32 +169,32 @@ class ForeignKeyBase(IntegerField):
 		index = value.structure.index(pkey.name)
 		return value[index]
 	
-	def to_python(self, value):
+	def to_python(self, value, row):
 		if isinstance(value, int):
 			env = self.parent.parent.environment
 			rel = self.get_relation(value)
 			try:
 				f = env[rel]
+				rel_key = self.get_rel_key(value)
+				return f[rel_key]
 			except KeyError:
 				raise UnresolvedRelation("Relation for %r does not exist" % (rel))  # TODO: auto-load from master storage ..
-			rel_key = self.get_rel_key(value)
-			return f[rel_key]	
 		return value
 	
-	def get_value(self, value, storage):
+	def get_value(self, value, storage, row):
 		value = storage[self.name]
 		if isinstance(value, UnresolvedObjectRef):
 			# try resolve relation again
 			try:
-				value = self.to_python(value)
+				value = self.to_python(value, row)
 				storage[self.name] = value
 			except UnresolvedRelation:
 				pass
 		return value
 	
-	def set_value(self, value, storage):
+	def set_value(self, value, storage, row):
 		try:
-			storage[self.name] = self.to_python(value)
+			storage[self.name] = self.to_python(value, row=row)
 		except UnresolvedRelation:
 			storage[self.name] = UnresolvedObjectRef(value)
 		
@@ -211,7 +214,7 @@ class ForeignKey(ForeignKeyBase):
 
 
 class GenericForeignKey(ForeignKeyBase):
-	def __init__(self, name="", get_relation=None, get_value=lambda x, value: x.value):
+	def __init__ (self, name="", get_relation=None, get_value=lambda x, value: value):
 		IntegerField.__init__(self, name)
 		if not callable(get_relation):
 			raise TypeError
@@ -224,17 +227,17 @@ class GenericForeignKey(ForeignKeyBase):
 	def get_rel_key(self, value):
 		return self._get_value(self, value)
 
-class BitMaskField(IntegerField):
-	
+class BitMaskField(UnsignedIntegerField):
+	""" Integer field containing a bitmask """
 	def __init__(self, name="", flags=[], **kwargs):
-		IntegerField.__init__(self, name, **kwargs)
+		UnsignedIntegerField.__init__(self, name, **kwargs)
 		self.flags = flags
 	
 	def from_python(self, value):
 		assert isinstance(value, BitFlags)
 		return int(value)
 	
-	def to_python(self, value):
+	def to_python(self, value, row):
 		if isinstance(value, BitFlags):
 			return value
 		return BitFlags(value, self.flags)
@@ -262,9 +265,9 @@ class DurationField(IntegerField):
 		self.unit = unit
 	
 	def timedelta(self, value):
-		return timedelta(microseconds=value*self.units[self.unit])
+		return timedelta(microseconds=value * self.units[self.unit])
 	
-	def to_python(self, value):
+	def to_python(self, value, row):
 		return self.timedelta(value)
 
 class MoneyField(UnsignedIntegerField):
@@ -277,9 +280,9 @@ class FilePathField(StringField):
 	pass
 
 class SpellMacroField(StringField):
-	def to_python(self, value):
+	def to_python(self, value, row):
 		val = SpellString(value)
-		return val.format(self.parent)
+		return val.format(row)
 
 class CoordField(FloatField):
 	"""X/Y/Z coordinate field (floating point)"""
