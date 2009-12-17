@@ -523,22 +523,22 @@ class QuestCache(DBStructure):
 		IntegerField("level"),
 		IntegerField("category"),
 		ForeignKey("type", "questinfo"),
-		IntegerField("suggestedplayers"),
+		IntegerField("suggested_players"),
 		IntegerField("factionreq1"),
 		IntegerField("reputationreq1"),
 		IntegerField("factionreq2"),
 		IntegerField("reputationreq2"),
 		IntegerField("followup"),
-		IntegerField("moneyreward"),
-		IntegerField("moneyrewardcap"),
-		ForeignKey("spellreward", "spell"),
-		ForeignKey("spelltrigger", "spell"),
+		IntegerField("money_reward"),
+		IntegerField("money_reward_cap"),
+		ForeignKey("spell_reward", "spell"),
+		ForeignKey("spell_trigger", "spell"),
 		IntegerField("unknown_308"), #added 3.0.8, unused apart from 200 in 13233/13234
-		ForeignKey("provideditem", "item"),
+		ForeignKey("provided_item", "item"),
 		BitMaskField("flags", flags=flags),
-		ForeignKey("titlereward", "chartitles"), #added 2.4
-		IntegerField("playerkillsreq"), #added 8334
-		IntegerField("bonustalents"), #added 8471
+		ForeignKey("title_reward", "chartitles"), #added 2.4
+		IntegerField("required_player_kills"), #added 8334
+		IntegerField("bonus_talents"), #added 8471
 		ForeignKey("rewarditem1", "item"),
 		IntegerField("rewarditemamt1"),
 		ForeignKey("rewarditem2", "item"),
@@ -601,7 +601,7 @@ class QuestCache(DBStructure):
 
 	def changed_10522(self, base):
 		self.changed_10026(base)
-		base.insert_field(FloatField("honorreward"), before="provideditem")
+		base.insert_field(FloatField("honor_reward"), before="provided_item")
 		base.insert_field(UnknownField(), before="rewarditem1")
 		base.insert_field(IntegerField("arenareward"), before="rewarditem1")
 		base.insert_field(ForeignKey("factionreward1", "faction"), before="instance")
@@ -619,12 +619,12 @@ class QuestCache(DBStructure):
 		base.insert_field(IntegerField("reputationcap3"), before="instance")
 		base.insert_field(IntegerField("reputationcap4"), before="instance")
 		base.insert_field(IntegerField("reputationcap5"), before="instance")
-		base.insert_field(StringField("quicksummary"), before="killreq1")
+		base.insert_field(StringField("quick_summary"), before="killreq1")
 
 	def changed_10554(self, base):
 		self.changed_10522(base)
-		base.insert_field(IntegerField("levelobtained"), before="category")
-		base.insert_field(UnknownField(), before="moneyreward")
+		base.insert_field(IntegerField("level_obtained"), before="category")
+		base.insert_field(UnknownField(), before="money_reward")
 
 	def changed_10772(self, base):
 		self.changed_10554(base)
@@ -1255,16 +1255,16 @@ class Faction(DBStructure):
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
-		ForeignKey("parentfaction", "faction"),
+		ForeignKey("parent_faction", "faction"),
 		LocalizedFields("name"),
 		LocalizedFields("description"),
 	)
 
 	def changed_10522(self, base):
-		base.insert_field(UnknownField(), before="parentfaction")
-		base.insert_field(FloatField(), before="parentfaction")
-		base.insert_field(FloatField(), before="parentfaction")
-		base.insert_field(UnknownField(), before="parentfaction")
+		base.insert_field(UnknownField(), before="parent_faction")
+		base.insert_field(FloatField(), before="parent_faction")
+		base.insert_field(FloatField(), before="parent_faction")
+		base.insert_field(UnknownField(), before="parent_faction")
 
 
 class FactionGroup(DBStructure):
@@ -1275,7 +1275,7 @@ class FactionGroup(DBStructure):
 	base = Skeleton(
 		IDField(),
 		IntegerField(),
-		StringField("internalname"),
+		StringField("internal_name"),
 		LocalizedFields("name"),
 	)
 
@@ -2165,11 +2165,11 @@ class SkillLineAbility(DBStructure):
 		BitMaskField(), #classmask
 		BitMaskField(), #raceexclude
 		BitMaskField(), #classexclude
-		IntegerField("skilllevelreq"),
+		IntegerField("required_skill_level"),
 		ForeignKey("parent", "spell"),
 		UnknownField(),
-		IntegerField("turnsgrey"),
-		IntegerField("turnsyellow"),
+		IntegerField("turns_grey"),
+		IntegerField("turns_yellow"),
 		UnknownField(),
 		UnknownField(),
 		#UnknownField(), Deleted somewhere between 4125 and 9551
