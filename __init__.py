@@ -315,7 +315,7 @@ class DBRow(list):
 				self._add_data(_data, col)
 			if reclen:
 				if cursor != reclen+8:
-					log.warning(L["RECLEN_NOT_RESPECTED"] % (self["_id"], reclen+8, cursor, reclen+8-cursor))
+					log.warning(L["RECLEN_NOT_RESPECTED"] % (self._id, reclen+8, cursor, reclen+8-cursor))
 		self.initialized = True
 		
 	def save(self):
@@ -330,11 +330,20 @@ class DBRow(list):
 		col.set_value(value, self._values)
 	
 	def __getattr__(self, attr):
-		if self.initialized and self.structure.has_column(attr):
+		if self.initialized:
+			if self.structure.has_column(attr):
+				index = self.structure.index(attr)
+				col = self.structure[index]
+				raw_value = self[index]
+				return col.get_value(raw_value, self._values)
+		else:
 			index = self.structure.index(attr)
-			col = self.structure[index]
-			raw_value = self[index]
-			return col.get_value(raw_value, self._values)
+			if index != -1:
+				log.warning("Row not initialized yet, returning raw value.")
+				col = self.structure[index]
+				raw_value = self[index]
+				return raw_value
+		
 		return list.__getattribute__(self, attr)
 	
 	def __setattr__(self, attr, value):
