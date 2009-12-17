@@ -150,23 +150,23 @@ class ItemCache(DBStructure):
 		ForeignKey("display", "itemdisplayinfo"),
 		IntegerField("quality"),
 		BitMaskField("flags", flags=flags),
-		MoneyField("buyprice"),
-		MoneyField("sellprice"),
+		MoneyField("buy_price"),
+		MoneyField("sell_price"),
 		IntegerField("slot"),
-		BitMaskField("classreq", flags=classes),
-		BitMaskField("racereq", flags=races),
+		BitMaskField("class_mask", flags=classes),
+		BitMaskField("race_mask", flags=races),
 		IntegerField("level"),
-		IntegerField("levelreq"),
-		ForeignKey("skillreq", "skillline"),
-		IntegerField("skilllevelreq"),
-		ForeignKey("spellreq", "spell"),
+		IntegerField("required_level"),
+		ForeignKey("required_skill", "skillline"),
+		IntegerField("required_skill_level"),
+		ForeignKey("required_spell", "spell"),
 		IntegerField("pvprankreq"),
 		IntegerField("pvpmedalreq"),
-		ForeignKey("factionreq", "faction"),
-		IntegerField("reputationreq"),
+		ForeignKey("required_faction", "faction"),
+		IntegerField("required_reputation"),
 		IntegerField("unique"),
 		IntegerField("stack"),
-		IntegerField("bagslots"),
+		IntegerField("bag_slots"),
 #		DynamicFields("stats", [(
 #			(IntegerField, "id"),
 #			(IntegerField, "amt"),
@@ -251,17 +251,17 @@ class ItemCache(DBStructure):
 		ForeignKey("page", "pagetextcache"),
 		ForeignKey("pagelanguage", "languages"),
 		ForeignKey("pagestationery", "stationery"),
-		ForeignKey("queststart", "questcache"),
+		ForeignKey("starts_quest", "questcache"),
 		ForeignKey("lock", "lock"),
 		IntegerField("material"),
-		IntegerField("sheathtype"),
+		IntegerField("sheath_type"),
 		ForeignKey("randomenchantment", "itemrandomproperties"),
 		IntegerField("block"),
 		ForeignKey("itemset", "itemset"),
 		IntegerField("durability"),
-		ForeignKey("zonebind", "areatable"),
-		ForeignKey("instancebind", "map"),
-		IntegerField("bagcategory"),
+		ForeignKey("zone_bind", "areatable"),
+		ForeignKey("instance_bind", "map"),
+		IntegerField("bag_category"),
 		ForeignKey("toolcategory", "totemcategory"),
 		BitMaskField("socket1"),
 		IntegerField("socket1info"),
@@ -269,8 +269,8 @@ class ItemCache(DBStructure):
 		IntegerField("socket2info"),
 		BitMaskField("socket3"),
 		IntegerField("socket3info"),
-		ForeignKey("socketbonus", "spellitemenchantment"),
-		ForeignKey("gemproperties", "gemproperties"),
+		ForeignKey("socket_bonus", "spellitemenchantment"),
+		ForeignKey("gem_properties", "gemproperties"),
 		IntegerField("extendedcost"),
 	)
 
@@ -336,7 +336,7 @@ class ItemCache(DBStructure):
 		- New uniquecategory field at the end, fkey of new ItemLimitCategory.dbc file
 		"""
 		self.changed_8268(base)
-		base.append_fields(ForeignKey("uniquecategory", "itemlimitcategory"))
+		base.append_fields(ForeignKey("unique_category", "itemlimitcategory"))
 
 	def changed_8471(self, base):
 		"""
@@ -383,12 +383,12 @@ class ItemCache(DBStructure):
 			"dmgmin5", "dmgmax5", "dmgtype5",
 		)
 		base.append_fields(
-			ForeignKey("holidayreq", "holidays"),
+			ForeignKey("required_holiday", "holidays"),
 		)
 
 	def changed_10026(self, base):
 		self.changed_9614(base)
-		base.insert_field(BitMaskField("flags2"), before="buyprice")
+		base.insert_field(BitMaskField("flags2"), before="buy_price")
 
 
 class ItemNameCache(DBStructure):
@@ -1725,8 +1725,8 @@ class ItemSet(DBStructure):
 		IntegerField("piecesreqbonus6"),
 		IntegerField("piecesreqbonus7"),
 		IntegerField("piecesreqbonus8"),
-		ForeignKey("skillreq", "skillline"),
-		IntegerField("skilllevelreq"),
+		ForeignKey("required_skill", "skillline"),
+		IntegerField("required_skill_level"),
 	)
 
 
@@ -1745,7 +1745,7 @@ class ItemSubClass(DBStructure):
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
-		IntegerField("handsamt"),
+		IntegerField("hands"),
 		LocalizedFields("name"),
 		LocalizedFields("categoryname"),
 	)
@@ -2243,7 +2243,7 @@ class Spell(DBStructure):
 		IntegerField(),
 		ForeignKey("casttime", "spellcasttimes"),
 		DurationField("categorycooldown", unit="milliseconds"),
-		DurationField("cooldown", unit="milliseconds"),
+		IntegerField("cooldown"),
 		IntegerField(),
 		IntegerField(),
 		BitMaskField("channelingflags"),
@@ -2614,9 +2614,9 @@ class SpellCastTimes(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		DurationField("casttime1", unit="milliseconds"),
+		IntegerField("casttime1"),
 		IntegerField("modifier"),
-		DurationField("casttime2", unit="milliseconds"),
+		IntegerField("casttime2"),
 	)
 
 
@@ -2692,8 +2692,8 @@ class SpellItemEnchantment(DBStructure):
 		IntegerField(),
 		ForeignKey("gem", "item"),
 		IntegerField(), # SpellItemEnchantmentCondition?
-		ForeignKey("skillreq", "skillline"),
-		IntegerField("skilllevelreq"),
+		ForeignKey("required_skill", "skillline"),
+		IntegerField("required_skill_level"),
 	)
 	
 	def changed_9637(self, base):
