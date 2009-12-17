@@ -279,7 +279,9 @@ class ItemCache(DBStructure):
 		- New disenchant IntegerField
 		  UNKNOWN BUILD
 		"""
-		base.append_fields(IntegerField("disenchant"))
+		base.append_fields(
+			IntegerField("disenchant"),
+		)
 
 	def changed_6022(self, base):
 		"""
@@ -300,7 +302,9 @@ class ItemCache(DBStructure):
 		- New armordmgmod FloatField
 		"""
 		self.changed_6213(base)
-		base.append_fields(FloatField("armordmgmod"))
+		base.append_fields(
+			FloatField("armordmgmod"),
+		)
 
 	def changed_7382(self, base):
 		"""
@@ -352,10 +356,12 @@ class ItemCache(DBStructure):
 			"stats_id_dyn9", "stats_amt_dyn9",
 			"stats_id_dyn10", "stats_amt_dyn10",
 		)
-		base.insert_field(DynamicFields("stats", [(
-			(IntegerField, "id"),
-			(IntegerField, "amt"),
-		), 10]), before="dmgmin1")
+		base.insert_field(
+			DynamicFields("stats", [(
+				(IntegerField, "id"),
+				(IntegerField, "amt"),
+			), 10]
+		), before="dmgmin1")
 		base.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="dmgmin1")
 		base.insert_field(BitMaskField("scaling_flags"), before="dmgmin1")
 
@@ -371,10 +377,14 @@ class ItemCache(DBStructure):
 		- Added new unknown IntegerField at the end
 		"""
 		self.changed_8770(base)
-		base.delete_fields("dmgmin3", "dmgmax3", "dmgtype3",
+		base.delete_fields(
+			"dmgmin3", "dmgmax3", "dmgtype3",
 			"dmgmin4", "dmgmax4", "dmgtype4",
-			"dmgmin5", "dmgmax5", "dmgtype5")
-		base.append_fields(ForeignKey("holidayreq", "holidays"))
+			"dmgmin5", "dmgmax5", "dmgtype5",
+		)
+		base.append_fields(
+			ForeignKey("holidayreq", "holidays"),
+		)
 
 	def changed_10026(self, base):
 		self.changed_9614(base)
@@ -2684,8 +2694,12 @@ class SpellItemEnchantment(DBStructure):
 		IntegerField(), # SpellItemEnchantmentCondition?
 		ForeignKey("skillreq", "skillline"),
 		IntegerField("skilllevelreq"),
-		UnknownField(), # added 9447?
 	)
+	
+	def changed_9637(self, base):
+		base.append_fields(
+			UnknownField(),
+		)
 
 
 class SpellMechanic(DBStructure):
