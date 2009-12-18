@@ -33,14 +33,6 @@ class DBField(object):
 	
 	def to_python(self, value, row):
 		return value
-	
-	def set_value(self, value, storage, row):
-		""" Used in DBRow class to store raw field data in storage (DBRow._values) """
-		storage[self.name] = self.to_python(value, row=row)
-	
-	def get_value(self, value, storage, row):
-		""" Used in DBRow class to get stored 'pythoned' field data from storage (DBRow._values) """
-		return storage[self.name]
 
 
 ################
@@ -154,9 +146,11 @@ class RecLenField(IntegerField):
 class UnresolvedObjectRef(int):
 	def __repr__(self):
 		return "<%s: %d>" % (self.__class__.__name__, int(self))
-
+	
 class UnresolvedRelation(Exception):
-	pass
+	def __init__(self, message, reference):
+		self.reference = reference
+		super(UnresolvedRelation, self).__init__(message)
 		
 class ForeignKeyBase(IntegerField):
 	
@@ -178,25 +172,8 @@ class ForeignKeyBase(IntegerField):
 				rel_key = self.get_rel_key(value)
 				return f[rel_key]
 			except KeyError:
-				raise UnresolvedRelation("Relation for %r does not exist" % (rel))  # TODO: auto-load from master storage ..
+				raise UnresolvedRelation("Relation for %s not exist" % rel, value)
 		return value
-	
-	def get_value(self, value, storage, row):
-		value = storage[self.name]
-		if isinstance(value, UnresolvedObjectRef):
-			# try resolve relation again
-			try:
-				value = self.to_python(value, row)
-				storage[self.name] = value
-			except UnresolvedRelation:
-				pass
-		return value
-	
-	def set_value(self, value, storage, row):
-		try:
-			storage[self.name] = self.to_python(value, row=row)
-		except UnresolvedRelation:
-			storage[self.name] = UnresolvedObjectRef(value)
 		
 
 class ForeignKey(ForeignKeyBase):

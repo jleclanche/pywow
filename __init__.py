@@ -6,6 +6,7 @@ from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack
 from struct import error as structerror
 
+from .structures.fields import UnresolvedRelation, UnresolvedObjectRef
 from .structures import _Generated, StructureError, getstructure
 from .locales import L
 from .logger import log
@@ -260,6 +261,8 @@ class DBRow(list):
 		self._postload = [] # temporarily store col/val for _add_data once the column is loaded
 		self.structure = parent.structure
 		
+		self.initialized = True # need for normal work __setattr__
+		
 		if columns:
 			if type(columns) == list:
 				self.extend(columns)
@@ -313,48 +316,40 @@ class DBRow(list):
 					except structerror:
 						_data = None # There is no data left in the row, we set it to None
 					cursor += 4
-				self._add_data(_data, col)
+				self.append(_data)
 			if reclen:
 				if cursor != reclen+8:
 					log.warning(L["RECLEN_NOT_RESPECTED"] % (self._id, reclen+8, cursor, reclen+8-cursor))
 		
-		for k in self._postload:
-			k[1].set_value(k[0], self._values, row=self)
-		del self._postload
-		self.initialized = True
 	
 	def __int__(self):
 		return self._id
+	
+	def _set_value(self, name, value):
+		index = self.structure.index(name)
+		col = self.structure[index]
+		self._values[name] = col.to_python(value, self)
+	
+	def _get_value(self, name):
+		if name not in self._values:
+			index = self.structure.index(name)
+			raw_value = self[index]
+			try:
+				self._set_value(name, raw_value)
+			except UnresolvedRelation, ex:
+				return UnresolvedObjectRef(ex.reference)
+		return self._values[name]
+		
 	
 	def save(self):
 		for name in self._values:
 			index = self.structure.index(name)
 			col = self.structure[index]
 			self[index] = col.from_python(self._values[name])
-		
-	def _add_data(self, value, col):
-		""" Adds data and then fills in the field "_values" appropriate value """
-		self.append(value)
-		self._postload.append((value, col))
 	
 	def __getattr__(self, attr):
-		if self.initialized:
-			if self.structure.has_column(attr):
-				index = self.structure.index(attr)
-				col = self.structure[index]
-				raw_value = self[index]
-				try:
-					return col.get_value(raw_value, self._values, self)
-				except KeyError: # We attempted to load a missing fkey, or 0
-					return None
-		else:
-			index = self.structure.index(attr)
-			if index != -1:
-				#log.warning("Row not initialized yet, returning raw value.")
-				col = self.structure[index]
-				raw_value = self[index]
-				return raw_value
-		
+		if attr in self.structure:
+			return self._get_value(attr)
 		return list.__getattribute__(self, attr)
 	
 	def __setattr__(self, attr, value):
@@ -362,15 +357,14 @@ class DBRow(list):
 		Do not preserve the value in DBRow!
 		Use the save method to save.
 		"""
-		if self.initialized and self.structure.has_column(attr):
-			col = self.structure.get_column(attr)
-			col.set_value(value, self._values, row=self)
+		if self.initialized and attr in self.structure:
+			self._set_value(attr, value)
 		list.__setattr__(self, attr, value)
 		
 	def __setitem__(self, index, value):
 		if not isinstance(index, int):
 			raise TypeError
-		list.__setitem(index, value)
+		list.__setitem__(self, index, value)
 		col = self.structure[index]
 		self._values[col.name] = col.to_python(value, row=row)
 	
