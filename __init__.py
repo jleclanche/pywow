@@ -320,32 +320,9 @@ class DBRow(list):
 			if reclen:
 				if cursor != reclen+8:
 					log.warning(L["RECLEN_NOT_RESPECTED"] % (self._id, reclen+8, cursor, reclen+8-cursor))
-		
 	
 	def __int__(self):
 		return self._id
-	
-	def _set_value(self, name, value):
-		index = self.structure.index(name)
-		col = self.structure[index]
-		self._values[name] = col.to_python(value, self)
-	
-	def _get_value(self, name):
-		if name not in self._values:
-			index = self.structure.index(name)
-			raw_value = self[index]
-			try:
-				self._set_value(name, raw_value)
-			except UnresolvedRelation, ex:
-				return UnresolvedObjectRef(ex.reference)
-		return self._values[name]
-		
-	
-	def save(self):
-		for name in self._values:
-			index = self.structure.index(name)
-			col = self.structure[index]
-			self[index] = col.from_python(self._values[name])
 	
 	def __getattr__(self, attr):
 		if attr in self.structure:
@@ -360,7 +337,7 @@ class DBRow(list):
 		if self.initialized and attr in self.structure:
 			self._set_value(attr, value)
 		list.__setattr__(self, attr, value)
-		
+	
 	def __setitem__(self, index, value):
 		if not isinstance(index, int):
 			raise TypeError
@@ -376,6 +353,27 @@ class DBRow(list):
 	# introspection support:
 	__members__ = property(lambda self: self.__dir__())
 	
+	
+	def _set_value(self, name, value):
+		index = self.structure.index(name)
+		col = self.structure[index]
+		self._values[name] = col.to_python(value, self)
+	
+	def _get_value(self, name):
+		if name not in self._values:
+			index = self.structure.index(name)
+			raw_value = self[index]
+			try:
+				self._set_value(name, raw_value)
+			except UnresolvedRelation, ex:
+				return UnresolvedObjectRef(ex.reference)
+		return self._values[name]
+	
+	def save(self):
+		for name in self._values:
+			index = self.structure.index(name)
+			col = self.structure[index]
+			self[index] = col.from_python(self._values[name])
 	
 	def data(self):
 		"Convert the column list into a byte stream"
@@ -397,6 +395,10 @@ class DBRow(list):
 		
 		return data
 	
+	def _raw(self, name):
+		index = self.structure.index(name)
+		return self[index]
+	
 	def default(self):
 		"Default all the columns out"
 		del self[:]
@@ -412,16 +414,12 @@ class DBRow(list):
 		"Return a dict of the row as colname: value"
 		return dict(zip(self.structure.column_names, self))
 	
-	def getvalue(self, key):
-		return getattr(self, key)
-	
 	def reclen(self):
 		return len(self.data())-8
 	
 	def update(self, other):
 		for k in other:
 			self[k] = other[k]
-		
 
 
 # WDB class
