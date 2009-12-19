@@ -26,16 +26,14 @@ class DBStructure(list):
 			if i > 1:
 				col.name = "%s_%d" % (col.name, i-1)
 		
-		
 		columns = copy.deepcopy(self.base)
 		self.builds = sorted([int(m[8:]) for m in dir(self) if m.startswith("changed_")])
-
+		
 		if self.builds and build:
 			_builds = sorted([k for k in self.builds if k <= build])
 			if _builds:
 				getattr(self, "changed_%i" % _builds[-1:][0])(columns)
-
-
+		
 		for col in columns:
 			if isinstance(col, DynamicFieldsBase):
 				for _col in col.get_fields():
@@ -48,15 +46,15 @@ class DBStructure(list):
 					self.reclen = len(self) + 1
 				_lazy_rename(col)
 				self.add_column(col)
-		
+	
+	def __contains__(self, name):
+		return name in self.column_names
+	
 	
 	def add_column(self, col):
 		col.parent = self
 		self.append(col)
 		self.column_names.append(col.name)
-		
-	def __contains__(self, name):
-		return name in self.column_names
 	
 	def get_column(self, column_name):
 		index = self.index(column_name)
@@ -64,8 +62,7 @@ class DBStructure(list):
 		
 	def index(self, column_name):
 		return self.column_names.index(column_name)
-			
-		
+
 
 class Skeleton(list):
 	"""The database's actual structure. Used to concatenate columns into a single structure."""
@@ -78,7 +75,7 @@ class Skeleton(list):
 		try:
 			self.insert(names.index(before), field)
 		except ValueError:
-			raise ValueError("%r is not a valid column reference for insert_field" % before)
+			raise ValueError("%r is not a valid column reference for insert_field" % (before))
 
 
 	def append_fields(self, *fields):
@@ -93,7 +90,7 @@ class Skeleton(list):
 				self.pop(names.index(field))
 				names.pop(names.index(field))
 			except ValueError:
-				raise ValueError("%r is not a valid column to delete" % field)
+				raise ValueError("%r is not a valid column to delete" % (field))
 
 
 class _Generated(DBStructure):
