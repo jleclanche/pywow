@@ -37,11 +37,6 @@ magic = {
 
 signatures = dict([(magic[k], k) for k in magic])
 
-
-# A couple of notes on DBHeader:
-# I wanted something that could easily handle header structure changes.
-# It does look like overkill, however, it's pretty much never called
-# in performance-hungry situations. Only on file load and write.
 class DBHeader(object):
 	"""A WDBC header file."""
 	def __init__(self, parent):
@@ -624,7 +619,7 @@ def fopen(*pargs, **kwargs):
 	try:
 		name = "name" in kwargs and kwargs["name"] or pargs[0]
 	except IndexError:
-		raise TypeError("Required argument 'name' (pos 1) not found")
+		raise TypeError("Required argument 'name' not found")
 	sig = getsignature(name)
 	if sig == "WDBC":
 		filename = "name" in kwargs and kwargs["name"] or getfilename(name).lower()
@@ -640,7 +635,10 @@ def fopen(*pargs, **kwargs):
 			return UnknownDBCFile(*pargs, **kwargs)
 		return DBCFile(*pargs, **kwargs)
 	
-	return WDBFile(*pargs, **kwargs)
+	try:
+		return WDBFile(*pargs, **kwargs)
+	except Exception:
+		raise StructureError(L["NOT_A_WDB_FILE"] % (name))
 
 
 def new(*pargs, **kwargs):
