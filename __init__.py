@@ -263,7 +263,7 @@ class DBRow(list):
 				self.extend(columns)
 		
 			elif type(columns) == dict:
-				self.default()
+				self._default()
 				_cols = [k.name for k in self.structure]
 				for k in columns:
 					try:
@@ -364,7 +364,7 @@ class DBRow(list):
 				return UnresolvedObjectRef(ex.reference)
 		return self._values[name]
 	
-	def save(self):
+	def _save(self):
 		for name in self._values:
 			index = self.structure.index(name)
 			col = self.structure[index]
@@ -372,7 +372,7 @@ class DBRow(list):
 	
 	def data(self):
 		"Convert the column list into a byte stream"
-		self.save()
+		self._save()
 		data = []
 		for k, v in zip(self.structure, self):
 			if v == None:
@@ -391,11 +391,17 @@ class DBRow(list):
 		return data
 	
 	def _raw(self, name):
+		""" Returns the raw value from field 'name' """
 		index = self.structure.index(name)
 		return self[index]
 	
-	def default(self):
-		"Default all the columns out"
+	def _field(self, name):
+		""" Returns the field 'name' """
+		index = self.structure.index(name)
+		return self.structure[index]
+	
+	def _default(self):
+		""" Change all fields to their default values """
 		del self[:]
 		self._values = {}
 		for col in self.structure:
