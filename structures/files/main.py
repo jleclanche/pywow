@@ -47,7 +47,7 @@ class CreatureCache(DBStructure):
 			IntegerField(),
 		)
 
-	def changed_10072(self, base):
+	def changed_10026(self, base):
 		self.changed_9614(base)
 		base.append_fields(
 			UnknownField(),
