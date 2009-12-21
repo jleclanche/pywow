@@ -331,7 +331,7 @@ class SpellString(object):
 		global SPELL_DESCRIPTION_VARIABLES
 		if not SPELL_DESCRIPTION_VARIABLES: # Cache the dbc
 			SPELL_DESCRIPTION_VARIABLES = parse_sdv(self.env["spelldescriptionvariables"])
-		i = self.row.descriptionvars
+		i = int(self.row.descriptionvars) #descriptionvars id
 		row = SPELL_DESCRIPTION_VARIABLES[i]
 		return row[var]
 	
@@ -620,6 +620,8 @@ class SpellString(object):
 	def macro_o(self, spell, effect):
 		"Spelleffect damage over time"
 		val = getattr(self.file[spell], "duration")
+		if not val:
+			return 0
 		s = self.macro_s(spell, effect)
 		d = val[1]
 		t = getattr(self.file[spell], "intervaleffect%i" % (effect)) or 5000
