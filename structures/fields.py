@@ -122,7 +122,7 @@ class LocalizedFields(DynamicFieldsBase):
 			self.append(field_type(name="%s_%s" % (name, loc), group=self, **kwargs))
 		
 		self.append(BitMaskField("%s_locflags" % name, group=self, **kwargs))
-		
+
 class ListField(DynamicFieldsBase):
 	"""
 	Helpful on unknown fields
@@ -132,7 +132,7 @@ class ListField(DynamicFieldsBase):
 		self.name = name
 		for i in xrange(length):
 			self.append(field_type(name="%s_%d" % (name, i), group=self, **kwargs))
-		
+
 
 
 ##################
@@ -142,23 +142,24 @@ class ListField(DynamicFieldsBase):
 class RecLenField(IntegerField):
 	def __init__(self, name="_reclen"):
 		IntegerField.__init__(self, name=name)
-		
+
+
 class UnresolvedObjectRef(int):
 	def __repr__(self):
 		return "<%s: %d>" % (self.__class__.__name__, int(self))
-	
+
 class UnresolvedRelation(Exception):
 	def __init__(self, message, reference):
 		self.reference = reference
 		super(UnresolvedRelation, self).__init__(message)
-		
+
 class ForeignKeyBase(IntegerField):
-	
+	""" Base class for ForeignKeys """
 	def from_python(self, value):
 		if isinstance(value, int):
 			return value
 		if not value.structure.pkeys:
-			raise ValueError("Relation target has no primary key") # TODO: return row index ?
+			raise StructureError("Relation target has no primary key") # TODO: return row index ?
 		pkey = value.structure.pkeys[0] # TODO: what about multiple pkeys ?
 		index = value.structure.index(pkey.name)
 		return value[index]
@@ -172,12 +173,11 @@ class ForeignKeyBase(IntegerField):
 				rel_key = self.get_rel_key(value)
 				return f[rel_key]
 			except KeyError:
-				raise UnresolvedRelation("Relation for %s not exist" % rel, value)
+				raise UnresolvedRelation("Relation for %s does not exist" % (rel), value)
 		return value
-		
 
 class ForeignKey(ForeignKeyBase):
-	"""Integer link to another table's primary key. Relation required."""
+	""" Integer link to another table's primary key. Relation required. """
 	def __init__(self, name, relation, **kwargs):
 		IntegerField.__init__(self, name, **kwargs)
 		self.relation = relation
@@ -187,14 +187,12 @@ class ForeignKey(ForeignKeyBase):
 	
 	def get_rel_key(self, value):
 		return value
-	
-
 
 class GenericForeignKey(ForeignKeyBase):
 	def __init__ (self, name="", get_relation=None, get_value=lambda x, value: value):
 		IntegerField.__init__(self, name)
 		if not callable(get_relation):
-			raise TypeError
+			raise TypeError("%s._get_relation must be a callable type" % (self.__class__.__name__))
 		self._get_relation = get_relation
 		self._get_value = get_value
 	
@@ -203,6 +201,7 @@ class GenericForeignKey(ForeignKeyBase):
 	
 	def get_rel_key(self, value):
 		return self._get_value(self, value)
+
 
 class BitMaskField(UnsignedIntegerField):
 	""" Integer field containing a bitmask """
@@ -218,7 +217,6 @@ class BitMaskField(UnsignedIntegerField):
 		if isinstance(value, BitFlags):
 			return value
 		return BitFlags(value, self.flags)
-	
 
 class BooleanField(IntegerField):
 	pass
@@ -238,7 +236,7 @@ class DurationField(IntegerField):
 	def __init__(self, name="", unit="seconds", **kwargs):
 		IntegerField.__init__(self, name, **kwargs)
 		if unit not in self.units:
-			raise ValueError
+			raise ValueError("%r is not a valid duration unit (choices are: %s)" % (unit, ", ".join(self.units.keys())))
 		self.unit = unit
 	
 	def timedelta(self, value):
