@@ -654,7 +654,7 @@ class PageTextCache(DBStructure):
 		IDField(),
 		RecLenField(),
 		StringField("text"),
-		ForeignKey("nextpage", "pagetextcache"),
+		ForeignKey("next_page", "pagetextcache"),
 	)
 
 
