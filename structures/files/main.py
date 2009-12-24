@@ -130,14 +130,37 @@ class ItemCache(DBStructure):
 		"unk1048576", "usable_in_arena", "thrown", "unk8388608",
 		"unk16777216", "unk33554432", "unk67108864", "account_bound",
 		"enchant_scroll", "millable"]
-
+	
+	flags_2 = ["horde", "alliance"]
+	
+	FLAGS = { # XXX unused for now
+		0x00000002: "conjured",
+		0x00000004: "openable",
+		0x00000008: "heroic",
+		0x00000010: "deprecated",
+		0x00000020: "totem",
+		0x00000080: "no_equip_cooldown",
+		0x00000200: "wrapper",
+		0x00000400: "ignore_backspace",
+		0x00000800: "group_loot",
+		0x00001000: "refundable",
+		0x00002000: "chart",
+		0x00040000: "prospectable",
+		0x00080000: "unique_equipped",
+		0x00200000: "usable_in_arena",
+		0x00400000: "thrown",
+		0x08000000: "account_bound",
+		0x10000000: "enchant_scroll",
+		0x20000000: "millable",
+	}
+	
 	classes = ["warrior", "paladin", "hunter", "rogue", "priest",
 		"deathknight", "shaman", "mage", "warlock", "", "druid"]
-
+	
 	races = ["human", "orc", "dwarf", "nightelf", "undead", "tauren",
 		"gnome", "troll", "", "bloodelf", "draenei", "",
 		"", "", ""]
-
+	
 	base = Skeleton(
 		IDField(),
 		RecLenField(),
@@ -160,8 +183,8 @@ class ItemCache(DBStructure):
 		ForeignKey("required_skill", "skillline"),
 		IntegerField("required_skill_level"),
 		ForeignKey("required_spell", "spell"),
-		IntegerField("pvprankreq"),
-		IntegerField("pvpmedalreq"),
+		IntegerField("required_pvp_rank"),
+		IntegerField("required_pvp_medal"),
 		ForeignKey("required_faction", "faction"),
 		IntegerField("required_reputation"),
 		IntegerField("unique"),
@@ -1336,7 +1359,7 @@ class GemProperties(DBStructure):
 		ForeignKey("enchant", "spellitemenchantment"),
 		BooleanField(),
 		BooleanField(),
-		IntegerField("gemcolor"),
+		IntegerField("color"),
 	)
 
 
@@ -1367,43 +1390,43 @@ class gtCombatRatings(DBStructure):
 	gtCombatRatings.dbc
 	"""
 	base = Skeleton(
-		FloatField('ratio'),
+		FloatField("ratio"),
 	)
 
 class gtOCTRegenHP(DBStructure):
 	"""
 	gtOCTRegenHP.dbc
 	"""
-
+	
 	base = Skeleton(
-		FloatField('ratio'),
+		FloatField("ratio"),
 	)
 
 class gtOCTRegenMP(DBStructure):
 	"""
 	gtOCTRegenMP.dbc
 	"""
-
+	
 	base = Skeleton(
-		FloatField('ratio'),
+		FloatField("ratio"),
 	)
 
-class GtRegenHPPerSpt(DBStructure):
+class gtRegenHPPerSpt(DBStructure):
 	"""
 	gtRegenHPPerSpt.dbc
 	"""
-
+	
 	base = Skeleton(
-		FloatField('ratio'),
+		FloatField("ratio"),
 	)
 
-class GtRegenMPPerSpt(DBStructure):
+class gtRegenMPPerSpt(DBStructure):
 	"""
 	gtRegenMPPerSpt.dbc
 	"""
-
+	
 	base = Skeleton(
-		FloatField('ratio'),
+		FloatField("ratio"),
 	)
 
 
