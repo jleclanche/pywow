@@ -1916,31 +1916,31 @@ class Map(DBStructure):
 		IntegerField("type"), # 0: normal, 1: instance, 2: raid, 3: battleground, 4: arena
 		BooleanField("battleground"),
 		LocalizedFields("name"),
-		ForeignKey("parentzone", "areatable"), # instance zone id
-		LocalizedFields("descriptionhorde"),
-		LocalizedFields("descriptionalliance"),
+		ForeignKey("parent_zone", "areatable"), # instance zone id
+		LocalizedFields("description_horde"),
+		LocalizedFields("description_alliance"),
 		UnknownField(),
-		FloatField("visionrange"),
-		LocalizedFields("normalreqs"),
-		LocalizedFields("heroicreqs"),
-		LocalizedFields("epicreqs"),
+		FloatField("vision_range"),
+		LocalizedFields("normal_requirements"),
+		LocalizedFields("heroic_requirements"),
+		LocalizedFields("epic_requirements"),
 		ForeignKey("continent", "map"),
-		CoordField("entrancex"),
-		CoordField("entrancey"),
-		DurationField("normalreset", unit="seconds"),
-		DurationField("heroicreset", unit="seconds"),
-		DurationField("epicreset", unit="seconds"),
-		IntegerField("someunknownfield1"),
-		IntegerField("someunknownfield2"),
+		CoordField("entrance_x"),
+		CoordField("entrance_y"),
+		DurationField("normal_reset", unit="seconds"),
+		DurationField("heroic_reset", unit="seconds"),
+		DurationField("epic_reset", unit="seconds"),
+		UnknownField(),
+		IntegerField("expansion"),
 		DurationField(unit="seconds"),
 	)
 
 	def changed_10026(self, base):
-		base.delete_fields("normalreqs", "heroicreqs", "epicreqs", "normalreset", "heroicreset", "epicreset")
+		base.delete_fields("normal_requirements", "heroic_requirements", "epic_requirements", "normal_reset", "heroic_reset", "epic_reset")
 
 	def changed_10083(self, base):
 		self.changed_10026(base)
-		base.append_fields(IntegerField("playeramount"))
+		base.append_fields(IntegerField("player_amount"))
 
 	def changed_10522(self, base):
 		self.changed_10083(base)
