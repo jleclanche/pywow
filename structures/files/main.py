@@ -1079,7 +1079,7 @@ class ChrClasses(DBStructure):
 		LocalizedFields("namemale"),
 		LocalizedFields("namefemale"),
 		LocalizedFields("nameunknown"),
-		StringField("internalname"),
+		StringField("internal_name"),
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
@@ -1105,7 +1105,7 @@ class ChrRaces(DBStructure):
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
-		StringField("internalname"),
+		StringField("internal_name"),
 		IntegerField(),
 		LocalizedFields("namemale"),
 		LocalizedFields("namefemale"),
@@ -1120,18 +1120,36 @@ class ChrRaces(DBStructure):
 class CinematicCamera(DBStructure):
 	"""
 	CinematicCamera.dbc
-	TODO - Structure 1.1.2.4125
+	TODO
 	"""
 	base = Skeleton(
 		IDField(),
 		FilePathField(),
-		IntegerField(),
+		UnknownField(),
 		FloatField(),
 		FloatField(),
 		FloatField(),
 		FloatField(),
 	)
 
+
+class CinematicSequences(DBStructure):
+	"""
+	CinematicSequences.dbc
+	TODO
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
 
 
 class CreatureDisplayInfo(DBStructure):
@@ -1160,7 +1178,6 @@ class CreatureDisplayInfo(DBStructure):
 	)
 
 
-
 class CreatureType(DBStructure):
 	"""
 	CreatureType.dbc
@@ -1184,7 +1201,6 @@ class CurrencyCategory(DBStructure):
 		IntegerField(), # 3 for unused, rest 0
 		LocalizedFields("name"),
 	)
-
 
 
 class CurrencyTypes(DBStructure):
@@ -1263,7 +1279,6 @@ class Exhaustion(DBStructure):
 		FloatField(),
 	)
 
-
 class Faction(DBStructure):
 	"""
 	Faction.dbc
@@ -1271,33 +1286,33 @@ class Faction(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(), # ordering?
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(), # class-friendly (DK/Mage/Druid etc)?
-		IntegerField(),
-		IntegerField(),
-		IntegerField("startrep1"),
-		IntegerField("startrep2"),
-		IntegerField("startrep3"),
-		IntegerField("startrep4"),
-		BitMaskField("flags"),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		IntegerField("ordering"),
+		BitMaskField("base_race_mask_1"),
+		BitMaskField("base_race_mask_2"),
+		BitMaskField("base_race_mask_3"),
+		BitMaskField("base_race_mask_4"),
+		BitMaskField("base_class_mask_1"),
+		BitMaskField("base_class_mask_2"),
+		BitMaskField("base_class_mask_3"),
+		BitMaskField("base_class_mask_4"),
+		IntegerField("base_reputation_1"),
+		IntegerField("base_reputation_2"),
+		IntegerField("base_reputation_3"),
+		IntegerField("base_reputation_4"),
+		BitMaskField("flags_1"),
+		BitMaskField("flags_2"),
+		BitMaskField("flags_3"),
+		BitMaskField("flags_4"),
 		ForeignKey("parent_faction", "faction"),
 		LocalizedFields("name"),
 		LocalizedFields("description"),
 	)
 
 	def changed_10522(self, base):
-		base.insert_field(UnknownField(), before="parent_faction")
-		base.insert_field(FloatField(), before="parent_faction")
-		base.insert_field(FloatField(), before="parent_faction")
-		base.insert_field(UnknownField(), before="parent_faction")
+		base.insert_field(FloatField(), before="name")
+		base.insert_field(FloatField(), before="name")
+		base.insert_field(UnknownField(), before="name")
+		base.insert_field(UnknownField(), before="name")
 
 
 class FactionGroup(DBStructure):
@@ -1368,11 +1383,14 @@ class GlyphProperties(DBStructure):
 	GlyphProperties.dbc
 	Glyph data
 	"""
+	
+	FLAGS = ["minor", ]
+	
 	base = Skeleton(
 		IDField(),
 		ForeignKey("spell", "spell"),
-		BitMaskField(),
-		IntegerField(),
+		BitMaskField("flags", flags=FLAGS),
+		ForeignKey("icon", "spellicon"),
 	)
 
 class GlyphSlot(DBStructure):
@@ -1894,7 +1912,7 @@ class Map(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		StringField("internalname"),
+		StringField("internal_name"),
 		IntegerField("type"), # 0: normal, 1: instance, 2: raid, 3: battleground, 4: arena
 		BooleanField("battleground"),
 		LocalizedFields("name"),
@@ -2035,12 +2053,11 @@ class PetPersonality(DBStructure):
 class Resistances(DBStructure):
 	"""
 	Resistances.dbc
-	TODO
 	"""
 	base = Skeleton(
 		IDField(),
-		UnknownField(), # is_armor
-		UnknownField(),
+		BooleanField("armor"),
+		UnknownField(), # Not spellicon
 		LocalizedFields("name"),
 	)
 
@@ -2614,7 +2631,7 @@ class SpellAuraNames(DBStructure):
 	base = Skeleton(
 		IDField(),
 		IntegerField(),
-		StringField("internalname"),
+		StringField("internal_name"),
 		LocalizedFields("name", locales=OLD_LOCALES),
 	)
 
@@ -2846,11 +2863,11 @@ class TalentTab(DBStructure):
 		IDField(),
 		LocalizedFields("name"),
 		IntegerField("nameflags"),
-		IntegerField("spellicon"),
+		IntegerField("icon"),
 		BitMaskField("classmask"),
 		IntegerField("petmask"), #petflags?
 		IntegerField("tabpage"),
-		StringField("internalname"),
+		StringField("internal_name"),
 	)
 
 
