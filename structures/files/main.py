@@ -2193,10 +2193,10 @@ class SkillLine(DBStructure):
 	base = Skeleton(
 		IDField(),
 		ForeignKey("category", "skilllinecategory"),
-		IntegerField(), # Internal only
+		ForeignKey("cost", "skillcostsdata"),
 		LocalizedFields("name"),
 		LocalizedFields("description"),
-		IntegerField(),
+		ForeignKey("icon", "spellicon"),
 		LocalizedFields("action"),
 		BooleanField("tradeskill"),
 	)
