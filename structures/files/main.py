@@ -2016,9 +2016,23 @@ class Package(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
+		UnknownField(),
+		UnknownField(),
 		LocalizedFields("name"),
+	)
+
+
+class PowerDisplay(DBStructure):
+	"""
+	PowerDisplay.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		StringField("name"),
+		ByteField(),
+		ByteField(),
+		ByteField(),
 	)
 
 
