@@ -1074,11 +1074,11 @@ class ChrClasses(DBStructure):
 	base = Skeleton(
 		IDField(),
 		IntegerField(),
-		IntegerField("powertype"),
-		StringField("petname"),
-		LocalizedFields("namemale"),
-		LocalizedFields("namefemale"),
-		LocalizedFields("nameunknown"),
+		IntegerField("power_type"),
+		StringField("pet_name"),
+		LocalizedFields("name_male"),
+		LocalizedFields("name_female"),
+		LocalizedFields("name_unknown"),
 		StringField("internal_name"),
 		IntegerField(),
 		IntegerField(),
@@ -2268,7 +2268,7 @@ class Spell(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("category", "spellcategory"),
+		ForeignKey("category", "SpellCategory"),
 		IntegerField("dispeltype"),
 		IntegerField("mechanic"),
 		BitMaskField("flags_1"),
@@ -2291,12 +2291,12 @@ class Spell(DBStructure):
 		IntegerField("required_target_aura"),
 		IntegerField("excluded_caster_aura"),
 		IntegerField("excluded_target_aura"),
-		IntegerField("required_caster_spell"),
-		IntegerField("required_target_spell"),
-		IntegerField("excluded_caster_spell"),
-		IntegerField("excluded_target_spell"),
-		ForeignKey("casttime", "SpellCastTimes"),
-		IntegerField("cooldown"),
+		ForeignKey("required_caster_spell", "Spell"),
+		ForeignKey("required_target_spell", "Spell"),
+		ForeignKey("excluded_caster_spell", "Spell"),
+		ForeignKey("excluded_target_spell", "Spell"),
+		ForeignKey("cast_time", "SpellCastTimes"),
+		DurationField("cooldown", unit="milliseconds"),
 		DurationField("category_cooldown", unit="milliseconds"),
 		BitMaskField("interrupt_flags"),
 		BitMaskField("aura_interrupt_flags"),
@@ -2308,17 +2308,17 @@ class Spell(DBStructure):
 		IntegerField("base_level"),
 		IntegerField("level"),
 		ForeignKey("duration", "SpellDuration"),
-		IntegerField("power_cost_type"),
-		IntegerField("power_cost_amount"),
-		IntegerField("power_cost_level"),
-		IntegerField("power_cost_per_second"),
-		IntegerField("power_cost_per_second_level"),
+		IntegerField("power_type"),
+		IntegerField("power_amount"),
+		IntegerField("power_per_level"),
+		IntegerField("power_per_second"),
+		IntegerField("power_per_second_per_level"),
 		ForeignKey("range", "SpellRange"),
 		FloatField("missile_speed"),
-		IntegerField(), # m_modalNextSpell
+		ForeignKey("next_spell", "Spell"),
 		IntegerField("stack"),
-		ForeignKey("required_tool_1", "TotemCategory"), # ???
-		ForeignKey("required_tool_2", "TotemCategory"), # ???
+		ForeignKey("required_tool_1", "Item"),
+		ForeignKey("required_tool_2", "Item"),
 		ForeignKey("required_reagent_1", "Item"),
 		ForeignKey("required_reagent_2", "Item"),
 		ForeignKey("required_reagent_3", "Item"),
@@ -2380,9 +2380,9 @@ class Spell(DBStructure):
 		IntegerField("maxtargetseffect1"), # chain_targets_effect_1
 		IntegerField("maxtargetseffect2"),
 		IntegerField("maxtargetseffect3"),
-		IntegerField("argeffect1"), # type_effect_1
-		IntegerField("argeffect2"),
-		IntegerField("argeffect3"),
+		UnsignedIntegerField("argeffect1"), # type_effect_1
+		UnsignedIntegerField("argeffect2"),
+		UnsignedIntegerField("argeffect3"),
 		IntegerField("misceffect1"), # misc_value_1_effect_1
 		IntegerField("misceffect2"),
 		IntegerField("misceffect3"),
@@ -2404,8 +2404,8 @@ class Spell(DBStructure):
 		BitMaskField("class_flags_3_effect_1"),
 		BitMaskField("class_flags_3_effect_2"),
 		BitMaskField("class_flags_3_effect_3"),
-		IntegerField("visual_1"),
-		IntegerField("visual_2"),
+		ForeignKey("visual_1", "SpellVisual"),
+		ForeignKey("visual_2", "SpellVisual"),
 		ForeignKey("icon", "SpellIcon"),
 		ForeignKey("buff_icon", "SpellIcon"),
 		IntegerField("priority"),
@@ -2442,7 +2442,7 @@ class Spell(DBStructure):
 
 	def changed_10026(self, base):
 		base.append_fields(
-			FloatField("coeffeffect1"),
+			FloatField("coeffeffect1"), # multiplier_effect_1
 			FloatField("coeffeffect2"),
 			FloatField("coeffeffect3"),
 			ForeignKey("descriptionvars", "SpellDescriptionVariables"),
@@ -2510,9 +2510,9 @@ class SpellDuration(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		DurationField("duration", unit="milliseconds"),
-		IntegerField("modifier"),
-		DurationField("maxduration", unit="milliseconds"),
+		DurationField("duration_1", unit="milliseconds"),
+		DurationField("duration_2", unit="milliseconds"),
+		DurationField("duration_3", unit="milliseconds"),
 	)
 
 
@@ -2616,10 +2616,23 @@ class SpellRange(DBStructure):
 	)
 
 
+class SpellRuneCost(DBStructure):
+	"""
+	SpellRunecost.dbc
+	Death Knight abilities' rune costs
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("blood"),
+		IntegerField("frost"),
+		IntegerField("unholy"),
+		IntegerField("runic_power"),
+	)
+
+
 class SpellVisualEffectName(DBStructure):
 	"""
 	SpellVisualEffectName.dbc
-	Unknown use
 	"""
 	base = Skeleton(
 		IDField(),
