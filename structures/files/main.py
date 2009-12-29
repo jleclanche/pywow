@@ -2630,6 +2630,34 @@ class SpellRuneCost(DBStructure):
 	)
 
 
+class SpellShapeshiftForm(DBStructure):
+	"""
+	SpellShapeshiftForm.dbc
+	Different shapeshifts/stances for spells
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("button_position"),
+		LocalizedFields("name"),
+		BitMaskField("flags"),
+		IntegerField("creature_type"),
+		UnknownField(),
+		IntegerField("attack_speed"),
+		IntegerField("model_alliance"),
+		IntegerField("model_horde"),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("spell_1", "Spell"),
+		ForeignKey("spell_2", "Spell"),
+		ForeignKey("spell_3", "Spell"),
+		ForeignKey("spell_4", "Spell"),
+		ForeignKey("spell_5", "Spell"),
+		ForeignKey("spell_6", "Spell"),
+		ForeignKey("spell_7", "Spell"),
+		ForeignKey("spell_8", "Spell"),
+	)
+
+
 class SpellVisualEffectName(DBStructure):
 	"""
 	SpellVisualEffectName.dbc
