@@ -554,13 +554,13 @@ class SpellString(object):
 	
 	def macro_a(self, spell, effect):
 		"Spelleffect radius"
-		row = getattr(self.file[spell], "radiuseffect%i" % (effect))
+		row = getattr(self.file[spell], "radius_effect_%i" % (effect))
 		val = row and row[1] or 0
 		return "%.0f" % val
 	
 	def macro_b(self, spell, effect):
 		"Spelleffect proc chance"
-		val = getattr(self.file[spell], "procchanceeffect%i" % (effect))
+		val = getattr(self.file[spell], "points_combo_effect_%i" % (effect))
 		self.last = val
 		return "%.0f" % val
 	
@@ -572,33 +572,33 @@ class SpellString(object):
 	
 	def macro_e(self, spell, effect):
 		"Spelleffect proc value"
-		val = getattr(self.file[spell], "valueeffect%i" % (effect))
+		val = getattr(self.file[spell], "amplitude_effect_%i" % (effect))
 		self.last = val
 		return val
 	
 	def macro_f(self, spell, effect):
 		"Spelleffect finisher coefficient"
-		val = getattr(self.file[spell], "finishercoeffect%i" % (effect))
+		val = getattr(self.file[spell], "chain_amplitude_effect_%i" % (effect))
 		self.last = val
 		return "%.0f" % val
 	
 	def macro_h(self, spell, effect=0):
 		"Spell proc chance"
-		val = getattr(self.file[spell], "procchance")
+		val = getattr(self.file[spell], "proc_chance")
 		self.last = val
 		return val
 	
 	def macro_i(self, spell, effect=0):
 		"Spell max targets"
-		val = getattr(self.file[spell], "maxtargets")
+		val = getattr(self.file[spell], "max_targets")
 		self.last = val
 		return val
 	
 	def macro_M(self, spell, effect):
 		"Spelleffect max damage"
-		val = getattr(self.file[spell], "damageeffect%i" % (effect))
-		sides = getattr(self.file[spell], "diesideseffect%i" % (effect))
-		dice = getattr(self.file[spell], "dicebaseeffect%i" % (effect))
+		val = getattr(self.file[spell], "damage_base_effect_%i" % (effect))
+		sides = getattr(self.file[spell], "die_sides_effect_%i" % (effect))
+		dice = getattr(self.file[spell], "dice_base_effect_%i" % (effect))
 		val = val + (sides*dice)
 		self.last = val
 		return val
@@ -607,13 +607,13 @@ class SpellString(object):
 		"Spelleffect min damage"
 		#calc = "${$e%(effect)i+(1*(%i+(%i+($PL-%i))))+(%i*($PL-%i))}"
 		#val = SpellString(calc)
-		val = abs(getattr(self.file[spell], "damageeffect%i" % (effect)) + 1)
+		val = abs(getattr(self.file[spell], "damage_base_effect_%i" % (effect)) + 1)
 		self.last = val
 		return val
 	
 	def macro_n(self, spell, effect=0):
 		"Spell proc charges"
-		val = getattr(self.file[spell], "proccharges")
+		val = getattr(self.file[spell], "proc_charges")
 		self.last = val
 		return val
 	
@@ -624,26 +624,26 @@ class SpellString(object):
 			return 0
 		s = self.macro_s(spell, effect)
 		d = val[1]
-		t = getattr(self.file[spell], "intervaleffect%i" % (effect)) or 5000
+		t = getattr(self.file[spell], "aura_interval_effect_%i" % (effect)) or 5000
 		t = Decimal(t)
 		val = d/t*s
 		return val
 	
 	def macro_q(self, spell, effect):
 		"Spelleffect misc value"
-		val = getattr(self.file[spell], "misceffect%i" % (effect))
+		val = getattr(self.file[spell], "misc_value_1_effect_%i" % (effect))
 		self.last = val
 		return val
 	
 	def macro_R(self, spell, effect=0):
-		"Spell range max"
-		val = getattr(self.file[spell], "range").maxrange2
+		"Spell range friendly"
+		val = getattr(self.file[spell], "range").range_max_friendly
 		self.last = val
 		return "%.0f" % val
 	
 	def macro_r(self, spell, effect):
-		"Spell range min" # maxrange1, R maxrange2?!
-		val = getattr(self.file[spell], "range").maxrange1
+		"Spell range enemy"
+		val = getattr(self.file[spell], "range").range_max
 		self.last = val
 		return "%.0f" % val
 	
@@ -657,25 +657,25 @@ class SpellString(object):
 	
 	def macro_t(self, spell, effect):
 		"Spelleffect time interval"
-		val = getattr(self.file[spell], "intervaleffect%i" % (effect)) / 1000
+		val = getattr(self.file[spell], "aura_interval_effect_%i" % (effect)) / 1000
 		self.last = val
 		return val
 	
 	def macro_u(self, spell, effect=0):
-		"Spell max stack"
-		val = getattr(self.file[spell], "maxstack")
+		"Spell stack"
+		val = getattr(self.file[spell], "stack")
 		self.last = val
 		return val
 	
 	def macro_v(self, spell, effect=0):
 		"Spell target level restrictions"
-		val = getattr(self.file[spell], "maxtargetlevel")
+		val = getattr(self.file[spell], "max_target_level")
 		self.last = val
 		return val
 	
 	def macro_x(self, spell, effect):
 		"Spelleffect chain targets"
-		val = getattr(self.file[spell], "maxtargetseffect%i" % (effect))
+		val = getattr(self.file[spell], "chain_targets_effect_%i" % (effect))
 		self.last = val
 		return val
 	

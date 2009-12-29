@@ -274,11 +274,11 @@ class ArmoryItem(object):
 					continue
 				
 				try:
-					setattr(self, "spell%i" % i, Spell.objects.filter(spell_text=text)[:1][0].id)
+					setattr(self, "spell%i" % i, Spell.objects.filter(description=text)[:1][0].id)
 				except IndexError:
 					try:
 						_text = text.split("\n")[0][:-1]
-						setattr(self, "spell%i" % i, Spell.objects.filter(spell_text__istartswith=_text)[:1][0].id)
+						setattr(self, "spell%i" % i, Spell.objects.filter(description__istartswith=_text)[:1][0].id)
 					except IndexError:
 						print "Spell not found: %r" % text
 		
