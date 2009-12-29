@@ -183,7 +183,7 @@ class ForeignKey(ForeignKeyBase):
 		self.relation = relation
 		
 	def get_relation(self, value):
-		return self.relation
+		return self.relation.lower()
 	
 	def get_rel_key(self, value):
 		return value
