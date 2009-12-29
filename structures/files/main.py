@@ -2269,7 +2269,7 @@ class Spell(DBStructure):
 	base = Skeleton(
 		IDField(),
 		ForeignKey("category", "SpellCategory"),
-		IntegerField("dispeltype"),
+		IntegerField("dispel_type"),
 		IntegerField("mechanic"),
 		BitMaskField("flags_1"),
 		BitMaskField("flags_2"),
@@ -2338,24 +2338,24 @@ class Spell(DBStructure):
 		IntegerField("required_item_category"),
 		BitMaskField("required_item_subclasses"),
 		BitMaskField("required_item_slots"),
-		ForeignKey("effect1", "SpellEffectNames"),
-		ForeignKey("effect2", "SpellEffectNames"),
-		ForeignKey("effect3", "SpellEffectNames"),
-		IntegerField("diesideseffect1"), # die_sides_effect_1
-		IntegerField("diesideseffect2"),
-		IntegerField("diesideseffect3"),
-		IntegerField("dicebaseeffect1"), # dice_base_effect_1
-		IntegerField("dicebaseeffect2"),
-		IntegerField("dicebaseeffect3"),
-		IntegerField("diceperleveleffect1"), # dice_per_level_effect_1
-		IntegerField("diceperleveleffect2"),
-		IntegerField("diceperleveleffect3"),
+		ForeignKey("effect_1", "SpellEffectNames"),
+		ForeignKey("effect_2", "SpellEffectNames"),
+		ForeignKey("effect_3", "SpellEffectNames"),
+		IntegerField("die_sides_effect_1"),
+		IntegerField("die_sides_effect_2"),
+		IntegerField("die_sides_effect_3"),
+		IntegerField("dice_base_effect_1"),
+		IntegerField("dice_base_effect_2"),
+		IntegerField("dice_base_effect_3"),
+		IntegerField("dice_per_level_effect_1"),
+		IntegerField("dice_per_level_effect_2"),
+		IntegerField("dice_per_level_effect_3"),
 		FloatField("dice_real_per_level_effect_1"),
 		FloatField("dice_real_per_level_effect_2"),
 		FloatField("dice_real_per_level_effect_3"),
-		IntegerField("damageeffect1"), # damage_base_effect_1
-		IntegerField("damageeffect2"),
-		IntegerField("damageeffect3"),
+		IntegerField("damage_base_effect_1"),
+		IntegerField("damage_base_effect_2"),
+		IntegerField("damage_base_effect_3"),
 		IntegerField("mechanic_effect_1"),
 		IntegerField("mechanic_effect_2"),
 		IntegerField("mechanic_effect_3"),
@@ -2365,36 +2365,36 @@ class Spell(DBStructure):
 		IntegerField("implicit_target_2_effect_1"),
 		IntegerField("implicit_target_2_effect_2"),
 		IntegerField("implicit_target_2_effect_3"),
-		ForeignKey("radiuseffect1", "SpellRadius"), # radius_effect_1
-		ForeignKey("radiuseffect2", "SpellRadius"),
-		ForeignKey("radiuseffect3", "SpellRadius"),
-		ForeignKey("auraeffect1", "SpellAuraNames"), # aura_effect_1
-		ForeignKey("auraeffect2", "SpellAuraNames"),
-		ForeignKey("auraeffect3", "SpellAuraNames"),
-		IntegerField("intervaleffect1"), # aura_interval_effect_1
-		IntegerField("intervaleffect2"),
-		IntegerField("intervaleffect3"),
-		FloatField("valueeffect1"), # amplitude_effect_1
-		FloatField("valueeffect2"),
-		FloatField("valueeffect3"),
-		IntegerField("maxtargetseffect1"), # chain_targets_effect_1
-		IntegerField("maxtargetseffect2"),
-		IntegerField("maxtargetseffect3"),
-		UnsignedIntegerField("argeffect1"), # type_effect_1
-		UnsignedIntegerField("argeffect2"),
-		UnsignedIntegerField("argeffect3"),
-		IntegerField("misceffect1"), # misc_value_1_effect_1
-		IntegerField("misceffect2"),
-		IntegerField("misceffect3"),
+		ForeignKey("radius_effect_1", "SpellRadius"),
+		ForeignKey("radius_effect_2", "SpellRadius"),
+		ForeignKey("radius_effect_3", "SpellRadius"),
+		ForeignKey("aura_effect_1", "SpellAuraNames"),
+		ForeignKey("aura_effect_2", "SpellAuraNames"),
+		ForeignKey("aura_effect_3", "SpellAuraNames"),
+		IntegerField("aura_interval_effect_1"),
+		IntegerField("aura_interval_effect_2"),
+		IntegerField("aura_interval_effect_3"),
+		FloatField("amplitude_effect_1"),
+		FloatField("amplitude_effect_2"),
+		FloatField("amplitude_effect_3"),
+		IntegerField("chain_targets_effect_1"),
+		IntegerField("chain_targets_effect_2"),
+		IntegerField("chain_targets_effect_3"),
+		UnsignedIntegerField("type_effect_1"),
+		UnsignedIntegerField("type_effect_2"),
+		UnsignedIntegerField("type_effect_3"),
+		IntegerField("misc_value_1_effect_1"),
+		IntegerField("misc_value_1_effect_2"),
+		IntegerField("misc_value_1_effect_3"),
 		IntegerField("misc_value_2_effect_1"),
 		IntegerField("misc_value_2_effect_2"),
 		IntegerField("misc_value_2_effect_3"),
-		ForeignKey("triggerspelleffect1", "Spell"), # trigger_spell_effect_1
-		ForeignKey("triggerspelleffect2", "Spell"),
-		ForeignKey("triggerspelleffect3", "Spell"),
-		FloatField("procchanceeffect1"), # points_combo_effect_1
-		FloatField("procchanceeffect2"),
-		FloatField("procchanceeffect3"),
+		ForeignKey("trigger_spell_effect_1", "Spell"),
+		ForeignKey("trigger_spell_effect_2", "Spell"),
+		ForeignKey("trigger_spell_effect_3", "Spell"),
+		FloatField("points_combo_effect_1"),
+		FloatField("points_combo_effect_2"),
+		FloatField("points_combo_effect_3"),
 		BitMaskField("class_flags_1_effect_1"),
 		BitMaskField("class_flags_1_effect_2"),
 		BitMaskField("class_flags_1_effect_3"),
@@ -2414,7 +2414,7 @@ class Spell(DBStructure):
 		LocalizedFields("description", field_type=SpellMacroField),
 		LocalizedFields("buff_description", field_type=SpellMacroField),
 		IntegerField("mana_cost_percent"),#
-		IntegerField("category_cooldown_start"),
+		ForeignKey("category_cooldown_start", "SpellCategory"),
 		DurationField("cooldown_start", unit="milliseconds"),
 		IntegerField("max_target_level"),
 		IntegerField(), # m_spellClassSet SpellFamilyName?
@@ -2425,9 +2425,9 @@ class Spell(DBStructure):
 		IntegerField(), # m_defenseType DmgClass?
 		IntegerField(), # m_preventionType?
 		IntegerField("stance_bar_order"),
-		FloatField("finishercoeffect1"), # added when? chain_amplitude_effect_1
-		FloatField("finishercoeffect2"),
-		FloatField("finishercoeffect3"),
+		FloatField("chain_amplitude_effect_1"), # added when? 
+		FloatField("chain_amplitude_effect_2"),
+		FloatField("chain_amplitude_effect_3"),
 		ForeignKey("required_faction", "Faction"),
 		IntegerField("required_reputation"),
 		IntegerField("required_aura_vision"),
@@ -2442,9 +2442,9 @@ class Spell(DBStructure):
 
 	def changed_10026(self, base):
 		base.append_fields(
-			FloatField("coeffeffect1"), # multiplier_effect_1
-			FloatField("coeffeffect2"),
-			FloatField("coeffeffect3"),
+			FloatField("multiplier_effect_1"),
+			FloatField("multiplier_effect_2"),
+			FloatField("multiplier_effect_3"),
 			ForeignKey("descriptionvars", "SpellDescriptionVariables"),
 		)
 
@@ -2460,6 +2460,7 @@ class SpellAuraNames(DBStructure):
 	SpellAuraNames.dbc
 	TODO - Structure 1.1.2.4125
 	"""
+	DEAD = True
 	base = Skeleton(
 		IDField(),
 		IntegerField(),
@@ -2471,7 +2472,6 @@ class SpellAuraNames(DBStructure):
 class SpellCategory(DBStructure):
 	"""
 	SpellCategory.dbc
-	Unknown use
 	"""
 	base = Skeleton(
 		IDField(),
@@ -2486,9 +2486,9 @@ class SpellCastTimes(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField("casttime1"),
+		DurationField("cast_time", unit="milliseconds"),
 		IntegerField("modifier"),
-		IntegerField("casttime2"),
+		DurationField("cast_time_max", unit="milliseconds"),
 	)
 
 
@@ -2548,30 +2548,30 @@ class SpellItemEnchantment(DBStructure):
 	base = Skeleton(
 		IDField(),
 		IntegerField("charges"),
-		IntegerField("typeeffect1"),
-		IntegerField("typeeffect2"),
-		IntegerField("typeeffect3"),
-		IntegerField("amounteffect1"),
-		IntegerField("amounteffect2"),
-		IntegerField("amounteffect3"),
-		IntegerField("amounteffect1"), # ?? dup
-		IntegerField("amounteffect2"), # ??
-		IntegerField("amounteffect3"), # ??
-		IntegerField("effect1"), #fkey stat/spell
-		IntegerField("effect2"), #fkey stat/spell
-		IntegerField("effect3"), #fkey stat/spell
+		IntegerField("type_effect_1"),
+		IntegerField("type_effect_2"),
+		IntegerField("type_effect_3"),
+		IntegerField("amount_min_effect_1"),
+		IntegerField("amount_min_effect_2"),
+		IntegerField("amount_min_effect_3"),
+		IntegerField("amount_max_effect_1"),
+		IntegerField("amount_max_effect_2"),
+		IntegerField("amount_max_effect_3"),
+		IntegerField("effect_1"), #fkey stat/spell
+		IntegerField("effect_2"), #fkey stat/spell
+		IntegerField("effect_3"), #fkey stat/spell
 		LocalizedFields("name"),
 		IntegerField(), # glow?
 		IntegerField(),
 		ForeignKey("gem", "item"),
 		IntegerField(), # SpellItemEnchantmentCondition?
-		ForeignKey("required_skill", "skillline"),
+		ForeignKey("required_skill", "SkillLine"),
 		IntegerField("required_skill_level"),
 	)
 	
 	def changed_9637(self, base):
 		base.append_fields(
-			UnknownField(),
+			IntegerField("required_level"),
 		)
 
 
@@ -2593,9 +2593,9 @@ class SpellRadius(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		FloatField("minradius"),
+		FloatField("radius_min"),
 		IntegerField(),
-		FloatField("maxradius"),
+		FloatField("radius_max"),
 	)
 
 
@@ -2606,11 +2606,11 @@ class SpellRange(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		FloatField("minrange1"),
-		FloatField("minrange2"),
-		FloatField("maxrange1"),
-		FloatField("maxrange2"),
-		IntegerField(),
+		FloatField("range_min"),
+		FloatField("range_min_friendly"),
+		FloatField("range_max"),
+		FloatField("range_max_friendly"),
+		BitMaskField("flags"),
 		LocalizedFields("name"),
 		LocalizedFields("tooltipname"),
 	)
@@ -2624,8 +2624,8 @@ class SpellRuneCost(DBStructure):
 	base = Skeleton(
 		IDField(),
 		IntegerField("blood"),
-		IntegerField("frost"),
 		IntegerField("unholy"),
+		IntegerField("frost"),
 		IntegerField("runic_power"),
 	)
 
