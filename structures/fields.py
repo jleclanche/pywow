@@ -205,7 +205,7 @@ class GenericForeignKey(ForeignKeyBase):
 
 class BitMaskField(UnsignedIntegerField):
 	""" Integer field containing a bitmask """
-	def __init__(self, name="", flags=[], **kwargs):
+	def __init__(self, name="", flags={}, **kwargs):
 		UnsignedIntegerField.__init__(self, name, **kwargs)
 		self.flags = flags
 	

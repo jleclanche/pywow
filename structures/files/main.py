@@ -121,23 +121,12 @@ class ItemCache(DBStructure):
 	Item data, cached on in-game item query
 	"""
 	signature = "BDIW"
-
-	flags = ["unk1", "conjured", "openable", "heroic",
-		"deprecated", "totem", "unk64", "no_equip_cooldown",
-		"unk256", "wrapper", "ignore_bagspace", "group_loot",
-		"refundable", "chart", "unk16384", "unk32768",
-		"unk65536", "unk131072", "prospectable", "unique_equipped",
-		"unk1048576", "usable_in_arena", "thrown", "unk8388608",
-		"unk16777216", "unk33554432", "unk67108864", "account_bound",
-		"enchant_scroll", "millable"]
 	
-	flags_2 = ["horde", "alliance"]
-	
-	FLAGS = { # XXX unused for now
+	FLAGS = {
 		0x00000002: "conjured",
 		0x00000004: "openable",
 		0x00000008: "heroic",
-		0x00000010: "deprecated",
+		0x00000010: "broken", # Appears as a red icon, unusable (for deprecated items)
 		0x00000020: "totem",
 		0x00000080: "no_equip_cooldown",
 		0x00000200: "wrapper",
@@ -152,14 +141,39 @@ class ItemCache(DBStructure):
 		0x08000000: "account_bound",
 		0x10000000: "enchant_scroll",
 		0x20000000: "millable",
+		0x80000000: "bop_tradeable"
 	}
 	
-	classes = ["warrior", "paladin", "hunter", "rogue", "priest",
-		"deathknight", "shaman", "mage", "warlock", "", "druid"]
+	FLAGS_2 = {
+		0x00000001: "horde",
+		0x00000002: "alliance",
+	}
 	
-	races = ["human", "orc", "dwarf", "nightelf", "undead", "tauren",
-		"gnome", "troll", "", "bloodelf", "draenei", "",
-		"", "", ""]
+	CLASSES = {
+		0x00000001: "warrior",
+		0x00000002: "paladin",
+		0x00000004: "hunter",
+		0x00000008: "rogue",
+		0x00000010: "priest",
+		0x00000020: "deathknight",
+		0x00000040: "shaman",
+		0x00000080: "mage",
+		0x00000100: "warlock",
+		0x00000400: "druid",
+	}
+	
+	RACES = {
+		0x00000001: "human",
+		0x00000002: "orc",
+		0x00000004: "dwarf",
+		0x00000008: "nightelf",
+		0x00000010: "undead",
+		0x00000020: "tauren",
+		0x00000040: "gnome",
+		0x00000080: "troll",
+		0x00000200: "bloodelf",
+		0x00000400: "draenei",
+	}
 	
 	base = Skeleton(
 		IDField(),
@@ -172,12 +186,12 @@ class ItemCache(DBStructure):
 		StringField("name4"),
 		ForeignKey("display", "itemdisplayinfo"),
 		IntegerField("quality"),
-		BitMaskField("flags", flags=flags),
+		BitMaskField("flags", flags=FLAGS),
 		MoneyField("buy_price"),
 		MoneyField("sell_price"),
 		IntegerField("slot"),
-		BitMaskField("class_mask", flags=classes),
-		BitMaskField("race_mask", flags=races),
+		BitMaskField("class_mask", flags=CLASSES),
+		BitMaskField("race_mask", flags=RACES),
 		IntegerField("level"),
 		IntegerField("required_level"),
 		ForeignKey("required_skill", "SkillLine"),
@@ -539,12 +553,22 @@ class QuestCache(DBStructure):
 	Quest data, cached on in-game quest query
 	"""
 	signature = "TSQW"
-
-	flags = ["unk1", "unk2", "unk4", "requires_server_event",
-		"unused16", "turnin_invisible_without", "raid", "requires_burningcrusade",
-		"unk256", "unk512", "flagger", "unk2048",
-		"daily", "flags_pvp", "unk16384"]
-
+	
+	FLAGS = {
+		0x00000001: "objective_stay_alive",
+		0x00000002: "party_accept",
+		0x00000004: "objective_exploration",
+		0x00000008: "sharable",
+		0x00000020: "epic",
+		0x00000040: "raid",
+		0x00000080: "requires_tbc",
+		0x00000200: "hidden_rewards",
+		0x00000400: "auto_rewarded",
+		0x00000800: "tbc_starting_zone",
+		0x00001000: "daily",
+		0x00008000: "weekly",
+	}
+	
 	get_kill_relation = lambda x, value: value == value & 0x7fffffff and "creaturecache" or "gameobjectcache"
 	get_kill_value = lambda x, value: value & 0x7fffffff
 
@@ -568,7 +592,7 @@ class QuestCache(DBStructure):
 		ForeignKey("spell_trigger", "spell"),
 		IntegerField("unknown_308"), #added 3.0.8, unused apart from 200 in 13233/13234
 		ForeignKey("provided_item", "item"),
-		BitMaskField("flags", flags=flags),
+		BitMaskField("flags", flags=FLAGS),
 		ForeignKey("title_reward", "chartitles"), #added 2.4
 		IntegerField("required_player_kills"), #added 8334
 		IntegerField("bonus_talents"), #added 8471
@@ -690,11 +714,15 @@ class Achievement(DBStructure):
 	Achievement.dbc
 	Achievement data
 	"""
-
-	flags = ["statistic", "unk2", "unk4", "unk8",
-		"unk16", "unk32", "average", "unk128",
-		"serverfirst", "serverfirst_raid", ]
-
+	
+	FLAGS = {
+		0x00000001: "statistic",
+		0x00000040: "show_average",
+		0x00000080: "show_progress_bar",
+		0x00000100: "serverfirst",
+		0x00000200: "serverfirst_raid",
+	}
+	
 	base = Skeleton(
 		IDField(),
 		IntegerField("faction"),
@@ -705,7 +733,7 @@ class Achievement(DBStructure):
 		ForeignKey("category", "achievement_category"),
 		IntegerField("points"),
 		IntegerField(),
-		BitMaskField("flags", flags=flags),
+		BitMaskField("flags", flags=FLAGS),
 		ForeignKey("icon", "spellicon"),
 		LocalizedFields("reward"),
 		IntegerField("amountreq"),
@@ -1384,7 +1412,9 @@ class GlyphProperties(DBStructure):
 	Glyph data
 	"""
 	
-	FLAGS = ["minor", ]
+	FLAGS = {
+		0x00000001: "minor",
+	}
 	
 	base = Skeleton(
 		IDField(),
@@ -2266,17 +2296,37 @@ class Spell(DBStructure):
 	Spell.dbc
 	Contains all spell data.
 	"""
+	
+	FLAGS = {
+		0x00000004: "next_melee",
+		0x00000020: "tradespell",
+		0x00000040: "passive",
+		0x00000400: "next_melee_2",
+		0x08000000: "usable_while_sitting",
+		0x10000000: "not_usable_in_combat",
+	}
+	
+	FLAGS_5 = {
+		0x00000040: "cannot_be_stolen"
+	}
+	
+	FLAGS_6 = {
+		0x00000002: "no_reagents_during_preparation",
+		0x00020000: "usable_while_feared",
+		0x00040000: "usable_while_confused",
+	}
+	
 	base = Skeleton(
 		IDField(),
 		ForeignKey("category", "SpellCategory"),
 		IntegerField("dispel_type"),
 		IntegerField("mechanic"),
-		BitMaskField("flags_1"),
+		BitMaskField("flags_1", flags=FLAGS),
 		BitMaskField("flags_2"),
 		BitMaskField("flags_3"),
 		BitMaskField("flags_4"),
-		BitMaskField("flags_5"),
-		BitMaskField("flags_6"),
+		BitMaskField("flags_5", flags=FLAGS_5),
+		BitMaskField("flags_6", flags=FLAGS_6),
 		BitMaskField("flags_7"),
 		IntegerField(), ## Added 320?
 		BitMaskField("required_stances"),
