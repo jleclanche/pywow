@@ -289,15 +289,15 @@ class ItemCache(DBStructure):
 		ForeignKey("pagelanguage", "languages"),
 		ForeignKey("pagestationery", "stationery"),
 		ForeignKey("starts_quest", "questcache"),
-		ForeignKey("lock", "lock"),
-		IntegerField("material"),
+		ForeignKey("lock", "Lock"),
+		ForeignKey("material", "Material"),
 		IntegerField("sheath_type"),
-		ForeignKey("randomenchantment", "itemrandomproperties"),
+		ForeignKey("randomenchantment", "ItemRandomProperties"),
 		IntegerField("block"),
-		ForeignKey("itemset", "itemset"),
+		ForeignKey("itemset", "ItemSet"),
 		IntegerField("durability"),
-		ForeignKey("zone_bind", "areatable"),
-		ForeignKey("instance_bind", "map"),
+		ForeignKey("zone_bind", "AreaTable"),
+		ForeignKey("instance_bind", "Map"),
 		IntegerField("bag_category"),
 		ForeignKey("tool_category", "TotemCategory"),
 		BitMaskField("socket1"),
@@ -306,8 +306,8 @@ class ItemCache(DBStructure):
 		IntegerField("socket2info"),
 		BitMaskField("socket3"),
 		IntegerField("socket3info"),
-		ForeignKey("socket_bonus", "spellitemenchantment"),
-		ForeignKey("gem_properties", "gemproperties"),
+		ForeignKey("socket_bonus", "SpellItemEnchantment"),
+		ForeignKey("gem_properties", "GemProperties"),
 		IntegerField("extendedcost"),
 	)
 
@@ -1991,6 +1991,24 @@ class MapDifficulty(DBStructure):
 		UnknownField(),
 	)
 
+
+class Material(DBStructure):
+	"""
+	Material.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("page_material", "PageTextMaterial"),
+		UnknownField(),
+	)
+	
+	def changed_9901(self, base):
+		base.append_fields(
+			UnknownField(),
+			UnknownField(),
+		)
+
+
 class Movie(DBStructure):
 	"""
 	Movie.dbc
@@ -2049,6 +2067,17 @@ class Package(DBStructure):
 		UnknownField(),
 		UnknownField(),
 		LocalizedFields("name"),
+	)
+
+
+class PageTextMaterial(DBStructure):
+	"""
+	PageTextMaterial.dbc
+	Material (background image) for pages
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
 	)
 
 
@@ -2306,6 +2335,11 @@ class Spell(DBStructure):
 		0x10000000: "not_usable_in_combat",
 	}
 	
+	FLAGS_2 = {
+		0x00000004: "channeled",
+		0x00000040: "channeled_2",
+	}
+	
 	FLAGS_5 = {
 		0x00000040: "cannot_be_stolen"
 	}
@@ -2322,7 +2356,7 @@ class Spell(DBStructure):
 		IntegerField("dispel_type"),
 		IntegerField("mechanic"),
 		BitMaskField("flags_1", flags=FLAGS),
-		BitMaskField("flags_2"),
+		BitMaskField("flags_2", flags=FLAGS_2),
 		BitMaskField("flags_3"),
 		BitMaskField("flags_4"),
 		BitMaskField("flags_5", flags=FLAGS_5),
