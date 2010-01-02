@@ -2354,7 +2354,7 @@ class Spell(DBStructure):
 		IDField(),
 		ForeignKey("category", "SpellCategory"),
 		IntegerField("dispel_type"),
-		IntegerField("mechanic"),
+		ForeignKey("mechanic", "SpellMechanic"),
 		BitMaskField("flags_1", flags=FLAGS),
 		BitMaskField("flags_2", flags=FLAGS_2),
 		BitMaskField("flags_3"),
@@ -2914,50 +2914,129 @@ class WorldChunkSounds(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
 class WorldMapArea(DBStructure):
 	"""
 	WorldMapArea.dbc
-	Unknown use
+	Map data for each "zone" (instance)
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		ForeignKey("instance", "Map"),
+		ForeignKey("area", "AreaTable"),
+		StringField("name"),
+		FloatField("y_1"),
+		FloatField("y_2"),
+		FloatField("x_1"),
+		FloatField("x_2"),
+		ForeignKey("virtual_map", "Map"),
+		ForeignKey("dungeon_map", "DungeonMap"),
+	)
+	
+	def changed_10116(self, base):
+		base.append_fields(
+			UnknownField(),
+		)
+
+
+class WorldMapContinent(DBStructure):
+	"""
+	WorldMapContinent.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("instance", "Map"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 		FloatField(),
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField(),
-		IntegerField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+	
+	def changed_9901(self, base):
+		"""
+		XXX Unknown build!
+		"""
+		base.append_fields(
+			UnknownField(),
+		)
+
+
+class WorldMapOverlay(DBStructure):
+	"""
+	WorldMapOverlay.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("zone", "WorldMapArea"),
+		ForeignKey("area_1", "AreaTable"),
+		ForeignKey("area_2", "AreaTable"),
+		ForeignKey("area_3", "AreaTable"),
+		ForeignKey("area_4", "AreaTable"),
+		ForeignKey("area_5", "AreaTable"), # unused
+		ForeignKey("area_6", "AreaTable"), # unused
+		StringField("name"),
+		IntegerField("width"),
+		IntegerField("height"),
+		IntegerField("left"),
+		IntegerField("top"),
+		IntegerField("y1"),
+		IntegerField("x1"),
+		IntegerField("y2"),
+		IntegerField("x2"),
+	)
+
+
+class WorldMapTransforms(DBStructure):
+	"""
+	WorldMapTransforms.dbc
+	Coordinate transformations from one
+	instance to another - Example:
+	Expansion01 -> Azuremyst Isles
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("map", "Map"),
+		FloatField(), # x1
+		FloatField(), # x2
+		FloatField(), # y1
+		FloatField(), # y2
+		ForeignKey("target_map", "Map"),
+		FloatField("target_x"),
+		FloatField("target_y"),
+		UnknownField(),
 	)
 
 
 class WorldStateZoneSounds(DBStructure):
 	"""
 	WorldStateZoneSounds.dbc
-	Unknown use
 	"""
 	base = Skeleton(
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		IDField(), # Multiple instances of row X?!
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -2976,7 +3055,6 @@ class WowError_Strings(DBStructure):
 class ZoneIntroMusicTable(DBStructure):
 	"""
 	ZoneIntroMusicTable.dbc
-	TODO
 	"""
 	base = Skeleton(
 		IDField(),
@@ -2990,7 +3068,6 @@ class ZoneIntroMusicTable(DBStructure):
 class ZoneMusic(DBStructure):
 	"""
 	ZoneMusic.dbc
-	TODO
 	"""
 	base = Skeleton(
 		IDField(),
@@ -3002,4 +3079,3 @@ class ZoneMusic(DBStructure):
 		IntegerField(),
 		IntegerField(),
 	)
-
