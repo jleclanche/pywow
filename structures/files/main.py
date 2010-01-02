@@ -798,17 +798,16 @@ class AnimationData(DBStructure):
 class AreaGroup(DBStructure):
 	"""
 	AreaGroup.dbc
-	TODO
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -848,27 +847,33 @@ class AreaTable(DBStructure):
 	AreaTable.dbc
 	Contains all zone and subzone data.
 	"""
+	
+	PVP_FLAGS = { # Sanctuary = 2+4, contested = 0
+		0x02: "Horde",
+		0x04: "Alliance",
+	}
+	
 	base = Skeleton(
 		IDField(),
 		ForeignKey("instance", "map"),
-		ForeignKey("parentarea", "areatable"),
+		ForeignKey("parent_area", "areatable"),
+		IntegerField(), # Fkey but to what?
+		BitMaskField("flags"),
 		IntegerField(),
-		BitMaskField(),
-		IntegerField(),
-		IntegerField(), # SoundAmbience
-		IntegerField(), # ZoneMusic
-		IntegerField(), # ZoneIntroMusicTable
-		IntegerField(),
+		IntegerField(), # 11 or 0
+		ForeignKey("sound_ambience", "SoundAmbience"),
+		ForeignKey("music", "ZoneMusic"),
+		ForeignKey("intro_music", "ZoneIntroMusicTable"),
 		IntegerField("level"),
 		LocalizedFields("name"),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		BitMaskField("pvp_flags", flags=PVP_FLAGS),
+		IntegerField(), # 81 61 41 1...
+		IntegerField(), # 0
+		IntegerField(), # 0
+		IntegerField(), # 21 for naxxramas (3456)
+		FloatField(), # 1000, -500, -5000
 		FloatField(),
-		FloatField(),
-		IntegerField(),
+		IntegerField(), # 0
 	)
 
 
@@ -2945,7 +2950,7 @@ class WorldMapArea(DBStructure):
 	
 	def changed_10116(self, base):
 		base.append_fields(
-			UnknownField(),
+			ForeignKey("parent_area", "WorldMapArea"), # Not for all?!
 		)
 
 
