@@ -1262,6 +1262,7 @@ class CharStartOutfit(DBStructure):
 			ForeignKey("item_23", "Item"),
 			ForeignKey("item_24", "Item"),
 		], before="display_1")
+		
 		base.insert_fields([
 			ForeignKey("display_13", "ItemDisplayInfo"),
 			ForeignKey("display_14", "ItemDisplayInfo"),
@@ -1276,6 +1277,7 @@ class CharStartOutfit(DBStructure):
 			ForeignKey("display_23", "ItemDisplayInfo"),
 			ForeignKey("display_24", "ItemDisplayInfo"),
 		], before="inventory_type_1")
+		
 		base.append_fields(
 			IntegerField("inventory_type_13"),
 			IntegerField("inventory_type_14"),
@@ -1290,6 +1292,20 @@ class CharStartOutfit(DBStructure):
 			IntegerField("inventory_type_23"),
 			IntegerField("inventory_type_24"),
 		)
+
+
+class CharVariations(DBStructure):
+	"""
+	CharVariations.dbc
+	"""
+	base = Skeleton(
+		IDField(), # shared with ChrRaces
+		IntegerField("gender"),
+		UnknownField(),
+		BitMaskField(),
+		BitMaskField(),
+		UnknownField(),
+	)
 
 
 class ChatChannels(DBStructure):
@@ -1334,7 +1350,7 @@ class ChrClasses(DBStructure):
 		StringField("internal_name"),
 		IntegerField(),
 		IntegerField(),
-		IntegerField(),
+		ForeignKey("cinematic", "CinematicSequences"), # Only for Death Knight
 		IntegerField("expansionreq"),
 	)
 
@@ -1346,38 +1362,44 @@ class ChrRaces(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		StringField("abbreviation"),
-		FloatField(), #scale?
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		BitMaskField("flags"),
+		ForeignKey("faction_template", "FactionTemplate"),
+		ForeignKey("exploration_sound", "SoundEntries"),
+		ForeignKey("model_male", "CreatureDisplayInfo"),
+		ForeignKey("model_female", "CreatureDisplayInfo"),
+		StringField("abbreviation"), # Used for helmet models
+		FloatField("scale"),
+		UnknownField(), # 1 = Horde, 7 = Alliance & not playable?
+		ForeignKey("creature_type", "CreatureType"),
+		UnknownField(), # always 15007
+		UnknownField(), # 1090 for dwarves, 1096 for the others. Getting stored in CGUnit at CGUnit::PostInit.
 		StringField("internal_name"),
-		IntegerField(),
-		LocalizedFields("namemale"),
-		LocalizedFields("namefemale"),
-		LocalizedFields("nameunknown"),
-		StringField("facialhair"),
-		StringField("earrings"),
-		StringField("horns"),
-		IntegerField("expansionreq"),
+		ForeignKey("cinematic", "CinematicSequences"),
+		LocalizedFields("name_male"),
+		LocalizedFields("name_female"),
+		LocalizedFields("name_neutral"),
+		StringField("feature_1"), # facial_hair
+		StringField("feature_2"), # earrings
+		StringField("feature_3"), # horns
+		IntegerField("expansion"),
 	)
+	
+	def changed_10048(self, base):
+		base.delete_fields("scale")
+	
+	def changed_10433(self, base):
+		self.changed_10048(base)
+		base.insert_field(UnknownField(), before="name_male") # Faction?
 
 
 class CinematicCamera(DBStructure):
 	"""
 	CinematicCamera.dbc
-	TODO
 	"""
 	base = Skeleton(
 		IDField(),
-		FilePathField(),
-		UnknownField(),
+		FilePathField("path"),
+		ForeignKey("voiceover", "SoundEntries"),
 		FloatField(),
 		FloatField(),
 		FloatField(),
@@ -1388,7 +1410,6 @@ class CinematicCamera(DBStructure):
 class CinematicSequences(DBStructure):
 	"""
 	CinematicSequences.dbc
-	TODO
 	"""
 	base = Skeleton(
 		IDField(),
@@ -2332,20 +2353,6 @@ class PageTextMaterial(DBStructure):
 	)
 
 
-class PowerDisplay(DBStructure):
-	"""
-	PowerDisplay.dbc
-	"""
-	base = Skeleton(
-		IDField(),
-		UnknownField(),
-		StringField("name"),
-		ByteField(),
-		ByteField(),
-		ByteField(),
-	)
-
-
 class PetLoyalty(DBStructure):
 	"""
 	PetLoyalty.dbc
@@ -2371,6 +2378,35 @@ class PetPersonality(DBStructure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
+	)
+
+
+class PowerDisplay(DBStructure):
+	"""
+	PowerDisplay.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		StringField("name"),
+		ByteField(),
+		ByteField(),
+		ByteField(),
+	)
+
+
+class PvpDifficulty(DBStructure):
+	"""
+	PvpDifficulty.dbc
+	Battleground/arena brackets
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("instance", "Map"),
+		IntegerField("ordering"),
+		IntegerField("level_min"),
+		IntegerField("level_max"),
+		UnknownField(), # something to do with ordering
 	)
 
 
@@ -2896,7 +2932,7 @@ class SpellItemEnchantment(DBStructure):
 		IntegerField("effect_2"), #fkey stat/spell
 		IntegerField("effect_3"), #fkey stat/spell
 		LocalizedFields("name"),
-		ForeignKey("glow", "ItemVisuals"), # glow?
+		ForeignKey("glow", "ItemVisuals"),
 		IntegerField(),
 		ForeignKey("gem", "item"), # added 5610
 		ForeignKey("conditions", "SpellItemEnchantmentCondition"), # added 5610
@@ -2947,7 +2983,7 @@ class SpellRange(DBStructure):
 		FloatField("range_max_friendly"),
 		BitMaskField("flags"),
 		LocalizedFields("name"),
-		LocalizedFields("tooltipname"),
+		LocalizedFields("tooltip_name"),
 	)
 
 
@@ -3027,37 +3063,37 @@ class Stationery(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("item", "itemcache"),
+		ForeignKey("item", "Item"),
 		StringField("name"),
 		UnknownField(),
 	)
 
 class Talent(DBStructure):
 	"""
-	Talent.dbc		
+	Talent.dbc
+	Player/pet talents
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey('tab', 'talenttab'),
-		UnsignedIntegerField('row'),
-		UnsignedIntegerField('col'),
-		#UnsignedIntegerField('rankid1'),
-		#UnsignedIntegerField('rankid2'),
-		#UnsignedIntegerField('rankid3'),
-		#UnsignedIntegerField('rankid4'),
-		#UnsignedIntegerField('rankid5'),
-		ListField('rankid', length=5),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnsignedIntegerField('depends_on'),
-		UnknownField(),
-		UnknownField(),
-		UnsignedIntegerField('depends_on_rank'),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
+		ForeignKey("tab", "TalentTab"),
+		UnsignedIntegerField("row"),
+		UnsignedIntegerField("column"),
+		ForeignKey("rank_1", "Spell"),
+		ForeignKey("rank_2", "Spell"),
+		ForeignKey("rank_3", "Spell"),
+		ForeignKey("rank_4", "Spell"),
+		ForeignKey("rank_5", "Spell"),
+		ForeignKey("rank_6", "Spell"),
+		ForeignKey("rank_7", "Spell"),
+		ForeignKey("rank_8", "Spell"),
+		ForeignKey("rank_9", "Spell"),
+		ForeignKey("depends_1", "Talent"),
+		ForeignKey("depends_2", "Talent"),
+		ForeignKey("depends_3", "Talent"),
+		IntegerField("depends_count_1"),
+		IntegerField("depends_count_2"),
+		IntegerField("depends_count_3"),
+		BooleanField("single_point"), # More like "teaches spell"
 		UnknownField(),
 		UnknownField(),
 		UnknownField(),
@@ -3092,8 +3128,8 @@ class TaxiNodes(DBStructure):
 		FloatField("coord_y"),
 		FloatField("coord_z"),
 		LocalizedFields("name"),
-		IntegerField(),
-		IntegerField(),
+		ForeignKey("mount_horde", "creaturecache"),
+		ForeignKey("mount_alliance", "creaturecache"),
 	)
 
 class TotemCategory(DBStructure):
@@ -3132,13 +3168,43 @@ class TransportPhysics(DBStructure):
 class UnitBloodLevels(DBStructure):
 	"""
 	UnitBloodLevels.dbc
-	Unknown use
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class VideoHardware(DBStructure):
+	"""
+	VideoHardware.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		StringField(),
+		StringField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -3149,13 +3215,16 @@ class Weather(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
+		ForeignKey("sound", "SoundEntries"),
+		IntegerField("type"), #	 1 = Rain, 2 = Snow, 3 = Sandstorm
+		FloatField(), # cmyk?
 		FloatField(),
 		FloatField(),
-		FloatField(),
-		IntegerField(),
+		FilePathField("texture"),
 	)
+	
+	def changed_10522(self, base):
+		base.insert_field(FloatField(), before="texture")
 
 
 class WorldChunkSounds(DBStructure):
@@ -3264,15 +3333,20 @@ class WorldMapTransforms(DBStructure):
 	base = Skeleton(
 		IDField(),
 		ForeignKey("map", "Map"),
-		FloatField(), # x1
-		FloatField(), # x2
-		FloatField(), # y1
-		FloatField(), # y2
+		FloatField("x1"),
+		FloatField("x2"),
+		FloatField("y1"),
+		FloatField("y2"),
 		ForeignKey("target_map", "Map"),
 		FloatField("target_x"),
 		FloatField("target_y"),
-		UnknownField(),
 	)
+	
+	def changed_9658(self, base):
+		"""
+		XXX When was this added? 6080->9658
+		"""
+		base.append_fields(UnknownField())
 
 
 class WorldStateZoneSounds(DBStructure):
