@@ -786,11 +786,11 @@ class AnimationData(DBStructure):
 	base = Skeleton(
 		IDField(),
 		StringField("name"),
-		BitMaskField(),
-		BitMaskField(),
-		BitMaskField(),
-		IntegerField(),
-		IntegerField(),
+		BitMaskField("weapon_state"),
+		BitMaskField("flags"),
+		UnknownField(),
+		ForeignKey("animation_before", "AnimationData"),
+		ForeignKey("real_animation", "AnimationData"),
 		IntegerField("flying"), # fly = 3
 	)
 
@@ -798,16 +798,18 @@ class AnimationData(DBStructure):
 class AreaGroup(DBStructure):
 	"""
 	AreaGroup.dbc
+	Added during 3.0.x
+	XXX What's this used for?
 	"""
 	base = Skeleton(
 		IDField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
+		ForeignKey("area_1", "AreaTable"),
+		ForeignKey("area_2", "AreaTable"),
+		ForeignKey("area_3", "AreaTable"),
+		ForeignKey("area_4", "AreaTable"),
+		ForeignKey("area_5", "AreaTable"),
+		ForeignKey("area_6", "AreaTable"),
+		ForeignKey("next_group", "AreaGroup"),
 	)
 
 
@@ -848,7 +850,7 @@ class AreaTable(DBStructure):
 	Contains all zone and subzone data.
 	"""
 	
-	PVP_FLAGS = { # Sanctuary = 2+4, contested = 0
+	TERRITORY_FLAGS = { # Sanctuary = 2+4, contested = 0
 		0x02: "Horde",
 		0x04: "Alliance",
 	}
@@ -866,7 +868,7 @@ class AreaTable(DBStructure):
 		ForeignKey("intro_music", "ZoneIntroMusicTable"),
 		IntegerField("level"),
 		LocalizedFields("name"),
-		BitMaskField("pvp_flags", flags=PVP_FLAGS),
+		BitMaskField("territory_flags", flags=TERRITORY_FLAGS),
 		IntegerField(), # 81 61 41 1...
 		IntegerField(), # 0
 		IntegerField(), # 0
