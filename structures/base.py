@@ -88,7 +88,6 @@ class Skeleton(list):
 		except ValueError:
 			raise ValueError("%r is not a valid column reference for insert_field" % (before))
 	
-	
 	def append_fields(self, *fields):
 		for field in fields:
 			self.append(field)
@@ -102,6 +101,10 @@ class Skeleton(list):
 				names.pop(names.index(field))
 			except ValueError:
 				raise ValueError("%r is not a valid column to delete" % (field))
+	
+	def insert_fields(self, fields, before):
+		for field in fields:
+			self.insert_field(field, before=before)
 	
 	def update_locales(self, locales):
 		updated = False
