@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
-from .fields import *
+from .fields import DynamicFieldsBase, IDField, LocalizedFields, RecLenField, LOCALES
 from ..logger import log
 
 ##########
@@ -87,21 +87,31 @@ class Skeleton(list):
 			self.insert(names.index(before), field)
 		except ValueError:
 			raise ValueError("%r is not a valid column reference for insert_field" % (before))
-
-
+	
+	
 	def append_fields(self, *fields):
 		for field in fields:
 			self.append(field)
-
+	
 	def delete_fields(self, *fields):
 		names = [field.name for field in self]
-
+		
 		for field in fields:
 			try:
 				self.pop(names.index(field))
 				names.pop(names.index(field))
 			except ValueError:
 				raise ValueError("%r is not a valid column to delete" % (field))
+	
+	def update_locales(self, locales):
+		updated = False
+		for field in self:
+			if isinstance(field, LocalizedFields):
+				field.update_locales(locales)
+				updated = True
+		
+		if not updated:
+			raise ValueError("No locales to update for update_locales")
 
 
 class _Generated(DBStructure):
@@ -110,4 +120,3 @@ class _Generated(DBStructure):
 		columns = []
 		self.base = Skeleton(*[get_field_by_char(s)() for s in structure_string])
 		DBStructure.__init__(self)
-
