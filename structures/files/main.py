@@ -971,31 +971,52 @@ class BattlemasterList(DBStructure):
 	"""
 	BattlemasterList.dbc
 	Called when talking to a battlemaster.
+	Added in TBC
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("joinmap1", "map"),
-		ForeignKey("joinmap2", "map"),
-		ForeignKey("joinmap3", "map"),
-		ForeignKey("joinmap4", "map"),
-		ForeignKey("joinmap5", "map"),
-		ForeignKey("joinmap6", "map"),
-		ForeignKey("joinmap7", "map"),
-		ForeignKey("joinmap8", "map"),
+		ForeignKey("map_1", "Map"),
+		ForeignKey("map_2", "Map"),
+		ForeignKey("map_3", "Map"),
+		ForeignKey("map_4", "Map"),
+		ForeignKey("map_5", "Map"),
+		ForeignKey("map_6", "Map"),
+		ForeignKey("map_7", "Map"),
+		ForeignKey("map_8", "Map"),
 		IntegerField("type"), # 3 for bg, 4 for arena
-		IntegerField("required_level"),
+		IntegerField("min_level"),
 		IntegerField("max_level"),
 		IntegerField("max_players"),
 		IntegerField("level_band"), # 10-19, 20-29, ...
-		IntegerField("join_as_group"),
+		BooleanField("join_as_group"),
 		LocalizedFields("name", locales=OLD_LOCALES)
-		##IntegerField(), # related to max group, 5 for av 15 for sota. rest 40, wtf?
 	)
 	
 	def changed_9551(self, base):
 		base.insert_field(IntegerField("min_players"), before="level_band")
 		base.update_locales(LOCALES) # XXX When did locales change?
 		base.append_fields(IntegerField("max_group_size"))
+	
+	def changed_9658(self, base):
+		"""
+		What's this field? 0 for all arenas
+		1- Alterac Valley = 1941
+		2- Warsong Gulch = 1942
+		3- Arathi Basin = 1943
+		7- Eye of the Storm = 2851
+		9- Strand of the Ancients = 3695
+		"""
+		self.changed_9551(base)
+		base.append_fields(IntegerField("unknown_9658"))
+	
+	def changed_10554(self, base):
+		self.changed_9658(base)
+		base.delete_fields(
+			"min_players",
+			"level_band",
+			"min_level",
+			"max_level",
+		)
 
 
 class BankBagSlotPrices(DBStructure):
