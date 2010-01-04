@@ -617,8 +617,8 @@ class QuestCache(DBStructure):
 		ForeignKey("rewarditemchoice6", "item"),
 		IntegerField("rewarditemchoiceamt6"),
 		ForeignKey("instance", "map"),
-		CoordField("xcoord"),
-		CoordField("ycoord"),
+		FloatField("coord_x"),
+		FloatField("coord_y"),
 		UnknownField(),
 		StringField("name"),
 		StringField("objective"),
@@ -816,31 +816,39 @@ class AreaGroup(DBStructure):
 class AreaPOI(DBStructure):
 	"""
 	AreaPOI.dbc
-	Map/Minimap POIs (no guard data)
+	Points of Interest (POI) on the minimap and battlemap.
+	Includes text, icons, positioning and other misc things.
 	"""
+	
+	FLAGS = {
+		0x004: "zone",
+		0x080: "battleground",
+		0x200: "show_in_battlemap",
+	}
+	
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(), #icon neutral normal
-		IntegerField(), #icon neutral damaged
-		IntegerField(), #icon neutral destroyed
-		IntegerField(), #icon alliance normal
-		IntegerField(), #icon alliance damaged
-		IntegerField(), #icon alliance destroyed
-		IntegerField(), #icon horde normal
-		IntegerField(), #icon horde damaged
-		IntegerField(), #icon horde destroyed
-		IntegerField(),
-		CoordField(),
-		CoordField(),
-		CoordField(),
+		UnknownField(),
+		IntegerField("icon_normal"),
+		IntegerField("icon_damaged"),
+		IntegerField("icon_destroyed"),
+		IntegerField("horde_icon_normal"),
+		IntegerField("horde_icon_damaged"),
+		IntegerField("horde_icon_destroyed"),
+		IntegerField("alliance_icon_normal"),
+		IntegerField("alliance_icon_damaged"),
+		IntegerField("alliance_icon_destroyed"),
+		UnknownField(),
+		FloatField("x"),
+		FloatField("y"),
+		FloatField("z"),
 		ForeignKey("instance", "map"),
-		IntegerField(),
-		IntegerField(),
+		BitMaskField("display_flags", flags=FLAGS),
+		ForeignKey("area", "AreaTable"),
 		LocalizedFields("name"),
 		LocalizedFields("description"),
-		IntegerField(),
-		IntegerField(),
+		IntegerField("world_state"),
+		UnknownField(),
 	)
 
 
@@ -882,19 +890,25 @@ class AreaTable(DBStructure):
 class AreaTrigger(DBStructure):
 	"""
 	AreaTrigger.dbc
-	Zone/Subzone locations
+	Defines certain areas on the map that presumably tell the server
+	to fire a certain event. For example in BWL, telling the goblins
+	around vael to run away is a trigger defined here. There are
+	also misc triggers out in the middle of space which have 0 size,
+	which are most likely used by the server for certain things. One
+	such use could be remembering settings per instance, for example,
+	draconid colors for Nefarian.
 	"""
 	base = Skeleton(
 		IDField(),
 		ForeignKey("instance", "map"),
-		CoordField(),
-		CoordField(),
-		CoordField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("x"),
+		FloatField("y"),
+		FloatField("z"),
+		FloatField("size"),
+		FloatField("box_y"),
+		FloatField("box_y"),
+		FloatField("box_z"),
+		FloatField("box_orientation"),
 	)
 
 
@@ -1986,8 +2000,8 @@ class Map(DBStructure):
 		LocalizedFields("heroic_requirements"),
 		LocalizedFields("epic_requirements"),
 		ForeignKey("continent", "map"),
-		CoordField("entrance_x"),
-		CoordField("entrance_y"),
+		FloatField("entrance_x"),
+		FloatField("entrance_y"),
 		DurationField("normal_reset", unit="seconds"),
 		DurationField("heroic_reset", unit="seconds"),
 		DurationField("epic_reset", unit="seconds"),
@@ -2868,9 +2882,9 @@ class TaxiNodes(DBStructure):
 	base = Skeleton(
 		IDField(),
 		IntegerField("instance"),
-		CoordField("xcoord"),
-		CoordField("ycoord"),
-		CoordField("zcoord"),
+		FloatField("coord_x"),
+		FloatField("coord_y"),
+		FloatField("coord_z"),
 		LocalizedFields("name"),
 		IntegerField(),
 		IntegerField(),
