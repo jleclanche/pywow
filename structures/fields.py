@@ -7,16 +7,18 @@ from ..parser.spellstrings import SpellString
 from ..parser.bitflags import BitFlags
 
 
-##########
-## Core ##
-##########
+##
+# Core
+#
 
 OLD_LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx")
 LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx",
 	"ruru", "unk1", "unk2", "unk3", "unk4", "unk5", "unk6", "unk7")
 
 class DBField(object):
-	"""A database field."""
+	"""
+	A database field.
+	"""
 	def __init__(self, name="", dynamic=0, group=None, dead=False):
 		self.name = name or "unknown"
 		self.dyn = dynamic
@@ -35,9 +37,9 @@ class DBField(object):
 		return value
 
 
-################
-## Base types ##
-################
+##
+# Base types
+#
 
 class ByteField(DBField):
 	"""1-byte field."""
@@ -64,19 +66,23 @@ class FloatField(DBField):
 	char = "f"
 
 
-#######################
-## Core custom types ##
-#######################
+##
+# Core custom types
+#
 
 class IDField(IntegerField):
+	"""
+	Integer field containing the row's ID
+	"""
 	def __init__(self, name="_id"):
 		IntegerField.__init__(self, name=name)
 
-class DynamicMaster(IntegerField):
+class RecLenField(IntegerField):
 	"""
-	Master field for dynamic columns, determining how many will be present.
+	Integer field containing the length of the row from itself
 	"""
-	char = "A"
+	def __init__(self, name="_reclen"):
+		IntegerField.__init__(self, name=name)
 
 class StringIDField(IDField):
 	"""
@@ -93,18 +99,25 @@ class ImplicitIDField(DBField):
 	def __init__(self, name="_id"):
 		DBField.__init__(self, name=name)
 
-###################
-## Dynamic types ##
-###################
+
+##
+# Dynamic types
+#
 
 class DynamicFieldsBase(list):
 	def get_fields(self):
 		return self
 
+class DynamicMaster(IntegerField):
+	"""
+	Master field for dynamic columns, determining how many will be present.
+	"""
+	char = "A"
+
 class DynamicFields(DynamicFieldsBase):
 	"""
 	A dynamic column master, followed by the full list of dynamic columns.
-	Usage:
+	Used in itemcache.wdb
 	DynamicFields("name", [((Field, "x"), (Field, "y"), ...), 10])
 	"""
 	
@@ -154,15 +167,9 @@ class ListField(DynamicFieldsBase):
 			self.append(field_type(name="%s_%d" % (name, i), group=self, **kwargs))
 
 
-
-##################
-## Custom types ##
-##################
-
-class RecLenField(IntegerField):
-	def __init__(self, name="_reclen"):
-		IntegerField.__init__(self, name=name)
-
+##
+# Relations
+#
 
 class UnresolvedObjectRef(int):
 	def __repr__(self):
@@ -174,7 +181,9 @@ class UnresolvedRelation(Exception):
 		super(UnresolvedRelation, self).__init__(message)
 
 class ForeignKeyBase(IntegerField):
-	""" Base class for ForeignKeys """
+	"""
+	Base class for ForeignKeys
+	"""
 	def from_python(self, value):
 		if isinstance(value, int):
 			return value
@@ -197,7 +206,10 @@ class ForeignKeyBase(IntegerField):
 		return value
 
 class ForeignKey(ForeignKeyBase):
-	""" Integer link to another table's primary key. Relation required. """
+	"""
+	Integer link to another table's primary key.
+	Relation required.
+	"""
 	def __init__(self, name, relation, **kwargs):
 		IntegerField.__init__(self, name, **kwargs)
 		self.relation = relation
@@ -207,6 +219,20 @@ class ForeignKey(ForeignKeyBase):
 	
 	def get_rel_key(self, value):
 		return value
+
+class ForeignMask(ForeignKeyBase):
+	"""
+	Integer field containing a bitmask relation to
+	multiple rows in another file.
+	TODO
+	"""
+	pass
+
+class ForeignByte(ForeignKey):
+	"""
+	This is a HACK
+	"""
+	char = "b"
 
 class GenericForeignKey(ForeignKeyBase):
 	def __init__ (self, name="", get_relation=None, get_value=lambda x, value: value):
@@ -223,8 +249,14 @@ class GenericForeignKey(ForeignKeyBase):
 		return self._get_value(self, value)
 
 
+##
+# Custom types
+#
+
 class BitMaskField(UnsignedIntegerField):
-	""" Integer field containing a bitmask """
+	"""
+	Integer field containing a bitmask
+	"""
 	def __init__(self, name="", flags={}, **kwargs):
 		UnsignedIntegerField.__init__(self, name, **kwargs)
 		self.flags = flags
@@ -293,7 +325,7 @@ def get_field_by_char(char):
 		except TypeError:
 			continue
 		
-		if not hasattr(cls, 'char'):
+		if not hasattr(cls, "char"):
 			continue
 		
 		if cls.char == char:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
-from .fields import DynamicFieldsBase, IDField, LocalizedFields, RecLenField, LOCALES
+from .fields import DynamicFieldsBase, IDField, LocalizedFields, RecLenField, LOCALES, get_field_by_char
 from ..logger import log
 
 ##########
