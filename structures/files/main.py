@@ -3100,14 +3100,15 @@ class WorldStateZoneSounds(DBStructure):
 	WorldStateZoneSounds.dbc
 	"""
 	base = Skeleton(
-		IDField(), # Multiple instances of row X?!
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
+		ImplicitIDField(),
+		IntegerField("world_state"),
+		IntegerField("value"),
+		ForeignKey("area", "AreaTable"),
+		ForeignKey("area_wmo", "WMOAreaTable"),
+		ForeignKey("intro_music", "ZoneIntroMusicTable"),
+		ForeignKey("music", "ZoneMusic"),
+		ForeignKey("sound_ambience", "SoundAmbience"),
+		ForeignKey("preferences", "SoundProviderPreferences"),
 	)
 
 
@@ -3130,23 +3131,24 @@ class ZoneIntroMusicTable(DBStructure):
 	base = Skeleton(
 		IDField(),
 		StringField("name"),
-		IntegerField(),
+		ForeignKey("sound", "SoundEntries"),
 		BooleanField(),
-		IntegerField(),
+		DurationField(unit="seconds"),
 	)
 
 
 class ZoneMusic(DBStructure):
 	"""
 	ZoneMusic.dbc
+	Music played in a zone
 	"""
 	base = Skeleton(
 		IDField(),
 		StringField("name"),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		DurationField("duration_day", unit="milliseconds"),
+		DurationField("duration_night", unit="milliseconds"),
+		DurationField("loop_wait_day", unit="milliseconds"), # How long until it plays again
+		DurationField("loop_wait_night", unit="milliseconds"),
+		ForeignKey("music_day", "SoundEntries"),
+		ForeignKey("music_night", "SoundEntries"),
 	)
