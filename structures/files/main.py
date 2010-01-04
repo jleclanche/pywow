@@ -1299,6 +1299,30 @@ class DungeonMap(DBStructure):
 	)
 
 
+class Emotes(DBStructure):
+	"""
+	Emotes.dbc
+	Slash-command emotes
+	"""
+	
+	FLAGS = {
+		0x008: "talk",
+		0x010: "question",
+		0x020: "exclamation",
+		0x100: "laugh",
+	}
+	
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
+		ForeignKey("animation", "AnimationData"),
+		BitMaskField("flags"),
+		IntegerField("loop"),
+		IntegerField("hold"),
+		ForeignKey("sound", "SoundEntries")
+	)
+
+
 class Exhaustion(DBStructure):
 	"""
 	Exhaustion.dbc
