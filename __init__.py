@@ -564,8 +564,10 @@ class DBCFile(DBFile):
 		
 		blocksize = self.header.stringblocksize
 		reclen = self.header.reclen
-		
-		while size - f.tell() > blocksize+1: # while not EOF
+		struct_len = self.structure._reclen()
+		if struct_len != reclen:
+			log.warning(L["DBC_RECLEN_NOT_RESPECTED"] % (reclen, struct_len, reclen-struct_len))
+		while size - f.tell() >= blocksize: # while not EOF
 			self._setrow(f.read(reclen))
 		
 		f.close()

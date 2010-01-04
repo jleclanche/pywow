@@ -17,6 +17,7 @@ MESSAGES = {
 	"STRUCTURE_NOT_FOUND": "Structure not found for file %r",
 	"PATH_NOT_SET": "DBFile.path needs to be set before initiating parsing",
 	"PATH_NOT_VALID": "DBFile.path needs to be a valid file before initiating parsing",
+	"DBC_RECLEN_NOT_RESPECTED": "File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)",
 	"RECLEN_NOT_RESPECTED": "Reclen not respected for row %i. Expected %i, read %i. (%+i)",
 	"NOT_A_WDB_FILE": "%r is not a valid WDB or DBC file",
 	"SUBSTRING_NOT_FOUND": "No string was found at address %i. This is most often caused by a bad structure. Doublecheck your StringFields!",
