@@ -267,10 +267,6 @@ class SpellMacroField(StringField):
 		val = SpellString(value)
 		return val.format(row)
 
-class CoordField(FloatField):
-	"""X/Y/Z coordinate field (floating point)"""
-	pass
-
 
 def get_field_by_char(char):
 	"""
