@@ -1030,15 +1030,36 @@ class BankBagSlotPrices(DBStructure):
 	)
 
 
+class BannedAddons(DBStructure):
+	"""
+	BannedAddons.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
 class CameraShakes(DBStructure):
 	"""
 	CameraShakes.dbc
-	Unknown use
+	Just shakin'
+	Example:
+	CGCamera::AddShake( Col2, Type, Col4*0.027777778, Col5, Col6, Col7, Col8 );
 	"""
 	base = Skeleton(
 		IDField(),
 		IntegerField(),
-		IntegerField(),
+		IntegerField("type"),
 		FloatField(),
 		FloatField(),
 		FloatField(),
@@ -1054,8 +1075,8 @@ class Cfg_Categories(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
+		BitMaskField("flags"), # 256: russia, 205: eu
+		IntegerField("type"), # 0: Development, 1: US and EU, 4: Russia, 10: Korea, 17: Taiwan & China
 		BooleanField("tournament"),
 		LocalizedFields("name"),
 	)
@@ -1064,23 +1085,97 @@ class Cfg_Categories(DBStructure):
 class Cfg_Configs(DBStructure):
 	"""
 	Cfg_Configs.dbc
-	Unknown use
+	What the hell is this used for? Servers?
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(), #previous id or something
+		UnknownField(), # always id-1
 		BooleanField(),
 		BooleanField(),
+	)
+
+
+class CharacterFacialHairStyles(DBStructure):
+	"""
+	CharacterFacialHairStyles.dbc
+	Used for all facial changes, hair styles, markings, tusks...
+	"""
+	base = Skeleton(
+		ImplicitIDField(),
+		ForeignKey("race", "ChrRaces"),
+		IntegerField("gender"),
+		IntegerField("specific_id"),
+		#UnknownField(), Removed in 2.x
+		#UnknownField(),
+		#UnknownField(),
+		IntegerField("geoset_1"), # http://www.madx.dk/wowdev/wiki/index.php?title=M2/WotLK/.skin#Mesh_part_ID
+		IntegerField("geoset_2"),
+		IntegerField("geoset_3"),
+		IntegerField("geoset_4"), # unsigned? row 189
+		IntegerField("geoset_5"), # unsigned? row 189
 	)
 
 
 class CharBaseInfo(DBStructure):
 	"""
 	CharBaseInfo.dbc
-	Unknown use
+	Defines availability of classes for the different races.
 	"""
 	base = Skeleton(
-		ShortField(),
+		ImplicitIDField(),
+		ForeignByte("race", "ChrRaces"), #, field=ByteField),
+		ForeignByte("class", "ChrClasses"), #, field=ByteField),
+	)
+
+
+class CharHairGeosets(DBStructure):
+	"""
+	CharHairGeosets.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("race", "ChrRaces"),
+		IntegerField("gender"),
+		IntegerField("hair_type"),
+		IntegerField("geoset"), # Defines the connection between HairType and Geoset number in MDX model
+		BooleanField("bald"),
+	)
+
+
+class CharHairTextures(DBStructure):
+	"""
+	CharHairTextures.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("race", "ChrRaces"),
+		IntegerField("gender"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class CharSections(DBStructure):
+	"""
+	CharHairTextures.dbc
+	Defines the textures for the different types of
+	character-variations that involve a texture only.
+	These are hair, beards, the base skin etc.
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("race", "ChrRaces"),
+		IntegerField("gender"),
+		IntegerField("general_type"), # See http://www.madx.dk/wowdev/wiki/index.php?title=CharSections.dbc
+		FilePathField("texture_1"),
+		FilePathField("texture_2"),
+		FilePathField("texture_3"),
+		BitMaskField("flags"),
+		IntegerField("type"),
+		IntegerField("variation"), # CharVariations.dbc?
 	)
 
 
@@ -1091,28 +1186,110 @@ class CharTitles(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(), # related to achievements?
+		UnknownField(), # related to achievements?
 		LocalizedFields("title"),
-		LocalizedFields("title2"),
+		LocalizedFields("title_female"),
 		IntegerField("index"),
 	)
 
 
-class CharacterFacialHairStyles(DBStructure):
+class CharStartOutfit(DBStructure):
 	"""
-	CharacterFacialHairStyles.dbc
-	Character facial hair styles (..?)
+	CharStartOutfit.dbc
+	Items characters get when they are created.
+	Also includes hearthstone/food, etc.
 	"""
 	base = Skeleton(
-		IntegerField(),
-		BooleanField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		IDField(),
+		ByteField("race"),
+		ByteField("class"),
+		ByteField("gender"),
+		ByteField("padding"), # pad byte
+		ForeignKey("item_1", "Item"),
+		ForeignKey("item_2", "Item"),
+		ForeignKey("item_3", "Item"),
+		ForeignKey("item_4", "Item"),
+		ForeignKey("item_5", "Item"),
+		ForeignKey("item_6", "Item"),
+		ForeignKey("item_7", "Item"),
+		ForeignKey("item_8", "Item"),
+		ForeignKey("item_9", "Item"),
+		ForeignKey("item_10", "Item"),
+		ForeignKey("item_11", "Item"),
+		ForeignKey("display_1", "ItemDisplayInfo"),
+		ForeignKey("display_2", "ItemDisplayInfo"),
+		ForeignKey("display_3", "ItemDisplayInfo"),
+		ForeignKey("display_4", "ItemDisplayInfo"),
+		ForeignKey("display_5", "ItemDisplayInfo"),
+		ForeignKey("display_6", "ItemDisplayInfo"),
+		ForeignKey("display_7", "ItemDisplayInfo"),
+		ForeignKey("display_8", "ItemDisplayInfo"),
+		ForeignKey("display_9", "ItemDisplayInfo"),
+		ForeignKey("display_10", "ItemDisplayInfo"),
+		ForeignKey("display_11", "ItemDisplayInfo"),
+		ForeignKey("display_12", "ItemDisplayInfo"),
+		IntegerField("inventory_type_1"),
+		IntegerField("inventory_type_2"),
+		IntegerField("inventory_type_3"),
+		IntegerField("inventory_type_4"),
+		IntegerField("inventory_type_5"),
+		IntegerField("inventory_type_6"),
+		IntegerField("inventory_type_7"),
+		IntegerField("inventory_type_8"),
+		IntegerField("inventory_type_9"),
+		IntegerField("inventory_type_10"),
+		IntegerField("inventory_type_11"),
+		IntegerField("inventory_type_12"),
 	)
+	
+	def changed_9901(self, base):
+		"""
+		Doubled all the items
+		XXX When did this happen?
+		"""
+		base.insert_fields([
+			ForeignKey("item_12", "Item"),
+			ForeignKey("item_13", "Item"),
+			ForeignKey("item_14", "Item"),
+			ForeignKey("item_15", "Item"),
+			ForeignKey("item_16", "Item"),
+			ForeignKey("item_17", "Item"),
+			ForeignKey("item_18", "Item"),
+			ForeignKey("item_19", "Item"),
+			ForeignKey("item_20", "Item"),
+			ForeignKey("item_21", "Item"),
+			ForeignKey("item_22", "Item"),
+			ForeignKey("item_23", "Item"),
+			ForeignKey("item_24", "Item"),
+		], before="display_1")
+		base.insert_fields([
+			ForeignKey("display_13", "ItemDisplayInfo"),
+			ForeignKey("display_14", "ItemDisplayInfo"),
+			ForeignKey("display_15", "ItemDisplayInfo"),
+			ForeignKey("display_16", "ItemDisplayInfo"),
+			ForeignKey("display_17", "ItemDisplayInfo"),
+			ForeignKey("display_18", "ItemDisplayInfo"),
+			ForeignKey("display_19", "ItemDisplayInfo"),
+			ForeignKey("display_20", "ItemDisplayInfo"),
+			ForeignKey("display_21", "ItemDisplayInfo"),
+			ForeignKey("display_22", "ItemDisplayInfo"),
+			ForeignKey("display_23", "ItemDisplayInfo"),
+			ForeignKey("display_24", "ItemDisplayInfo"),
+		], before="inventory_type_1")
+		base.append_fields(
+			IntegerField("inventory_type_13"),
+			IntegerField("inventory_type_14"),
+			IntegerField("inventory_type_15"),
+			IntegerField("inventory_type_16"),
+			IntegerField("inventory_type_17"),
+			IntegerField("inventory_type_18"),
+			IntegerField("inventory_type_19"),
+			IntegerField("inventory_type_20"),
+			IntegerField("inventory_type_21"),
+			IntegerField("inventory_type_22"),
+			IntegerField("inventory_type_23"),
+			IntegerField("inventory_type_24"),
+		)
 
 
 class ChatChannels(DBStructure):
