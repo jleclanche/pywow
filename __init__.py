@@ -574,6 +574,9 @@ class DBCFile(DBFile):
 		while row_count > len(self): # while lacking rows
 			self._setrow(f.read(reclen))
 		
+		if self.header.field_count != len(self.structure):
+			log.warning(L["DBC_INCORRECT_FIELD_COUNT"] % (self.header.field_count, len(self.structure)))
+		
 		log.info(L["TOTAL_ROWS"] % (row_count))
 		f.close()
 	
