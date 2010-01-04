@@ -116,12 +116,20 @@ class LocalizedFields(DynamicFieldsBase):
 	16 StringField, 1 BitMaskField
 	"""
 	
-	def __init__(self, name, field_type=StringField, locales=LOCALES, **kwargs):
+	def __init__(self, name, field_type=StringField, locales=LOCALES):
 		self.name = name
+		self.field_type = StringField
+		self.__regenerate(locales)
+	
+	def __regenerate(self, locales):
 		for loc in locales:
-			self.append(field_type(name="%s_%s" % (name, loc), group=self, **kwargs))
+			self.append(self.field_type(name="%s_%s" % (self.name, loc), group=self))
 		
-		self.append(BitMaskField("%s_locflags" % name, group=self, **kwargs))
+		self.append(BitMaskField("%s_locflags" % (self.name), group=self))
+	
+	def update_locales(self, locales):
+		del self[:]
+		self.__regenerate(locales)
 
 class ListField(DynamicFieldsBase):
 	"""
