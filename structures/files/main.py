@@ -915,13 +915,13 @@ class AreaTrigger(DBStructure):
 class AuctionHouse(DBStructure):
 	"""
 	AuctionHouse.dbc
-	Used in mails sent by the Auction House
+	Data about auction houses and their fees
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		ForeignKey("faction", "Faction"),
+		IntegerField("auction_fee"),
+		IntegerField("deposit_fee"),
 		LocalizedFields("name"),
 	)
 
@@ -933,10 +933,10 @@ class AttackAnimKits(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		ForeignKey("animtype", "attackanimtypes"),
-		IntegerField(),
-		IntegerField(),
+		ForeignKey("animation", "AnimationData"),
+		ForeignKey("type", "AttackAnimTypes"),
+		BitMaskField(),
+		UnknownField(),
 	)
 
 
@@ -957,13 +957,13 @@ class BarberShopStyle(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
+		IntegerField("type"), # 0 - Hair Style, 1 - Hair Color, 2 - Facial Hairstyle
 		LocalizedFields("name"),
 		LocalizedFields("unknown"),
-		FloatField(), #scale?
-		IntegerField(),
-		IntegerField(), #gender?
-		IntegerField(),
+		FloatField("price_modifier"),
+		ForeignKey("race", "ChrRaces"),
+		IntegerField("gender"),
+		UnknownField(), # what?: This is option $ID2 in the shop when looking in category $Type. OR "real ID to hair/facial hair"
 	)
 
 
