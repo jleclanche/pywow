@@ -261,7 +261,7 @@ class DBRow(list):
 		if columns:
 			if type(columns) == list:
 				self.extend(columns)
-		
+			
 			elif type(columns) == dict:
 				self._default()
 				_cols = [k.name for k in self.structure]
@@ -304,6 +304,9 @@ class DBRow(list):
 					_data = unpack("<i", data[cursor:cursor+4])[0]
 					cursor += 4
 					dynfields = _data
+				
+				elif char == "": # ImplicitIDField
+					_data = len(parent) + 1 # 1-indexed
 				
 				else:
 					try:

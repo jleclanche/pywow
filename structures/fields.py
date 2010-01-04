@@ -73,13 +73,25 @@ class IDField(IntegerField):
 		IntegerField.__init__(self, name=name)
 
 class DynamicMaster(IntegerField):
-	"""Masterfield for dynamic columns, determining how many will be present."""
+	"""
+	Master field for dynamic columns, determining how many will be present.
+	"""
 	char = "A"
 
 class StringIDField(IDField):
-	"""String field as pkey (see GameTables.dbc)"""
+	"""
+	String field as pkey (see GameTables.dbc)
+	"""
 	char = "s"
 
+class ImplicitIDField(DBField):
+	"""
+	IDField used when there isn't one. Always equal to
+	the row's position in the dbc.
+	"""
+	char = ""
+	def __init__(self, name="_id"):
+		DBField.__init__(self, name=name)
 
 ###################
 ## Dynamic types ##

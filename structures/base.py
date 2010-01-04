@@ -61,7 +61,7 @@ class DBStructure(list):
 	
 	def _reclen(self):
 		bytes = {
-			"x": 1,
+			"": 0, "x": 1,
 			"c": 1, "b": 1,
 			"h": 2, "H": 2,
 			"i": 4, "I": 4,
