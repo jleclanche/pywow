@@ -1950,6 +1950,9 @@ class LoadingScreens(DBStructure):
 		StringField("name"),
 		FilePathField("path"),
 	)
+	
+	def changed_10676(self, base):
+		base.append_fields(BooleanField("continent"))
 
 
 class Lock(DBStructure):
@@ -2017,11 +2020,11 @@ class Map(DBStructure):
 		IntegerField("type"), # 0: normal, 1: instance, 2: raid, 3: battleground, 4: arena
 		BooleanField("battleground"),
 		LocalizedFields("name"),
-		ForeignKey("parent_zone", "areatable"), # instance zone id
+		ForeignKey("zone", "AreaTable"), # instance zone id
 		LocalizedFields("description_horde"),
 		LocalizedFields("description_alliance"),
-		UnknownField(),
-		FloatField("vision_range"),
+		ForeignKey("loading_screen", "LoadingScreens"),
+		FloatField(), # BattlefieldMapIconScale
 		LocalizedFields("normal_requirements"),
 		LocalizedFields("heroic_requirements"),
 		LocalizedFields("epic_requirements"),
@@ -2031,7 +2034,7 @@ class Map(DBStructure):
 		DurationField("normal_reset", unit="seconds"),
 		DurationField("heroic_reset", unit="seconds"),
 		DurationField("epic_reset", unit="seconds"),
-		UnknownField(),
+		DurationField(unit="minutes"),
 		IntegerField("expansion"),
 		DurationField(unit="seconds"),
 	)
@@ -2716,12 +2719,12 @@ class SpellItemEnchantment(DBStructure):
 		IntegerField("effect_2"), #fkey stat/spell
 		IntegerField("effect_3"), #fkey stat/spell
 		LocalizedFields("name"),
-		IntegerField(), # glow?
+		ForeignKey("glow", "ItemVisuals"), # glow?
 		IntegerField(),
-		ForeignKey("gem", "item"),
-		IntegerField(), # SpellItemEnchantmentCondition?
-		ForeignKey("required_skill", "SkillLine"),
-		IntegerField("required_skill_level"),
+		ForeignKey("gem", "item"), # added 5610
+		ForeignKey("conditions", "SpellItemEnchantmentCondition"), # added 5610
+		ForeignKey("required_skill", "SkillLine"), # added 3.x
+		IntegerField("required_skill_level"), # added 3.x
 	)
 	
 	def changed_9637(self, base):
@@ -2796,7 +2799,7 @@ class SpellShapeshiftForm(DBStructure):
 		LocalizedFields("name"),
 		BitMaskField("flags"),
 		IntegerField("creature_type"),
-		UnknownField(),
+		ForeignKey("icon", "SpellIcon"),
 		IntegerField("attack_speed"),
 		IntegerField("model_alliance"),
 		IntegerField("model_horde"),
