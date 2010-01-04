@@ -44,7 +44,7 @@ class DBHeader(object):
 	
 	def __repr__(self):
 		return "DBHeader(%s)" % ", ".join(["%s=%r" % (k, getattr(self, k)) for k in ("signature", "build", "locale", "wdb4",
-					"wdb5", "version", "recordamount", "fieldamount", "reclen", "stringblocksize") if hasattr(self, k)])
+					"wdb5", "version", "row_count", "field_count", "reclen", "stringblocksize") if hasattr(self, k)])
 	
 	def __setattr__(self, key, value):
 		if key == "build":
@@ -53,7 +53,7 @@ class DBHeader(object):
 	
 	def __return(self):
 		if self.signature == "WDBC":
-			return (self.signature, self.recordamount, self.fieldamount, self.reclen, self.stringblocksize)
+			return (self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize)
 		else:
 			if self.build < 9438:
 				return (self.signature, self.build, self.locale, self.wdb4, self.wdb5)
@@ -65,9 +65,9 @@ class DBHeader(object):
 		"Load header data from the parent."
 		self.signature = self.parent.signature
 		if self.signature == "WDBC":
-			self.recordamount = len(self.parent)
-			self.fieldamount = len(self.parent.structure)
-			self.reclen = self.fieldamount * 4 # TODO
+			self.row_count = len(self.parent)
+			self.field_count = len(self.parent.structure)
+			self.reclen = self.field_count * 4 # TODO
 			if not hasattr(self, "stringblocksize"):
 				self.stringblocksize = 0 # TODO
 		else:
@@ -82,7 +82,7 @@ class DBHeader(object):
 		"Load header data from a byte stream."
 		self.signature = data[:4]
 		if self.signature == "WDBC":
-			self.recordamount, self.fieldamount, self.reclen, self.stringblocksize = unpack("4i", data[4:20])
+			self.row_count, self.field_count, self.reclen, self.stringblocksize = unpack("4i", data[4:20])
 		else:
 			self.build, self.locale, self.wdb4, self.wdb5 = unpack("i4sii", data[4:20])
 			if self.build >= 9438:
@@ -547,8 +547,8 @@ class DBCFile(DBFile):
 	def _generate_structure(self):
 		"Generates a structure based on header data"
 		# TODO
-		if self.header.fieldamount * 4 == self.header.reclen:
-			structure_string = "i" * self.header.fieldamount
+		if self.header.field_count * 4 == self.header.reclen:
+			structure_string = "i" * self.header.field_count
 		else:
 			raise NotImplementedError
 		return _Generated(structure_string)
@@ -562,16 +562,17 @@ class DBCFile(DBFile):
 		f = open(filename, "rb")
 		f.seek(self.header.length())
 		
-		blocksize = self.header.stringblocksize
 		reclen = self.header.reclen
 		struct_len = self.structure._reclen()
 		if struct_len != reclen:
 			log.warning(L["DBC_RECLEN_NOT_RESPECTED"] % (reclen, struct_len, reclen-struct_len))
-		while size - f.tell() >= blocksize: # while not EOF
+		
+		row_count = self.header.row_count
+		while row_count > len(self): # while lacking rows
 			self._setrow(f.read(reclen))
 		
+		log.info(L["TOTAL_ROWS"] % (row_count))
 		f.close()
-		log.info(L["TOTAL_ROWS"] % len(self.rows()))
 	
 	
 	def data(self):
