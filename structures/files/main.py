@@ -982,15 +982,20 @@ class BattlemasterList(DBStructure):
 		ForeignKey("joinmap6", "map"),
 		ForeignKey("joinmap7", "map"),
 		ForeignKey("joinmap8", "map"),
-		IntegerField("instancetype"), # 3 for bg, 4 for arena
-		IntegerField("levelreq"),
-		IntegerField("levelmax"),
-		IntegerField("maxplayeramount"),
-		IntegerField(), # 9 for eots/sota, 0 for rest. expansion related?
-		IntegerField(), # all 1
-		LocalizedFields("name"),
-		IntegerField(), # related to max group, 5 for av 15 for sota. rest 40, wtf?
+		IntegerField("type"), # 3 for bg, 4 for arena
+		IntegerField("required_level"),
+		IntegerField("max_level"),
+		IntegerField("max_players"),
+		IntegerField("level_band"), # 10-19, 20-29, ...
+		IntegerField("join_as_group"),
+		LocalizedFields("name", locales=OLD_LOCALES)
+		##IntegerField(), # related to max group, 5 for av 15 for sota. rest 40, wtf?
 	)
+	
+	def changed_9551(self, base):
+		base.insert_field(IntegerField("min_players"), before="level_band")
+		base.update_locales(LOCALES) # XXX When did locales change?
+		base.append_fields(IntegerField("max_group_size"))
 
 
 class BankBagSlotPrices(DBStructure):
@@ -2015,7 +2020,7 @@ class Map(DBStructure):
 
 	def changed_10083(self, base):
 		self.changed_10026(base)
-		base.append_fields(IntegerField("player_amount"))
+		base.append_fields(IntegerField("max_players"))
 
 	def changed_10522(self, base):
 		self.changed_10083(base)
