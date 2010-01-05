@@ -286,8 +286,8 @@ class ItemCache(DBStructure):
 		IntegerField("bind"),
 		StringField("note"),
 		ForeignKey("page", "pagetextcache"),
-		ForeignKey("pagelanguage", "languages"),
-		ForeignKey("pagestationery", "stationery"),
+		ForeignKey("pagelanguage", "Languages"),
+		ForeignKey("pagestationery", "Stationery"),
 		ForeignKey("starts_quest", "questcache"),
 		ForeignKey("lock", "Lock"),
 		ForeignKey("material", "Material"),
@@ -1668,7 +1668,7 @@ class GemProperties(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("enchant", "spellitemenchantment"),
+		ForeignKey("enchant", "SpellItemEnchantment"),
 		BooleanField(),
 		BooleanField(),
 		IntegerField("color"),
@@ -2944,6 +2944,45 @@ class SpellItemEnchantment(DBStructure):
 		base.append_fields(
 			IntegerField("required_level"),
 		)
+
+
+class SpellItemEnchantmentCondition(DBStructure):
+	"""
+	SpellItemEnchantmentCondition.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ByteField("gem_color_1"),
+		ByteField("gem_color_2"),
+		ByteField("gem_color_3"),
+		ByteField("gem_color_4"),
+		ByteField("gem_color_5"),
+		IntegerField("operand_1"),
+		IntegerField("operand_2"),
+		IntegerField("operand_3"),
+		IntegerField("operand_4"),
+		IntegerField("operand_5"),
+		ByteField("comparator_1"),
+		ByteField("comparator_2"),
+		ByteField("comparator_3"),
+		ByteField("comparator_4"),
+		ByteField("comparator_5"),
+		ByteField("compare_color_1"),
+		ByteField("compare_color_2"),
+		ByteField("compare_color_3"),
+		ByteField("compare_color_4"),
+		ByteField("compare_color_5"),
+		IntegerField("value_1"),
+		IntegerField("value_2"),
+		IntegerField("value_3"),
+		IntegerField("value_4"),
+		IntegerField("value_5"),
+		ByteField("logic_1"),
+		ByteField("logic_2"),
+		ByteField("logic_3"),
+		ByteField("logic_4"),
+		ByteField("logic_5"),
+	)
 
 
 class SpellMechanic(DBStructure):
