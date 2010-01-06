@@ -3,10 +3,9 @@
 
 import os
 from os.path import getsize, basename, splitext, exists
-from struct import pack, unpack
-from struct import error as structerror
+from struct import pack, unpack, error as StructError
 
-from .structures.fields import UnresolvedRelation, UnresolvedObjectRef
+from .structures.fields import UnresolvedRelation, UnresolvedObjectRef, DynamicFields
 from .structures import _Generated, StructureError, getstructure
 from .locales import L
 from .logger import log
@@ -110,7 +109,6 @@ class DBHeader(object):
 				return 20
 			else:
 				return 24
-
 
 
 class DBFile(dict):
@@ -243,6 +241,7 @@ class DBFile(dict):
 		f.close()
 		log.info(L["WRITTEN_BYTES"] % (len(data), filename))
 
+
 class DBRow(list):
 	"""
 	A database row.
@@ -292,14 +291,6 @@ class DBRow(list):
 						_data = unicode(data[cursor:data.index("\x00", cursor)], "utf-8")
 						cursor += len(str(_data.encode("utf-8"))) + 1
 				
-				elif char == "b": # unsigned char
-					_data = unpack("<b", data[cursor:cursor+1])[0]
-					cursor += 1
-				
-				elif char == "h": # unsigned short
-					_data = unpack("<h", data[cursor:cursor+2])[0]
-					cursor += 2
-				
 				elif char == "A": # The amount of dynamic columns in the row
 					_data = unpack("<i", data[cursor:cursor+4])[0]
 					cursor += 4
@@ -309,12 +300,15 @@ class DBRow(list):
 					_data = len(parent) + 1 # 1-indexed
 				
 				else:
+					size = col.size
 					try:
-						_data = unpack("<%s" % (char), data[cursor:cursor+4])[0]
-					except structerror:
+						_data, = unpack("<%s" % (char), data[cursor:cursor+size])
+					except StructError:
 						_data = None # There is no data left in the row, we set it to None
-					cursor += 4
+					cursor += size
+				
 				self.append(_data)
+			
 			if reclen:
 				if cursor != reclen+8:
 					log.warning(L["RECLEN_NOT_RESPECTED"] % (self._id, reclen+8, cursor, reclen+8-cursor))
@@ -426,7 +420,6 @@ class DBRow(list):
 			self[k] = other[k]
 
 
-# WDB class
 class WDBFile(DBFile):
 	"""
 	A non-encrypted WDB file.
@@ -454,14 +447,14 @@ class WDBFile(DBFile):
 	
 	
 	def data(self):
-		"Convert the data dict into a byte stream"
+		"""Convert the data dict into a byte stream"""
 		header = self.header.data()
 		data = "".join([self[k].data() for k in self])
 		eof = "\x00" * 8
 		return header+data+eof
 	
 	def parse(self):
-		"Parse a wdb file and build dict out of it"
+		"""Parse a wdb file and build dict out of it"""
 		self._init_parse()
 		filename = self.path
 		size = getsize(filename)
@@ -478,8 +471,7 @@ class WDBFile(DBFile):
 		log.info(L["TOTAL_ROWS"] % len(self.rows()))
 	
 	def update_dynfields(self):
-		"Update all the dynfields in the file"
-		from .structures.fields import DynamicFields
+		"""Update all the dynfields in the file"""
 		dyns = [k for k in self.structure.columns if isinstance(k, DynamicFields)]
 		for k in self:
 			for group in dyns:
@@ -495,7 +487,7 @@ class WDBFile(DBFile):
 					self[k][group[0].name] += 1
 	
 	def update_reclens(self):
-		"Update all the reclens in the file"
+		"""Update all the reclens in the file"""
 		for k in self:
 			self[k]["_reclen"] = self[k].reclen()
 
@@ -511,7 +503,9 @@ class EncryptedWDBFile(WDBFile):
 
 
 class DBCFile(DBFile):
-	"""A regular DBC file."""
+	"""
+	A regular DBC file.
+	"""
 	def __setitem__(self, key, item):
 		if type(item) in (list, dict) and item:
 			DBFile.__setitem__(self, key, DBRow(self, columns=item))
@@ -534,7 +528,7 @@ class DBCFile(DBFile):
 		f.close()
 	
 	def _getstring(self, addr):
-		"Return a string, given a pointer in the blockstring"
+		"""Return a string, given a pointer in the blockstring"""
 		if not self.strblk:
 			self._init_strblk()
 		try:
@@ -548,8 +542,8 @@ class DBCFile(DBFile):
 		return val
 	
 	def _generate_structure(self):
-		"Generates a structure based on header data"
-		# TODO
+		"""Generates a structure based on header data"""
+		# TODO improve it, guess floats and shorter fields.
 		if self.header.field_count * 4 == self.header.reclen:
 			structure_string = "i" * self.header.field_count
 		else:
@@ -558,7 +552,7 @@ class DBCFile(DBFile):
 
 	
 	def parse(self):
-		"Parse a dbc file and build dict out of it"
+		"""Parse a dbc file and build dict out of it"""
 		self._init_parse()
 		filename = self.path
 		size = getsize(filename)
@@ -574,33 +568,31 @@ class DBCFile(DBFile):
 		while row_count > len(self): # while lacking rows
 			self._setrow(f.read(reclen))
 		
-		if self.header.field_count != len(self.structure):
-			log.warning(L["DBC_INCORRECT_FIELD_COUNT"] % (self.header.field_count, len(self.structure)))
+		field_count = self.header.field_count
+		total_fields = len(self.structure)
+		if field_count != total_fields:
+			# Don't forget implicit fields
+			total_fields = len([k for k in self.structure if k.char])
+			if field_count != total_fields:
+				log.warning(L["DBC_INCORRECT_FIELD_COUNT"] % (total_fields, field_count))
 		
 		log.info(L["TOTAL_ROWS"] % (row_count))
 		f.close()
 	
 	
 	def data(self):
-		"Convert the data dict into a byte stream"
+		"""Convert the data dict into a byte string"""
 		header = self.header.data()
 		data = "".join([self[k].data() for k in self])
 		eof = "\x00" * 8
 		return header+data+eof
 
 
-class SimpleDBCFile(DBCFile):
-	"""
-	A DBC file without a primary key.
-	A new primary key is created for every row.
-	"""
-	def _setrow(self, data):
-		row = DBRow(self, data=data)
-		self[len(self)+1] = row
-
-
 class ComplexDBCFile(DBCFile):
-	"""A DBC file with two or more primary keys."""
+	"""
+	A DBC file with two or more primary keys.
+	TODO test writing
+	"""
 	def _setrow(self, data):
 		row = DBRow(self, data=data)
 		id1, id2 = row[0], row[1] #TODO row.pkeys
@@ -618,18 +610,18 @@ class ComplexDBCFile(DBCFile):
 		return li # [[self[k][j] for j in self[k]] for k in self] ?
 
 
-class UnknownDBCFile(SimpleDBCFile):
-	"""A DBC file with an unknown structure."""
+class UnknownDBCFile(DBCFile):
+	"""
+	A DBC file with an unknown structure.
+	"""
 	writable = False
 	def load_structure(self, filename=None, build=None):
 		self.structure = self._generate_structure()
 		log.info(L["USING_GENERATED_STRUCTURE"] % (self.filename, self.build))
 
 
-class GtDBCFile(SimpleDBCFile):
-	pass
-
-
+# TODO we need to use DBFile as base and
+# change class dynamically in __new__
 def fopen(*pargs, **kwargs):
 	try:
 		name = "name" in kwargs and kwargs["name"] or pargs[0]
@@ -638,12 +630,8 @@ def fopen(*pargs, **kwargs):
 	sig = getsignature(name)
 	if sig == "WDBC":
 		filename = "name" in kwargs and kwargs["name"] or getfilename(name).lower()
-		if filename == "itemsubclass": #TODO
+		if filename == "itemsubclass": # TODO
 			return ComplexDBCFile(*pargs, **kwargs)
-		if filename == "itemsubclassmask": #TODO
-			return SimpleDBCFile(*pargs, **kwargs)
-		if filename.startswith("gt"):
-			return GtDBCFile(*pargs, **kwargs)
 		try:
 			getstructure(filename)
 		except StructureError:
