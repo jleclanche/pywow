@@ -3195,11 +3195,11 @@ class TalentTab(DBStructure):
 	base = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
-		IntegerField("nameflags"),
-		IntegerField("icon"),
-		BitMaskField("classmask"),
-		IntegerField("petmask"), #petflags?
-		IntegerField("tabpage"),
+		ForeignKey("icon", "SpellIcon"),
+		UnknownField(),
+		BitMaskField("class_mask"),
+		IntegerField("pet_mask"),
+		IntegerField("page"),
 		StringField("internal_name"),
 	)
 
