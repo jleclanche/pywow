@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Database fields"""
+"""
+Database fields
+"""
 
 from datetime import timedelta
 from ..parser.spellstrings import SpellString
@@ -42,28 +44,39 @@ class DBField(object):
 #
 
 class ByteField(DBField):
-	"""1-byte field."""
+	"""A 1-byte field."""
 	char = "b"
+	size = 1
 
-class ShortField(DBField):
-	"""2-byte field."""
+class SmallIntegerField(DBField):
+	"""An int16 field."""
 	char = "h"
+	size = 2
 
 class IntegerField(DBField):
 	"""An int32 field."""
 	char = "i"
+	size = 4
 
 class UnsignedIntegerField(DBField):
 	"""An uint32 field."""
 	char = "I"
+	size = 4
 
-class StringField(DBField):
-	"""A string field."""
-	char = "s"
+class BigIntegerField(DBField):
+	"""An int64 field."""
+	char = "l"
+	size = 8
 
 class FloatField(DBField):
 	"""A float32 field."""
 	char = "f"
+	size = 4
+
+class StringField(DBField):
+	"""A string field."""
+	char = "s"
+	size = 4
 
 
 ##
@@ -96,6 +109,7 @@ class ImplicitIDField(DBField):
 	the row's position in the dbc.
 	"""
 	char = ""
+	size = 0
 	def __init__(self, name="_id"):
 		DBField.__init__(self, name=name)
 
@@ -220,7 +234,7 @@ class ForeignKey(ForeignKeyBase):
 	def get_rel_key(self, value):
 		return value
 
-class ForeignMask(ForeignKeyBase):
+class ForeignMask(ForeignKey):
 	"""
 	Integer field containing a bitmask relation to
 	multiple rows in another file.
@@ -233,6 +247,7 @@ class ForeignByte(ForeignKey):
 	This is a HACK
 	"""
 	char = "b"
+	size = 2
 
 class GenericForeignKey(ForeignKeyBase):
 	def __init__ (self, name="", get_relation=None, get_value=lambda x, value: value):

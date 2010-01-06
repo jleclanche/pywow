@@ -60,16 +60,7 @@ class DBStructure(list):
 		return self[index]
 	
 	def _reclen(self):
-		bytes = {
-			"": 0, "x": 1,
-			"c": 1, "b": 1,
-			"h": 2, "H": 2,
-			"i": 4, "I": 4,
-			"l": 8, "L": 8,
-			"f": 4, "d": 8,
-			"s": 4,
-		}
-		return sum(bytes[k.char] for k in self)
+		return sum(k.size for k in self)
 	
 	def index(self, column_name):
 		return self.column_names.index(column_name)
