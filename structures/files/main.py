@@ -2094,11 +2094,21 @@ class ItemSubClass(DBStructure):
 class ItemSubClassMask(DBStructure):
 	"""
 	ItemSubClassMask.dbc
-	Unknown use
+	Used for Spell.dbc Subclass requirements
+	FIXME Structure is tricky here, we need to
+	handle a double fkey to a multi-id table...
+	Association( "subclass_association"
+		ForeignKey("id1", "ItemSubClass", column="id_1"),
+		ForeignMask("id2", "ItemSubClass", column="id_2"),
+	)
+	row.subclass_association == DBRowList([
+		
+	])
 	"""
 	base = Skeleton(
-		IntegerField(),
-		IntegerField(),
+		ImplicitIDField(),
+		IntegerField("id1"),
+		BitMaskField("id2_mask"),
 		LocalizedFields("name"),
 	)
 
@@ -2122,7 +2132,7 @@ class LightSkybox(DBStructure):
 	base = Skeleton(
 		IDField(),
 		FilePathField("path"),
-		IntegerField(),
+		IntegerField("type"), # 2 = aurora, ...?
 	)
 
 
@@ -2130,11 +2140,12 @@ class LiquidMaterial(DBStructure):
 	"""
 	LiquidMaterial.dbc
 	Unknown use. Lava/Water? Only 3 rows (1, 2, 3).
+	Added with WotLK
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -2158,40 +2169,61 @@ class Lock(DBStructure):
 	Lock.dbc
 	Various locks (items, objects, ...)
 	"""
+	PROPERTY_TYPES = {
+		1: "Item",
+		2: "LockProperties",
+		3: "Item", # FIXME
+	}
+	properties_relation = lambda x, value: PROPERTY_TYPES[value]
+	
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(), #fkey item?
-		IntegerField(), #fkey item?
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField("itemlockpick"),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		IntegerField("type_1"),
+		IntegerField("type_2"),
+		IntegerField("type_3"),
+		IntegerField("type_4"),
+		IntegerField("type_5"),
+		IntegerField("type_6"),
+		IntegerField("type_7"),
+		IntegerField("type_8"),
+		GenericForeignKey("properties_1", get_relation=properties_relation),
+		GenericForeignKey("properties_2", get_relation=properties_relation),
+		GenericForeignKey("properties_3", get_relation=properties_relation),
+		GenericForeignKey("properties_4", get_relation=properties_relation),
+		GenericForeignKey("properties_5", get_relation=properties_relation),
+		GenericForeignKey("properties_6", get_relation=properties_relation),
+		GenericForeignKey("properties_7", get_relation=properties_relation),
+		GenericForeignKey("properties_8", get_relation=properties_relation),
+		IntegerField("required_skill_1"),
+		IntegerField("required_skill_2"),
+		IntegerField("required_skill_3"),
+		IntegerField("required_skill_4"),
+		IntegerField("required_skill_5"),
+		IntegerField("required_skill_6"),
+		IntegerField("required_skill_7"),
+		IntegerField("required_skill_8"),
+		IntegerField("action_1"),
+		IntegerField("action_2"),
+		IntegerField("action_3"),
+		IntegerField("action_4"),
+		IntegerField("action_5"),
+		IntegerField("action_6"),
+		IntegerField("action_7"),
+		IntegerField("action_8"),
+	)
+
+
+class LockType(DBStructure):
+	"""
+	LockType.dbc
+	"""
+	
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+		LocalizedFields("state"),
+		LocalizedFields("process"),
+		StringField("internal_name"),
 	)
 
 
@@ -2238,7 +2270,14 @@ class Map(DBStructure):
 	)
 
 	def changed_10026(self, base):
-		base.delete_fields("normal_requirements", "heroic_requirements", "epic_requirements", "normal_reset", "heroic_reset", "epic_reset")
+		base.delete_fields(
+			"normal_requirements",
+			"heroic_requirements",
+			"epic_requirements",
+			"normal_reset",
+			"heroic_reset",
+			"epic_reset"
+		)
 
 	def changed_10083(self, base):
 		self.changed_10026(base)
@@ -2332,12 +2371,17 @@ class NameGen(DBStructure):
 class Package(DBStructure):
 	"""
 	Package.dbc
-	Single row, probably internal use.
+	This contains possible alternate icons for ingame mail.
+	It's set in MailboxMessageInfo member #70 (+0x118).
+	You can set a package with LUA:SetPackage(index) which is actually
+	sent when you send the next mail. May only work for deliveries with items.
+	This is not used in the current client's UI and is likely to be filtered serverside.
+	Note: This is the field behind stationary in the CMSG_SEND_MAIL packet.
 	"""
 	base = Skeleton(
 		IDField(),
-		UnknownField(),
-		UnknownField(),
+		StringField("icon"),
+		MoneyField("price"), # in copper?
 		LocalizedFields("name"),
 	)
 
@@ -2510,7 +2554,7 @@ class ScalingStatValues(DBStructure):
 
 	def changed_10026(self, base):
 		"""
-		5 new fields
+		TODO 5 new fields
 		"""
 		pass
 
@@ -2519,18 +2563,23 @@ class ScreenEffect(DBStructure):
 	"""
 	ScreenEffect.dbc
 	Fullscreen graphic effects
+	Types:
+	0: EffectGlow, -Fog
+	1: FFXEffects, -Fog
+	2: ffxNetherWorld
+	3: ffxSpecial / EffectGlow, -Fog, +color
 	"""
 	base = Skeleton(
 		IDField(),
 		StringField("name"),
 		IntegerField("type"),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		UnsignedIntegerField("color"), # in hex
+		IntegerField("screen_edge_size"),
+		IntegerField("greyscale"),
+		UnknownField(),
+		ForeignKey("light", "LightParams"),
+		ForeignKey("ambience", "SoundAmbience"),
+		ForeignKey("music", "ZoneMusic"),
 	)
 
 
@@ -2552,11 +2601,11 @@ class SkillLine(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("category", "skilllinecategory"),
-		ForeignKey("cost", "skillcostsdata"),
+		ForeignKey("category", "SkillLineCategory"),
+		ForeignKey("cost", "SkillCostsData"),
 		LocalizedFields("name"),
 		LocalizedFields("description"),
-		ForeignKey("icon", "spellicon"),
+		ForeignKey("icon", "SpellIcon"),
 		LocalizedFields("action"),
 		BooleanField("tradeskill"),
 	)
@@ -2569,18 +2618,18 @@ class SkillLineAbility(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("skill", "skillline"),
-		ForeignKey("spell", "spell"),
-		BitMaskField(), #racemask
-		BitMaskField(), #classmask
-		BitMaskField(), #raceexclude
-		BitMaskField(), #classexclude
+		ForeignKey("skill", "SkillLine"),
+		ForeignKey("spell", "Spell"),
+		ForeignMask("required_races", "ChrRaces"),
+		ForeignMask("required_classes", "ChrClasses"),
+		ForeignMask("excluded_races", "ChrRaces"),
+		ForeignMask("excluded_classes", "ChrClasses"),
 		IntegerField("required_skill_level"),
-		ForeignKey("parent", "spell"),
-		UnknownField(),
+		ForeignKey("parent", "Spell"),
+		UnknownField(), # acquireMethod learnOnGetSkill ?!
 		IntegerField("turns_grey"),
 		IntegerField("turns_yellow"),
-		UnknownField(),
+		UnknownField(), # Character points ?! [2]
 		UnknownField(),
 		#UnknownField(), Deleted somewhere between 4125 and 9551
 	)
@@ -2649,11 +2698,11 @@ class Spell(DBStructure):
 		BitMaskField("flags_5", flags=FLAGS_5),
 		BitMaskField("flags_6", flags=FLAGS_6),
 		BitMaskField("flags_7"),
-		IntegerField(), ## Added 320?
+		UnknownField(), ## Added 320?
 		BitMaskField("required_stances"),
-		IntegerField(), ##
+		UnknownField(), ##
 		BitMaskField("excluded_stances"),
-		IntegerField(), ##
+		UnknownField(), ##
 		BitMaskField("required_target"),
 		BitMaskField("required_target_type"),
 		IntegerField("required_object_focus"),
@@ -2829,12 +2878,12 @@ class Spell(DBStructure):
 class SpellAuraNames(DBStructure):
 	"""
 	SpellAuraNames.dbc
-	TODO - Structure 1.1.2.4125
+	Removed shortly after release
 	"""
 	DEAD = True
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
+		UnknownField(),
 		StringField("internal_name"),
 		LocalizedFields("name", locales=OLD_LOCALES),
 	)
@@ -2846,7 +2895,7 @@ class SpellCategory(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
+		UnknownField(),
 	)
 
 
@@ -2890,7 +2939,7 @@ class SpellDuration(DBStructure):
 class SpellEffectNames(DBStructure):
 	"""
 	SpellEffectNames.dbc
-	TODO - Structure 1.1.2.4125
+	Removed shortly after release
 	"""
 	DEAD = True
 	base = Skeleton(
