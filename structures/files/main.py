@@ -566,6 +566,7 @@ class QuestCache(DBStructure):
 		0x00000400: "auto_rewarded",
 		0x00000800: "tbc_starting_zone",
 		0x00001000: "daily",
+		0x00002000: "flags_pvp",
 		0x00008000: "weekly",
 	}
 	
