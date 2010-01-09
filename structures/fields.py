@@ -157,7 +157,7 @@ class LocalizedFields(DynamicFieldsBase):
 	
 	def __init__(self, name, field_type=StringField, locales=LOCALES):
 		self.name = name
-		self.field_type = StringField
+		self.field_type = field_type
 		self.__regenerate(locales)
 	
 	def __regenerate(self, locales):
