@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
-from .fields import DynamicFieldsBase, IDField, LocalizedFields, RecLenField, LOCALES, get_field_by_char
+from .fields import DynamicFieldsBase, IDField, LocalizedFields, RecLenField, UnknownField, LOCALES
 from ..logger import log
 
 ##########
@@ -112,5 +112,5 @@ class _Generated(DBStructure):
 	"""Dynamically generated DBC structure."""
 	def __init__(self, structure_string, *pargs, **kwargs):
 		columns = []
-		self.base = Skeleton(*[get_field_by_char(s)() for s in structure_string])
+		self.base = Skeleton(*[UnknownField() for s in structure_string])
 		DBStructure.__init__(self)

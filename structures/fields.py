@@ -325,23 +325,3 @@ class SpellMacroField(StringField):
 	def to_python(self, value, row):
 		val = SpellString(value)
 		return val.format(row)
-
-
-def get_field_by_char(char):
-	"""
-	TODO: optimize, wtire like StructureLoader
-	"""
-	_globals = globals()
-	for name in _globals:
-		cls = _globals[name]
-		try:
-			if not issubclass(cls, DBField):
-				continue
-		except TypeError:
-			continue
-		
-		if not hasattr(cls, "char"):
-			continue
-		
-		if cls.char == char:
-			return cls

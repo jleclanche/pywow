@@ -574,7 +574,7 @@ class DBCFile(DBFile):
 			# Don't forget implicit fields
 			total_fields = len([k for k in self.structure if k.char])
 			if field_count != total_fields:
-				log.warning(L["DBC_INCORRECT_FIELD_COUNT"] % (total_fields, field_count))
+				log.warning(L["DBC_INCORRECT_FIELD_COUNT"] % (field_count, total_fields))
 		
 		log.info(L["TOTAL_ROWS"] % (row_count))
 		f.close()
