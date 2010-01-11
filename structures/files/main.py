@@ -651,29 +651,31 @@ class QuestCache(DBStructure):
 	)
 	
 	def changed_10026(self, base):
-		base.insert_field(ForeignKey("itemreq6", "Item"), before="objectivetext1")
-		base.insert_field(IntegerField("itemamtreq6"), before="objectivetext1")
+		base.insert_field(ForeignKey("itemreq6", "Item"), before="objective_text_1")
+		base.insert_field(IntegerField("itemamtreq6"), before="objective_text_1")
 	
 	def changed_10522(self, base):
 		self.changed_10026(base)
-		base.insert_field(FloatField("honor_reward"), before="provided_item")
-		base.insert_field(UnknownField(), before="rewarditem1")
+		base.insert_field(FloatField("honor_reward_multiplier"), before="provided_item")
 		base.insert_field(IntegerField("arena_reward"), before="rewarditem1")
-		base.insert_field(ForeignKey("faction_reward_1", "faction"), before="instance")
-		base.insert_field(ForeignKey("faction_reward_2", "faction"), before="instance")
-		base.insert_field(ForeignKey("faction_reward_3", "faction"), before="instance")
-		base.insert_field(ForeignKey("faction_reward_4", "faction"), before="instance")
-		base.insert_field(ForeignKey("faction_reward_5", "faction"), before="instance")
-		base.insert_field(IntegerField("reputationreward1"), before="instance")
-		base.insert_field(IntegerField("reputationreward2"), before="instance")
-		base.insert_field(IntegerField("reputationreward3"), before="instance")
-		base.insert_field(IntegerField("reputationreward4"), before="instance")
-		base.insert_field(IntegerField("reputationreward5"), before="instance")
-		base.insert_field(IntegerField("reputation_override_1"), before="instance")
-		base.insert_field(IntegerField("reputation_override_2"), before="instance")
-		base.insert_field(IntegerField("reputation_override_3"), before="instance")
-		base.insert_field(IntegerField("reputation_override_4"), before="instance")
-		base.insert_field(IntegerField("reputation_override_5"), before="instance")
+		base.insert_field(UnknownField(), before="rewarditem1")
+		base.insert_fields([
+			ForeignKey("faction_reward_1", "faction"),
+			ForeignKey("faction_reward_2", "faction"),
+			ForeignKey("faction_reward_3", "faction"),
+			ForeignKey("faction_reward_4", "faction"),
+			ForeignKey("faction_reward_5", "faction"),
+			IntegerField("reputation_reward_1"),
+			IntegerField("reputation_reward_2"),
+			IntegerField("reputation_reward_3"),
+			IntegerField("reputation_reward_4"),
+			IntegerField("reputation_reward_5"),
+			IntegerField("reputation_override_1"),
+			IntegerField("reputation_override_2"),
+			IntegerField("reputation_override_3"),
+			IntegerField("reputation_override_4"),
+			IntegerField("reputation_override_5"),
+		], before="instance")
 		base.insert_field(StringField("quick_summary"), before="killreq1")
 	
 	def __get_experience_row(self, row):
@@ -694,10 +696,10 @@ class QuestCache(DBStructure):
 	
 	def changed_10772(self, base):
 		self.changed_10554(base)
-		base.insert_field(UnknownField(), before="killreq2")
-		base.insert_field(UnknownField(), before="killreq3")
-		base.insert_field(UnknownField(), before="killreq4")
-		base.insert_field(UnknownField(), before="itemreq1")
+		base.insert_field(IntegerField("quest_item_amount_1"), before="killreq2") # XXX thats not it ...
+		base.insert_field(IntegerField("quest_item_amount_2"), before="killreq3")
+		base.insert_field(IntegerField("quest_item_amount_3"), before="killreq4")
+		base.insert_field(IntegerField("quest_item_amount_4"), before="itemreq1")
 
 
 class PageTextCache(DBStructure):
@@ -1525,9 +1527,9 @@ class DanceMoves(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField("category"),
-		IntegerField("length"),
-		IntegerField(),
+		IntegerField("type"),
+		UnknownField(),
+		UnknownField(),
 		BitMaskField("flags"),
 		StringField("name"),
 		LocalizedFields("description"),
@@ -1538,7 +1540,6 @@ class DanceMoves(DBStructure):
 class DeathThudLookups(DBStructure):
 	"""
 	DeathThudLookups.dbc
-	Unknown use
 	"""
 	base = Skeleton(
 		IDField(),
@@ -1549,20 +1550,47 @@ class DeathThudLookups(DBStructure):
 	)
 
 
-class DungeonMap(DBStructure):
+class DungeonEncounter(DBStructure):
 	"""
-	DungeonMap.dbc
-	Unknown use
+	DungeonEncounter.dbc
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
+		ForeignKey("instance", "Map"),
+		IntegerField("difficulty"),
+		UnknownField(),
+		IntegerField("ordering"),
+		LocalizedFields("name"),
+		UnknownField(),
+	)
+
+
+class DungeonMap(DBStructure):
+	"""
+	DungeonMap.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("instance", "Map"),
+		IntegerField("floor"), # which map floor
+		FloatField("coords_1"),
+		FloatField("coords_2"),
+		FloatField("coords_3"),
+		FloatField("coords_4"),
+		UnknownField(),
+	)
+
+
+class DungeonMapChunk(DBStructure):
+	"""
+	DungeonMapChunk.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("map", "Map"),
+		ForeignKey("wmo", "WMOAreaTable"),
+		ForeignKey("dungeon_map", "DungeonMap"),
 		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		IntegerField(),
 	)
 
 
@@ -1644,7 +1672,6 @@ class Faction(DBStructure):
 class FactionGroup(DBStructure):
 	"""
 	FactionGroup.dbc
-	Unknown use
 	"""
 	base = Skeleton(
 		IDField(),
@@ -1662,6 +1689,18 @@ class FileData(DBStructure):
 	base = Skeleton(
 		IDField(),
 		StringField("filename"),
+		FilePathField("path"),
+	)
+
+
+class FootprintTextures(DBStructure):
+	"""
+	FootprintTextures.dbc
+	Paths to the footprint textures
+	visible on snow, sand, etc.
+	"""
+	base = Skeleton(
+		IDField(),
 		FilePathField("path"),
 	)
 
@@ -2563,6 +2602,26 @@ class ObjectEffectPackageElem(DBStructure):
 	)
 
 
+class OverrideSpellData(DBStructure):
+	"""
+	OverrideSpellData.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("spell_1", "Spell"),
+		ForeignKey("spell_2", "Spell"),
+		ForeignKey("spell_3", "Spell"),
+		ForeignKey("spell_4", "Spell"),
+		ForeignKey("spell_5", "Spell"),
+		ForeignKey("spell_6", "Spell"),
+		ForeignKey("spell_7", "Spell"),
+		ForeignKey("spell_8", "Spell"),
+		ForeignKey("spell_9", "Spell"),
+		ForeignKey("spell_10", "Spell"),
+		UnknownField(),
+	)
+
+
 class Package(DBStructure):
 	"""
 	Package.dbc
@@ -3434,6 +3493,15 @@ class TaxiNodes(DBStructure):
 		LocalizedFields("name"),
 		ForeignKey("mount_horde", "creaturecache"),
 		ForeignKey("mount_alliance", "creaturecache"),
+	)
+
+class TeamContributionPoints(DBStructure):
+	"""
+	TeamContributionPoints.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		FloatField("points"),
 	)
 
 class TotemCategory(DBStructure):
