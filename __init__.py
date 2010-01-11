@@ -335,7 +335,10 @@ class DBRow(list):
 			raise TypeError
 		list.__setitem__(self, index, value)
 		col = self.structure[index]
-		self._values[col.name] = col.to_python(value, row=row)
+		try:
+			self._values[col.name] = col.to_python(value, row=self)
+		except UnresolvedRelation:
+			self._values[col.name] = value
 	
 	def __dir__(self):
 		result = self.__dict__.keys()
@@ -349,7 +352,10 @@ class DBRow(list):
 	def _set_value(self, name, value):
 		index = self.structure.index(name)
 		col = self.structure[index]
-		self._values[name] = col.to_python(value, self)
+		try:
+			self._values[name] = col.to_python(value, self)
+		except UnresolvedRelation:
+			self._values[name] = value
 	
 	def _get_value(self, name):
 		if name not in self._values:
