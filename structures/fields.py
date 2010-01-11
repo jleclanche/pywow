@@ -189,7 +189,10 @@ class UnresolvedObjectRef(int):
 	def __repr__(self):
 		return "<%s: %d>" % (self.__class__.__name__, int(self))
 
-class UnresolvedRelation(Exception):
+class RelationError(Exception):
+	pass
+
+class UnresolvedRelation(RelationError):
 	def __init__(self, message, reference):
 		self.reference = reference
 		super(UnresolvedRelation, self).__init__(message)
@@ -201,37 +204,49 @@ class ForeignKeyBase(IntegerField):
 	def from_python(self, value):
 		if isinstance(value, int):
 			return value
-		if not value.structure.pkeys:
-			raise StructureError("Relation target has no primary key") # TODO: return row index ?
 		pkey = value.structure.pkeys[0] # TODO: what about multiple pkeys ?
 		index = value.structure.index(pkey.name)
 		return value[index]
 	
 	def to_python(self, value, row):
 		if isinstance(value, int):
+			self.raw_value = value
 			env = self.parent.parent.environment
 			rel = self.get_relation(value)
 			try:
 				f = env[rel]
-				rel_key = self.get_rel_key(value)
-				return f[rel_key]
 			except KeyError:
-				raise UnresolvedRelation("Relation for %s does not exist" % (rel), value)
+				raise UnresolvedRelation("Relation %r does not exist in the current environment" % (rel), value)
+			relation_key = self.get_relation_key(value, row)
+			try:
+				value = f[relation_key]
+			except KeyError:
+				raise RelationError("Key %r does not exist in %s" % (relation_key, rel))
+			return self.get_final_value(value, row)
 		return value
+	
+	def get_final_value(self, value, row):
+		return value
+	
+	def get_relation(self, value):
+		raise NotImplementedError("Subclasses must implement this method")
+	
+	def get_relation_key(self, value, row):
+		raise NotImplementedError("Subclasses must implement this method")
 
 class ForeignKey(ForeignKeyBase):
 	"""
 	Integer link to another table's primary key.
 	Relation required.
 	"""
-	def __init__(self, name, relation, **kwargs):
-		IntegerField.__init__(self, name, **kwargs)
+	def __init__(self, name, relation):
+		IntegerField.__init__(self, name)
 		self.relation = relation
 		
 	def get_relation(self, value):
 		return self.relation.lower()
 	
-	def get_rel_key(self, value):
+	def get_relation_key(self, value, row):
 		return value
 
 class ForeignMask(ForeignKey):
@@ -260,8 +275,33 @@ class GenericForeignKey(ForeignKeyBase):
 	def get_relation(self, value):
 		return self._get_relation(self, value)
 	
-	def get_rel_key(self, value):
+	def get_relation_key(self, value, row):
 		return self._get_value(self, value)
+
+
+class ForeignCell(ForeignKeyBase):
+	"""
+	Like a ForeignKey, but returns a specific cell
+	from the relation. Requires both a get_column
+	and a get_row method.
+	"""
+	def __init__(self, name, relation, get_column, get_row):
+		IntegerField.__init__(self, name)
+		self.relation = relation
+		self.get_column = get_column
+		self.get_row = get_row
+	
+	def get_final_value(self, value, row):
+		column = self.get_column(row)
+		if column:
+			return getattr(value, column)
+		return self.raw_value
+	
+	def get_relation_key(self, value, row):
+		return self.get_row(row)
+		
+	def get_relation(self, value):
+		return self.relation.lower()
 
 
 ##

@@ -71,7 +71,7 @@ class Skeleton(list):
 	def __init__(self, *fields):
 		for field in fields:
 			self.append(field)
-
+	
 	def insert_field(self, field, before):
 		names = [f.name for f in self]
 		try:
