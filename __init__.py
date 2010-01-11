@@ -646,8 +646,8 @@ def fopen(*pargs, **kwargs):
 	
 	try:
 		return WDBFile(*pargs, **kwargs)
-	except Exception:
-		raise StructureError(L["NOT_A_WDB_FILE"] % (name))
+	except Exception, e:
+		raise StructureError(L["NOT_A_WDB_FILE"] % (name, e))
 
 
 def new(*pargs, **kwargs):
