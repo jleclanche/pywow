@@ -27,11 +27,11 @@ class CreatureCache(DBStructure):
 		IntegerField("category"), #dragonkin, ...
 		IntegerField("family"), # hunter pet family
 		IntegerField("type"), # elite, rareelite, boss, rare
-		IntegerField(), #spellicon?
-		IntegerField("model"), #fkey
-		IntegerField("model2"),
-		IntegerField("model3"),
-		IntegerField("model4"),
+		ForeignKey("tamed_spells", "CreatureSpellData"), # XXX spellicon?
+		ForeignKey("model", "CreatureDisplayInfo"),
+		ForeignKey("model_2", "CreatureDisplayInfo"), # added in 2.2
+		ForeignKey("model_3", "CreatureDisplayInfo"), # added in 2.2
+		ForeignKey("model_4", "CreatureDisplayInfo"), # added in 2.2
 		FloatField(),
 		FloatField(),
 		ByteField("leader"),
@@ -76,7 +76,7 @@ class GameObjectCache(DBStructure):
 		StringField(),
 		IntegerField("health"), # not always
 		IntegerField("action"),
-		IntegerField(), # gfk: spell, envdmg?
+		IntegerField(), # gfk: spell, envdmg? pagetextcache/lock
 		BitMaskField(),
 		BitMaskField(),
 		BitMaskField(),
@@ -99,19 +99,16 @@ class GameObjectCache(DBStructure):
 		IntegerField(),
 		IntegerField(),
 		FloatField("scale"),
-		ForeignKey("loot", "item"),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		ForeignKey("quest_item_1", "Item"),
+		ForeignKey("quest_item_2", "Item"),
+		ForeignKey("quest_item_3", "Item"),
+		ForeignKey("quest_item_4", "Item"),
 	)
 
 	def changed_10314(self, base):
-		"""
-		TODO
-		"""
 		base.append_fields(
-			UnknownField(),
-			UnknownField(),
+			ForeignKey("quest_item_5", "Item"),
+			ForeignKey("quest_item_6", "Item"),
 		)
 
 
@@ -300,15 +297,15 @@ class ItemCache(DBStructure):
 		ForeignKey("instance_bind", "Map"),
 		IntegerField("bag_category"),
 		ForeignKey("tool_category", "TotemCategory"),
-		BitMaskField("socket1"),
-		IntegerField("socket1info"),
-		BitMaskField("socket2"),
-		IntegerField("socket2info"),
-		BitMaskField("socket3"),
-		IntegerField("socket3info"),
+		BitMaskField("socket_1"),
+		IntegerField("socket_info_1"),
+		BitMaskField("socket_2"),
+		IntegerField("socket_info_2"),
+		BitMaskField("socket_3"),
+		IntegerField("socket_info_3"),
 		ForeignKey("socket_bonus", "SpellItemEnchantment"),
 		ForeignKey("gem_properties", "GemProperties"),
-		IntegerField("extendedcost"),
+		IntegerField("extended_cost"),
 	)
 
 	def changed_5875(self, base):
@@ -349,7 +346,7 @@ class ItemCache(DBStructure):
 		  UNKNOWN BUILD
 		"""
 		self.changed_6577(base)
-		base.insert_field(IntegerField("extendedcostcond"), before="disenchant")
+		base.insert_field(IntegerField("extended_cost_cond"), before="disenchant")
 
 
 	def changed_7994(self, base):
@@ -358,7 +355,7 @@ class ItemCache(DBStructure):
 		  UNKNOWN BUILD
 		"""
 		self.changed_7382(base)
-		base.delete_fields("extendedcost", "extendedcostcond")
+		base.delete_fields("extended_cost", "extended_cost_cond")
 
 	def changed_8268(self, base):
 		"""
@@ -373,7 +370,7 @@ class ItemCache(DBStructure):
 		- New uniquecategory field at the end, fkey of new ItemLimitCategory.dbc file
 		"""
 		self.changed_8268(base)
-		base.append_fields(ForeignKey("unique_category", "itemlimitcategory"))
+		base.append_fields(ForeignKey("unique_category", "ItemLimitCategory"))
 
 	def changed_8471(self, base):
 		"""
@@ -580,42 +577,42 @@ class QuestCache(DBStructure):
 		IntegerField("tag"),
 		IntegerField("level"),
 		IntegerField("category"),
-		ForeignKey("type", "questinfo"),
+		ForeignKey("type", "QuestInfo"),
 		IntegerField("suggested_players"),
-		IntegerField("factionreq1"),
-		IntegerField("reputationreq1"),
-		IntegerField("factionreq2"),
-		IntegerField("reputationreq2"),
+		IntegerField("required_faction_1"),
+		IntegerField("required_reputation_1"),
+		IntegerField("required_faction_2"),
+		IntegerField("required_reputation_2"),
 		IntegerField("followup"),
 		IntegerField("money_reward"),
 		IntegerField("money_reward_cap"),
-		ForeignKey("spell_reward", "spell"),
-		ForeignKey("spell_trigger", "spell"),
+		ForeignKey("spell_reward", "Spell"),
+		ForeignKey("spell_trigger", "Spell"),
 		IntegerField("unknown_308"), #added 3.0.8, unused apart from 200 in 13233/13234
-		ForeignKey("provided_item", "item"),
+		ForeignKey("provided_item", "Item"),
 		BitMaskField("flags", flags=FLAGS),
-		ForeignKey("title_reward", "chartitles"), #added 2.4
+		ForeignKey("title_reward", "CharTitles"), #added 2.4
 		IntegerField("required_player_kills"), #added 8334
 		IntegerField("bonus_talents"), #added 8471
-		ForeignKey("rewarditem1", "item"),
+		ForeignKey("rewarditem1", "Item"),
 		IntegerField("rewarditemamt1"),
-		ForeignKey("rewarditem2", "item"),
+		ForeignKey("rewarditem2", "Item"),
 		IntegerField("rewarditemamt2"),
-		ForeignKey("rewarditem3", "item"),
+		ForeignKey("rewarditem3", "Item"),
 		IntegerField("rewarditemamt3"),
-		ForeignKey("rewarditem4", "item"),
+		ForeignKey("rewarditem4", "Item"),
 		IntegerField("rewarditemamt4"),
-		ForeignKey("rewarditemchoice1", "item"),
+		ForeignKey("rewarditemchoice1", "Item"),
 		IntegerField("rewarditemchoiceamt1"),
-		ForeignKey("rewarditemchoice2", "item"),
+		ForeignKey("rewarditemchoice2", "Item"),
 		IntegerField("rewarditemchoiceamt2"),
-		ForeignKey("rewarditemchoice3", "item"),
+		ForeignKey("rewarditemchoice3", "Item"),
 		IntegerField("rewarditemchoiceamt3"),
-		ForeignKey("rewarditemchoice4", "item"),
+		ForeignKey("rewarditemchoice4", "Item"),
 		IntegerField("rewarditemchoiceamt4"),
-		ForeignKey("rewarditemchoice5", "item"),
+		ForeignKey("rewarditemchoice5", "Item"),
 		IntegerField("rewarditemchoiceamt5"),
-		ForeignKey("rewarditemchoice6", "item"),
+		ForeignKey("rewarditemchoice6", "Item"),
 		IntegerField("rewarditemchoiceamt6"),
 		ForeignKey("instance", "map"),
 		FloatField("coord_x"),
@@ -627,63 +624,74 @@ class QuestCache(DBStructure):
 		StringField("summary"),
 		GenericForeignKey("killreq1", get_relation=get_kill_relation, get_value=get_kill_value),
 		IntegerField("killamtreq1"), # TODO changed_9551 (cf commit 151)
-		ForeignKey("questitem1", "item"),
+		ForeignKey("quest_item_1", "Item"),
 		GenericForeignKey("killreq2", get_relation=get_kill_relation, get_value=get_kill_value),
 		IntegerField("killamtreq2"),
-		ForeignKey("questitem2", "item"),
+		ForeignKey("quest_item_2", "Item"),
 		GenericForeignKey("killreq3", get_relation=get_kill_relation, get_value=get_kill_value),
 		IntegerField("killamtreq3"),
-		ForeignKey("questitem3", "item"),
+		ForeignKey("quest_item_3", "Item"),
 		GenericForeignKey("killreq4", get_relation=get_kill_relation, get_value=get_kill_value),
 		IntegerField("killamtreq4"),
-		ForeignKey("questitem4", "item"),
-		ForeignKey("itemreq1", "item"),
+		ForeignKey("quest_item_4", "Item"),
+		ForeignKey("itemreq1", "Item"),
 		IntegerField("itemamtreq1"),
-		ForeignKey("itemreq2", "item"),
+		ForeignKey("itemreq2", "Item"),
 		IntegerField("itemamtreq2"),
-		ForeignKey("itemreq3", "item"),
+		ForeignKey("itemreq3", "Item"),
 		IntegerField("itemamtreq3"),
-		ForeignKey("itemreq4", "item"),
+		ForeignKey("itemreq4", "Item"),
 		IntegerField("itemamtreq4"),
-		ForeignKey("itemreq5", "item"),
+		ForeignKey("itemreq5", "Item"),
 		IntegerField("itemamtreq5"),
-		StringField("objectivetext1"),
-		StringField("objectivetext2"),
-		StringField("objectivetext3"),
-		StringField("objectivetext4"),
+		StringField("objective_text_1"),
+		StringField("objective_text_2"),
+		StringField("objective_text_3"),
+		StringField("objective_text_4"),
 	)
-
+	
 	def changed_10026(self, base):
-		base.insert_field(ForeignKey("itemreq6", "item"), before="objectivetext1")
+		base.insert_field(ForeignKey("itemreq6", "Item"), before="objectivetext1")
 		base.insert_field(IntegerField("itemamtreq6"), before="objectivetext1")
-
+	
 	def changed_10522(self, base):
 		self.changed_10026(base)
 		base.insert_field(FloatField("honor_reward"), before="provided_item")
 		base.insert_field(UnknownField(), before="rewarditem1")
-		base.insert_field(IntegerField("arenareward"), before="rewarditem1")
-		base.insert_field(ForeignKey("factionreward1", "faction"), before="instance")
-		base.insert_field(ForeignKey("factionreward2", "faction"), before="instance")
-		base.insert_field(ForeignKey("factionreward3", "faction"), before="instance")
-		base.insert_field(ForeignKey("factionreward4", "faction"), before="instance")
-		base.insert_field(ForeignKey("factionreward5", "faction"), before="instance")
+		base.insert_field(IntegerField("arena_reward"), before="rewarditem1")
+		base.insert_field(ForeignKey("faction_reward_1", "faction"), before="instance")
+		base.insert_field(ForeignKey("faction_reward_2", "faction"), before="instance")
+		base.insert_field(ForeignKey("faction_reward_3", "faction"), before="instance")
+		base.insert_field(ForeignKey("faction_reward_4", "faction"), before="instance")
+		base.insert_field(ForeignKey("faction_reward_5", "faction"), before="instance")
 		base.insert_field(IntegerField("reputationreward1"), before="instance")
 		base.insert_field(IntegerField("reputationreward2"), before="instance")
 		base.insert_field(IntegerField("reputationreward3"), before="instance")
 		base.insert_field(IntegerField("reputationreward4"), before="instance")
 		base.insert_field(IntegerField("reputationreward5"), before="instance")
-		base.insert_field(IntegerField("reputationcap1"), before="instance")
-		base.insert_field(IntegerField("reputationcap2"), before="instance")
-		base.insert_field(IntegerField("reputationcap3"), before="instance")
-		base.insert_field(IntegerField("reputationcap4"), before="instance")
-		base.insert_field(IntegerField("reputationcap5"), before="instance")
+		base.insert_field(IntegerField("reputation_override_1"), before="instance")
+		base.insert_field(IntegerField("reputation_override_2"), before="instance")
+		base.insert_field(IntegerField("reputation_override_3"), before="instance")
+		base.insert_field(IntegerField("reputation_override_4"), before="instance")
+		base.insert_field(IntegerField("reputation_override_5"), before="instance")
 		base.insert_field(StringField("quick_summary"), before="killreq1")
-
+	
+	def __get_experience_row(self, row):
+		return row.level
+	
+	def __get_experience_column(self, row):
+		column = row._raw("experience_reward")
+		if column:
+			return "experience_%i" % (column)
+	
 	def changed_10554(self, base):
 		self.changed_10522(base)
 		base.insert_field(IntegerField("level_obtained"), before="category")
-		base.insert_field(UnknownField(), before="money_reward")
-
+		base.insert_field(ForeignCell("experience_reward", "QuestXP",
+			get_row=lambda row: self.__get_experience_row(row),
+			get_column=lambda row: self.__get_experience_column(row)),
+		before="money_reward")
+	
 	def changed_10772(self, base):
 		self.changed_10554(base)
 		base.insert_field(UnknownField(), before="killreq2")
@@ -1452,6 +1460,26 @@ class CreatureDisplayInfo(DBStructure):
 	)
 
 
+class CreatureFamily(DBStructure):
+	"""
+	CreatureFamily.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		FloatField(),
+		ForeignKey("pet_personality", "PetPersonality"),
+		FloatField(),
+		UnknownField(),
+		ForeignKey("skills", "SkillLine"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("pet_food", "ItemPetFood"),
+		LocalizedFields("name"),
+		FilePathField("icon"),
+	)
+
+
 class CreatureType(DBStructure):
 	"""
 	CreatureType.dbc
@@ -1484,7 +1512,7 @@ class CurrencyTypes(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("item", "item"),
+		ForeignKey("item", "Item"),
 		ForeignKey("category", "currencycategory"),
 		IntegerField(),
 	)
@@ -1638,6 +1666,49 @@ class FileData(DBStructure):
 	)
 
 
+class GameObjectArtKit(DBStructure):
+	"""
+	GameObjectArtKit.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("texture_1"),
+		StringField("texture_2"),
+		StringField("texture_3"),
+		FilePathField("model_1"),
+		FilePathField("model_2"),
+		FilePathField("model_3"),
+		FilePathField("model_4"),
+	)
+
+
+class GameObjectDisplayInfo(DBStructure):
+	"""
+	GameObjectDisplayInfo.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		FilePathField("model"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+	)
+
+
 class GameTables(DBStructure):
 	"""
 	GameTables.dbc
@@ -1648,7 +1719,6 @@ class GameTables(DBStructure):
 		IntegerField(), # 1-100
 		IntegerField(),
 	)
-
 
 
 class GameTips(DBStructure):
@@ -1946,11 +2016,11 @@ class ItemExtendedCost(DBStructure):
 		IDField(),
 		IntegerField("honorpoints"),
 		IntegerField("arenapoints"),
-		ForeignKey("item1", "item"),
-		ForeignKey("item2", "item"),
-		ForeignKey("item3", "item"),
-		ForeignKey("item4", "item"),
-		ForeignKey("item5", "item"),
+		ForeignKey("item1", "Item"),
+		ForeignKey("item2", "Item"),
+		ForeignKey("item3", "Item"),
+		ForeignKey("item4", "Item"),
+		ForeignKey("item5", "Item"),
 		IntegerField("itemamt1"),
 		IntegerField("itemamt2"),
 		IntegerField("itemamt3"),
@@ -1995,14 +2065,14 @@ class ItemPurchaseGroup(DBStructure):
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("item1", "item"),
-		ForeignKey("item2", "item"),
-		ForeignKey("item3", "item"),
-		ForeignKey("item4", "item"),
-		ForeignKey("item5", "item"),
-		ForeignKey("item6", "item"),
-		ForeignKey("item7", "item"),
-		ForeignKey("item8", "item"),
+		ForeignKey("item1", "Item"),
+		ForeignKey("item2", "Item"),
+		ForeignKey("item3", "Item"),
+		ForeignKey("item4", "Item"),
+		ForeignKey("item5", "Item"),
+		ForeignKey("item6", "Item"),
+		ForeignKey("item7", "Item"),
+		ForeignKey("item8", "Item"),
 		LocalizedFields("name"),
 	)
 
@@ -2214,6 +2284,62 @@ class Lock(DBStructure):
 	)
 
 
+class LFGDungeons(DBStructure):
+	"""
+	LFGDungeons.dbc
+	"""
+	
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+		IntegerField("level_1"), # level_min
+		IntegerField("level_2"),
+		IntegerField("level_3"),
+		IntegerField("level_4"),
+		IntegerField("level_5"),
+		ForeignKey("instance", "Map"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		IntegerField("faction"), # -1 = all, 0 = Horde, 1 = Alliance
+		StringField("icon"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class LFGDungeonExpansion(DBStructure):
+	"""
+	LFGDungeonExpansion.dbc
+	"""
+	
+	base = Skeleton(
+		IDField(),
+		ForeignKey("lfg_1", "LFGDungeons"),
+		UnknownField(),
+		ForeignKey("lfg_2", "LFGDungeons"),
+		IntegerField("level_1"),
+		IntegerField("level_2"),
+		IntegerField("level_3"),
+		IntegerField("level_4"),
+	)
+
+
+class LFGDungeonGroup(DBStructure):
+	"""
+	LFGDungeonGroup.dbc
+	"""
+	
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+		UnknownField(),
+		UnknownField(),
+		IntegerField("type"), # 1 = normal, 2 = raid, 5 = heroic
+	)
+
+
 class LockType(DBStructure):
 	"""
 	LockType.dbc
@@ -2369,6 +2495,74 @@ class NameGen(DBStructure):
 	)
 
 
+class ObjectEffect(DBStructure):
+	"""
+	ObjectEffect.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
+		UnknownField(),
+		UnknownField(),
+		IntegerField("sound_dbc"), # SoundDBC, int, 1 for SoundEntries.dbc, 2 for SoundEntriesAdvanced.dbc.
+		IntegerField("sound"), # gfk
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		ForeignKey("modified", "ObjectEffectModifier")
+	)
+
+
+class ObjectEffectGroup(DBStructure):
+	"""
+	ObjectEffectGroup.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
+	)
+
+
+class ObjectEffectModifier(DBStructure):
+	"""
+	ObjectEffectModifier.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
+class ObjectEffectPackage(DBStructure):
+	"""
+	ObjectEffectPackage.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
+	)
+
+
+class ObjectEffectPackageElem(DBStructure):
+	"""
+	ObjectEffectPackageElem.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("package", "ObjectEffectPackage"),
+		ForeignKey("group", "ObjectEffectGroup"),
+		IntegerField("movement_state") # see http://www.madx.dk/wowdev/wiki/index.php?title=ObjectEffectPackageElem.dbc
+	)
+
+
 class Package(DBStructure):
 	"""
 	Package.dbc
@@ -2452,6 +2646,27 @@ class PvpDifficulty(DBStructure):
 		IntegerField("level_min"),
 		IntegerField("level_max"),
 		UnknownField(), # something to do with ordering
+	)
+
+
+class QuestXP(DBStructure):
+	"""
+	QuestXP.dbc
+	Quest experience amounts
+	100 rows, one for each level
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		IntegerField("experience_1"),
+		IntegerField("experience_2"),
+		IntegerField("experience_3"),
+		IntegerField("experience_4"),
+		IntegerField("experience_5"),
+		IntegerField("experience_6"),
+		IntegerField("experience_7"),
+		IntegerField("experience_8"),
+		UnknownField(),
 	)
 
 
@@ -2984,7 +3199,7 @@ class SpellItemEnchantment(DBStructure):
 		LocalizedFields("name"),
 		ForeignKey("glow", "ItemVisuals"),
 		IntegerField(),
-		ForeignKey("gem", "item"), # added 5610
+		ForeignKey("gem", "Item"), # added 5610
 		ForeignKey("conditions", "SpellItemEnchantmentCondition"), # added 5610
 		ForeignKey("required_skill", "SkillLine"), # added 3.x
 		IntegerField("required_skill_level"), # added 3.x
