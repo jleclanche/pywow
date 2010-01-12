@@ -253,33 +253,33 @@ class ItemCache(DBStructure):
 		ForeignKey("spell1", "spell"),
 		IntegerField("spelltrigger1"),
 		IntegerField("spellcharges1"),
-		IntegerField("spellcooldown1"),
+		DurationField("spell_cooldown_1", unit="milliseconds"),
 		IntegerField("spellcategory1"),
-		IntegerField("spellcooldowncategory1"),
+		IntegerField("spell_cooldown_category_1"),
 		ForeignKey("spell2", "spell"),
 		IntegerField("spelltrigger2"),
 		IntegerField("spellcharges2"),
-		IntegerField("spellcooldown2"),
+		DurationField("spell_cooldown_2", unit="milliseconds"),
 		IntegerField("spellcategory2"),
-		IntegerField("spellcooldowncategory2"),
+		IntegerField("spell_cooldown_category_2"),
 		ForeignKey("spell3", "spell"),
 		IntegerField("spelltrigger3"),
 		IntegerField("spellcharges3"),
-		IntegerField("spellcooldown3"),
+		DurationField("spell_cooldown_3", unit="milliseconds"),
 		IntegerField("spellcategory3"),
-		IntegerField("spellcooldowncategory3"),
+		IntegerField("spell_cooldown_category_3"),
 		ForeignKey("spell4", "spell"),
 		IntegerField("spelltrigger4"),
 		IntegerField("spellcharges4"),
-		IntegerField("spellcooldown4"),
+		DurationField("spell_cooldown_4", unit="milliseconds"),
 		IntegerField("spellcategory4"),
-		IntegerField("spellcooldowncategory4"),
+		IntegerField("spell_cooldown_category_4"),
 		ForeignKey("spell5", "spell"),
 		IntegerField("spelltrigger5"),
 		IntegerField("spellcharges5"),
-		IntegerField("spellcooldown5"),
+		DurationField("spell_cooldown_5", unit="milliseconds"),
 		IntegerField("spellcategory5"),
-		IntegerField("spellcooldowncategory5"),
+		IntegerField("spell_cooldown_category_5"),
 		IntegerField("bind"),
 		StringField("note"),
 		ForeignKey("page", "pagetextcache"),
@@ -594,26 +594,26 @@ class QuestCache(DBStructure):
 		ForeignKey("title_reward", "CharTitles"), #added 2.4
 		IntegerField("required_player_kills"), #added 8334
 		IntegerField("bonus_talents"), #added 8471
-		ForeignKey("rewarditem1", "Item"),
-		IntegerField("rewarditemamt1"),
-		ForeignKey("rewarditem2", "Item"),
-		IntegerField("rewarditemamt2"),
-		ForeignKey("rewarditem3", "Item"),
-		IntegerField("rewarditemamt3"),
-		ForeignKey("rewarditem4", "Item"),
-		IntegerField("rewarditemamt4"),
-		ForeignKey("rewarditemchoice1", "Item"),
-		IntegerField("rewarditemchoiceamt1"),
-		ForeignKey("rewarditemchoice2", "Item"),
-		IntegerField("rewarditemchoiceamt2"),
-		ForeignKey("rewarditemchoice3", "Item"),
-		IntegerField("rewarditemchoiceamt3"),
-		ForeignKey("rewarditemchoice4", "Item"),
-		IntegerField("rewarditemchoiceamt4"),
-		ForeignKey("rewarditemchoice5", "Item"),
-		IntegerField("rewarditemchoiceamt5"),
-		ForeignKey("rewarditemchoice6", "Item"),
-		IntegerField("rewarditemchoiceamt6"),
+		ForeignKey("item_reward_1", "Item"),
+		IntegerField("item_reward_amount_1"),
+		ForeignKey("item_reward_2", "Item"),
+		IntegerField("item_reward_amount_2"),
+		ForeignKey("item_reward_3", "Item"),
+		IntegerField("item_reward_amount_3"),
+		ForeignKey("item_reward_4", "Item"),
+		IntegerField("item_reward_amount_4"),
+		ForeignKey("item_choice_reward_1", "Item"),
+		IntegerField("item_choice_reward_amount_1"),
+		ForeignKey("item_choice_reward_2", "Item"),
+		IntegerField("item_choice_reward_amount_2"),
+		ForeignKey("item_choice_reward_3", "Item"),
+		IntegerField("item_choice_reward_amount_3"),
+		ForeignKey("item_choice_reward_4", "Item"),
+		IntegerField("item_choice_reward_amount_4"),
+		ForeignKey("item_choice_reward_5", "Item"),
+		IntegerField("item_choice_reward_amount_5"),
+		ForeignKey("item_choice_reward_6", "Item"),
+		IntegerField("item_choice_reward_amount_6"),
 		ForeignKey("instance", "map"),
 		FloatField("coord_x"),
 		FloatField("coord_y"),
@@ -622,28 +622,28 @@ class QuestCache(DBStructure):
 		StringField("objective"),
 		StringField("description"),
 		StringField("summary"),
-		GenericForeignKey("killreq1", get_relation=get_kill_relation, get_value=get_kill_value),
-		IntegerField("killamtreq1"), # TODO changed_9551 (cf commit 151)
+		GenericForeignKey("required_kill_1", get_relation=get_kill_relation, get_value=get_kill_value),
+		IntegerField("required_kill_amount_1"), # TODO changed_9551 (cf commit 151)
 		ForeignKey("quest_item_1", "Item"),
-		GenericForeignKey("killreq2", get_relation=get_kill_relation, get_value=get_kill_value),
-		IntegerField("killamtreq2"),
+		GenericForeignKey("required_kill_2", get_relation=get_kill_relation, get_value=get_kill_value),
+		IntegerField("required_kill_amount_2"),
 		ForeignKey("quest_item_2", "Item"),
-		GenericForeignKey("killreq3", get_relation=get_kill_relation, get_value=get_kill_value),
-		IntegerField("killamtreq3"),
+		GenericForeignKey("required_kill_3", get_relation=get_kill_relation, get_value=get_kill_value),
+		IntegerField("required_kill_amount_3"),
 		ForeignKey("quest_item_3", "Item"),
-		GenericForeignKey("killreq4", get_relation=get_kill_relation, get_value=get_kill_value),
-		IntegerField("killamtreq4"),
+		GenericForeignKey("required_kill_4", get_relation=get_kill_relation, get_value=get_kill_value),
+		IntegerField("required_kill_amount_4"),
 		ForeignKey("quest_item_4", "Item"),
-		ForeignKey("itemreq1", "Item"),
-		IntegerField("itemamtreq1"),
-		ForeignKey("itemreq2", "Item"),
-		IntegerField("itemamtreq2"),
-		ForeignKey("itemreq3", "Item"),
-		IntegerField("itemamtreq3"),
-		ForeignKey("itemreq4", "Item"),
-		IntegerField("itemamtreq4"),
-		ForeignKey("itemreq5", "Item"),
-		IntegerField("itemamtreq5"),
+		ForeignKey("required_item_1", "Item"),
+		IntegerField("required_item_amount_1"),
+		ForeignKey("required_item_2", "Item"),
+		IntegerField("required_item_amount_2"),
+		ForeignKey("required_item_3", "Item"),
+		IntegerField("required_item_amount_3"),
+		ForeignKey("required_item_4", "Item"),
+		IntegerField("required_item_amount_4"),
+		ForeignKey("required_item_5", "Item"),
+		IntegerField("required_item_amount_5"),
 		StringField("objective_text_1"),
 		StringField("objective_text_2"),
 		StringField("objective_text_3"),
@@ -651,55 +651,57 @@ class QuestCache(DBStructure):
 	)
 	
 	def changed_10026(self, base):
-		base.insert_field(ForeignKey("itemreq6", "Item"), before="objective_text_1")
-		base.insert_field(IntegerField("itemamtreq6"), before="objective_text_1")
+		base.insert_field(ForeignKey("required_item_6", "Item"), before="objective_text_1")
+		base.insert_field(IntegerField("required_item_amount_6"), before="objective_text_1")
+	
+	##
+	# QuestFactionReward.dbc has two rows.
+	# Row 1 is for positive gains, row 2 is for
+	# negative gains. If the questcache value is
+	# positive, row 2 is linked; otherwise row 1.
+	get_reputation_reward_row = lambda x, row, value: 2 if value < 0 else 1
+	get_reputation_reward_column = lambda x, row, value: "reputation_gain_%i" % (abs(value))
 	
 	def changed_10522(self, base):
 		self.changed_10026(base)
 		base.insert_field(FloatField("honor_reward_multiplier"), before="provided_item")
-		base.insert_field(IntegerField("arena_reward"), before="rewarditem1")
-		base.insert_field(UnknownField(), before="rewarditem1")
+		base.insert_field(IntegerField("arena_reward"), before="item_reward_1")
+		base.insert_field(UnknownField(), before="item_reward_1")
 		base.insert_fields([
 			ForeignKey("faction_reward_1", "faction"),
 			ForeignKey("faction_reward_2", "faction"),
 			ForeignKey("faction_reward_3", "faction"),
 			ForeignKey("faction_reward_4", "faction"),
 			ForeignKey("faction_reward_5", "faction"),
-			IntegerField("reputation_reward_1"),
-			IntegerField("reputation_reward_2"),
-			IntegerField("reputation_reward_3"),
-			IntegerField("reputation_reward_4"),
-			IntegerField("reputation_reward_5"),
+			ForeignCell("reputation_reward_1", "QuestFactionReward", get_row=self.get_reputation_reward_row, get_column=self.get_reputation_reward_column),
+			ForeignCell("reputation_reward_2", "QuestFactionReward", get_row=self.get_reputation_reward_row, get_column=self.get_reputation_reward_column),
+			ForeignCell("reputation_reward_3", "QuestFactionReward", get_row=self.get_reputation_reward_row, get_column=self.get_reputation_reward_column),
+			ForeignCell("reputation_reward_4", "QuestFactionReward", get_row=self.get_reputation_reward_row, get_column=self.get_reputation_reward_column),
+			ForeignCell("reputation_reward_5", "QuestFactionReward", get_row=self.get_reputation_reward_row, get_column=self.get_reputation_reward_column),
 			IntegerField("reputation_override_1"),
 			IntegerField("reputation_override_2"),
 			IntegerField("reputation_override_3"),
 			IntegerField("reputation_override_4"),
 			IntegerField("reputation_override_5"),
 		], before="instance")
-		base.insert_field(StringField("quick_summary"), before="killreq1")
-	
-	def __get_experience_row(self, row):
-		return row.level
-	
-	def __get_experience_column(self, row):
-		column = row._raw("experience_reward")
-		if column:
-			return "experience_%i" % (column)
+		base.insert_field(StringField("quick_summary"), before="required_kill_1")
 	
 	def changed_10554(self, base):
 		self.changed_10522(base)
 		base.insert_field(IntegerField("level_obtained"), before="category")
-		base.insert_field(ForeignCell("experience_reward", "QuestXP",
-			get_row=lambda row: self.__get_experience_row(row),
-			get_column=lambda row: self.__get_experience_column(row)),
+		base.insert_field(
+			ForeignCell("experience_reward", "QuestXP",
+				get_row=lambda row, value: row.level,
+				get_column=lambda row, value: "experience_%i" % (value) if value else None,
+			),
 		before="money_reward")
 	
 	def changed_10772(self, base):
 		self.changed_10554(base)
-		base.insert_field(IntegerField("quest_item_amount_1"), before="killreq2") # XXX thats not it ...
-		base.insert_field(IntegerField("quest_item_amount_2"), before="killreq3")
-		base.insert_field(IntegerField("quest_item_amount_3"), before="killreq4")
-		base.insert_field(IntegerField("quest_item_amount_4"), before="itemreq1")
+		base.insert_field(IntegerField("quest_item_amount_1"), before="required_kill_2") # XXX thats not it ...
+		base.insert_field(IntegerField("quest_item_amount_2"), before="required_kill_3")
+		base.insert_field(IntegerField("quest_item_amount_3"), before="required_kill_4")
+		base.insert_field(IntegerField("quest_item_amount_4"), before="required_item_1")
 
 
 class PageTextCache(DBStructure):
@@ -2705,6 +2707,27 @@ class PvpDifficulty(DBStructure):
 		IntegerField("level_min"),
 		IntegerField("level_max"),
 		UnknownField(), # something to do with ordering
+	)
+
+
+class QuestFactionReward(DBStructure):
+	"""
+	QuestFactionReward.dbc
+	Two rows - one for positive gains and
+	one for negative gains
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("reputation_gain_0"),
+		IntegerField("reputation_gain_1"),
+		IntegerField("reputation_gain_2"),
+		IntegerField("reputation_gain_3"),
+		IntegerField("reputation_gain_4"),
+		IntegerField("reputation_gain_5"),
+		IntegerField("reputation_gain_6"),
+		IntegerField("reputation_gain_7"),
+		IntegerField("reputation_gain_8"),
+		IntegerField("reputation_gain_9"),
 	)
 
 
