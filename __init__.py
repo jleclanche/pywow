@@ -5,7 +5,7 @@ import os
 from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack, error as StructError
 
-from .structures.fields import UnresolvedRelation, UnresolvedObjectRef, DynamicFields
+from .structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields
 from .structures import _Generated, StructureError, getstructure
 from .locales import L
 from .logger import log
@@ -365,6 +365,8 @@ class DBRow(list):
 				self._set_value(name, raw_value)
 			except UnresolvedRelation, ex:
 				return UnresolvedObjectRef(ex.reference)
+			except RelationError:
+				return None # Key doesn't exist, or equals 0
 		return self._values[name]
 	
 	def _save(self):
