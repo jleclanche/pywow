@@ -644,10 +644,7 @@ def fopen(*pargs, **kwargs):
 			return UnknownDBCFile(*pargs, **kwargs)
 		return DBCFile(*pargs, **kwargs)
 	
-	try:
-		return WDBFile(*pargs, **kwargs)
-	except Exception, e:
-		raise StructureError(L["NOT_A_WDB_FILE"] % (name, e))
+	return WDBFile(*pargs, **kwargs)
 
 
 def new(*pargs, **kwargs):

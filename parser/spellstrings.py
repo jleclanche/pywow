@@ -204,7 +204,7 @@ class Range(Decimal): # used in $s
 		if self.stop > self.start:
 			return "%i to %i" % (self.start, self.stop)
 		
-		return "%i" % self.start
+		return "%i" % (self.start)
 	
 	def __mul__(self, mul):
 		mul = Decimal(str(mul))

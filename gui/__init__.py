@@ -9,16 +9,18 @@ import sys
 from PyQt4 import QtCore, QtGui
 
 import wdbc
+from wdbc import StructureError
 
-#fname = "/home/adys/bin/reader/DBFilesClientOriginal/MailTemplate.dbc"
-#fname = "/home/adys/wow/Cache/WDB/enGB/itemcache.wdb"
-#fname = "/home/adys/bin/reader/DBFilesClientOriginal/Spell.dbc"
 fname = sys.argv[1]
 build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
-f = wdbc.fopen(fname, build=build)
-_array = f.rows()
-headerdata = f.structure.column_names
+try:
+	f = wdbc.fopen(fname, build=build)
+except StructureError, e:
+	print "%s is not a valid WDB or DBC file: %s" % (fname, e)
+	exit()
+ARRAY = f.rows()
 
+HEADER_DATA = f.structure.column_names
 
 def main():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -59,7 +61,7 @@ class MainTable(QtGui.QWidget):
 		
 		# create table
 		#self.get_table_data()
-		self.tabledata = _array
+		self.tabledata = ARRAY
 		table = self.createTable()
 		
 		# layout
@@ -72,7 +74,7 @@ class MainTable(QtGui.QWidget):
 		tv = QtGui.QTableView()
 		
 		# set the table model
-		header = headerdata
+		header = HEADER_DATA
 		tm = MainTableModel(self.tabledata, header, self) 
 		tv.setModel(tm)
 		
@@ -97,10 +99,10 @@ class MainTable(QtGui.QWidget):
 
 
 class MainTableModel(QtCore.QAbstractTableModel):
-	def __init__(self, datain, headerdata, parent=None, *args):
+	def __init__(self, datain, HEADER_DATA, parent=None, *args):
 		QtCore.QAbstractTableModel.__init__(self, parent, *args)
 		self.arraydata = datain
-		self.headerdata = headerdata
+		self.HEADER_DATA = HEADER_DATA
 	
 	def rowCount(self, parent):
 		return len(self.arraydata)
@@ -117,7 +119,7 @@ class MainTableModel(QtCore.QAbstractTableModel):
 	
 	def headerData(self, col, orientation, role):
 		if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-			return QtCore.QVariant(self.headerdata[col])
+			return QtCore.QVariant(self.HEADER_DATA[col])
 		return QtCore.QAbstractTableModel.headerData(self, col, orientation, role)
 	
 	def sizeHintForRow(self, row):
