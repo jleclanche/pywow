@@ -292,13 +292,13 @@ class ForeignCell(ForeignKeyBase):
 		self.get_row = get_row
 	
 	def get_final_value(self, value, row):
-		column = self.get_column(row)
+		column = self.get_column(row, self.raw_value)
 		if column:
 			return getattr(value, column)
 		return self.raw_value
 	
 	def get_relation_key(self, value, row):
-		return self.get_row(row)
+		return self.get_row(row, self.raw_value)
 		
 	def get_relation(self, value):
 		return self.relation.lower()
