@@ -4,9 +4,10 @@
 from ..base import DBStructure, Skeleton
 from ..fields import *
 
-####################
-## WDB structures ##
-####################
+
+##
+# WDB structures
+#
 
 class CreatureCache(DBStructure):
 	"""
@@ -718,9 +719,10 @@ class PageTextCache(DBStructure):
 	)
 
 
-####################
-## DBC structures ##
-####################
+
+##
+# DBC Structures
+#
 
 class Achievement(DBStructure):
 	"""
@@ -1814,6 +1816,17 @@ class GlyphSlot(DBStructure):
 		IntegerField("ordering"),
 	)
 
+
+class GMTicketCategory(DBStructure):
+	"""
+	GMTicketCategory.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+	)
+
+
 class gtCombatRatings(DBStructure):
 	"""
 	gtCombatRatings.dbc
@@ -2752,6 +2765,30 @@ class QuestXP(DBStructure):
 	)
 
 
+class RandPropPoints(DBStructure):
+	"""
+	RandPropPoints.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("epic_points_1"),
+		IntegerField("epic_points_2"),
+		IntegerField("epic_points_3"),
+		IntegerField("epic_points_4"),
+		IntegerField("epic_points_5"),
+		IntegerField("rare_points_1"),
+		IntegerField("rare_points_2"),
+		IntegerField("rare_points_3"),
+		IntegerField("rare_points_4"),
+		IntegerField("rare_points_5"),
+		IntegerField("uncommon_points_1"),
+		IntegerField("uncommon_points_2"),
+		IntegerField("uncommon_points_3"),
+		IntegerField("uncommon_points_4"),
+		IntegerField("uncommon_points_5"),
+	)
+
+
 class Resistances(DBStructure):
 	"""
 	Resistances.dbc
@@ -2940,6 +2977,271 @@ class SkillLineCategory(DBStructure):
 		IDField(),
 		LocalizedFields("name"),
 		IntegerField("sort")
+	)
+
+
+class SkillTiers(DBStructure):
+	"""
+	SkillTiers.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("value_1"),
+		IntegerField("value_2"),
+		IntegerField("value_3"),
+		IntegerField("value_4"),
+		IntegerField("value_5"),
+		IntegerField("value_6"),
+		IntegerField("value_7"),
+		IntegerField("value_8"),
+		IntegerField("value_9"),
+		IntegerField("value_10"),
+		IntegerField("value_11"),
+		IntegerField("value_12"),
+		IntegerField("value_13"),
+		IntegerField("value_14"),
+		IntegerField("value_15"),
+		IntegerField("value_16"),
+		IntegerField("max_value_1"),
+		IntegerField("max_value_2"),
+		IntegerField("max_value_3"),
+		IntegerField("max_value_4"),
+		IntegerField("max_value_5"),
+		IntegerField("max_value_6"),
+		IntegerField("max_value_7"),
+		IntegerField("max_value_8"),
+		IntegerField("max_value_9"),
+		IntegerField("max_value_10"),
+		IntegerField("max_value_11"),
+		IntegerField("max_value_12"),
+		IntegerField("max_value_13"),
+		IntegerField("max_value_14"),
+		IntegerField("max_value_15"),
+		IntegerField("max_value_16"),
+	)
+
+
+class SoundAmbience(DBStructure):
+	"""
+	SoundAmbience.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("day", "SoundEntries"),
+		ForeignKey("night", "SoundEntries"),
+	)
+
+
+class SoundCharacterMacroLines(DBStructure):
+	"""
+	SoundCharacterMacroLines.dbc
+	"""
+	DEAD = True
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		IntegerField("gender"),
+		ForeignKey("races", "ChrRaces"),
+		ForeignKey("sound", "SoundEntries"),
+	)
+
+
+class SoundEmitters(DBStructure):
+	"""
+	SoundEmitters.dbc
+	Seems to replace the ADT-sound-emitters.
+	Mainly used for waterfalls.
+	"""
+	base = Skeleton(
+		IDField(),
+		FloatField("x"),
+		FloatField("y"),
+		FloatField("z"),
+		FloatField("radius_1"), # XXX
+		FloatField("radius_2"),
+		FloatField("radius_3"),
+		ForeignKey("sound", "SoundEntriesAdvanced"),
+		ForeignKey("map", "Map"),
+		StringField("name"),
+	)
+
+
+class SoundEntries(DBStructure):
+	"""
+	SoundEntries.dbc
+	Defines many kinds of sounds ingame.
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("type"),
+		StringField("name"),
+		FilePathField("filename_1"),
+		FilePathField("filename_2"),
+		FilePathField("filename_3"),
+		FilePathField("filename_4"),
+		FilePathField("filename_5"),
+		FilePathField("filename_6"),
+		FilePathField("filename_7"),
+		FilePathField("filename_8"),
+		FilePathField("filename_9"),
+		FilePathField("filename_10"),
+		IntegerField("parameters_1"),
+		IntegerField("parameters_2"),
+		IntegerField("parameters_3"),
+		IntegerField("parameters_4"),
+		IntegerField("parameters_5"),
+		IntegerField("parameters_6"),
+		IntegerField("parameters_7"),
+		IntegerField("parameters_8"),
+		IntegerField("parameters_9"),
+		IntegerField("parameters_10"),
+		FilePathField("path"),
+		FloatField("volume"),
+		BitMaskField("flags"),
+		FloatField("distance_min"),
+		FloatField("distance_cutoff"),
+		IntegerField("eax_definition"),
+		UnknownField(),
+	)
+
+
+class SoundEntriesAdvanced(DBStructure):
+	"""
+	SoundEntriesAdvanced.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("sound", "SoundEntries"),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		StringField("name"),
+	)
+
+class SoundFilter(DBStructure):
+	"""
+	SoundFilter.dbc
+	Death knight voice filters
+	See http://www.madx.dk/wowdev/wiki/index.php?title=SoundFilter.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField(),
+	)
+
+
+class SoundFilterElem(DBStructure):
+	"""
+	SoundFilterElem.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("filter", "SoundFilter"),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
+class SoundProviderPreferences(DBStructure):
+	"""
+	SoundProviderPreferences.dbc
+	World of Warcraft uses the FMod Sound Library by Firelite Technologies
+	http://www.fmod.org/ - The data stored in this table corresponds
+	with the struct FMOD_REVERB_PROPERTIES in the FMod API.
+	For more indepth descriptions of these properties under win32,
+	check the EAX2 and EAX3 documentation at http://developer.creative.com/
+	under the downloads section.
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
+		UnknownField(),
+		UnknownField(),
+		FloatField("volume"), # 20 = full volume
+		FloatField("environment_size"),
+		FloatField("environment_diffusion"),
+		IntegerField("room_mid_frequency"),
+		IntegerField("room_high_frequency"),
+		FloatField("decay_hf_ratio"),
+		IntegerField("reflections"),
+		FloatField("reflections_delay"),
+		IntegerField("reverb"),
+		FloatField("reverb_delay"),
+		FloatField("room_low_frequency"),
+		FloatField("hl_reference"),
+		FloatField("echo_depth"),
+		FloatField("diffusion"),
+		FloatField("echo_time"),
+		FloatField(), # EnvDiffusion says wowdev
+		FloatField("modulation_time"),
+		FloatField("modulation_depth"),
+		FloatField("lf_reference"),
+		FloatField("room_rolloff_factor"),
+	)
+
+
+class SoundSamplePreferences(DBStructure):
+	"""
+	SoundSamplePreferences.dbc
+	Two rows only
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		FloatField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+	)
+
+
+class SoundWaterType(DBStructure):
+	"""
+	SoundWaterType.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("liquid_type", "LiquidType"),
+		BitMaskField("fluid_speed"), # Water speed. 0x0 = still; 0x4 = slow; 0x8 fast
+		ForeignKey("sound", "SoundEntries"),
 	)
 
 
@@ -3622,11 +3924,54 @@ class Weather(DBStructure):
 		base.insert_field(FloatField(), before="texture")
 
 
+class WeaponImpactSounds(DBStructure):
+	"""
+	WeaponImpactSounds.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(), # boolean? for crits maybe?
+		ForeignKey("sound_1", "SoundEntries"),
+		ForeignKey("sound_2", "SoundEntries"),
+		ForeignKey("sound_3", "SoundEntries"),
+		ForeignKey("sound_4", "SoundEntries"),
+		ForeignKey("sound_5", "SoundEntries"),
+		ForeignKey("sound_6", "SoundEntries"),
+		ForeignKey("sound_7", "SoundEntries"),
+		ForeignKey("sound_8", "SoundEntries"),
+		ForeignKey("sound_9", "SoundEntries"),
+		ForeignKey("sound_10", "SoundEntries"),
+		ForeignKey("sound_11", "SoundEntries"),
+		ForeignKey("sound_12", "SoundEntries"),
+		ForeignKey("sound_13", "SoundEntries"),
+		ForeignKey("sound_14", "SoundEntries"),
+		ForeignKey("sound_15", "SoundEntries"),
+		ForeignKey("sound_16", "SoundEntries"),
+		ForeignKey("sound_17", "SoundEntries"),
+		ForeignKey("sound_18", "SoundEntries"),
+		ForeignKey("sound_19", "SoundEntries"),
+		ForeignKey("sound_20", "SoundEntries"),
+	)
+
+
+class WeaponSwingSounds2(DBStructure):
+	"""
+	WeaponSwingSounds2.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		BooleanField("critical"),
+		ForeignKey("sound", "SoundEntries")
+	)
+
+
 class WorldChunkSounds(DBStructure):
 	"""
 	WorldChunkSounds.dbc
-	Unknown use and structure - NULLED OUT
 	"""
+	DEAD = True
 	base = Skeleton(
 		IDField(),
 		UnknownField(),
