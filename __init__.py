@@ -288,8 +288,13 @@ class DBRow(list):
 							_data = unicode(parent._getstring(unpack("<i", data[cursor:cursor+4])[0]), "utf-8")
 						cursor += 4
 					else:
-						_data = unicode(data[cursor:data.index("\x00", cursor)], "utf-8")
-						cursor += len(str(_data.encode("utf-8"))) + 1
+						try:
+							_data = unicode(data[cursor:data.index("\x00", cursor)], "utf-8")
+							cursor += len(str(_data.encode("utf-8"))) + 1
+						except ValueError:
+							_data = u""
+							cursor += 1
+							log.warning("Substring not found for %s, some values may be corrupt. Fix your structures!" % (col))
 				
 				elif char == "A": # The amount of dynamic columns in the row
 					_data = unpack("<i", data[cursor:cursor+4])[0]
@@ -545,8 +550,8 @@ class DBCFile(DBFile):
 			try:
 				val = self.strblk[addr:addr+self.strblk[addr:addr+2048].index("\x00")]
 			except ValueError:
-				log.critical(L["SUBSTRING_NOT_FOUND"] % addr)
-				raise
+				#log.critical(L["SUBSTRING_NOT_FOUND"] % addr)
+				val = ""
 		return val
 	
 	def _generate_structure(self):
@@ -645,7 +650,6 @@ def fopen(*pargs, **kwargs):
 		except StructureError:
 			return UnknownDBCFile(*pargs, **kwargs)
 		return DBCFile(*pargs, **kwargs)
-	
 	return WDBFile(*pargs, **kwargs)
 
 
