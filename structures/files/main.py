@@ -577,24 +577,21 @@ class QuestCache(DBStructure):
 		ForeignKey("self", "questcache"),
 		IntegerField("tag"),
 		IntegerField("level"),
-		IntegerField("category"),
+		IntegerField("category"), # GFK QuestInfo/AreaTable
 		ForeignKey("type", "QuestInfo"),
 		IntegerField("suggested_players"),
-		IntegerField("required_faction_1"),
+		ForeignKey("required_faction_1", "Faction"),
 		IntegerField("required_reputation_1"),
-		IntegerField("required_faction_2"),
+		ForeignKey("required_faction_2", "Faction"),
 		IntegerField("required_reputation_2"),
 		IntegerField("followup"),
 		IntegerField("money_reward"),
 		IntegerField("money_reward_cap"),
 		ForeignKey("spell_reward", "Spell"),
 		ForeignKey("spell_trigger", "Spell"),
-		IntegerField("unknown_308"), #added 3.0.8, unused apart from 200 in 13233/13234
+		UnknownField(), # unused apart from 200 in 13233/13234
 		ForeignKey("provided_item", "Item"),
 		BitMaskField("flags", flags=FLAGS),
-		ForeignKey("title_reward", "CharTitles"), #added 2.4
-		IntegerField("required_player_kills"), #added 8334
-		IntegerField("bonus_talents"), #added 8471
 		ForeignKey("item_reward_1", "Item"),
 		IntegerField("item_reward_amount_1"),
 		ForeignKey("item_reward_2", "Item"),
@@ -615,7 +612,7 @@ class QuestCache(DBStructure):
 		IntegerField("item_choice_reward_amount_5"),
 		ForeignKey("item_choice_reward_6", "Item"),
 		IntegerField("item_choice_reward_amount_6"),
-		ForeignKey("instance", "map"),
+		ForeignKey("instance", "Map"),
 		FloatField("coord_x"),
 		FloatField("coord_y"),
 		UnknownField(),
@@ -624,7 +621,7 @@ class QuestCache(DBStructure):
 		StringField("description"),
 		StringField("summary"),
 		GenericForeignKey("required_kill_1", get_relation=get_kill_relation, get_value=get_kill_value),
-		IntegerField("required_kill_amount_1"), # TODO changed_9551 (cf commit 151)
+		IntegerField("required_kill_amount_1"),
 		ForeignKey("quest_item_1", "Item"),
 		GenericForeignKey("required_kill_2", get_relation=get_kill_relation, get_value=get_kill_value),
 		IntegerField("required_kill_amount_2"),
@@ -639,21 +636,41 @@ class QuestCache(DBStructure):
 		IntegerField("required_item_amount_1"),
 		ForeignKey("required_item_2", "Item"),
 		IntegerField("required_item_amount_2"),
-		ForeignKey("required_item_3", "Item"),
-		IntegerField("required_item_amount_3"),
-		ForeignKey("required_item_4", "Item"),
-		IntegerField("required_item_amount_4"),
-		ForeignKey("required_item_5", "Item"),
-		IntegerField("required_item_amount_5"),
 		StringField("objective_text_1"),
 		StringField("objective_text_2"),
 		StringField("objective_text_3"),
 		StringField("objective_text_4"),
 	)
 	
+	def changed_8125(self, base):
+		base.insert_field(ForeignKey("title_reward", "CharTitles"), before="item_reward_1")
+	
+	def changed_8770(self, base):
+		self.changed_8125(base)
+		base.insert_fields([
+			IntegerField("required_player_kills"),
+			IntegerField("bonus_talents"),
+		], before="item_reward_1")
+		base.insert_fields([
+			ForeignKey("required_item_3", "Item"),
+			IntegerField("required_item_amount_3"),
+			ForeignKey("required_item_4", "Item"),
+			IntegerField("required_item_amount_4"),
+		], before="objective_text_1")
+	
+	def changed_9355(self, base):
+		self.changed_8770(base)
+		base.insert_fields([
+			ForeignKey("required_item_5", "Item"),
+			IntegerField("required_item_amount_5"),
+		], before="objective_text_1")
+	
 	def changed_10026(self, base):
-		base.insert_field(ForeignKey("required_item_6", "Item"), before="objective_text_1")
-		base.insert_field(IntegerField("required_item_amount_6"), before="objective_text_1")
+		self.changed_9355(base)
+		base.insert_fields([
+			ForeignKey("required_item_6", "Item"),
+			IntegerField("required_item_amount_6"),
+		], before="objective_text_1")
 	
 	##
 	# QuestFactionReward.dbc has two rows.
@@ -669,11 +686,11 @@ class QuestCache(DBStructure):
 		base.insert_field(IntegerField("arena_reward"), before="item_reward_1")
 		base.insert_field(UnknownField(), before="item_reward_1")
 		base.insert_fields([
-			ForeignKey("faction_reward_1", "faction"),
-			ForeignKey("faction_reward_2", "faction"),
-			ForeignKey("faction_reward_3", "faction"),
-			ForeignKey("faction_reward_4", "faction"),
-			ForeignKey("faction_reward_5", "faction"),
+			ForeignKey("faction_reward_1", "Faction"),
+			ForeignKey("faction_reward_2", "Faction"),
+			ForeignKey("faction_reward_3", "Faction"),
+			ForeignKey("faction_reward_4", "Faction"),
+			ForeignKey("faction_reward_5", "Faction"),
 			ForeignCell("reputation_reward_1", "QuestFactionReward", get_row=self.get_reputation_reward_row, get_column=self.get_reputation_reward_column),
 			ForeignCell("reputation_reward_2", "QuestFactionReward", get_row=self.get_reputation_reward_row, get_column=self.get_reputation_reward_column),
 			ForeignCell("reputation_reward_3", "QuestFactionReward", get_row=self.get_reputation_reward_row, get_column=self.get_reputation_reward_column),
@@ -3298,11 +3315,8 @@ class Spell(DBStructure):
 		BitMaskField("flags_5", flags=FLAGS_5),
 		BitMaskField("flags_6", flags=FLAGS_6),
 		BitMaskField("flags_7"),
-		UnknownField(), ## Added 320?
 		BitMaskField("required_stances"),
-		UnknownField(), ##
 		BitMaskField("excluded_stances"),
-		UnknownField(), ##
 		BitMaskField("required_target"),
 		BitMaskField("required_target_type"),
 		IntegerField("required_object_focus"),
@@ -3461,6 +3475,9 @@ class Spell(DBStructure):
 	)
 
 	def changed_10026(self, base):
+		base.insert_field(UnknownField(), before="required_stances") # Likely int->bigint
+		base.insert_field(UnknownField(), before="excluded_stances")
+		base.insert_field(UnknownField(), before="required_target")
 		base.append_fields(
 			FloatField("multiplier_effect_1"),
 			FloatField("multiplier_effect_2"),
