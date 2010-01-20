@@ -201,8 +201,8 @@ class ForeignKeyBase(IntegerField):
 	"""
 	Base class for ForeignKeys
 	"""
-	def from_python(self, value):
-		if isinstance(value, int):
+	def from_python(self, value): # FIXME use isinstance(DBFile) instead
+		if isinstance(value, int) or isinstance(value, long):
 			return value
 		pkey = value.structure.pkeys[0] # TODO: what about multiple pkeys ?
 		index = value.structure.index(pkey.name)
