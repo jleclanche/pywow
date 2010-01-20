@@ -193,7 +193,7 @@ class DBFile(dict):
 		for k in self:
 			i = 0
 			for arg in args:
-				if self[k][arg] != args[arg]:
+				if self[k]._raw(arg) != args[arg]:
 					break
 				i += 1
 			if i == match:
@@ -285,7 +285,11 @@ class DBRow(list):
 						if data[cursor:cursor+4] == "\x00\x00\x00\x00":
 							_data = ""
 						else:
-							_data = unicode(parent._getstring(unpack("<i", data[cursor:cursor+4])[0]), "utf-8")
+							try:
+								_data = unicode(parent._getstring(unpack("<i", data[cursor:cursor+4])[0]), "utf-8")
+							except StructError:
+								_data = u""
+								#log.warning("Substring not found for %s, some values may be corrupt. Fix your structures!" % (col))
 						cursor += 4
 					else:
 						try:
@@ -337,7 +341,7 @@ class DBRow(list):
 	
 	def __setitem__(self, index, value):
 		if not isinstance(index, int):
-			raise TypeError
+			raise TypeError("Expected int instance, got %s instead (%r)" % (type(index), index))
 		list.__setitem__(self, index, value)
 		col = self.structure[index]
 		try:
@@ -502,7 +506,7 @@ class WDBFile(DBFile):
 	def update_reclens(self):
 		"""Update all the reclens in the file"""
 		for k in self:
-			self[k]["_reclen"] = self[k].reclen()
+			self[k]._reclen = self[k].reclen()
 
 
 class EncryptedWDBFile(WDBFile):
