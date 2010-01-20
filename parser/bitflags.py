@@ -9,6 +9,11 @@ class BitFlags(object):
 	
 	def __init__(self, value, flags={}):
 		self._values = dict(zip(flags.values(), flags.keys()))
+		if isinstance(value, dict):
+			value = sum(self._values[k] for k in value)
+		if not isinstance(value, int):
+			from ..structures import StructureError
+			raise StructureError("BitFlags value must be an int or a dict (got %r instead)" % (type(value)))
 		self._bitmask = value
 		self._flags = flags
 	
