@@ -4,11 +4,21 @@
 from ..base import DBStructure, Skeleton
 from ..fields import *
 
-CLASSES = ["WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST",
-	"DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "", "DRUID"]
-
 class SoldItemCache(DBStructure):
 	signature = "CISW"
+	
+	CLASSES = {
+		0x001: "WARRIOR",
+		0x002: "PALADIN",
+		0x004: "HUNTER",
+		0x008: "ROGUE",
+		0x010: "PRIEST",
+		0x020: "DEATHKNIGHT",
+		0x040: "SHAMAN",
+		0x080: "MAGE",
+		0x100: "WARLOCK",
+		0x400: "DRUID",
+	}
 	
 	base = Skeleton(
 		IDField(),
