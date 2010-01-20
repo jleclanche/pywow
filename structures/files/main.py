@@ -3471,10 +3471,13 @@ class Spell(DBStructure):
 		BitMaskField("school_flags"),
 		ForeignKey("rune_cost", "SpellRuneCost"),
 		ForeignKey("missile", "SpellMissile"),
-		ForeignKey("power_display", "PowerDisplay"), # added 3.1?
 	)
+	
+	def changed_9614(self, base): # between 9614 and 9637
+		base.append_fields(ForeignKey("power_display", "PowerDisplay"))
 
 	def changed_10026(self, base):
+		self.changed_9614(base)
 		base.insert_field(UnknownField(), before="required_stances") # Likely int->bigint
 		base.insert_field(UnknownField(), before="excluded_stances")
 		base.insert_field(UnknownField(), before="required_target")
