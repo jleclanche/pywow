@@ -25,11 +25,11 @@ class CreatureCache(DBStructure):
 		StringField("title"),
 		StringField("cursor"),
 		BitMaskField("flags"),
-		IntegerField("category"), #dragonkin, ...
-		IntegerField("family"), # hunter pet family
+		ForeignKey("category", "CreatureType"), #dragonkin, ...
+		ForeignKey("family", "CreatureFamily"), # hunter pet family
 		IntegerField("type"), # elite, rareelite, boss, rare
-		ForeignKey("tamed_spells", "CreatureSpellData"), # XXX spellicon?
-		ForeignKey("model", "CreatureDisplayInfo"),
+		ForeignKey("tamed_spells", "CreatureSpellData"),
+		ForeignKey("model_1", "CreatureDisplayInfo"),
 		ForeignKey("model_2", "CreatureDisplayInfo"), # added in 2.2
 		ForeignKey("model_3", "CreatureDisplayInfo"), # added in 2.2
 		ForeignKey("model_4", "CreatureDisplayInfo"), # added in 2.2
@@ -39,12 +39,12 @@ class CreatureCache(DBStructure):
 	)
 
 	def changed_9614(self, base):
-		base.insert_field(IntegerField(), before="model")
+		base.insert_field(ForeignKey("vehicle_spells", "CreatureSpellData"), before="model_1")
 		base.append_fields(
-			IntegerField(),
-			IntegerField(),
-			IntegerField(),
-			IntegerField(),
+			ForeignKey("quest_drop_1", "Item"),
+			ForeignKey("quest_drop_2", "Item"),
+			ForeignKey("quest_drop_3", "Item"),
+			ForeignKey("quest_drop_4", "Item"),
 			IntegerField(),
 		)
 
