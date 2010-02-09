@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os
 from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack, error as StructError
 
@@ -88,7 +87,7 @@ class DBHeader(object):
 				self.version = unpack("i", data[20:24])[0]
 	
 	
-	def data(self):
+	def _data(self):
 		self._load_data()
 		return pack(self.structure(), *self.__return())
 	
@@ -234,8 +233,10 @@ class DBFile(dict):
 	
 	def write(self, filename=""):
 		"Write the cache to disk, defaulting filename to original file"
-		filename = filename or self.path or os.devnull
-		data = self.data()
+		filename = filename or self.path
+		if not filename:
+			raise TypeError("No filename specified and self.path is not set.")
+		data = self._data()
 		f = open(filename, "w")
 		f.write(data)
 		f.close()
@@ -384,7 +385,7 @@ class DBRow(list):
 			col = self.structure[index]
 			self[index] = col.from_python(self._values[name])
 	
-	def data(self):
+	def _data(self):
 		"Convert the column list into a byte stream"
 		self._save()
 		data = []
@@ -430,7 +431,7 @@ class DBRow(list):
 		return dict(zip(self.structure.column_names, self))
 	
 	def reclen(self):
-		return len(self.data())-8
+		return len(self._data())-8
 	
 	def update(self, other):
 		for k in other:
@@ -463,10 +464,10 @@ class WDBFile(DBFile):
 		self.sort.append(row[0])
 	
 	
-	def data(self):
+	def _data(self):
 		"""Convert the data dict into a byte stream"""
-		header = self.header.data()
-		data = "".join([self[k].data() for k in self])
+		header = self.header._data()
+		data = "".join([self[k]._data() for k in self])
 		eof = "\x00" * 8
 		return header+data+eof
 	
@@ -599,10 +600,10 @@ class DBCFile(DBFile):
 		f.close()
 	
 	
-	def data(self):
+	def _data(self):
 		"""Convert the data dict into a byte string"""
-		header = self.header.data()
-		data = "".join([self[k].data() for k in self])
+		header = self.header._data()
+		data = "".join([self[k]._data() for k in self])
 		eof = "\x00" * 8
 		return header+data+eof
 
