@@ -13,6 +13,9 @@ from ..parser.bitflags import BitFlags
 # Core
 #
 
+class FieldError(Exception):
+	pass
+
 OLD_LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx")
 LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx",
 	"ruru", "unk1", "unk2", "unk3", "unk4", "unk5", "unk6", "unk7")
@@ -170,15 +173,23 @@ class LocalizedFields(DynamicFieldsBase):
 		del self[:]
 		self.__regenerate(locales)
 
-class ListField(DynamicFieldsBase):
+class Union(DynamicFieldsBase):
 	"""
-	Helpful on unknown fields
+	Imitates a C++ union.
+	Takes a name argument and field_1, ... field_n fields to
+	populate the default union.
+	Required get_structure(x, row) callable argument that
+	returns the structure corresponding to a specific row.
 	"""
 	
-	def __init__(self, name, length, field_type=IntegerField, **kwargs):
-		self.name = name
-		for i in xrange(length):
-			self.append(field_type(name="%s_%d" % (name, i), group=self, **kwargs))
+	def __init__(self, name, fields, get_structure):
+		DynamicFieldsBase.__init__(self, fields)
+		if not callable(get_structure):
+			raise StructureError("%s._get_structure must be a callable type" % (self.__class__.__name__))
+		self._get_structure = get_structure
+	
+	def get_structure(self, row):
+		return self._get_structure(row)
 
 
 ##
@@ -268,7 +279,7 @@ class GenericForeignKey(ForeignKeyBase):
 	def __init__ (self, name="", get_relation=None, get_value=lambda x, value: value):
 		IntegerField.__init__(self, name)
 		if not callable(get_relation):
-			raise TypeError("%s._get_relation must be a callable type" % (self.__class__.__name__))
+			raise FieldError("%s._get_relation must be a callable type" % (self.__class__.__name__))
 		self._get_relation = get_relation
 		self._get_value = get_value
 	
@@ -343,7 +354,7 @@ class DurationField(IntegerField):
 	def __init__(self, name="", unit="seconds", **kwargs):
 		IntegerField.__init__(self, name, **kwargs)
 		if unit not in self.units:
-			raise ValueError("%r is not a valid duration unit (choices are: %s)" % (unit, ", ".join(self.units.keys())))
+			raise FieldError("%r is not a valid duration unit (choices are: %s)" % (unit, ", ".join(self.units.keys())))
 		self.unit = unit
 	
 	def timedelta(self, value):
