@@ -6,7 +6,7 @@ from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack, error as StructError
 
 from .structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields
-from .structures import _Generated, StructureError, getstructure
+from .structures import _Generated, UnknownStructure, getstructure
 from .locales import L
 from .logger import log
 
@@ -228,8 +228,8 @@ class DBFile(dict):
 	
 	def update(self, other):
 		"Merge a file with an identical structure into self"
-		if self.structure != other.structure:
-			raise ValueError
+		if len(self.structure) != len(other.structure):
+			raise ValueError("Structures are not identical (%r / %r)" % (len(self.structure), len(other.structure)))
 		dict.update(self, other)
 	
 	def write(self, filename=""):
@@ -492,16 +492,18 @@ class WDBFile(DBFile):
 		dyns = [k for k in self.structure.columns if isinstance(k, DynamicFields)]
 		for k in self:
 			for group in dyns:
-				self[k][group[0].name] = 0 # set master to 0
+				master_name = group[0].name
+				amount = 0 # Amount of active fields
 				for fields in group[1:]:
-					values = [self[k][col.name] for col in fields]
+					values = [self[k]._raw(col.name) for col in fields]
 					if set(values) == set([None]):
 						continue
 					elif None in values: # TODO log event
 						for col in fields:
-							if self[k][col.name] != None:
-								self[k][col.name] = 0
-					self[k][group[0].name] += 1
+							if self[k]._raw(col.name) != None:
+								setattr(self[0], col.name, 0)
+					amount += 1
+				setattr(self[k], master_name, amount) # set master to correct field amount
 	
 	def update_reclens(self):
 		"""Update all the reclens in the file"""
@@ -651,7 +653,7 @@ def fopen(*pargs, **kwargs):
 			return ComplexDBCFile(*pargs, **kwargs)
 		try:
 			getstructure(filename)
-		except StructureError:
+		except UnknownStructure:
 			return UnknownDBCFile(*pargs, **kwargs)
 		return DBCFile(*pargs, **kwargs)
 	return WDBFile(*pargs, **kwargs)
