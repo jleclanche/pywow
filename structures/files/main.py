@@ -41,10 +41,10 @@ class CreatureCache(DBStructure):
 	def changed_9614(self, base):
 		base.insert_field(ForeignKey("vehicle_spells", "CreatureSpellData"), before="model_1")
 		base.append_fields(
-			ForeignKey("quest_drop_1", "Item"),
-			ForeignKey("quest_drop_2", "Item"),
-			ForeignKey("quest_drop_3", "Item"),
-			ForeignKey("quest_drop_4", "Item"),
+			ForeignKey("quest_item_1", "Item"),
+			ForeignKey("quest_item_2", "Item"),
+			ForeignKey("quest_item_3", "Item"),
+			ForeignKey("quest_item_4", "Item"),
 			IntegerField(),
 		)
 
@@ -63,42 +63,52 @@ class GameObjectCache(DBStructure):
 	World object data
 	"""
 	signature = "BOGW"
+	
+	GAME_OBJECT_TYPES = {
+		# Not yet implemented
+	}
+	
 	base = Skeleton(
 		IDField(),
 		RecLenField(),
 		IntegerField("type"),
-		ForeignKey("display", "gameobjectdisplayinfo"),
+		ForeignKey("display", "GameObjectDisplayInfo"),
 		StringField("name"),
 		StringField("name2"),
 		StringField("name3"),
 		StringField("name4"),
+		StringField("cursor"),
+		StringField("action"),
 		StringField(),
-		StringField("description"),
-		StringField(),
-		IntegerField("health"), # not always
-		IntegerField("action"),
-		IntegerField(), # gfk: spell, envdmg? pagetextcache/lock
-		BitMaskField(),
-		BitMaskField(),
-		BitMaskField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		Union("data",
+			fields = (
+				IntegerField("data_1"),
+				IntegerField("data_2"),
+				IntegerField("data_3"),
+				IntegerField("data_4"),
+				IntegerField("data_5"),
+				IntegerField("data_6"),
+				IntegerField("data_7"),
+				IntegerField("data_8"),
+				IntegerField("data_9"),
+				IntegerField("data_10"),
+				IntegerField("data_11"),
+				IntegerField("data_12"),
+				IntegerField("data_13"),
+				IntegerField("data_14"),
+				IntegerField("data_15"),
+				IntegerField("data_16"),
+				IntegerField("data_17"),
+				IntegerField("data_18"),
+				IntegerField("data_19"),
+				IntegerField("data_20"),
+				IntegerField("data_21"),
+				IntegerField("data_22"),
+				IntegerField("data_23"),
+				IntegerField("data_24"),
+			),
+			get_structure = lambda x, row: GAME_OBJECT_TYPES[row.type]
+		),
 		FloatField("scale"),
 		ForeignKey("quest_item_1", "Item"),
 		ForeignKey("quest_item_2", "Item"),
@@ -392,10 +402,10 @@ class ItemCache(DBStructure):
 			"stats_id_dyn10", "stats_amt_dyn10",
 		)
 		base.insert_field(
-			DynamicFields("stats", [(
+			DynamicFields("stats", ((
 				(IntegerField, "id"),
 				(IntegerField, "amt"),
-			), 10]
+			), 10)
 		), before="dmgmin1")
 		base.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="dmgmin1")
 		base.insert_field(BitMaskField("scaling_flags"), before="dmgmin1")
@@ -647,30 +657,30 @@ class QuestCache(DBStructure):
 	
 	def changed_8770(self, base):
 		self.changed_8125(base)
-		base.insert_fields([
+		base.insert_fields((
 			IntegerField("required_player_kills"),
 			IntegerField("bonus_talents"),
-		], before="item_reward_1")
-		base.insert_fields([
+		), before="item_reward_1")
+		base.insert_fields((
 			ForeignKey("required_item_3", "Item"),
 			IntegerField("required_item_amount_3"),
 			ForeignKey("required_item_4", "Item"),
 			IntegerField("required_item_amount_4"),
-		], before="objective_text_1")
+		), before="objective_text_1")
 	
 	def changed_9355(self, base):
 		self.changed_8770(base)
-		base.insert_fields([
+		base.insert_fields((
 			ForeignKey("required_item_5", "Item"),
 			IntegerField("required_item_amount_5"),
-		], before="objective_text_1")
+		), before="objective_text_1")
 	
 	def changed_10026(self, base):
 		self.changed_9355(base)
-		base.insert_fields([
+		base.insert_fields((
 			ForeignKey("required_item_6", "Item"),
 			IntegerField("required_item_amount_6"),
-		], before="objective_text_1")
+		), before="objective_text_1")
 	
 	##
 	# QuestFactionReward.dbc has two rows.
@@ -709,8 +719,8 @@ class QuestCache(DBStructure):
 		base.insert_field(IntegerField("level_obtained"), before="category")
 		base.insert_field(
 			ForeignCell("experience_reward", "QuestXP",
-				get_row=lambda row, value: row.level,
-				get_column=lambda row, value: "experience_%i" % (value) if value else None,
+				get_row = lambda row, value: row.level,
+				get_column = lambda row, value: "experience_%i" % (value) if value else None,
 			),
 		before="money_reward")
 	
@@ -2003,7 +2013,7 @@ class Item(DBStructure):
 		IntegerField(), # sheath or something
 		ForeignKey("display", "itemdisplayinfo"),
 		IntegerField("slot"),
-		IntegerField("sheathtype"),
+		IntegerField("sheath_type"),
 	)
 
 
@@ -2266,95 +2276,6 @@ class Languages(DBStructure):
 	)
 
 
-class LightSkybox(DBStructure):
-	"""
-	LightSkybox.dbc
-	Skybox data
-	"""
-	base = Skeleton(
-		IDField(),
-		FilePathField("path"),
-		IntegerField("type"), # 2 = aurora, ...?
-	)
-
-
-class LiquidMaterial(DBStructure):
-	"""
-	LiquidMaterial.dbc
-	Unknown use. Lava/Water? Only 3 rows (1, 2, 3).
-	Added with WotLK
-	"""
-	base = Skeleton(
-		IDField(),
-		UnknownField(),
-		UnknownField(),
-	)
-
-
-class LoadingScreens(DBStructure):
-	"""
-	LoadingScreens.dbc
-	Loading screen lookups
-	"""
-	base = Skeleton(
-		IDField(),
-		StringField("name"),
-		FilePathField("path"),
-	)
-	
-	def changed_10676(self, base):
-		base.append_fields(BooleanField("continent"))
-
-
-class Lock(DBStructure):
-	"""
-	Lock.dbc
-	Various locks (items, objects, ...)
-	"""
-	PROPERTY_TYPES = {
-		1: "Item",
-		2: "LockProperties",
-		3: "Item", # FIXME
-	}
-	properties_relation = lambda x, value: PROPERTY_TYPES[value]
-	
-	base = Skeleton(
-		IDField(),
-		IntegerField("type_1"),
-		IntegerField("type_2"),
-		IntegerField("type_3"),
-		IntegerField("type_4"),
-		IntegerField("type_5"),
-		IntegerField("type_6"),
-		IntegerField("type_7"),
-		IntegerField("type_8"),
-		GenericForeignKey("properties_1", get_relation=properties_relation),
-		GenericForeignKey("properties_2", get_relation=properties_relation),
-		GenericForeignKey("properties_3", get_relation=properties_relation),
-		GenericForeignKey("properties_4", get_relation=properties_relation),
-		GenericForeignKey("properties_5", get_relation=properties_relation),
-		GenericForeignKey("properties_6", get_relation=properties_relation),
-		GenericForeignKey("properties_7", get_relation=properties_relation),
-		GenericForeignKey("properties_8", get_relation=properties_relation),
-		IntegerField("required_skill_1"),
-		IntegerField("required_skill_2"),
-		IntegerField("required_skill_3"),
-		IntegerField("required_skill_4"),
-		IntegerField("required_skill_5"),
-		IntegerField("required_skill_6"),
-		IntegerField("required_skill_7"),
-		IntegerField("required_skill_8"),
-		IntegerField("action_1"),
-		IntegerField("action_2"),
-		IntegerField("action_3"),
-		IntegerField("action_4"),
-		IntegerField("action_5"),
-		IntegerField("action_6"),
-		IntegerField("action_7"),
-		IntegerField("action_8"),
-	)
-
-
 class LFGDungeons(DBStructure):
 	"""
 	LFGDungeons.dbc
@@ -2408,6 +2329,95 @@ class LFGDungeonGroup(DBStructure):
 		UnknownField(),
 		UnknownField(),
 		IntegerField("type"), # 1 = normal, 2 = raid, 5 = heroic
+	)
+
+
+class LightSkybox(DBStructure):
+	"""
+	LightSkybox.dbc
+	Skybox data
+	"""
+	base = Skeleton(
+		IDField(),
+		FilePathField("path"),
+		IntegerField("type"), # 2 = aurora, ...?
+	)
+
+
+class LiquidMaterial(DBStructure):
+	"""
+	LiquidMaterial.dbc
+	Unknown use. Lava/Water? Only 3 rows (1, 2, 3).
+	Added with WotLK
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class LoadingScreens(DBStructure):
+	"""
+	LoadingScreens.dbc
+	Loading screen lookups
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
+		FilePathField("path"),
+	)
+	
+	def changed_10676(self, base):
+		base.append_fields(BooleanField("continent"))
+
+
+class Lock(DBStructure):
+	"""
+	Lock.dbc
+	Various locks (items, objects, ...)
+	"""
+	PROPERTY_TYPES = {
+		1: "Item",
+		2: "LockProperties",
+		3: "Lock", # FIXME
+	}
+	properties_relation = lambda x, value: PROPERTY_TYPES[value]
+	
+	base = Skeleton(
+		IDField(),
+		IntegerField("type_1"),
+		IntegerField("type_2"),
+		IntegerField("type_3"),
+		IntegerField("type_4"),
+		IntegerField("type_5"),
+		IntegerField("type_6"),
+		IntegerField("type_7"),
+		IntegerField("type_8"),
+		GenericForeignKey("properties_1", get_relation=properties_relation),
+		GenericForeignKey("properties_2", get_relation=properties_relation),
+		GenericForeignKey("properties_3", get_relation=properties_relation),
+		GenericForeignKey("properties_4", get_relation=properties_relation),
+		GenericForeignKey("properties_5", get_relation=properties_relation),
+		GenericForeignKey("properties_6", get_relation=properties_relation),
+		GenericForeignKey("properties_7", get_relation=properties_relation),
+		GenericForeignKey("properties_8", get_relation=properties_relation),
+		IntegerField("required_skill_1"),
+		IntegerField("required_skill_2"),
+		IntegerField("required_skill_3"),
+		IntegerField("required_skill_4"),
+		IntegerField("required_skill_5"),
+		IntegerField("required_skill_6"),
+		IntegerField("required_skill_7"),
+		IntegerField("required_skill_8"),
+		IntegerField("action_1"),
+		IntegerField("action_2"),
+		IntegerField("action_3"),
+		IntegerField("action_4"),
+		IntegerField("action_5"),
+		IntegerField("action_6"),
+		IntegerField("action_7"),
+		IntegerField("action_8"),
 	)
 
 
