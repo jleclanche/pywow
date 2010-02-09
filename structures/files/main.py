@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from .gameobject import GAME_OBJECT_TYPES
 from ..base import DBStructure, Skeleton
 from ..fields import *
 
@@ -63,10 +64,6 @@ class GameObjectCache(DBStructure):
 	World object data
 	"""
 	signature = "BOGW"
-	
-	GAME_OBJECT_TYPES = {
-		# Not yet implemented
-	}
 	
 	base = Skeleton(
 		IDField(),
