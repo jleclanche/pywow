@@ -9,15 +9,14 @@ import sys
 from PyQt4 import QtCore, QtGui
 
 import wdbc
-from wdbc import StructureError
 
 fname = sys.argv[1]
 build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
 try:
 	f = wdbc.fopen(fname, build=build)
-except StructureError, e:
+except wdbc.structures.base.StructureError, e:
 	print "%s is not a valid WDB or DBC file: %s" % (fname, e)
-	exit()
+	exit(1)
 ARRAY = f.rows()
 
 HEADER_DATA = f.structure.column_names
