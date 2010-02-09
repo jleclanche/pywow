@@ -6,7 +6,7 @@ from .files.main import *
 from .files.custom import *
 from ..locales import L
 
-class StructureError(Exception):
+class UnknownStructure(Exception):
 	pass
 
 class StructureLoader():
@@ -23,12 +23,12 @@ class StructureLoader():
 				except TypeError:
 					continue
 				cls.wowfiles[name.lower()] = globals()[name]
-			
+	
 	@classmethod
 	def getstructure(cls, name, build=0, parent=None):
 		if name in cls.wowfiles:
 			return cls.wowfiles[name](build, parent)
-		raise StructureError(L["STRUCTURE_NOT_FOUND"] % name)
+		raise UnknownStructure(L["STRUCTURE_NOT_FOUND"] % name)
 
 StructureLoader.setup()
 getstructure = StructureLoader.getstructure
