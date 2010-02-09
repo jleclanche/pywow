@@ -184,9 +184,18 @@ class Union(DynamicFieldsBase):
 	
 	def __init__(self, name, fields, get_structure):
 		DynamicFieldsBase.__init__(self, fields)
+		self.name = name
 		if not callable(get_structure):
 			raise StructureError("%s._get_structure must be a callable type" % (self.__class__.__name__))
 		self._get_structure = get_structure
+		self.field_names = [k.name for k in fields]
+	
+	def __build_list(self, field, row):
+		"Builds a fake DBRow to allow deep attribute seeking"
+		return [getattr(row, k) for k in field.field_names]
+	
+	def get_abstraction(self):
+		return self.name, self.__build_list
 	
 	def get_structure(self, row):
 		return self._get_structure(row)

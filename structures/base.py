@@ -18,6 +18,7 @@ class DBStructure(list):
 		self.pkeys = []
 		self.column_names = []
 		self.reclen = 0
+		self._abstractions = {}
 		names = []
 		
 		def _lazy_rename(col):
@@ -35,6 +36,10 @@ class DBStructure(list):
 				getattr(self, "changed_%i" % _builds[-1:][0])(self.columns)
 		
 		for col in self.columns:
+			if hasattr(col, "get_abstraction"): # Abstraction for Union, LocalizedFields, etc
+				name, func = col.get_abstraction()
+				self._abstractions[name] = (col, func)
+			
 			if hasattr(col, "get_fields"):
 				for _col in col.get_fields():
 					_lazy_rename(_col)

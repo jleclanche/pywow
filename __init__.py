@@ -329,6 +329,9 @@ class DBRow(list):
 	def __getattr__(self, attr):
 		if attr in self.structure:
 			return self._get_value(attr)
+		if attr in self.structure._abstractions: # Union abstractions etc
+			field, func = self.structure._abstractions[attr]
+			return func(field, self)
 		return list.__getattribute__(self, attr)
 	
 	def __setattr__(self, attr, value):
@@ -397,7 +400,7 @@ class DBRow(list):
 			elif k.char == "A":
 				_data = pack("<i", v)
 			else:
-				_data = pack("<%s" % k.char, v)
+				_data = pack("<%s" % (k.char), v)
 			data.append(str(_data))
 		if self.structure.reclen:
 			data[self.structure.reclen-1] = pack("<i", len("".join(data[2:])))
