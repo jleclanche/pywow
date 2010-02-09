@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import copy
-from .fields import DynamicFieldsBase, IDField, LocalizedFields, RecLenField, UnknownField, LOCALES
+from .fields import IDField, LocalizedFields, RecLenField, UnknownField
 from ..logger import log
 
-##########
-## Core ##
-##########
+
+class StructureError(Exception):
+	pass
 
 class DBStructure(list):
 	""" A database structure. """
@@ -26,16 +26,16 @@ class DBStructure(list):
 			if i > 1:
 				col.name = "%s_%d" % (col.name, i-1)
 		
-		columns = copy.deepcopy(self.base)
+		self.columns = copy.deepcopy(self.base)
 		self.builds = sorted([int(m[8:]) for m in dir(self) if m.startswith("changed_")])
 		
 		if self.builds and build:
 			_builds = sorted([k for k in self.builds if k <= build])
 			if _builds:
-				getattr(self, "changed_%i" % _builds[-1:][0])(columns)
+				getattr(self, "changed_%i" % _builds[-1:][0])(self.columns)
 		
-		for col in columns:
-			if isinstance(col, DynamicFieldsBase):
+		for col in self.columns:
+			if hasattr(col, "get_fields"):
 				for _col in col.get_fields():
 					_lazy_rename(_col)
 					self.add_column(_col)
@@ -77,7 +77,7 @@ class Skeleton(list):
 		try:
 			self.insert(names.index(before), field)
 		except ValueError:
-			raise ValueError("%r is not a valid column reference for insert_field" % (before))
+			raise StructureError("%r is not a valid column reference for insert_field" % (before))
 	
 	def append_fields(self, *fields):
 		for field in fields:
@@ -91,7 +91,7 @@ class Skeleton(list):
 				self.pop(names.index(field))
 				names.pop(names.index(field))
 			except ValueError:
-				raise ValueError("%r is not a valid column to delete" % (field))
+				raise StructureError("%r is not a valid column to delete" % (field))
 	
 	def insert_fields(self, fields, before):
 		for field in fields:
@@ -105,7 +105,7 @@ class Skeleton(list):
 				updated = True
 		
 		if not updated:
-			raise ValueError("No locales to update for update_locales")
+			raise StructureError("No locales to update for update_locales")
 
 
 class _Generated(DBStructure):
