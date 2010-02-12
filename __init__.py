@@ -363,8 +363,7 @@ class DBRow(list):
 	
 	
 	def _set_value(self, name, value):
-		index = self.structure.index(name)
-		col = self.structure[index]
+		col = self.structure[self.structure.index(name)]
 		try:
 			self._values[name] = col.to_python(value, self)
 		except UnresolvedRelation:
@@ -372,12 +371,11 @@ class DBRow(list):
 	
 	def _get_value(self, name):
 		if name not in self._values:
-			index = self.structure.index(name)
-			raw_value = self[index]
+			raw_value = self[self.structure.index(name)]
 			try:
 				self._set_value(name, raw_value)
-			except UnresolvedRelation, ex:
-				return UnresolvedObjectRef(ex.reference)
+			except UnresolvedRelation, e:
+				return UnresolvedObjectRef(e.reference)
 			except RelationError:
 				return None # Key doesn't exist, or equals 0
 		return self._values[name]
