@@ -32,9 +32,6 @@ class DBField(object):
 	def __repr__(self):
 		return "<%s: %s>" % (self.__class__.__name__, self.name)
 	
-	def __str__(self):
-		return self.name
-	
 	def from_python(self, value):
 		return value
 	
@@ -173,6 +170,33 @@ class LocalizedFields(DynamicFieldsBase):
 		del self[:]
 		self.__regenerate(locales)
 
+class SubRow(object):
+	"""
+	Used in Unions as a fake DBRow
+	"""
+	
+	def __init__(self, field, row, structure):
+		self.__field = field
+		self.__row = row
+		self._structure = structure(row._parent.build, row._parent)
+	
+	def __dir__(self):
+		result = self.__dict__.keys()
+		result.extend(self._structure.column_names)
+		return result
+	
+	def __getattr__(self, name):
+		if name in self._structure:
+			index = self._structure.index(name)
+			value = self._raw(name)
+			return self._structure[index].to_python(value, self.__row)
+		return super(SubRow, self).__getattribute__(name)
+	
+	def _raw(self, name):
+		index = self._structure.index(name)
+		real_name = self.__field.column_names[index]
+		return getattr(self.__row, real_name)
+
 class Union(DynamicFieldsBase):
 	"""
 	Imitates a C++ union.
@@ -188,11 +212,11 @@ class Union(DynamicFieldsBase):
 		if not callable(get_structure):
 			raise StructureError("%s._get_structure must be a callable type" % (self.__class__.__name__))
 		self._get_structure = get_structure
-		self.field_names = [k.name for k in fields]
+		self.column_names = [k.name for k in fields]
 	
 	def __build_list(self, field, row):
 		"Builds a fake DBRow to allow deep attribute seeking"
-		return [getattr(row, k) for k in field.field_names]
+		return SubRow(field, row, self._get_structure(row))
 	
 	def get_abstraction(self):
 		return self.name, self.__build_list
