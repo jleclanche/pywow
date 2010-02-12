@@ -104,7 +104,7 @@ class GameObjectCache(DBStructure):
 				IntegerField("data_23"),
 				IntegerField("data_24"),
 			),
-			get_structure = lambda x, row: GAME_OBJECT_TYPES[row.type]
+			get_structure = lambda row: GAME_OBJECT_TYPES[row.type]
 		),
 		FloatField("scale"),
 		ForeignKey("quest_item_1", "Item"),

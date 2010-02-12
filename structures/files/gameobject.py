@@ -63,17 +63,17 @@ class GameObject_Chest(DBStructure):
 	base = Skeleton(
 		ForeignKey("lock", "Lock"),
 		IntegerField("loot"),
-		IntegerField("restock_timer"),
+		IntegerField("restock_time"),
 		BooleanField("consumable"),
 		IntegerField("min_openings"),
 		IntegerField("max_openings"),
-		IntegerField("event"),
+		IntegerField("loot_event"),
 		ForeignKey("trap", "gameobjectcache"),
 		ForeignKey("quest", "Quest"),
 		IntegerField("level"),
 		BooleanField("ignore_los"),
 		BooleanField("leave_loot"),
-		BooleanField("not_in_combat"),
+		BooleanField("unusable_in_combat"),
 		BooleanField("log_loot"),
 		IntegerField("open_text"),
 		IntegerField("group_loot_rules"),
@@ -132,7 +132,7 @@ class GameObject_Chair(DBStructure):
 	base = Skeleton(
 		IntegerField("slots"),
 		IntegerField("height"),
-		BooleanField("only_creator_use"),
+		BooleanField("creator_use_only"),
 		IntegerField("event"),
 	)
 
@@ -245,7 +245,7 @@ class GameObject_MOTransport(DBStructure):
 	"""
 	
 	base = Skeleton(
-		IntegerField("taxi_path"),
+		IntegerField("taxi"),
 		IntegerField("move_speed"),
 		IntegerField("acceleration"),
 		IntegerField("start_event"),
@@ -326,7 +326,7 @@ class GameObject_MeetingStone(DBStructure):
 	base = Skeleton(
 		IntegerField("min_level"),
 		IntegerField("max_level"),
-		IntegerField("zone", "AreaTable"),
+		ForeignKey("zone", "AreaTable"),
 	)
 
 class GameObject_FlagStand(DBStructure):
@@ -487,7 +487,7 @@ class GameObject_TrapDoor(DBStructure):
 	"""
 	
 	base = Skeleton(
-		IntegerField("when_to_pause"),
+		IntegerField("pause"),
 		BooleanField("start_open"),
 		BooleanField("auto_close"),
 	)
