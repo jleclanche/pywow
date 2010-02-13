@@ -57,7 +57,6 @@ class CreatureCache(DBStructure):
 		)
 
 
-
 class GameObjectCache(DBStructure):
 	"""
 	gameobjectcache.wdb
@@ -315,7 +314,7 @@ class ItemCache(DBStructure):
 		ForeignKey("gem_properties", "GemProperties"),
 		IntegerField("extended_cost"),
 	)
-
+	
 	def changed_5875(self, base):
 		"""
 		- New disenchant IntegerField
@@ -324,21 +323,21 @@ class ItemCache(DBStructure):
 		base.append_fields(
 			IntegerField("disenchant"),
 		)
-
+	
 	def changed_6022(self, base):
 		"""
 		- New unknown IntegerField before name field
 		"""
 		self.changed_5875(base)
 		base.insert_field(IntegerField("depclass"), before="name")
-
+	
 	def changed_6213(self, base):
 		"""
 		- New unknown IntegerField
 		"""
 		self.changed_6022(base)
 		base.insert_field(ForeignKey("randomenchantment2", "itemrandomsuffix"), before="block")
-
+	
 	def changed_6577(self, base):
 		"""
 		- New armordmgmod FloatField
@@ -347,7 +346,7 @@ class ItemCache(DBStructure):
 		base.append_fields(
 			FloatField("armordmgmod"),
 		)
-
+	
 	def changed_7382(self, base):
 		"""
 		- New ItemCondExtCosts fkey before disenchant field
@@ -355,8 +354,7 @@ class ItemCache(DBStructure):
 		"""
 		self.changed_6577(base)
 		base.insert_field(IntegerField("extended_cost_cond"), before="disenchant")
-
-
+	
 	def changed_7994(self, base):
 		"""
 		- Removed extendedcost and extendedcostcond fields
@@ -364,7 +362,7 @@ class ItemCache(DBStructure):
 		"""
 		self.changed_7382(base)
 		base.delete_fields("extended_cost", "extended_cost_cond")
-
+	
 	def changed_8268(self, base):
 		"""
 		- Added duration field at the end, replacing the old server overwrite model
@@ -372,14 +370,14 @@ class ItemCache(DBStructure):
 		"""
 		self.changed_7994(base)
 		base.append_fields(DurationField("duration", unit="seconds"))
-
+	
 	def changed_8391(self, base):
 		"""
 		- New uniquecategory field at the end, fkey of new ItemLimitCategory.dbc file
 		"""
 		self.changed_8268(base)
 		base.append_fields(ForeignKey("unique_category", "ItemLimitCategory"))
-
+	
 	def changed_8471(self, base):
 		"""
 		- Made the 20 stats column dynamic
@@ -406,13 +404,13 @@ class ItemCache(DBStructure):
 		), before="dmgmin1")
 		base.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="dmgmin1")
 		base.insert_field(BitMaskField("scaling_flags"), before="dmgmin1")
-
+	
 	def changed_8478(self, base):
 		self.changed_8268(base)
-
+	
 	def changed_8770(self, base):
 		self.changed_8471(base)
-
+	
 	def changed_9614(self, base):
 		"""
 		- Deleted unused dmgmin, dmgmax and dmgtype 3-5 fields
@@ -427,7 +425,7 @@ class ItemCache(DBStructure):
 		base.append_fields(
 			ForeignKey("required_holiday", "holidays"),
 		)
-
+	
 	def changed_10026(self, base):
 		self.changed_9614(base)
 		base.insert_field(BitMaskField("flags2"), before="buy_price")
