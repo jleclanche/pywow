@@ -711,7 +711,7 @@ class QuestCache(DBStructure):
 	
 	def changed_10554(self, base):
 		self.changed_10522(base)
-		base.insert_field(IntegerField("level_obtained"), before="category")
+		base.insert_field(IntegerField("required_level"), before="category")
 		base.insert_field(
 			ForeignCell("experience_reward", "QuestXP",
 				get_row = lambda row, value: row.level,
