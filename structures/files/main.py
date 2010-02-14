@@ -1614,7 +1614,7 @@ class DungeonMapChunk(DBStructure):
 	base = Skeleton(
 		IDField(),
 		ForeignKey("map", "Map"),
-		ForeignKey("wmo", "WMOAreaTable"),
+		ForeignKey("wmo", "WMOAreaTable"), # key="group"
 		ForeignKey("dungeon_map", "DungeonMap"),
 		FloatField(),
 	)
@@ -3989,6 +3989,26 @@ class WeaponSwingSounds2(DBStructure):
 		UnknownField(),
 		BooleanField("critical"),
 		ForeignKey("sound", "SoundEntries")
+	)
+
+
+class WMOAreaTable(DBStructure):
+	"""
+	WMOAreaTable.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("root"),
+		IntegerField("nameset"),
+		IntegerField("group"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("zone", "AreaTable"),
+		LocalizedFields("name"),
 	)
 
 
