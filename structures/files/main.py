@@ -1599,10 +1599,10 @@ class DungeonMap(DBStructure):
 		IDField(),
 		ForeignKey("instance", "Map"),
 		IntegerField("floor"), # which map floor
-		FloatField("coords_1"),
-		FloatField("coords_2"),
-		FloatField("coords_3"),
-		FloatField("coords_4"),
+		FloatField("y_1"),
+		FloatField("y_2"),
+		FloatField("x_1"),
+		FloatField("x_2"),
 		UnknownField(),
 	)
 
