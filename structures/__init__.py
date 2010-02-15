@@ -28,7 +28,7 @@ class StructureLoader():
 	def getstructure(cls, name, build=0, parent=None):
 		if name in cls.wowfiles:
 			return cls.wowfiles[name](build, parent)
-		raise UnknownStructure(L["STRUCTURE_NOT_FOUND"] % name)
+		raise UnknownStructure("Structure not found for file %r" % (name))
 
 StructureLoader.setup()
 getstructure = StructureLoader.getstructure

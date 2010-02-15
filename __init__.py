@@ -136,8 +136,8 @@ class DBFile(dict):
 	
 	def _init_parse(self):
 		"Initiate parsing of a file. Used only in read mode."
-		assert self.path, L["PATH_NOT_SET"]
-		assert exists(self.path), L["PATH_NOT_VALID"]
+		assert self.path, "DBFile.path needs to be set before initiating parsing"
+		assert exists(self.path), "DBFile.path needs to be a valid file before initiating parsing"
 		
 		f = open(self.path)
 		self.header._load_stream(f.read(24))
@@ -153,21 +153,21 @@ class DBFile(dict):
 		
 		if not self.build:
 			if self.signature == "WDBC":
-				log.warning(L["BUILD_NOT_SET"]) 
+				log.warning("Build not set for a DBC file; assuming default structure.") 
 			else:
 				self.build = self.header.build
 			
 		if not self.structure:
 			self.load_structure(self.filename, self.build)
 		
-		log.info(L["READING_FILE"] % self.path) 
+		log.info("Reading %s..." % (self.path)) 
 	
 	def _postinit(self):
 		if self.mode == "r" and self.path:
 			self.load()
 		elif self.mode == "w":
 			if not self.writable:
-				raise TypeError(L["FILETYPE_NOT_WRITABLE"] % self.__class__.__name__)
+				raise TypeError("%s is not a writable filetype" % (self.__class__.__name__))
 			if not self.structure:
 				self.load_structure()
 	
@@ -214,7 +214,7 @@ class DBFile(dict):
 	def load_structure(self, filename=None, build=None):
 		self.structure = getstructure(filename or self.filename, build or self.build, parent=self)
 		self.signature = self.structure.signature
-		log.info(L["USING_STRUCTURE"] % (self.filename, self.build))
+		log.info("Using %s structure build %i" % (self.filename, self.build))
 	
 	def merge(self, other):
 		"Merge another file into self"
@@ -240,7 +240,7 @@ class DBFile(dict):
 		f = open(filename, "w")
 		f.write(data)
 		f.close()
-		log.info(L["WRITTEN_BYTES"] % (len(data), filename))
+		log.info("Written %i bytes at %s" % (len(data), filename))
 
 
 class DBRow(list):
@@ -269,7 +269,7 @@ class DBRow(list):
 					try:
 						self[_cols.index(k)] = columns[k]
 					except ValueError:
-						log.warning(L["COLUMN_NOT_FOUND"] % k)
+						log.warning("Column %r not found" % (k))
 		
 		elif data:
 			dynfields = 0
@@ -321,7 +321,7 @@ class DBRow(list):
 			
 			if reclen:
 				if cursor != reclen+8:
-					log.warning(L["RECLEN_NOT_RESPECTED"] % (self._id, reclen+8, cursor, reclen+8-cursor))
+					log.warning("Reclen not respected for row %i. Expected %i, read %i. (%+i)" % (self._id, reclen+8, cursor, reclen+8-cursor))
 	
 	def __int__(self):
 		return self._id
@@ -460,7 +460,7 @@ class WDBFile(DBFile):
 	def _setrow(self, data, reclen):
 		row = DBRow(self, data=data, reclen=reclen)
 		if row[0] in self:
-			log.warning(L["MULTIPLE_ROW_INSTANCE"] % row[0])
+			log.warning("Multiple instances of row #%i found" % (row[0]))
 		self[row[0]] = row
 		self.sort.append(row[0])
 	
@@ -487,7 +487,7 @@ class WDBFile(DBFile):
 			self._setrow(data, reclen)
 		
 		f.close()
-		log.info(L["TOTAL_ROWS"] % len(self.rows()))
+		log.info("%i rows total" % (len(self.rows())))
 	
 	def update_dynfields(self):
 		"""Update all the dynfields in the file"""
@@ -538,11 +538,11 @@ class DBCFile(DBFile):
 	def _setrow(self, data):
 		row = DBRow(self, data=data, reclen=self.header.reclen-8)
 		if row[0] in self:
-			log.warning(L["MULTIPLE_ROW_INSTANCE"] % row[0])
+			log.warning("Multiple instances of row #%i found" % (row[0]))
 		self[row[0]] = row
 	
 	def _init_strblk(self):
-		log.info(L["READING_STRINGBLOCK"] % self.path)
+		log.info("Reading stringblock from %s..." % (self.path))
 		f = open(self.path, "rb")
 		f.seek(-self.header.stringblocksize, 2)
 		self.strblk = f.read()
@@ -558,7 +558,7 @@ class DBCFile(DBFile):
 			try:
 				val = self.strblk[addr:addr+self.strblk[addr:addr+2048].index("\x00")]
 			except ValueError:
-				#log.critical(L["SUBSTRING_NOT_FOUND"] % addr)
+				log.warning("No string found at 0x%8x, some values may be corrupt. Fix your structures!" % (addr))
 				val = ""
 		return val
 	
@@ -583,7 +583,7 @@ class DBCFile(DBFile):
 		reclen = self.header.reclen
 		struct_len = self.structure._reclen()
 		if struct_len != reclen:
-			log.warning(L["DBC_RECLEN_NOT_RESPECTED"] % (reclen, struct_len, reclen-struct_len))
+			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
 		
 		row_count = self.header.row_count
 		while row_count > len(self): # while lacking rows
@@ -595,9 +595,9 @@ class DBCFile(DBFile):
 			# Don't forget implicit fields
 			total_fields = len([k for k in self.structure if k.char])
 			if field_count != total_fields:
-				log.warning(L["DBC_INCORRECT_FIELD_COUNT"] % (field_count, total_fields))
+				log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
 		
-		log.info(L["TOTAL_ROWS"] % (row_count))
+		log.info("%i rows total" % (row_count))
 		f.close()
 	
 	
@@ -638,7 +638,7 @@ class UnknownDBCFile(DBCFile):
 	writable = False
 	def load_structure(self, filename=None, build=None):
 		self.structure = self._generate_structure()
-		log.info(L["USING_GENERATED_STRUCTURE"] % (self.filename, self.build))
+		log.info("Using generated structure for file %s, build %i" % (self.filename, self.build))
 
 
 # TODO we need to use DBFile as base and
@@ -664,7 +664,7 @@ def fopen(*pargs, **kwargs):
 def new(*pargs, **kwargs):
 	if not "name" in kwargs:
 		if not "structure" in kwargs:
-			raise TypeError(L["FILENAME_NOT_SPECIFIED"])
+			raise TypeError("Required argument 'name' not found")
 		name = kwargs["structure"].__class__.__name__.lower()
 	else:
 		name = kwargs["name"]
