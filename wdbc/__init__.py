@@ -3,9 +3,9 @@
 
 from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack, error as StructError
+from pywow.log import log
 from pywow.structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields
 from .structures import GeneratedStructure, StructureNotFound, getstructure
-from ..log import log
 
 
 def getfilename(val):
