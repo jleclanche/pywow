@@ -1603,7 +1603,7 @@ class DungeonMap(DBStructure):
 		FloatField("y_2"),
 		FloatField("x_1"),
 		FloatField("x_2"),
-		UnknownField(),
+		ForeignKey("parent_map", "WorldMapArea"),
 	)
 
 
