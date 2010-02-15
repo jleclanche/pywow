@@ -5,8 +5,8 @@ Database fields
 """
 
 from datetime import timedelta
-from ..parser.spellstrings import SpellString
-from ..parser.bitflags import BitFlags
+from pywow.spellstrings import SpellString
+from pywow.bitflags import BitFlags
 
 
 ##
@@ -349,8 +349,11 @@ class ForeignCell(ForeignKeyBase):
 
 
 ##
-# Custom types
+# Misc. types
 #
+
+class UnknownField(IntegerField):
+	pass
 
 class BitMaskField(UnsignedIntegerField):
 	"""
@@ -399,11 +402,13 @@ class DurationField(IntegerField):
 class MoneyField(UnsignedIntegerField):
 	pass
 
-class UnknownField(IntegerField):
-	pass
-
 class FilePathField(StringField):
 	pass
+
+
+##
+# Custom types
+#
 
 class SpellMacroField(StringField):
 	def to_python(self, value, row):

@@ -3,8 +3,8 @@
 gameobjectcache.wdb data structures
 """
 
-from ..base import Structure, Skeleton
-from ..fields import *
+from pywow.structures import Structure, Skeleton
+from pywow.structures import *
 
 class GameObject_Door(Structure):
 	"""

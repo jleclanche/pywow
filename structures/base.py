@@ -3,7 +3,7 @@
 
 import copy
 from .fields import IDField, LocalizedFields, RecLenField, UnknownField
-from ..logger import log
+from ..log import log
 
 
 class StructureError(Exception):
@@ -111,11 +111,3 @@ class Skeleton(list):
 		
 		if not updated:
 			raise StructureError("No locales to update for update_locales")
-
-
-class _Generated(Structure):
-	"""Dynamically generated DBC structure."""
-	def __init__(self, structure_string, *pargs, **kwargs):
-		columns = []
-		self.base = Skeleton(*[UnknownField() for s in structure_string])
-		Structure.__init__(self)

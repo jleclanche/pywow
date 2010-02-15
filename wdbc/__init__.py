@@ -3,11 +3,9 @@
 
 from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack, error as StructError
-
-from .structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields
-from .structures import _Generated, UnknownStructure, getstructure
-from .locales import L
-from .logger import log
+from pywow.structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields
+from .structures import GeneratedStructure, StructureNotFound, getstructure
+from ..log import log
 
 
 def getfilename(val):
@@ -32,8 +30,6 @@ magic = {
 	"XTIW": "itemtextcache",
 	"XTPW": "pagetextcache",
 }
-
-signatures = dict([(magic[k], k) for k in magic])
 
 class DBHeader(object):
 	"""A WDBC header file."""
@@ -569,7 +565,7 @@ class DBCFile(DBFile):
 			structure_string = "i" * self.header.field_count
 		else:
 			raise NotImplementedError
-		return _Generated(structure_string)
+		return GeneratedStructure(structure_string)
 
 	
 	def parse(self):
@@ -655,7 +651,7 @@ def fopen(*pargs, **kwargs):
 			return ComplexDBCFile(*pargs, **kwargs)
 		try:
 			getstructure(filename)
-		except UnknownStructure:
+		except StructureNotFound:
 			return UnknownDBCFile(*pargs, **kwargs)
 		return DBCFile(*pargs, **kwargs)
 	return WDBFile(*pargs, **kwargs)

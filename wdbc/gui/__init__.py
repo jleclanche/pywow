@@ -8,14 +8,14 @@ import sys
 
 from PyQt4 import QtCore, QtGui
 
-import wdbc
+from pywow import wdbc
 
 fname = sys.argv[1]
 build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
 try:
 	f = wdbc.fopen(fname, build=build)
-except wdbc.structures.base.StructureError, e:
-	print "%s is not a valid WDB or DBC file: %s" % (fname, e)
+except Exception, e:
+	print "%s could not be read: %s" % (fname, e)
 	exit(1)
 ARRAY = f.rows()
 
