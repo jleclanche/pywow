@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
 
-from ..base import DBStructure, Skeleton
+from ..base import Structure, Skeleton
 from ..fields import *
 
-class SoldItemCache(DBStructure):
+class SoldItemCache(Structure):
 	signature = "CISW"
 	
 	CLASSES = {
@@ -46,7 +46,7 @@ class SoldItemCache(DBStructure):
 		IntegerField("item_amount_5"),
 	)
 
-class TrainedSpellCache(DBStructure):
+class TrainedSpellCache(Structure):
 	signature = "CSTW"
 	
 	base = Skeleton(

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .gameobject import GAME_OBJECT_TYPES
-from ..base import DBStructure, Skeleton
+from ..base import Structure, Skeleton
 from ..fields import *
 
 
@@ -10,7 +10,7 @@ from ..fields import *
 # WDB structures
 #
 
-class CreatureCache(DBStructure):
+class CreatureCache(Structure):
 	"""
 	creaturecache.wdb
 	NPC/mob data
@@ -57,7 +57,7 @@ class CreatureCache(DBStructure):
 		)
 
 
-class GameObjectCache(DBStructure):
+class GameObjectCache(Structure):
 	"""
 	gameobjectcache.wdb
 	World object data
@@ -119,7 +119,7 @@ class GameObjectCache(DBStructure):
 		)
 
 
-class ItemCache(DBStructure):
+class ItemCache(Structure):
 	"""
 	itemcache.wdb
 	Item data, cached on in-game item query
@@ -431,7 +431,7 @@ class ItemCache(DBStructure):
 		base.insert_field(BitMaskField("flags2"), before="buy_price")
 
 
-class ItemNameCache(DBStructure):
+class ItemNameCache(Structure):
 	"""
 	itemnamecache.wdb
 	Cached itemset data
@@ -445,7 +445,7 @@ class ItemNameCache(DBStructure):
 	)
 
 
-class ItemTextCache(DBStructure):
+class ItemTextCache(Structure):
 	"""
 	itemtextcache.wdb
 	Mails and misc
@@ -458,7 +458,7 @@ class ItemTextCache(DBStructure):
 	)
 
 
-class NPCCache(DBStructure):
+class NPCCache(Structure):
 	"""
 	npccache.wdb
 	NPC gossip data
@@ -550,7 +550,7 @@ class NPCCache(DBStructure):
 	)
 
 
-class QuestCache(DBStructure):
+class QuestCache(Structure):
 	"""
 	questcache.wdb
 	Quest data, cached on in-game quest query
@@ -727,7 +727,7 @@ class QuestCache(DBStructure):
 		base.insert_field(IntegerField("quest_item_amount_4"), before="required_item_1")
 
 
-class PageTextCache(DBStructure):
+class PageTextCache(Structure):
 	"""
 	pagetextcache.wdb
 	Cached page data
@@ -746,7 +746,7 @@ class PageTextCache(DBStructure):
 # DBC Structures
 #
 
-class Achievement(DBStructure):
+class Achievement(Structure):
 	"""
 	Achievement.dbc
 	Achievement data
@@ -778,7 +778,7 @@ class Achievement(DBStructure):
 	)
 
 
-class Achievement_Category(DBStructure):
+class Achievement_Category(Structure):
 	"""
 	Achievement_Category.dbc
 	Achievement categories
@@ -791,7 +791,7 @@ class Achievement_Category(DBStructure):
 	)
 
 
-class Achievement_Criteria(DBStructure):
+class Achievement_Criteria(Structure):
 	"""
 	Achievement_Criteria.dbc
 	Achievement criterias
@@ -815,7 +815,7 @@ class Achievement_Criteria(DBStructure):
 	)
 
 
-class AnimationData(DBStructure):
+class AnimationData(Structure):
 	"""
 	AnimationData.dbc
 	Animation data
@@ -832,7 +832,7 @@ class AnimationData(DBStructure):
 	)
 
 
-class AreaGroup(DBStructure):
+class AreaGroup(Structure):
 	"""
 	AreaGroup.dbc
 	Added during 3.0.x
@@ -850,7 +850,7 @@ class AreaGroup(DBStructure):
 	)
 
 
-class AreaPOI(DBStructure):
+class AreaPOI(Structure):
 	"""
 	AreaPOI.dbc
 	Points of Interest (POI) on the minimap and battlemap.
@@ -889,7 +889,7 @@ class AreaPOI(DBStructure):
 	)
 
 
-class AreaTable(DBStructure):
+class AreaTable(Structure):
 	"""
 	AreaTable.dbc
 	Contains all zone and subzone data.
@@ -924,7 +924,7 @@ class AreaTable(DBStructure):
 	)
 
 
-class AreaTrigger(DBStructure):
+class AreaTrigger(Structure):
 	"""
 	AreaTrigger.dbc
 	Defines certain areas on the map that presumably tell the server
@@ -949,7 +949,7 @@ class AreaTrigger(DBStructure):
 	)
 
 
-class AuctionHouse(DBStructure):
+class AuctionHouse(Structure):
 	"""
 	AuctionHouse.dbc
 	Data about auction houses and their fees
@@ -963,7 +963,7 @@ class AuctionHouse(DBStructure):
 	)
 
 
-class AttackAnimKits(DBStructure):
+class AttackAnimKits(Structure):
 	"""
 	AttackAnimKits.dbc
 	Unknown use
@@ -977,7 +977,7 @@ class AttackAnimKits(DBStructure):
 	)
 
 
-class AttackAnimTypes(DBStructure):
+class AttackAnimTypes(Structure):
 	"""
 	AttackAnimTypes.dbc
 	Attack animation types...
@@ -988,7 +988,7 @@ class AttackAnimTypes(DBStructure):
 	)
 
 
-class BarberShopStyle(DBStructure):
+class BarberShopStyle(Structure):
 	"""
 	Hairstyles, facial hair, etc
 	"""
@@ -1004,7 +1004,7 @@ class BarberShopStyle(DBStructure):
 	)
 
 
-class BattlemasterList(DBStructure):
+class BattlemasterList(Structure):
 	"""
 	BattlemasterList.dbc
 	Called when talking to a battlemaster.
@@ -1056,7 +1056,7 @@ class BattlemasterList(DBStructure):
 		)
 
 
-class BankBagSlotPrices(DBStructure):
+class BankBagSlotPrices(Structure):
 	"""
 	BankBagSlotPrices.dbc
 	Price for bank bag slots.
@@ -1067,7 +1067,7 @@ class BankBagSlotPrices(DBStructure):
 	)
 
 
-class BannedAddons(DBStructure):
+class BannedAddons(Structure):
 	"""
 	BannedAddons.dbc
 	"""
@@ -1086,7 +1086,7 @@ class BannedAddons(DBStructure):
 	)
 
 
-class CameraShakes(DBStructure):
+class CameraShakes(Structure):
 	"""
 	CameraShakes.dbc
 	Just shakin'
@@ -1105,7 +1105,7 @@ class CameraShakes(DBStructure):
 	)
 
 
-class Cfg_Categories(DBStructure):
+class Cfg_Categories(Structure):
 	"""
 	Cfg_Categories.dbc
 	Server localizations
@@ -1119,7 +1119,7 @@ class Cfg_Categories(DBStructure):
 	)
 
 
-class Cfg_Configs(DBStructure):
+class Cfg_Configs(Structure):
 	"""
 	Cfg_Configs.dbc
 	What the hell is this used for? Servers?
@@ -1132,7 +1132,7 @@ class Cfg_Configs(DBStructure):
 	)
 
 
-class CharacterFacialHairStyles(DBStructure):
+class CharacterFacialHairStyles(Structure):
 	"""
 	CharacterFacialHairStyles.dbc
 	Used for all facial changes, hair styles, markings, tusks...
@@ -1153,7 +1153,7 @@ class CharacterFacialHairStyles(DBStructure):
 	)
 
 
-class CharBaseInfo(DBStructure):
+class CharBaseInfo(Structure):
 	"""
 	CharBaseInfo.dbc
 	Defines availability of classes for the different races.
@@ -1165,7 +1165,7 @@ class CharBaseInfo(DBStructure):
 	)
 
 
-class CharHairGeosets(DBStructure):
+class CharHairGeosets(Structure):
 	"""
 	CharHairGeosets.dbc
 	"""
@@ -1179,7 +1179,7 @@ class CharHairGeosets(DBStructure):
 	)
 
 
-class CharHairTextures(DBStructure):
+class CharHairTextures(Structure):
 	"""
 	CharHairTextures.dbc
 	"""
@@ -1195,7 +1195,7 @@ class CharHairTextures(DBStructure):
 	)
 
 
-class CharSections(DBStructure):
+class CharSections(Structure):
 	"""
 	CharHairTextures.dbc
 	Defines the textures for the different types of
@@ -1216,7 +1216,7 @@ class CharSections(DBStructure):
 	)
 
 
-class CharTitles(DBStructure):
+class CharTitles(Structure):
 	"""
 	CharTitles.dbc
 	Player titles
@@ -1230,7 +1230,7 @@ class CharTitles(DBStructure):
 	)
 
 
-class CharStartOutfit(DBStructure):
+class CharStartOutfit(Structure):
 	"""
 	CharStartOutfit.dbc
 	Items characters get when they are created.
@@ -1331,7 +1331,7 @@ class CharStartOutfit(DBStructure):
 		)
 
 
-class CharVariations(DBStructure):
+class CharVariations(Structure):
 	"""
 	CharVariations.dbc
 	"""
@@ -1345,7 +1345,7 @@ class CharVariations(DBStructure):
 	)
 
 
-class ChatChannels(DBStructure):
+class ChatChannels(Structure):
 	"""
 	ChatChannels.dbc
 	Default chat channels
@@ -1359,7 +1359,7 @@ class ChatChannels(DBStructure):
 	)
 
 
-class ChatProfanity(DBStructure):
+class ChatProfanity(Structure):
 	"""
 	ChatProfanity.dbc
 	Chat filtering
@@ -1371,7 +1371,7 @@ class ChatProfanity(DBStructure):
 	)
 
 
-class ChrClasses(DBStructure):
+class ChrClasses(Structure):
 	"""
 	ChrClasses.dbc
 	Class properties
@@ -1392,7 +1392,7 @@ class ChrClasses(DBStructure):
 	)
 
 
-class ChrRaces(DBStructure):
+class ChrRaces(Structure):
 	"""
 	ChrRaces.dbc
 	Player race data (including some inaccessible)
@@ -1429,7 +1429,7 @@ class ChrRaces(DBStructure):
 		base.insert_field(UnknownField(), before="name_male") # Faction?
 
 
-class CinematicCamera(DBStructure):
+class CinematicCamera(Structure):
 	"""
 	CinematicCamera.dbc
 	"""
@@ -1444,7 +1444,7 @@ class CinematicCamera(DBStructure):
 	)
 
 
-class CinematicSequences(DBStructure):
+class CinematicSequences(Structure):
 	"""
 	CinematicSequences.dbc
 	"""
@@ -1462,7 +1462,7 @@ class CinematicSequences(DBStructure):
 	)
 
 
-class CreatureDisplayInfo(DBStructure):
+class CreatureDisplayInfo(Structure):
 	"""
 	CreatureDisplayInfo.dbc
 	Display data for NPCs
@@ -1488,7 +1488,7 @@ class CreatureDisplayInfo(DBStructure):
 	)
 
 
-class CreatureFamily(DBStructure):
+class CreatureFamily(Structure):
 	"""
 	CreatureFamily.dbc
 	"""
@@ -1508,7 +1508,7 @@ class CreatureFamily(DBStructure):
 	)
 
 
-class CreatureType(DBStructure):
+class CreatureType(Structure):
 	"""
 	CreatureType.dbc
 	Creature types
@@ -1521,7 +1521,7 @@ class CreatureType(DBStructure):
 
 
 
-class CurrencyCategory(DBStructure):
+class CurrencyCategory(Structure):
 	"""
 	CurrencyCategory.dbc
 	Currency categories
@@ -1533,7 +1533,7 @@ class CurrencyCategory(DBStructure):
 	)
 
 
-class CurrencyTypes(DBStructure):
+class CurrencyTypes(Structure):
 	"""
 	CurrencyTypes.dbc
 	Currency data
@@ -1546,7 +1546,7 @@ class CurrencyTypes(DBStructure):
 	)
 
 
-class DanceMoves(DBStructure):
+class DanceMoves(Structure):
 	"""
 	DanceMoves.dbc
 	Not yet implemented.
@@ -1563,7 +1563,7 @@ class DanceMoves(DBStructure):
 	)
 
 
-class DeathThudLookups(DBStructure):
+class DeathThudLookups(Structure):
 	"""
 	DeathThudLookups.dbc
 	"""
@@ -1576,7 +1576,7 @@ class DeathThudLookups(DBStructure):
 	)
 
 
-class DungeonEncounter(DBStructure):
+class DungeonEncounter(Structure):
 	"""
 	DungeonEncounter.dbc
 	"""
@@ -1591,7 +1591,7 @@ class DungeonEncounter(DBStructure):
 	)
 
 
-class DungeonMap(DBStructure):
+class DungeonMap(Structure):
 	"""
 	DungeonMap.dbc
 	"""
@@ -1607,7 +1607,7 @@ class DungeonMap(DBStructure):
 	)
 
 
-class DungeonMapChunk(DBStructure):
+class DungeonMapChunk(Structure):
 	"""
 	DungeonMapChunk.dbc
 	"""
@@ -1620,7 +1620,7 @@ class DungeonMapChunk(DBStructure):
 	)
 
 
-class Emotes(DBStructure):
+class Emotes(Structure):
 	"""
 	Emotes.dbc
 	Slash-command emotes
@@ -1644,7 +1644,7 @@ class Emotes(DBStructure):
 	)
 
 
-class Exhaustion(DBStructure):
+class Exhaustion(Structure):
 	"""
 	Exhaustion.dbc
 	China's exhaustion system?
@@ -1659,7 +1659,7 @@ class Exhaustion(DBStructure):
 		FloatField(),
 	)
 
-class Faction(DBStructure):
+class Faction(Structure):
 	"""
 	Faction.dbc
 	In-game faction data.
@@ -1695,7 +1695,7 @@ class Faction(DBStructure):
 		base.insert_field(UnknownField(), before="name")
 
 
-class FactionGroup(DBStructure):
+class FactionGroup(Structure):
 	"""
 	FactionGroup.dbc
 	"""
@@ -1707,7 +1707,7 @@ class FactionGroup(DBStructure):
 	)
 
 
-class FileData(DBStructure):
+class FileData(Structure):
 	"""
 	FileData.dbc
 	Movie file data
@@ -1719,7 +1719,7 @@ class FileData(DBStructure):
 	)
 
 
-class FootprintTextures(DBStructure):
+class FootprintTextures(Structure):
 	"""
 	FootprintTextures.dbc
 	Paths to the footprint textures
@@ -1731,7 +1731,7 @@ class FootprintTextures(DBStructure):
 	)
 
 
-class GameObjectArtKit(DBStructure):
+class GameObjectArtKit(Structure):
 	"""
 	GameObjectArtKit.dbc
 	"""
@@ -1747,7 +1747,7 @@ class GameObjectArtKit(DBStructure):
 	)
 
 
-class GameObjectDisplayInfo(DBStructure):
+class GameObjectDisplayInfo(Structure):
 	"""
 	GameObjectDisplayInfo.dbc
 	"""
@@ -1774,7 +1774,7 @@ class GameObjectDisplayInfo(DBStructure):
 	)
 
 
-class GameTables(DBStructure):
+class GameTables(Structure):
 	"""
 	GameTables.dbc
 	Unknown use
@@ -1786,7 +1786,7 @@ class GameTables(DBStructure):
 	)
 
 
-class GameTips(DBStructure):
+class GameTips(Structure):
 	"""
 	GameTips.dbc
 	Loading screen tips.
@@ -1797,7 +1797,7 @@ class GameTips(DBStructure):
 	)
 
 
-class GemProperties(DBStructure):
+class GemProperties(Structure):
 	"""
 	GemProperties.dbc
 	Gem data
@@ -1811,7 +1811,7 @@ class GemProperties(DBStructure):
 	)
 
 
-class GlyphProperties(DBStructure):
+class GlyphProperties(Structure):
 	"""
 	GlyphProperties.dbc
 	Glyph data
@@ -1828,7 +1828,7 @@ class GlyphProperties(DBStructure):
 		ForeignKey("icon", "spellicon"),
 	)
 
-class GlyphSlot(DBStructure):
+class GlyphSlot(Structure):
 	"""
 	GlyphSlot.dbc
 	"""
@@ -1839,7 +1839,7 @@ class GlyphSlot(DBStructure):
 	)
 
 
-class GMTicketCategory(DBStructure):
+class GMTicketCategory(Structure):
 	"""
 	GMTicketCategory.dbc
 	"""
@@ -1849,7 +1849,7 @@ class GMTicketCategory(DBStructure):
 	)
 
 
-class gtCombatRatings(DBStructure):
+class gtCombatRatings(Structure):
 	"""
 	gtCombatRatings.dbc
 	"""
@@ -1857,7 +1857,7 @@ class gtCombatRatings(DBStructure):
 		FloatField("ratio"),
 	)
 
-class gtOCTRegenHP(DBStructure):
+class gtOCTRegenHP(Structure):
 	"""
 	gtOCTRegenHP.dbc
 	"""
@@ -1866,7 +1866,7 @@ class gtOCTRegenHP(DBStructure):
 		FloatField("ratio"),
 	)
 
-class gtOCTRegenMP(DBStructure):
+class gtOCTRegenMP(Structure):
 	"""
 	gtOCTRegenMP.dbc
 	"""
@@ -1875,7 +1875,7 @@ class gtOCTRegenMP(DBStructure):
 		FloatField("ratio"),
 	)
 
-class gtRegenHPPerSpt(DBStructure):
+class gtRegenHPPerSpt(Structure):
 	"""
 	gtRegenHPPerSpt.dbc
 	"""
@@ -1884,7 +1884,7 @@ class gtRegenHPPerSpt(DBStructure):
 		FloatField("ratio"),
 	)
 
-class gtRegenMPPerSpt(DBStructure):
+class gtRegenMPPerSpt(Structure):
 	"""
 	gtRegenMPPerSpt.dbc
 	"""
@@ -1894,7 +1894,7 @@ class gtRegenMPPerSpt(DBStructure):
 	)
 
 
-class HelmetGeosetVisData(DBStructure):
+class HelmetGeosetVisData(Structure):
 	"""
 	HelmetGeosetVisData.dbc
 	Unknown use
@@ -1911,7 +1911,7 @@ class HelmetGeosetVisData(DBStructure):
 	)
 
 
-class HolidayDescriptions(DBStructure):
+class HolidayDescriptions(Structure):
 	"""
 	HolidayDescriptions.dbc
 	"""
@@ -1921,7 +1921,7 @@ class HolidayDescriptions(DBStructure):
 	)
 
 
-class HolidayNames(DBStructure):
+class HolidayNames(Structure):
 	"""
 	HolidayNames.dbc
 	"""
@@ -1931,7 +1931,7 @@ class HolidayNames(DBStructure):
 	)
 
 
-class Holidays(DBStructure):
+class Holidays(Structure):
 	"""
 	Holidays.dbc
 	"""
@@ -1994,7 +1994,7 @@ class Holidays(DBStructure):
 	)
 
 
-class Item(DBStructure):
+class Item(Structure):
 	"""
 	Item.dbc
 	Contains all in-game items, and their display data.
@@ -2012,7 +2012,7 @@ class Item(DBStructure):
 	)
 
 
-class ItemBagFamily(DBStructure):
+class ItemBagFamily(Structure):
 	"""
 	ItemBagFamily.dbc
 	Item bag categories
@@ -2023,7 +2023,7 @@ class ItemBagFamily(DBStructure):
 	)
 
 
-class ItemClass(DBStructure):
+class ItemClass(Structure):
 	"""
 	ItemClass.dbc
 	Unknown use
@@ -2036,7 +2036,7 @@ class ItemClass(DBStructure):
 	)
 
 
-class ItemCondExtCost(DBStructure):
+class ItemCondExtCost(Structure):
 	"""
 	ItemCondExtCost.dbc
 	Unknown use
@@ -2049,7 +2049,7 @@ class ItemCondExtCost(DBStructure):
 	)
 
 
-class ItemDisplayInfo(DBStructure):
+class ItemDisplayInfo(Structure):
 	"""
 	ItemDisplayInfo.dbc
 	Item display data. Icons, models, ...
@@ -2083,7 +2083,7 @@ class ItemDisplayInfo(DBStructure):
 	)
 
 
-class ItemExtendedCost(DBStructure):
+class ItemExtendedCost(Structure):
 	"""
 	ItemExtendedCost.dbc
 	Extended cost data (buy with items, honor points, arena points, ...)
@@ -2110,7 +2110,7 @@ class ItemExtendedCost(DBStructure):
 		base.insert_field(IntegerField("bracket"), before="item1")
 
 
-class ItemLimitCategory(DBStructure):
+class ItemLimitCategory(Structure):
 	"""
 	ItemLimitCategory.dbc
 	Unique item categories
@@ -2123,7 +2123,7 @@ class ItemLimitCategory(DBStructure):
 	)
 
 
-class ItemPetFood(DBStructure):
+class ItemPetFood(Structure):
 	"""
 	ItemPetFood.dbc
 	Hunter pet food categories
@@ -2134,7 +2134,7 @@ class ItemPetFood(DBStructure):
 	)
 
 
-class ItemPurchaseGroup(DBStructure):
+class ItemPurchaseGroup(Structure):
 	"""
 	ItemPurchaseGroup.dbc
 	"Group" buys, seems to be a feature not in-game. Only one row (34529, 34530, 33006)
@@ -2153,7 +2153,7 @@ class ItemPurchaseGroup(DBStructure):
 	)
 
 
-class ItemRandomProperties(DBStructure):
+class ItemRandomProperties(Structure):
 	"""
 	ItemRandomProperties.dbc
 	Random enchantments for items (of stamina, ...)
@@ -2170,7 +2170,7 @@ class ItemRandomProperties(DBStructure):
 	)
 
 
-class ItemSet(DBStructure):
+class ItemSet(Structure):
 	"""
 	ItemSet.dbc
 	Contains data for item sets. Item IDs linked are
@@ -2217,7 +2217,7 @@ class ItemSet(DBStructure):
 	)
 
 
-class ItemSubClass(DBStructure):
+class ItemSubClass(Structure):
 	"""
 	ItemSubClass.dbc
 	Item subclasses
@@ -2238,7 +2238,7 @@ class ItemSubClass(DBStructure):
 	)
 
 
-class ItemSubClassMask(DBStructure):
+class ItemSubClassMask(Structure):
 	"""
 	ItemSubClassMask.dbc
 	Used for Spell.dbc Subclass requirements
@@ -2260,7 +2260,7 @@ class ItemSubClassMask(DBStructure):
 	)
 
 
-class Languages(DBStructure):
+class Languages(Structure):
 	"""
 	Languages.dbc
 	Player/NPC language data
@@ -2271,7 +2271,7 @@ class Languages(DBStructure):
 	)
 
 
-class LFGDungeons(DBStructure):
+class LFGDungeons(Structure):
 	"""
 	LFGDungeons.dbc
 	"""
@@ -2296,7 +2296,7 @@ class LFGDungeons(DBStructure):
 	)
 
 
-class LFGDungeonExpansion(DBStructure):
+class LFGDungeonExpansion(Structure):
 	"""
 	LFGDungeonExpansion.dbc
 	"""
@@ -2313,7 +2313,7 @@ class LFGDungeonExpansion(DBStructure):
 	)
 
 
-class LFGDungeonGroup(DBStructure):
+class LFGDungeonGroup(Structure):
 	"""
 	LFGDungeonGroup.dbc
 	"""
@@ -2327,7 +2327,7 @@ class LFGDungeonGroup(DBStructure):
 	)
 
 
-class LightSkybox(DBStructure):
+class LightSkybox(Structure):
 	"""
 	LightSkybox.dbc
 	Skybox data
@@ -2339,7 +2339,7 @@ class LightSkybox(DBStructure):
 	)
 
 
-class LiquidMaterial(DBStructure):
+class LiquidMaterial(Structure):
 	"""
 	LiquidMaterial.dbc
 	Unknown use. Lava/Water? Only 3 rows (1, 2, 3).
@@ -2352,7 +2352,7 @@ class LiquidMaterial(DBStructure):
 	)
 
 
-class LoadingScreens(DBStructure):
+class LoadingScreens(Structure):
 	"""
 	LoadingScreens.dbc
 	Loading screen lookups
@@ -2367,7 +2367,7 @@ class LoadingScreens(DBStructure):
 		base.append_fields(BooleanField("continent"))
 
 
-class Lock(DBStructure):
+class Lock(Structure):
 	"""
 	Lock.dbc
 	Various locks (items, objects, ...)
@@ -2416,7 +2416,7 @@ class Lock(DBStructure):
 	)
 
 
-class LockType(DBStructure):
+class LockType(Structure):
 	"""
 	LockType.dbc
 	"""
@@ -2430,7 +2430,7 @@ class LockType(DBStructure):
 	)
 
 
-class MailTemplate(DBStructure):
+class MailTemplate(Structure):
 	"""
 	MailTemplate.dbc
 	In-game mails recieved.
@@ -2442,7 +2442,7 @@ class MailTemplate(DBStructure):
 	)
 
 
-class Map(DBStructure):
+class Map(Structure):
 	"""
 	Map.dbc
 	Instance data
@@ -2491,7 +2491,7 @@ class Map(DBStructure):
 		base.insert_field(UnknownField(), before="battleground")
 
 
-class MapDifficulty(DBStructure):
+class MapDifficulty(Structure):
 	"""
 	MapDifficulty.dbc
 	"""
@@ -2506,7 +2506,7 @@ class MapDifficulty(DBStructure):
 	)
 
 
-class Material(DBStructure):
+class Material(Structure):
 	"""
 	Material.dbc
 	"""
@@ -2523,7 +2523,7 @@ class Material(DBStructure):
 		)
 
 
-class Movie(DBStructure):
+class Movie(Structure):
 	"""
 	Movie.dbc
 	Supposedly for movies. 3 rows at the time: 1, 2, 14
@@ -2535,7 +2535,7 @@ class Movie(DBStructure):
 	)
 
 
-class MovieFileData(DBStructure):
+class MovieFileData(Structure):
 	"""
 	MovieFileData.dbc
 	Movie resolution data
@@ -2546,7 +2546,7 @@ class MovieFileData(DBStructure):
 	)
 
 
-class MovieVariation(DBStructure):
+class MovieVariation(Structure):
 	"""
 	MovieVariation.dbc
 	Unknown use
@@ -2558,7 +2558,7 @@ class MovieVariation(DBStructure):
 	)
 
 
-class NameGen(DBStructure):
+class NameGen(Structure):
 	"""
 	NameGen.dbc
 	Character creation name generator data
@@ -2571,7 +2571,7 @@ class NameGen(DBStructure):
 	)
 
 
-class ObjectEffect(DBStructure):
+class ObjectEffect(Structure):
 	"""
 	ObjectEffect.dbc
 	"""
@@ -2591,7 +2591,7 @@ class ObjectEffect(DBStructure):
 	)
 
 
-class ObjectEffectGroup(DBStructure):
+class ObjectEffectGroup(Structure):
 	"""
 	ObjectEffectGroup.dbc
 	"""
@@ -2601,7 +2601,7 @@ class ObjectEffectGroup(DBStructure):
 	)
 
 
-class ObjectEffectModifier(DBStructure):
+class ObjectEffectModifier(Structure):
 	"""
 	ObjectEffectModifier.dbc
 	"""
@@ -2617,7 +2617,7 @@ class ObjectEffectModifier(DBStructure):
 	)
 
 
-class ObjectEffectPackage(DBStructure):
+class ObjectEffectPackage(Structure):
 	"""
 	ObjectEffectPackage.dbc
 	"""
@@ -2627,7 +2627,7 @@ class ObjectEffectPackage(DBStructure):
 	)
 
 
-class ObjectEffectPackageElem(DBStructure):
+class ObjectEffectPackageElem(Structure):
 	"""
 	ObjectEffectPackageElem.dbc
 	"""
@@ -2639,7 +2639,7 @@ class ObjectEffectPackageElem(DBStructure):
 	)
 
 
-class OverrideSpellData(DBStructure):
+class OverrideSpellData(Structure):
 	"""
 	OverrideSpellData.dbc
 	"""
@@ -2659,7 +2659,7 @@ class OverrideSpellData(DBStructure):
 	)
 
 
-class Package(DBStructure):
+class Package(Structure):
 	"""
 	Package.dbc
 	This contains possible alternate icons for ingame mail.
@@ -2677,7 +2677,7 @@ class Package(DBStructure):
 	)
 
 
-class PageTextMaterial(DBStructure):
+class PageTextMaterial(Structure):
 	"""
 	PageTextMaterial.dbc
 	Material (background image) for pages
@@ -2688,7 +2688,7 @@ class PageTextMaterial(DBStructure):
 	)
 
 
-class PetLoyalty(DBStructure):
+class PetLoyalty(Structure):
 	"""
 	PetLoyalty.dbc
 	Hunter pet loyalty
@@ -2699,7 +2699,7 @@ class PetLoyalty(DBStructure):
 	)
 
 
-class PetPersonality(DBStructure):
+class PetPersonality(Structure):
 	"""
 	PetPersonality.dbc
 	UNUSED
@@ -2716,7 +2716,7 @@ class PetPersonality(DBStructure):
 	)
 
 
-class PowerDisplay(DBStructure):
+class PowerDisplay(Structure):
 	"""
 	PowerDisplay.dbc
 	"""
@@ -2730,7 +2730,7 @@ class PowerDisplay(DBStructure):
 	)
 
 
-class PvpDifficulty(DBStructure):
+class PvpDifficulty(Structure):
 	"""
 	PvpDifficulty.dbc
 	Battleground/arena brackets
@@ -2745,7 +2745,7 @@ class PvpDifficulty(DBStructure):
 	)
 
 
-class QuestFactionReward(DBStructure):
+class QuestFactionReward(Structure):
 	"""
 	QuestFactionReward.dbc
 	Two rows - one for positive gains and
@@ -2766,7 +2766,7 @@ class QuestFactionReward(DBStructure):
 	)
 
 
-class QuestXP(DBStructure):
+class QuestXP(Structure):
 	"""
 	QuestXP.dbc
 	Quest experience amounts
@@ -2787,7 +2787,7 @@ class QuestXP(DBStructure):
 	)
 
 
-class RandPropPoints(DBStructure):
+class RandPropPoints(Structure):
 	"""
 	RandPropPoints.dbc
 	"""
@@ -2811,7 +2811,7 @@ class RandPropPoints(DBStructure):
 	)
 
 
-class Resistances(DBStructure):
+class Resistances(Structure):
 	"""
 	Resistances.dbc
 	"""
@@ -2823,7 +2823,7 @@ class Resistances(DBStructure):
 	)
 
 
-class QuestInfo(DBStructure):
+class QuestInfo(Structure):
 	"""
 	QuestInfo.dbc
 	Quest type names
@@ -2834,7 +2834,7 @@ class QuestInfo(DBStructure):
 	)
 
 
-class QuestSort(DBStructure):
+class QuestSort(Structure):
 	"""
 	QuestSort.dbc
 	Additional sort fields for quests
@@ -2847,7 +2847,7 @@ class QuestSort(DBStructure):
 	)
 
 
-class ScalingStatDistribution(DBStructure):
+class ScalingStatDistribution(Structure):
 	"""
 	ScalingStatDistribution.dbc
 	"""
@@ -2877,7 +2877,7 @@ class ScalingStatDistribution(DBStructure):
 	)
 
 
-class ScalingStatValues(DBStructure):
+class ScalingStatValues(Structure):
 	"""
 	ScalingStatValues.dbc
 	Heirloom stat scaling (one row per level)
@@ -2916,7 +2916,7 @@ class ScalingStatValues(DBStructure):
 		pass
 
 
-class ScreenEffect(DBStructure):
+class ScreenEffect(Structure):
 	"""
 	ScreenEffect.dbc
 	Fullscreen graphic effects
@@ -2940,7 +2940,7 @@ class ScreenEffect(DBStructure):
 	)
 
 
-class ServerMessages(DBStructure):
+class ServerMessages(Structure):
 	"""
 	ServerMessages.dbc
 	Server-wide broadcast messages (in-game chat)
@@ -2951,7 +2951,7 @@ class ServerMessages(DBStructure):
 	)
 
 
-class SkillLine(DBStructure):
+class SkillLine(Structure):
 	"""
 	SkillLine.dbc
 	Contains all skill-related data.
@@ -2968,7 +2968,7 @@ class SkillLine(DBStructure):
 	)
 
 
-class SkillLineAbility(DBStructure):
+class SkillLineAbility(Structure):
 	"""
 	SkillLineAbility.dbc
 	turns_green is averaged with: a + (b-a)/2
@@ -2991,7 +2991,7 @@ class SkillLineAbility(DBStructure):
 		#UnknownField(), Deleted somewhere between 4125 and 9551
 	)
 
-class SkillLineCategory(DBStructure):
+class SkillLineCategory(Structure):
 	"""
 	SkillLineCategory.dbc
 	"""
@@ -3002,7 +3002,7 @@ class SkillLineCategory(DBStructure):
 	)
 
 
-class SkillTiers(DBStructure):
+class SkillTiers(Structure):
 	"""
 	SkillTiers.dbc
 	"""
@@ -3043,7 +3043,7 @@ class SkillTiers(DBStructure):
 	)
 
 
-class SoundAmbience(DBStructure):
+class SoundAmbience(Structure):
 	"""
 	SoundAmbience.dbc
 	"""
@@ -3054,7 +3054,7 @@ class SoundAmbience(DBStructure):
 	)
 
 
-class SoundCharacterMacroLines(DBStructure):
+class SoundCharacterMacroLines(Structure):
 	"""
 	SoundCharacterMacroLines.dbc
 	"""
@@ -3068,7 +3068,7 @@ class SoundCharacterMacroLines(DBStructure):
 	)
 
 
-class SoundEmitters(DBStructure):
+class SoundEmitters(Structure):
 	"""
 	SoundEmitters.dbc
 	Seems to replace the ADT-sound-emitters.
@@ -3088,7 +3088,7 @@ class SoundEmitters(DBStructure):
 	)
 
 
-class SoundEntries(DBStructure):
+class SoundEntries(Structure):
 	"""
 	SoundEntries.dbc
 	Defines many kinds of sounds ingame.
@@ -3127,7 +3127,7 @@ class SoundEntries(DBStructure):
 	)
 
 
-class SoundEntriesAdvanced(DBStructure):
+class SoundEntriesAdvanced(Structure):
 	"""
 	SoundEntriesAdvanced.dbc
 	"""
@@ -3158,7 +3158,7 @@ class SoundEntriesAdvanced(DBStructure):
 		StringField("name"),
 	)
 
-class SoundFilter(DBStructure):
+class SoundFilter(Structure):
 	"""
 	SoundFilter.dbc
 	Death knight voice filters
@@ -3170,7 +3170,7 @@ class SoundFilter(DBStructure):
 	)
 
 
-class SoundFilterElem(DBStructure):
+class SoundFilterElem(Structure):
 	"""
 	SoundFilterElem.dbc
 	"""
@@ -3191,7 +3191,7 @@ class SoundFilterElem(DBStructure):
 	)
 
 
-class SoundProviderPreferences(DBStructure):
+class SoundProviderPreferences(Structure):
 	"""
 	SoundProviderPreferences.dbc
 	World of Warcraft uses the FMod Sound Library by Firelite Technologies
@@ -3229,7 +3229,7 @@ class SoundProviderPreferences(DBStructure):
 	)
 
 
-class SoundSamplePreferences(DBStructure):
+class SoundSamplePreferences(Structure):
 	"""
 	SoundSamplePreferences.dbc
 	Two rows only
@@ -3255,7 +3255,7 @@ class SoundSamplePreferences(DBStructure):
 	)
 
 
-class SoundWaterType(DBStructure):
+class SoundWaterType(Structure):
 	"""
 	SoundWaterType.dbc
 	"""
@@ -3267,7 +3267,7 @@ class SoundWaterType(DBStructure):
 	)
 
 
-class SpamMessages(DBStructure):
+class SpamMessages(Structure):
 	"""
 	SpamMessages.dbc
 	Regex matches for spam check (?)
@@ -3278,7 +3278,7 @@ class SpamMessages(DBStructure):
 	)
 
 
-class Spell(DBStructure):
+class Spell(Structure):
 	"""
 	Spell.dbc
 	Contains all spell data.
@@ -3500,7 +3500,7 @@ class Spell(DBStructure):
 		)
 
 
-class SpellAuraNames(DBStructure):
+class SpellAuraNames(Structure):
 	"""
 	SpellAuraNames.dbc
 	Removed shortly after release
@@ -3514,7 +3514,7 @@ class SpellAuraNames(DBStructure):
 	)
 
 
-class SpellCategory(DBStructure):
+class SpellCategory(Structure):
 	"""
 	SpellCategory.dbc
 	"""
@@ -3524,7 +3524,7 @@ class SpellCategory(DBStructure):
 	)
 
 
-class SpellCastTimes(DBStructure):
+class SpellCastTimes(Structure):
 	"""
 	SpellCastTimes.dbc
 	Spell cast time info
@@ -3537,7 +3537,7 @@ class SpellCastTimes(DBStructure):
 	)
 
 
-class SpellDescriptionVariables(DBStructure):
+class SpellDescriptionVariables(Structure):
 	"""
 	SpellDescriptionVariables.dbc
 	Used in spellstrings
@@ -3548,7 +3548,7 @@ class SpellDescriptionVariables(DBStructure):
 	)
 
 
-class SpellDuration(DBStructure):
+class SpellDuration(Structure):
 	"""
 	SpellDuration.dbc
 	Spell duration data
@@ -3561,7 +3561,7 @@ class SpellDuration(DBStructure):
 	)
 
 
-class SpellEffectNames(DBStructure):
+class SpellEffectNames(Structure):
 	"""
 	SpellEffectNames.dbc
 	Removed shortly after release
@@ -3573,7 +3573,7 @@ class SpellEffectNames(DBStructure):
 	)
 
 
-class SpellIcon(DBStructure):
+class SpellIcon(Structure):
 	"""
 	SpellIcon.dbc
 	Spell icons
@@ -3584,7 +3584,7 @@ class SpellIcon(DBStructure):
 	)
 
 
-class SpellItemEnchantment(DBStructure):
+class SpellItemEnchantment(Structure):
 	"""
 	SpellItemEnchantment.dbc
 	Item enchants (Including temporary
@@ -3620,7 +3620,7 @@ class SpellItemEnchantment(DBStructure):
 		)
 
 
-class SpellItemEnchantmentCondition(DBStructure):
+class SpellItemEnchantmentCondition(Structure):
 	"""
 	SpellItemEnchantmentCondition.dbc
 	"""
@@ -3659,7 +3659,7 @@ class SpellItemEnchantmentCondition(DBStructure):
 	)
 
 
-class SpellMechanic(DBStructure):
+class SpellMechanic(Structure):
 	"""
 	SpellMechanic.dbc
 	Spell mechanic names
@@ -3670,7 +3670,7 @@ class SpellMechanic(DBStructure):
 	)
 
 
-class SpellRadius(DBStructure):
+class SpellRadius(Structure):
 	"""
 	SpellRadius.dbc
 	Spell radius data
@@ -3683,7 +3683,7 @@ class SpellRadius(DBStructure):
 	)
 
 
-class SpellRange(DBStructure):
+class SpellRange(Structure):
 	"""
 	SpellRange.dbc
 	Spell range data
@@ -3700,7 +3700,7 @@ class SpellRange(DBStructure):
 	)
 
 
-class SpellRuneCost(DBStructure):
+class SpellRuneCost(Structure):
 	"""
 	SpellRunecost.dbc
 	Death Knight abilities' rune costs
@@ -3714,7 +3714,7 @@ class SpellRuneCost(DBStructure):
 	)
 
 
-class SpellShapeshiftForm(DBStructure):
+class SpellShapeshiftForm(Structure):
 	"""
 	SpellShapeshiftForm.dbc
 	Different shapeshifts/stances for spells
@@ -3742,7 +3742,7 @@ class SpellShapeshiftForm(DBStructure):
 	)
 
 
-class SpellVisualEffectName(DBStructure):
+class SpellVisualEffectName(Structure):
 	"""
 	SpellVisualEffectName.dbc
 	"""
@@ -3757,7 +3757,7 @@ class SpellVisualEffectName(DBStructure):
 	)
 
 
-class Startup_Strings(DBStructure):
+class Startup_Strings(Structure):
 	"""
 	Startup_Strings.dbc
 	Runtime messages and warnings
@@ -3769,7 +3769,7 @@ class Startup_Strings(DBStructure):
 	)
 
 
-class Stationery(DBStructure):
+class Stationery(Structure):
 	"""
 	Stationery.dbc
 	In-game mail background
@@ -3781,7 +3781,7 @@ class Stationery(DBStructure):
 		UnknownField(),
 	)
 
-class Talent(DBStructure):
+class Talent(Structure):
 	"""
 	Talent.dbc
 	Player/pet talents
@@ -3812,7 +3812,7 @@ class Talent(DBStructure):
 		UnknownField(),
 	)
 
-class TalentTab(DBStructure):
+class TalentTab(Structure):
 	"""
 	TalentTab.dbc
 	Talent panel tabs
@@ -3829,7 +3829,7 @@ class TalentTab(DBStructure):
 	)
 
 
-class TaxiNodes(DBStructure):
+class TaxiNodes(Structure):
 	"""
 	TaxiNodes.dbc
 	Flight paths, teleports, etc.
@@ -3845,7 +3845,7 @@ class TaxiNodes(DBStructure):
 		ForeignKey("mount_alliance", "creaturecache"),
 	)
 
-class TeamContributionPoints(DBStructure):
+class TeamContributionPoints(Structure):
 	"""
 	TeamContributionPoints.dbc
 	"""
@@ -3854,7 +3854,7 @@ class TeamContributionPoints(DBStructure):
 		FloatField("points"),
 	)
 
-class TotemCategory(DBStructure):
+class TotemCategory(Structure):
 	"""
 	TotemCategory.dbc
 	Item tools, totems etc
@@ -3867,7 +3867,7 @@ class TotemCategory(DBStructure):
 	)
 
 
-class TransportPhysics(DBStructure):
+class TransportPhysics(Structure):
 	"""
 	TransportPhysics.dbc
 	Unknown use
@@ -3887,7 +3887,7 @@ class TransportPhysics(DBStructure):
 	)
 
 
-class UnitBloodLevels(DBStructure):
+class UnitBloodLevels(Structure):
 	"""
 	UnitBloodLevels.dbc
 	"""
@@ -3899,7 +3899,7 @@ class UnitBloodLevels(DBStructure):
 	)
 
 
-class VideoHardware(DBStructure):
+class VideoHardware(Structure):
 	"""
 	VideoHardware.dbc
 	"""
@@ -3930,7 +3930,7 @@ class VideoHardware(DBStructure):
 	)
 
 
-class Weather(DBStructure):
+class Weather(Structure):
 	"""
 	Weather.dbc
 	Weather lookups
@@ -3949,7 +3949,7 @@ class Weather(DBStructure):
 		base.insert_field(FloatField(), before="texture")
 
 
-class WeaponImpactSounds(DBStructure):
+class WeaponImpactSounds(Structure):
 	"""
 	WeaponImpactSounds.dbc
 	"""
@@ -3980,7 +3980,7 @@ class WeaponImpactSounds(DBStructure):
 	)
 
 
-class WeaponSwingSounds2(DBStructure):
+class WeaponSwingSounds2(Structure):
 	"""
 	WeaponSwingSounds2.dbc
 	"""
@@ -3992,7 +3992,7 @@ class WeaponSwingSounds2(DBStructure):
 	)
 
 
-class WMOAreaTable(DBStructure):
+class WMOAreaTable(Structure):
 	"""
 	WMOAreaTable.dbc
 	"""
@@ -4012,7 +4012,7 @@ class WMOAreaTable(DBStructure):
 	)
 
 
-class WorldChunkSounds(DBStructure):
+class WorldChunkSounds(Structure):
 	"""
 	WorldChunkSounds.dbc
 	"""
@@ -4030,7 +4030,7 @@ class WorldChunkSounds(DBStructure):
 	)
 
 
-class WorldMapArea(DBStructure):
+class WorldMapArea(Structure):
 	"""
 	WorldMapArea.dbc
 	Map data for each "zone" (instance)
@@ -4054,7 +4054,7 @@ class WorldMapArea(DBStructure):
 		)
 
 
-class WorldMapContinent(DBStructure):
+class WorldMapContinent(Structure):
 	"""
 	WorldMapContinent.dbc
 	"""
@@ -4083,7 +4083,7 @@ class WorldMapContinent(DBStructure):
 		)
 
 
-class WorldMapOverlay(DBStructure):
+class WorldMapOverlay(Structure):
 	"""
 	WorldMapOverlay.dbc
 	"""
@@ -4108,7 +4108,7 @@ class WorldMapOverlay(DBStructure):
 	)
 
 
-class WorldMapTransforms(DBStructure):
+class WorldMapTransforms(Structure):
 	"""
 	WorldMapTransforms.dbc
 	Coordinate transformations from one
@@ -4134,7 +4134,7 @@ class WorldMapTransforms(DBStructure):
 		base.append_fields(UnknownField())
 
 
-class WorldStateZoneSounds(DBStructure):
+class WorldStateZoneSounds(Structure):
 	"""
 	WorldStateZoneSounds.dbc
 	"""
@@ -4151,7 +4151,7 @@ class WorldStateZoneSounds(DBStructure):
 	)
 
 
-class WowError_Strings(DBStructure):
+class WowError_Strings(Structure):
 	"""
 	WowError_Strings.dbc
 	Localization called by WowError.exe when the game crashes.
@@ -4163,7 +4163,7 @@ class WowError_Strings(DBStructure):
 	)
 
 
-class ZoneIntroMusicTable(DBStructure):
+class ZoneIntroMusicTable(Structure):
 	"""
 	ZoneIntroMusicTable.dbc
 	"""
@@ -4176,7 +4176,7 @@ class ZoneIntroMusicTable(DBStructure):
 	)
 
 
-class ZoneMusic(DBStructure):
+class ZoneMusic(Structure):
 	"""
 	ZoneMusic.dbc
 	Music played in a zone

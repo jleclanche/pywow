@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from .base import DBStructure, _Generated
+from .base import Structure, _Generated
 from .files.main import *
 from .files.custom import *
 from ..locales import L
@@ -18,7 +18,7 @@ class StructureLoader():
 			cls.wowfiles = {}
 			for name in globals():
 				try:
-					if not issubclass(globals()[name], DBStructure):
+					if not issubclass(globals()[name], Structure):
 						continue
 				except TypeError:
 					continue

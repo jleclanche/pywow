@@ -9,7 +9,7 @@ from ..logger import log
 class StructureError(Exception):
 	pass
 
-class DBStructure(list):
+class Structure(list):
 	""" A database structure. """
 	signature = "WDBC"
 	def __init__(self, build=0, parent=None):
@@ -113,9 +113,9 @@ class Skeleton(list):
 			raise StructureError("No locales to update for update_locales")
 
 
-class _Generated(DBStructure):
+class _Generated(Structure):
 	"""Dynamically generated DBC structure."""
 	def __init__(self, structure_string, *pargs, **kwargs):
 		columns = []
 		self.base = Skeleton(*[UnknownField() for s in structure_string])
-		DBStructure.__init__(self)
+		Structure.__init__(self)

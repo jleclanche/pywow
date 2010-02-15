@@ -3,10 +3,10 @@
 gameobjectcache.wdb data structures
 """
 
-from ..base import DBStructure, Skeleton
+from ..base import Structure, Skeleton
 from ..fields import *
 
-class GameObject_Door(DBStructure):
+class GameObject_Door(Structure):
 	"""
 	GAMEOBJECT_TYPE_DOOR (0)
 	"""
@@ -21,7 +21,7 @@ class GameObject_Door(DBStructure):
 		BooleanField("ignore_los"),
 	)
 
-class GameObject_Button(DBStructure):
+class GameObject_Button(Structure):
 	"""
 	GAMEOBJECT_TYPE_BUTTON (1)
 	"""
@@ -38,7 +38,7 @@ class GameObject_Button(DBStructure):
 		BooleanField("ignore_los"),
 	)
 
-class GameObject_QuestGiver(DBStructure):
+class GameObject_QuestGiver(Structure):
 	"""
 	GAMEOBJECT_TYPE_QUESTGIVER (2)
 	"""
@@ -55,7 +55,7 @@ class GameObject_QuestGiver(DBStructure):
 		BooleanField("large"),
 	)
 
-class GameObject_Chest(DBStructure):
+class GameObject_Chest(Structure):
 	"""
 	GAMEOBJECT_TYPE_CHEST (3)
 	"""
@@ -80,13 +80,13 @@ class GameObject_Chest(DBStructure):
 		BooleanField("floating_tooltip"),
 	)
 
-class GameObject_Binder(DBStructure):
+class GameObject_Binder(Structure):
 	"""
 	GAMEOBJECT_TYPE_BINDER (4)
 	"""
 	base = Skeleton() # empty
 
-class GameObject_Generic(DBStructure):
+class GameObject_Generic(Structure):
 	"""
 	GAMEOBJECT_TYPE_GENERIC (5)
 	"""
@@ -100,7 +100,7 @@ class GameObject_Generic(DBStructure):
 		ForeignKey("quest", "Quest"),
 	)
 
-class GameObject_Trap(DBStructure):
+class GameObject_Trap(Structure):
 	"""
 	GAMEOBJECT_TYPE_TRAP (6)
 	"""
@@ -124,7 +124,7 @@ class GameObject_Trap(DBStructure):
 	)
 
 
-class GameObject_Chair(DBStructure):
+class GameObject_Chair(Structure):
 	"""
 	GAMEOBJECT_TYPE_CHAIR (7)
 	"""
@@ -136,7 +136,7 @@ class GameObject_Chair(DBStructure):
 		IntegerField("event"),
 	)
 
-class GameObject_SpellFocus(DBStructure):
+class GameObject_SpellFocus(Structure):
 	"""
 	GAMEOBJECT_TYPE_SPELLFOCUS (8)
 	"""
@@ -151,7 +151,7 @@ class GameObject_SpellFocus(DBStructure):
 		BooleanField("floating_tooltip"),
 	)
 
-class GameObject_Text(DBStructure):
+class GameObject_Text(Structure):
 	"""
 	GAMEOBJECT_TYPE_SPELLFOCUS (9)
 	"""
@@ -163,7 +163,7 @@ class GameObject_Text(DBStructure):
 		BooleanField("usable_mounted"),
 	)
 
-class GameObject_Goober(DBStructure):
+class GameObject_Goober(Structure):
 	"""
 	GAMEOBJECT_TYPE_GOOBER (10)
 	"""
@@ -192,7 +192,7 @@ class GameObject_Goober(DBStructure):
 		IntegerField("world_state_sets_state"),
 	)
 
-class GameObject_Transport(DBStructure):
+class GameObject_Transport(Structure):
 	"""
 	GAMEOBJECT_TYPE_TRANSPORT (11)
 	"""
@@ -205,7 +205,7 @@ class GameObject_Transport(DBStructure):
 		IntegerField("pause_event_2"),
 	)
 
-class GameObject_AreaDamage(DBStructure):
+class GameObject_AreaDamage(Structure):
 	"""
 	GAMEOBJECT_TYPE_AREADAMAGE (12)
 	"""
@@ -221,7 +221,7 @@ class GameObject_AreaDamage(DBStructure):
 	)
 
 
-class GameObject_Camera(DBStructure):
+class GameObject_Camera(Structure):
 	"""
 	GAMEOBJECT_TYPE_CAMERA (13)
 	"""
@@ -233,13 +233,13 @@ class GameObject_Camera(DBStructure):
 		IntegerField("open_text"),
 	)
 
-class GameObject_MapObject(DBStructure):
+class GameObject_MapObject(Structure):
 	"""
 	GAMEOBJECT_TYPE_MAPOBJECT (14)
 	"""
 	base = Skeleton() # empty
 
-class GameObject_MOTransport(DBStructure):
+class GameObject_MOTransport(Structure):
 	"""
 	GAMEOBJECT_TYPE_MO_TRANSPORT (15)
 	"""
@@ -255,19 +255,19 @@ class GameObject_MOTransport(DBStructure):
 		IntegerField("world_state")
 	)
 
-class GameObject_DuelFlag(DBStructure):
+class GameObject_DuelFlag(Structure):
 	"""
 	GAMEOBJECT_TYPE_DUELFLAG (16)
 	"""
 	base = Skeleton() # empty
 
-class GameObject_FishingNode(DBStructure):
+class GameObject_FishingNode(Structure):
 	"""
 	GAMEOBJECT_TYPE_FISHINGNODE (17)
 	"""
 	base = Skeleton() # empty
 
-class GameObject_SummoningRitual(DBStructure):
+class GameObject_SummoningRitual(Structure):
 	"""
 	GAMEOBJECT_TYPE_SUMMONING_RITUAL (18)
 	"""
@@ -283,19 +283,19 @@ class GameObject_SummoningRitual(DBStructure):
 		BooleanField("no_target_check"),
 	)
 
-class GameObject_Mailbox(DBStructure):
+class GameObject_Mailbox(Structure):
 	"""
 	GAMEOBJECT_TYPE_MAILBOX (19)
 	"""
 	base = Skeleton() # empty
 
-class GameObject_DoNotUse(DBStructure):
+class GameObject_DoNotUse(Structure):
 	"""
 	GAMEOBJECT_TYPE_DONOTUSE (20)
 	"""
 	base = Skeleton() # empty
 
-class GameObject_GuardPost(DBStructure):
+class GameObject_GuardPost(Structure):
 	"""
 	GAMEOBJECT_TYPE_GUARDPOST (21)
 	"""
@@ -305,7 +305,7 @@ class GameObject_GuardPost(DBStructure):
 		IntegerField("charges"),
 	)
 
-class GameObject_SpellCaster(DBStructure):
+class GameObject_SpellCaster(Structure):
 	"""
 	GAMEOBJECT_TYPE_SPELLCASTER (22)
 	"""
@@ -318,7 +318,7 @@ class GameObject_SpellCaster(DBStructure):
 		BooleanField("large"),
 	)
 
-class GameObject_MeetingStone(DBStructure):
+class GameObject_MeetingStone(Structure):
 	"""
 	GAMEOBJECT_TYPE_MEETINGSTONE (23)
 	"""
@@ -329,7 +329,7 @@ class GameObject_MeetingStone(DBStructure):
 		ForeignKey("zone", "AreaTable"),
 	)
 
-class GameObject_FlagStand(DBStructure):
+class GameObject_FlagStand(Structure):
 	"""
 	GAMEOBJECT_TYPE_FLAGSTAND (24)
 	"""
@@ -345,7 +345,7 @@ class GameObject_FlagStand(DBStructure):
 		IntegerField("ignore_los"),
 	)
 
-class GameObject_FishingHole(DBStructure):
+class GameObject_FishingHole(Structure):
 	"""
 	GAMEOBJECT_TYPE_FISHINGHOLE (25)
 	"""
@@ -358,7 +358,7 @@ class GameObject_FishingHole(DBStructure):
 		ForeignKey("lock", "Lock"),
 	)
 
-class GameObject_FlagDrop(DBStructure):
+class GameObject_FlagDrop(Structure):
 	"""
 	GAMEOBJECT_TYPE_AURA_FLAGDROP (26)
 	"""
@@ -371,7 +371,7 @@ class GameObject_FlagDrop(DBStructure):
 		IntegerField("close_text"),
 	)
 
-class GameObject_MiniGame(DBStructure):
+class GameObject_MiniGame(Structure):
 	"""
 	GAMEOBJECT_TYPE_AURA_MINI_GAME (27)
 	"""
@@ -380,7 +380,7 @@ class GameObject_MiniGame(DBStructure):
 		IntegerField("game_type"),
 	)
 
-class GameObject_CapturePoint(DBStructure):
+class GameObject_CapturePoint(Structure):
 	"""
 	GAMEOBJECT_TYPE_AURA_CAPTURE_POINT (29)
 	"""
@@ -408,7 +408,7 @@ class GameObject_CapturePoint(DBStructure):
 		IntegerField("unidirectional"),
 	)
 
-class GameObject_AuraGenerator(DBStructure):
+class GameObject_AuraGenerator(Structure):
 	"""
 	GAMEOBJECT_TYPE_AURA_GENERATOR (30)
 	"""
@@ -423,7 +423,7 @@ class GameObject_AuraGenerator(DBStructure):
 		BooleanField("server_only"),
 	)
 
-class GameObject_DungeonDifficulty(DBStructure):
+class GameObject_DungeonDifficulty(Structure):
 	"""
 	GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY (31)
 	"""
@@ -433,7 +433,7 @@ class GameObject_DungeonDifficulty(DBStructure):
 		IntegerField("difficulty"),
 	)
 
-class GameObject_BarberChair(DBStructure):
+class GameObject_BarberChair(Structure):
 	"""
 	GAMEOBJECT_TYPE_BARBER_CHAIR (32)
 	"""
@@ -443,7 +443,7 @@ class GameObject_BarberChair(DBStructure):
 		IntegerField("offset"),
 	)
 
-class GameObject_DestructibleBuilding(DBStructure):
+class GameObject_DestructibleBuilding(Structure):
 	"""
 	GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING (33)
 	"""
@@ -475,13 +475,13 @@ class GameObject_DestructibleBuilding(DBStructure):
 		UnknownField(),
 	)
 
-class GameObject_GuildBank(DBStructure):
+class GameObject_GuildBank(Structure):
 	"""
 	GAMEOBJECT_TYPE_GUILDBANK (34)
 	"""
 	base = Skeleton() # empty
 
-class GameObject_TrapDoor(DBStructure):
+class GameObject_TrapDoor(Structure):
 	"""
 	GAMEOBJECT_TYPE_TRAPDOOR (35)
 	"""
