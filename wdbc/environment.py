@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from . import wdbc
-from ..log import log
+import wdbc
+from pywow.log import log
 
 class Environment(dict):
 	def __init__(self, path, files, build):
