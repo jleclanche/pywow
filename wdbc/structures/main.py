@@ -3836,10 +3836,10 @@ class TaxiNodes(Structure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField("instance"),
-		FloatField("coord_x"),
-		FloatField("coord_y"),
-		FloatField("coord_z"),
+		ForeignKey("map", "Map"),
+		FloatField("x"),
+		FloatField("y"),
+		FloatField("z"),
 		LocalizedFields("name"),
 		ForeignKey("mount_horde", "creaturecache"),
 		ForeignKey("mount_alliance", "creaturecache"),
