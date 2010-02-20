@@ -598,7 +598,8 @@ class SpellString(object):
 		"Spelleffect max damage"
 		val = getattr(self.file[spell], "damage_base_effect_%i" % (effect))
 		sides = getattr(self.file[spell], "die_sides_effect_%i" % (effect))
-		dice = getattr(self.file[spell], "dice_base_effect_%i" % (effect))
+		#dice = getattr(self.file[spell], "dice_base_effect_%i" % (effect))
+		dice = 1
 		val = val + (sides*dice)
 		self.last = val
 		return val

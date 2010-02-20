@@ -3502,8 +3502,12 @@ class Spell(Structure):
 	def changed_11573(self, base):
 		self.changed_10522(base)
 		base.delete_fields(
-			"class_flags_1_effect_1", "class_flags_1_effect_2", "class_flags_1_effect_3",
-			"class_flags_2_effect_1", "class_flags_2_effect_2", "class_flags_2_effect_3",
+			"dice_base_effect_1",
+			"dice_base_effect_2",
+			"dice_base_effect_3",
+			"dice_per_level_effect_1",
+			"dice_per_level_effect_2",
+			"dice_per_level_effect_3",
 		)
 
 
