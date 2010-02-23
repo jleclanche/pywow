@@ -225,6 +225,21 @@ class Union(DynamicFieldsBase):
 		return self._get_structure(row)
 
 
+class MultiField(DynamicFieldsBase):
+	"""
+	Expands a list of fields to a specific amount
+	"""
+	
+	def __init__(self, name, fields, amount):
+		super(DynamicFieldsBase, self).__init__(fields)
+	
+	def __build_list(self):
+		pass
+	
+	def get_abstraction(self):
+		return self.name, self.__build_list
+
+
 ##
 # Relations
 #
@@ -399,16 +414,19 @@ class DurationField(IntegerField):
 	def to_python(self, value, row):
 		return self.timedelta(value)
 
+
+##
+# Custom types
+#
+
 class MoneyField(UnsignedIntegerField):
 	pass
 
 class FilePathField(StringField):
 	pass
 
-
-##
-# Custom types
-#
+class GUIDField(BigIntegerField):
+	pass
 
 class SpellMacroField(StringField):
 	def to_python(self, value, row):
