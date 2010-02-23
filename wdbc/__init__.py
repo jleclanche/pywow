@@ -400,7 +400,8 @@ class DBRow(list):
 				_data = pack("<%s" % (k.char), v)
 			data.append(str(_data))
 		if reclen:
-			setattr(self, reclen.name, pack("<i", len("".join(data[2:]))))
+			length = pack("<i", len("".join(data[2:])))
+			data[self.structure.index(reclen.name)] = length
 		data = "".join(data)
 		
 		return data
