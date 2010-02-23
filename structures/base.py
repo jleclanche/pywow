@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import copy
-from .fields import IDField, LocalizedFields, RecLenField, UnknownField
 from ..log import log
 
 
@@ -17,7 +16,6 @@ class Structure(list):
 		self.parent = parent # DBC file
 		self.pkeys = []
 		self.column_names = []
-		self.reclen = 0
 		self._abstractions = {}
 		names = []
 		
@@ -45,10 +43,8 @@ class Structure(list):
 					_lazy_rename(_col)
 					self.add_column(_col)
 			else:
-				if isinstance(col, IDField):
+				if hasattr(col, "primary_key") and col.primary_key: # XXX change that
 					self.pkeys.append(col)
-				elif isinstance(col, RecLenField):
-					self.reclen = len(self) + 1
 				_lazy_rename(col)
 				self.add_column(col)
 	
@@ -103,6 +99,7 @@ class Skeleton(list):
 			self.insert_field(field, before=before)
 	
 	def update_locales(self, locales):
+		from .fields import LocalizedFields
 		updated = False
 		for field in self:
 			if isinstance(field, LocalizedFields):

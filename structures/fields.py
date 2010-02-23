@@ -87,6 +87,7 @@ class IDField(IntegerField):
 	"""
 	Integer field containing the row's ID
 	"""
+	primary_key = True
 	def __init__(self, name="_id"):
 		IntegerField.__init__(self, name=name)
 
