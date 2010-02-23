@@ -4,7 +4,7 @@
 from os.path import getsize, basename, splitext, exists
 from struct import pack, unpack, error as StructError
 from pywow.log import log
-from pywow.structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields
+from pywow.structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields, RecLenField
 from .structures import GeneratedStructure, StructureNotFound, getstructure
 
 
@@ -386,9 +386,12 @@ class DBRow(list):
 		"Convert the column list into a byte stream"
 		self._save()
 		data = []
+		reclen = None
 		for k, v in zip(self.structure, self):
 			if v == None:
 				continue
+			elif isinstance(k, RecLenField):
+				reclen = k
 			elif k.char == "s":
 				_data = v.encode("utf-8") + "\x00"
 			elif k.char == "A":
@@ -396,8 +399,8 @@ class DBRow(list):
 			else:
 				_data = pack("<%s" % (k.char), v)
 			data.append(str(_data))
-		if self.structure.reclen:
-			data[self.structure.reclen-1] = pack("<i", len("".join(data[2:])))
+		if reclen:
+			setattr(self, reclen.name, pack("<i", len("".join(data[2:]))))
 		data = "".join(data)
 		
 		return data
