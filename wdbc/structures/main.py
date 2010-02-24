@@ -3856,6 +3856,37 @@ class TaxiNodes(Structure):
 		ForeignKey("mount_alliance", "creaturecache"),
 	)
 
+
+class TaxiPath(Structure):
+	"""
+	TaxiPath.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("taxi_from", "TaxiNodes"),
+		ForeignKey("taxi_to", "TaxiNodes"),
+		MoneyField("price"),
+	)
+
+
+class TaxiPathNode(Structure):
+	"""
+	TaxiPathNode.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("taxi", "TaxiPath"),
+		IntegerField("index"),
+		ForeignKey("map", "Map"),
+		FloatField("x"),
+		FloatField("y"),
+		FloatField("z"),
+		UnknownField(),
+		DurationField("delay", unit="seconds"), # Delay before moving to next point (used on boats / trams / zepplins) 
+		IntegerField("arrival_event"),
+		IntegerField("departure_event"),
+	)
+
 class TeamContributionPoints(Structure):
 	"""
 	TeamContributionPoints.dbc
