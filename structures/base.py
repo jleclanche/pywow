@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import copy
-from ..log import log
-
 
 class StructureError(Exception):
 	pass
