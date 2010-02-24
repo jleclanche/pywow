@@ -31,6 +31,40 @@ magic = {
 	"XTPW": "pagetextcache",
 }
 
+class DBCHeader(object):
+	def __init__(self, file):
+		file.seek(0)
+		data = file.read(len(self))
+		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize = unpack("<4s4i", data)
+	
+	def __len__(self):
+		return 20
+	
+	def data(self):
+		return pack("<4s4i", self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize)
+
+class WDBHeader(object):
+	def __init__(self, file):
+		file.seek(0)
+		self.signature, = file.read(4)
+		self.build = unpack("<i", file.read(4))
+		self.locale, = file.read(4)
+		self.wdb4, self.wdb5 = unpack("<ii", file.read(8))
+		if self.build >= 9438:
+			self.version = unpack("<i", file.read(4))
+	
+	def __len__(self):
+		if self.build < 9438:
+			return 20
+		return 24
+	
+	def data(self):
+		ret = pack("<4si4sii", self.signature, self.build, self.locale, self.wdb4, self.wdb5)
+		if self.build >= 9438:
+			ret += pack("<i", self.version)
+		
+		return ret
+
 class DBHeader(object):
 	"""A WDBC header file."""
 	def __init__(self, parent):
@@ -38,7 +72,7 @@ class DBHeader(object):
 	
 	def __repr__(self):
 		return "DBHeader(%s)" % ", ".join(["%s=%r" % (k, getattr(self, k)) for k in ("signature", "build", "locale", "wdb4",
-					"wdb5", "version", "row_count", "field_count", "reclen", "stringblocksize") if hasattr(self, k)])
+				"wdb5", "version", "row_count", "field_count", "reclen", "stringblocksize") if hasattr(self, k)])
 	
 	def __setattr__(self, key, value):
 		if key == "build":
@@ -117,7 +151,7 @@ class DBFile(dict):
 		self.sort = []				# Row sort order
 		self.build = build			# Build number
 		self.header = DBHeader(self)		# Full header
-		self.strblk = ""				# Stringblock
+		self.stringblock = ""				# Stringblock
 		self.environment = environment	# Full environment
 		self.mode = mode				# Mode (read/write)
 		
@@ -541,22 +575,22 @@ class DBCFile(DBFile):
 			log.warning("Multiple instances of row #%i found" % (row[0]))
 		self[row[0]] = row
 	
-	def _init_strblk(self):
+	def _init_stringblock(self):
 		log.info("Reading stringblock from %s..." % (self.path))
 		f = open(self.path, "rb")
 		f.seek(-self.header.stringblocksize, 2)
-		self.strblk = f.read()
+		self.stringblock = f.read()
 		f.close()
 	
 	def _getstring(self, addr):
 		"""Return a string, given a pointer in the blockstring"""
-		if not self.strblk:
-			self._init_strblk()
+		if not self.stringblock:
+			self._init_stringblock()
 		try:
-			val = self.strblk[addr:addr+self.strblk[addr:addr+1024].index("\x00")]
+			val = self.stringblock[addr:addr+self.stringblock[addr:addr+1024].index("\x00")]
 		except ValueError:
 			try:
-				val = self.strblk[addr:addr+self.strblk[addr:addr+2048].index("\x00")]
+				val = self.stringblock[addr:addr+self.stringblock[addr:addr+2048].index("\x00")]
 			except ValueError:
 				log.warning("No string found at 0x%8x, some values may be corrupt. Fix your structures!" % (addr))
 				val = ""
