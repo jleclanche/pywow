@@ -6,11 +6,26 @@ import copy
 class StructureError(Exception):
 	pass
 
+
+class StructureProperty(object):
+	"""
+	Helper to be able to access Structure.name
+	"""
+	def __init__(self, method):
+		self.method = method
+	
+	def __get__(self, obj, type):
+		return self.method(type)
+
 class Structure(list):
 	""" A database structure. """
 	signature = "WDBC"
+	
+	@StructureProperty
+	def name(cls): # ItemCache.name == "itemcache"
+		return cls.__name__.lower()
+	
 	def __init__(self, build=0, parent=None):
-		self.name = type(self).__name__.lower()
 		self.parent = parent # DBC file
 		self.pkeys = []
 		self.column_names = []
