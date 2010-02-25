@@ -740,6 +740,18 @@ class PageTextCache(Structure):
 		ForeignKey("next_page", "pagetextcache"),
 	)
 
+class WoWCache(Structure):
+	"""
+	wowcache.wdb
+	Warden data
+	"""
+	signature = "NDRW"
+	base = Skeleton(
+		HashField("_id"),
+		RecLenField(),
+		IntegerField("data_length"),
+		DataField("data", master="data_length")
+	)
 
 
 ##
