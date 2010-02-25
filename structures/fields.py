@@ -433,3 +433,15 @@ class SpellMacroField(StringField):
 	def to_python(self, value, row):
 		val = SpellString(value)
 		return val.format(row)
+
+class HashField(DBField):
+	char = "16s"
+	size = 16
+	#from binascii import hexlify
+
+class DataField(DBField):
+	char = "x"
+	def __init__(self, name, master):
+		DBField.__init__(self, name=name)
+		self.master = master
+
