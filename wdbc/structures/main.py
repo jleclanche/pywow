@@ -2038,7 +2038,6 @@ class ItemBagFamily(Structure):
 class ItemClass(Structure):
 	"""
 	ItemClass.dbc
-	Unknown use
 	"""
 	base = Skeleton(
 		IDField(),
@@ -2051,12 +2050,11 @@ class ItemClass(Structure):
 class ItemCondExtCost(Structure):
 	"""
 	ItemCondExtCost.dbc
-	Unknown use
 	"""
 	base = Skeleton(
 		IDField(),
 		IntegerField(),
-		ForeignKey("extcost", "itemextendedcost"),
+		ForeignKey("extended_cost", "ItemExtendedCost"),
 		IntegerField(),
 	)
 
@@ -3794,6 +3792,16 @@ class SpellVisualEffectName(Structure):
 	)
 
 
+class StableSlotPrices(Structure):
+	"""
+	StableSlotPrices.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		MoneyField("price"),
+	)
+
+
 class Startup_Strings(Structure):
 	"""
 	Startup_Strings.dbc
@@ -3817,6 +3825,31 @@ class Stationery(Structure):
 		StringField("name"),
 		UnknownField(),
 	)
+
+
+class StringLookups(Structure):
+	"""
+	StringLookups.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		FilePathField("path"),
+	)
+
+
+class SummonProperties(Structure):
+	"""
+	SummonProperties.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("category"),
+		IntegerField("faction"), # doesn't seem to be Faction.dbc
+		IntegerField("type"),
+		IntegerField("slot"),
+		BitMaskField("flags"),
+	)
+
 
 class Talent(Structure):
 	"""
@@ -3848,6 +3881,7 @@ class Talent(Structure):
 		UnknownField(),
 		UnknownField(),
 	)
+
 
 class TalentTab(Structure):
 	"""
@@ -3913,6 +3947,7 @@ class TaxiPathNode(Structure):
 		IntegerField("departure_event"),
 	)
 
+
 class TeamContributionPoints(Structure):
 	"""
 	TeamContributionPoints.dbc
@@ -3921,6 +3956,30 @@ class TeamContributionPoints(Structure):
 		IDField(),
 		FloatField("points"),
 	)
+
+
+class TerrainType(Structure):
+	"""
+	TerrainType.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("type"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class TerrainTypeSounds(Structure):
+	"""
+	TerrainTypeSounds.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+	)
+
 
 class TotemCategory(Structure):
 	"""
@@ -3935,10 +3994,24 @@ class TotemCategory(Structure):
 	)
 
 
+class TransportAnimation(Structure):
+	"""
+	TransportAnimation.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		ForeignKey("animation_data", "AnimationData")
+	)
+
+
 class TransportPhysics(Structure):
 	"""
 	TransportPhysics.dbc
-	Unknown use
 	"""
 	base = Skeleton(
 		IDField(),
@@ -3952,6 +4025,35 @@ class TransportPhysics(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
+	)
+
+
+class UISoundLookups(Structure):
+	"""
+	UISoundLookups.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("sound", "SoundEntries"),
+		StringField("name"),
+	)
+
+
+class UnitBlood(Structure):
+	"""
+	UnitBlood.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FilePathField("texture_1"),
+		FilePathField("texture_2"),
+		FilePathField("texture_3"),
+		FilePathField("texture_4"),
+		UnknownField(),
 	)
 
 
