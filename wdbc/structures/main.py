@@ -1840,6 +1840,7 @@ class GlyphProperties(Structure):
 		ForeignKey("icon", "spellicon"),
 	)
 
+
 class GlyphSlot(Structure):
 	"""
 	GlyphSlot.dbc
@@ -1858,6 +1859,39 @@ class GMTicketCategory(Structure):
 	base = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
+	)
+
+
+class GroundEffectDoodad(Structure):
+	"""
+	GroundEffectDoodad.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("model"),
+		BooleanField(),
+	)
+
+
+class GroundEffectTexture(Structure):
+	"""
+	GroundEffectTexture.dbc
+	Used for determining what doodads get used for the effects on textures
+	(the ID thats used is the effectID on the base texture of each map chunk).
+	These doodads are the little tiny plants & rocks you see on the ground.
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("doodad_effect_1"),
+		IntegerField("doodad_effect_2"),
+		IntegerField("doodad_effect_3"),
+		IntegerField("doodad_effect_4"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -1997,8 +2031,8 @@ class Holidays(Structure):
 		UnknownField(),
 		UnknownField(),
 		UnknownField(),
-		ForeignKey("name", "holidaynames"),
-		ForeignKey("description", "holidaydescriptions"),
+		ForeignKey("name", "HolidayNames"),
+		ForeignKey("description", "HolidayDescriptions"),
 		StringField("icon"),
 		UnknownField(),
 		UnknownField(),
@@ -2100,24 +2134,37 @@ class ItemExtendedCost(Structure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField("honorpoints"),
-		IntegerField("arenapoints"),
-		ForeignKey("item1", "Item"),
-		ForeignKey("item2", "Item"),
-		ForeignKey("item3", "Item"),
-		ForeignKey("item4", "Item"),
-		ForeignKey("item5", "Item"),
-		IntegerField("itemamt1"),
-		IntegerField("itemamt2"),
-		IntegerField("itemamt3"),
-		IntegerField("itemamt4"),
-		IntegerField("itemamt5"),
-		IntegerField("personalratingreq"),
+		IntegerField("honor_points"),
+		IntegerField("arena_points"),
+		ForeignKey("item_1", "Item"),
+		ForeignKey("item_2", "Item"),
+		ForeignKey("item_3", "Item"),
+		ForeignKey("item_4", "Item"),
+		ForeignKey("item_5", "Item"),
+		IntegerField("item_amount_1"),
+		IntegerField("item_amount_2"),
+		IntegerField("item_amount_3"),
+		IntegerField("item_amount_4"),
+		IntegerField("item_amount_5"),
+		IntegerField("required_personal_rating"),
 		UnknownField(), # maybe pvprankreq?
 	)
 
 	def changed_10026(self, base):
 		base.insert_field(IntegerField("bracket"), before="item1")
+
+
+class ItemGroupSounds(Structure):
+	"""
+	ItemGroupSounds.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("sound_pickup", "SoundEntries"),
+		ForeignKey("sound_putdown", "SoundEntries"),
+		ForeignKey("sound", "SoundEntries"),
+		UnknownField()
+	)
 
 
 class ItemLimitCategory(Structure):
@@ -2267,6 +2314,30 @@ class ItemSubClassMask(Structure):
 		IntegerField("id1"),
 		BitMaskField("id2_mask"),
 		LocalizedFields("name"),
+	)
+
+
+class ItemVisualEffects(Structure):
+	"""
+	ItemVisualEffects.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		FilePathField("model"),
+	)
+
+
+class ItemVisuals(Structure):
+	"""
+	ItemVisuals.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("visual_1", "ItemVisualEffects"), # Something's wrong, some of those have insane ids...
+		ForeignKey("visual_2", "ItemVisualEffects"),
+		ForeignKey("visual_3", "ItemVisualEffects"),
+		ForeignKey("visual_4", "ItemVisualEffects"),
+		ForeignKey("visual_5", "ItemVisualEffects"),
 	)
 
 
@@ -2488,7 +2559,7 @@ class LightSkybox(Structure):
 	Skybox data
 	"""
 	base = Skeleton(
-		IDField(),	
+		IDField(),
 		FilePathField("path"),
 		IntegerField("type"), # 2 = aurora, ...?
 	)
