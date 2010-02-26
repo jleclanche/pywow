@@ -3508,7 +3508,7 @@ class Spell(Structure):
 	def changed_10522(self, base):
 		self.changed_10026(base)
 		base.append_fields(
-			UnknownField(),
+			ForeignKey("spell_difficulty", "SpellDifficulty"),
 		)
 	
 	def changed_11573(self, base):
@@ -3568,6 +3568,20 @@ class SpellDescriptionVariables(Structure):
 	base = Skeleton(
 		IDField(),
 		StringField("variables"),
+	)
+
+
+class SpellDifficulty(Structure):
+	"""
+	SpellDifficulty.dbc
+	Spell heroic modes/raid sizes
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("10_man", "Spell"),
+		ForeignKey("25_man", "Spell"),
+		ForeignKey("10_man_heroic", "Spell"),
+		ForeignKey("25_man_heroic", "Spell"),
 	)
 
 
