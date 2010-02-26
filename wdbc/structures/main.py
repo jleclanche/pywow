@@ -2961,6 +2961,19 @@ class ServerMessages(Structure):
 	)
 
 
+class SkillCostsData(Structure):
+	"""
+	SkillCostsData.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
 class SkillLine(Structure):
 	"""
 	SkillLine.dbc
