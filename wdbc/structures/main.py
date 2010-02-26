@@ -961,20 +961,6 @@ class AreaTrigger(Structure):
 	)
 
 
-class AuctionHouse(Structure):
-	"""
-	AuctionHouse.dbc
-	Data about auction houses and their fees
-	"""
-	base = Skeleton(
-		IDField(),
-		ForeignKey("faction", "Faction"),
-		IntegerField("auction_fee"),
-		IntegerField("deposit_fee"),
-		LocalizedFields("name"),
-	)
-
-
 class AttackAnimKits(Structure):
 	"""
 	AttackAnimKits.dbc
@@ -997,6 +983,20 @@ class AttackAnimTypes(Structure):
 	base = Skeleton(
 		IDField(),
 		StringField("name"),
+	)
+
+
+class AuctionHouse(Structure):
+	"""
+	AuctionHouse.dbc
+	Data about auction houses and their fees
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("faction", "Faction"),
+		IntegerField("auction_fee"),
+		IntegerField("deposit_fee"),
+		LocalizedFields("name"),
 	)
 
 
@@ -1144,6 +1144,22 @@ class Cfg_Configs(Structure):
 	)
 
 
+class CharacterCreateCameras(Structure):
+	"""
+	CharacterCreateCameras.dbc
+	Removed in 6320
+	"""
+	DEAD = True
+	base = Skeleton(
+		IDField(),
+		BooleanField(),
+		BooleanField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
 class CharacterFacialHairStyles(Structure):
 	"""
 	CharacterFacialHairStyles.dbc
@@ -1225,20 +1241,6 @@ class CharSections(Structure):
 		BitMaskField("flags"),
 		IntegerField("type"),
 		IntegerField("variation"), # CharVariations.dbc?
-	)
-
-
-class CharTitles(Structure):
-	"""
-	CharTitles.dbc
-	Player titles
-	"""
-	base = Skeleton(
-		IDField(),
-		UnknownField(), # related to achievements?
-		LocalizedFields("title"),
-		LocalizedFields("title_female"),
-		IntegerField("index"),
 	)
 
 
@@ -1341,6 +1343,20 @@ class CharStartOutfit(Structure):
 			IntegerField("inventory_type_23"),
 			IntegerField("inventory_type_24"),
 		)
+
+
+class CharTitles(Structure):
+	"""
+	CharTitles.dbc
+	Player titles
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(), # related to achievements?
+		LocalizedFields("title"),
+		LocalizedFields("title_female"),
+		IntegerField("index"),
+	)
 
 
 class CharVariations(Structure):
@@ -1500,6 +1516,35 @@ class CreatureDisplayInfo(Structure):
 	)
 
 
+class CreatureDisplayInfoExtra(Structure):
+	"""
+	CreatureDisplayInfoExtra.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("gender"),
+		IntegerField("skin_color"),
+		IntegerField("face_type"),
+		IntegerField("hair_type"),
+		IntegerField("hair_style"),
+		IntegerField("beard_style"),
+		ForeignKey("head", "ItemDisplayInfo"),
+		ForeignKey("shoulders", "ItemDisplayInfo"),
+		ForeignKey("shirt", "ItemDisplayInfo"),
+		ForeignKey("chest", "ItemDisplayInfo"),
+		ForeignKey("belt", "ItemDisplayInfo"),
+		ForeignKey("legs", "ItemDisplayInfo"),
+		ForeignKey("feet", "ItemDisplayInfo"),
+		ForeignKey("rings", "ItemDisplayInfo"),
+		ForeignKey("hands", "ItemDisplayInfo"),
+		ForeignKey("wrists", "ItemDisplayInfo"),
+		ForeignKey("back", "ItemDisplayInfo"), # added 5849
+		UnknownField(),
+		UnknownField(), # added 5991
+		StringField("texture")
+	)
+
+
 class CreatureFamily(Structure):
 	"""
 	CreatureFamily.dbc
@@ -1517,6 +1562,105 @@ class CreatureFamily(Structure):
 		ForeignKey("pet_food", "ItemPetFood"),
 		LocalizedFields("name"),
 		FilePathField("icon"),
+	)
+
+
+class CreatureModelData(Structure):
+	"""
+	CreatureModelData.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("weapon_display_info"),
+		FilePathField("path"),
+		UnknownField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(), # Added later...
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
+class CreatureSoundData(Structure):
+	"""
+	CreatureSoundData.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(), # SoundEntries
+		UnknownField(), # SoundEntries
+		UnknownField(), # SoundEntries
+		UnknownField(), # SoundEntries
+		UnknownField(),
+		UnknownField(), # SoundEntries
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(), # SoundEntries
+		UnknownField(), # SoundEntries
+		UnknownField(),
+		UnknownField(), # SoundEntries
+		UnknownField(), # SoundEntries
+		UnknownField(), # SoundEntries
+		UnknownField(), # SoundEntries
+		UnknownField(), # SoundEntries
+		UnknownField(),
+		UnknownField(), # SoundEntries
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(), # SoundEntries
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		IntegerField(), # Added later...
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+	)
+
+
+class CreatureSpellData(Structure):
+	"""
+	CreatureSpellData.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("spell_1", "Spell"),
+		ForeignKey("spell_2", "Spell"),
+		ForeignKey("spell_3", "Spell"),
+		ForeignKey("spell_4", "Spell"),
+		UnknownField(), # cooldown? its always 100....
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -1581,10 +1725,33 @@ class DeathThudLookups(Structure):
 	"""
 	base = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		ForeignKey("class", "ChrClasses"),
+		ForeignKey("race", "ChrRaces"),
+		ForeignKey("dirt_sound", "SoundEntries"),
+		ForeignKey("water_sound", "SoundEntries"),
+	)
+
+
+class DeclinedWord(Structure):
+	"""
+	DeclinedWord.dbc
+	Only russian strings so far...
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("text"),
+	)
+
+
+class DeclinedWordCases(Structure):
+	"""
+	DeclinedWordCases.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("declined_word", "DeclinedWord"),
+		UnknownField(),
+		StringField("text"),
 	)
 
 
@@ -1629,6 +1796,56 @@ class DungeonMapChunk(Structure):
 		ForeignKey("wmo", "WMOAreaTable"), # key="group"
 		ForeignKey("dungeon_map", "DungeonMap"),
 		FloatField(),
+	)
+
+
+class DurabilityCosts(Structure):
+	"""
+	DurabilityCosts.dbc
+	Each column corresponds to a class.subclass category for items.
+	(Current - Ma) * ItemClassModifier * QualityModifier
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("cost_2_0"),
+		IntegerField("cost_2_1"),
+		IntegerField("cost_2_2"),
+		IntegerField("cost_2_3"),
+		IntegerField("cost_2_4"),
+		IntegerField("cost_2_5"),
+		IntegerField("cost_2_6"),
+		IntegerField("cost_2_7"),
+		IntegerField("cost_2_8"),
+		IntegerField("cost_2_9"),
+		IntegerField("cost_2_10"),
+		IntegerField("cost_2_11"),
+		IntegerField("cost_2_12"),
+		IntegerField("cost_2_13"),
+		IntegerField("cost_2_14"),
+		IntegerField("cost_2_15"),
+		IntegerField("cost_2_16"),
+		IntegerField("cost_2_17"),
+		IntegerField("cost_2_18"),
+		IntegerField("cost_2_19"),
+		IntegerField("cost_2_20"),
+		IntegerField("cost_4_0"),
+		IntegerField("cost_4_1"),
+		IntegerField("cost_4_2"),
+		IntegerField("cost_4_3"),
+		IntegerField("cost_4_4"),
+		IntegerField("cost_4_5"),
+		IntegerField("cost_4_6"),
+		IntegerField("cost_4_7"),
+	)
+
+
+class DurabilityQuality(Structure):
+	"""
+	DurabilityQuality.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		FloatField("modifier"),
 	)
 
 
