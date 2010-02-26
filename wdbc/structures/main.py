@@ -2281,6 +2281,17 @@ class Languages(Structure):
 	)
 
 
+class LanguageWords(Structure):
+	"""
+	LanguageWords.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("language", "Languages"),
+		StringField("word"),
+	)
+
+
 class LFGDungeons(Structure):
 	"""
 	LFGDungeons.dbc
@@ -2337,13 +2348,147 @@ class LFGDungeonGroup(Structure):
 	)
 
 
+class Light(Structure):
+	"""
+	Light.dbc
+	This is the starting file for what controls the lights, fogs, sky color,
+	water color, and well other similar items. This information prior to 1.9
+	used to be stored in the .lit files but in 1.9 was moved to Light.dbc and
+	the other Light* DBC files.
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("instance", "Map"),
+		FloatField("x"),
+		FloatField("y"),
+		FloatField("z"),
+		FloatField("inner_radius"),
+		FloatField("outer_radius"),
+		IntegerField("sky_settings"),
+		IntegerField("fog_settings"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class LightFloatBand(Structure):
+	"""
+	LightFloatBand.dbc
+	Controls the various values that are related to floats in .lit files
+	which was believed just to be the sky positions. There is 6 rows
+	corresponding to every ID so take the ID*6 to get the proper start ID
+	to look at it and the next 5 rows after it go along with it as well.
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("entry_count"),
+		UnsignedIntegerField("time_1"),
+		UnsignedIntegerField("time_2"),
+		UnsignedIntegerField("time_3"),
+		UnsignedIntegerField("time_4"),
+		UnsignedIntegerField("time_5"),
+		UnsignedIntegerField("time_6"),
+		UnsignedIntegerField("time_7"),
+		UnsignedIntegerField("time_8"),
+		UnsignedIntegerField("time_9"),
+		UnsignedIntegerField("time_10"),
+		UnsignedIntegerField("time_11"),
+		UnsignedIntegerField("time_12"),
+		UnsignedIntegerField("time_13"),
+		UnsignedIntegerField("time_14"),
+		UnsignedIntegerField("time_15"),
+		UnsignedIntegerField("time_16"),
+		UnsignedIntegerField("color_1"),
+		UnsignedIntegerField("color_2"),
+		UnsignedIntegerField("color_3"),
+		UnsignedIntegerField("color_4"),
+		UnsignedIntegerField("color_5"),
+		UnsignedIntegerField("color_6"),
+		UnsignedIntegerField("color_7"),
+		UnsignedIntegerField("color_8"),
+		UnsignedIntegerField("color_9"),
+		UnsignedIntegerField("color_10"),
+		UnsignedIntegerField("color_11"),
+		UnsignedIntegerField("color_12"),
+		UnsignedIntegerField("color_13"),
+		UnsignedIntegerField("color_14"),
+		UnsignedIntegerField("color_15"),
+		UnsignedIntegerField("color_16"),
+	)
+
+
+class LightIntBand(Structure):
+	"""
+	LightIntBand.dbc
+	Controls the various values that are related to floats in .lit files
+	which was believed just to be the sky positions. There is 18 rows
+	corresponding to every ID so take the ID*18 to get the proper start ID
+	to look at it and the next 17 rows after it go along with it as well.
+	See http://www.sourcepeek.com/wiki/LightIntBand.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		IntegerField("entry_count"),
+		UnsignedIntegerField("time_1"),
+		UnsignedIntegerField("time_2"),
+		UnsignedIntegerField("time_3"),
+		UnsignedIntegerField("time_4"),
+		UnsignedIntegerField("time_5"),
+		UnsignedIntegerField("time_6"),
+		UnsignedIntegerField("time_7"),
+		UnsignedIntegerField("time_8"),
+		UnsignedIntegerField("time_9"),
+		UnsignedIntegerField("time_10"),
+		UnsignedIntegerField("time_11"),
+		UnsignedIntegerField("time_12"),
+		UnsignedIntegerField("time_13"),
+		UnsignedIntegerField("time_14"),
+		UnsignedIntegerField("time_15"),
+		UnsignedIntegerField("time_16"),
+		UnsignedIntegerField("color_1"),
+		UnsignedIntegerField("color_2"),
+		UnsignedIntegerField("color_3"),
+		UnsignedIntegerField("color_4"),
+		UnsignedIntegerField("color_5"),
+		UnsignedIntegerField("color_6"),
+		UnsignedIntegerField("color_7"),
+		UnsignedIntegerField("color_8"),
+		UnsignedIntegerField("color_9"),
+		UnsignedIntegerField("color_10"),
+		UnsignedIntegerField("color_11"),
+		UnsignedIntegerField("color_12"),
+		UnsignedIntegerField("color_13"),
+		UnsignedIntegerField("color_14"),
+		UnsignedIntegerField("color_15"),
+		UnsignedIntegerField("color_16"),
+	)
+
+
+class LightParams(Structure):
+	"""
+	LightParams.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField("fog_add"),
+		FloatField("clear_water_alpha"),
+		FloatField(),
+		FloatField("deep_water_alpha"),
+		FloatField(),
+	)
+
+
 class LightSkybox(Structure):
 	"""
 	LightSkybox.dbc
 	Skybox data
 	"""
 	base = Skeleton(
-		IDField(),
+		IDField(),	
 		FilePathField("path"),
 		IntegerField("type"), # 2 = aurora, ...?
 	)
@@ -2359,6 +2504,86 @@ class LiquidMaterial(Structure):
 		IDField(),
 		UnknownField(),
 		UnknownField(),
+	)
+
+
+class LiquidType(Structure):
+	"""
+	LiquidType.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
+		BitMaskField("flags"),
+		IntegerField("type"),
+		ForeignKey("sound", "SoundEntries"),
+		ForeignKey("spell", "Spell"),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		FloatField(),
+		BooleanField(),
+		UnknownField(),
+		ForeignKey("material", "LiquidMaterial"), # this defines the shaders used.*
+		StringField(),
+		StringField(),
+		StringField(),
+		StringField(),
+		StringField(),
+		StringField(),
+		StringField(),
+		StringField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		BooleanField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+	# *  (1: "*sLiquidWater", 2: "*sLiquidMagma", 3: "*sLiquidProcWater%s" where %s is an appendix that is currently always "")
+
+class LoadingScreenTaxiSplines(Structure):
+	"""
+	LoadingScreenTaxiSplines.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("taxi", "TaxiPath"),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		BooleanField(),
 	)
 
 
@@ -2581,6 +2806,41 @@ class NameGen(Structure):
 	)
 
 
+class NamesProfanity(Structure):
+	"""
+	NamesProfanity.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("pattern"),
+		IntegerField("language"),
+	)
+
+
+class NamesReserved(Structure):
+	"""
+	NamesReserved.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("pattern"),
+		IntegerField("language"),
+	)
+
+
+class NPCSounds(Structure):
+	"""
+	NPCSounds.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("greeting", "SoundEntries"),
+		ForeignKey("farewell", "SoundEntries"),
+		ForeignKey("pissed", "SoundEntries"),
+		UnknownField(), #dbank? seriously?
+	)
+
+
 class ObjectEffect(Structure):
 	"""
 	ObjectEffect.dbc
@@ -2695,6 +2955,28 @@ class PageTextMaterial(Structure):
 	base = Skeleton(
 		IDField(),
 		StringField("name"),
+	)
+
+
+class PaperDollItemFrame(Structure):
+	"""
+	PaperDollItemFrame.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		FilePathField("path"),
+		IntegerField("slot"),
+	)
+
+
+class PetitionType(Structure):
+	"""
+	PetitionType.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("name"),
+		UnknownField(),
 	)
 
 
