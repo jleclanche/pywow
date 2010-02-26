@@ -372,7 +372,7 @@ class DBCFile(DBFile):
 				break
 			if not char:
 				if not chars:
-					log.warning("No string found at 0x%08x, some values may be corrupt. Fix your structures!" % (address))
+					log.warning("No string found at 0x%08x (%i), some values may be corrupt. Fix your structures!" % (address, address - self.header.stringblocksize))
 					return ""
 				log.warning("Unfinished string, this file may be corrupted.")
 				break
