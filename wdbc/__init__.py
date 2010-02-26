@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from os.path import getsize, basename, splitext, exists
+import os, os.path
 from struct import pack, unpack, error as StructError
 from pywow.log import log
 from pywow.structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields, RecLenField
@@ -10,7 +10,7 @@ from .structures import GeneratedStructure, StructureNotFound, getstructure
 
 def getfilename(val):
 	"Returns 'item' from /home/adys/Item.dbc"
-	return splitext(basename(val))[0].lower()
+	return os.path.splitext(os.path.basename(val))[0].lower()
 
 def getsignature(path):
 	"Attempts to find the signature of the given file"
@@ -19,202 +19,130 @@ def getsignature(path):
 	f.close()
 	return sig
 
-magic = {
-	"BDIW": "itemcache",
-	"BDNW": "itemnamecache",
-	"BOMW": "creaturecache",
-	"BOGW": "gameobjectcache",
-	"CPNW": "npccache",
-	"NDRW": "wowcache",
-	"TSQW": "questcache",
-	"XTIW": "itemtextcache",
-	"XTPW": "pagetextcache",
-}
+
+##
+# Header classes
+#
 
 class DBCHeader(object):
-	def __init__(self, file):
-		file.seek(0)
-		data = file.read(len(self))
-		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize = unpack("<4s4i", data)
+	def __repr__(self):
+		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
 	
 	def __len__(self):
 		return 20
+	
+	def load(self, file):
+		file.seek(0)
+		data = file.read(len(self))
+		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize = unpack("<4s4i", data)
 	
 	def data(self):
 		return pack("<4s4i", self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize)
 
 class WDBHeader(object):
-	def __init__(self, file):
-		file.seek(0)
-		self.signature, = file.read(4)
-		self.build = unpack("<i", file.read(4))
-		self.locale, = file.read(4)
-		self.wdb4, self.wdb5 = unpack("<ii", file.read(8))
-		if self.build >= 9438:
-			self.version = unpack("<i", file.read(4))
+	"""
+	A WDB header, structure as follows:
+	- 4 byte string signature (reversed)
+	- 4 byte integer build
+	- 4 byte string locale (reversed)
+	- 4 byte integer unknown - maybe related to dynamic fields?
+	- 4 byte integer unknown
+	As of build 9438, an additional 4 byte integer indicates the data version for that build.
+	"""
+	def __repr__(self):
+		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
 	
 	def __len__(self):
+		if not hasattr(self, "build"):
+			return 0
 		if self.build < 9438:
 			return 20
 		return 24
 	
+	def load(self, file):
+		file.seek(0)
+		self.signature = file.read(4)
+		self.build, = unpack("<i", file.read(4))
+		self.locale = file.read(4)
+		self.wdb4, self.wdb5 = unpack("<ii", file.read(8))
+		if self.build >= 9438:
+			self.version, = unpack("<i", file.read(4))
+	
 	def data(self):
+		if not hasattr(self, "build"):
+			return ""
 		ret = pack("<4si4sii", self.signature, self.build, self.locale, self.wdb4, self.wdb5)
 		if self.build >= 9438:
 			ret += pack("<i", self.version)
 		
 		return ret
 
-class DBHeader(object):
-	"""A WDBC header file."""
-	def __init__(self, parent):
-		self.parent = parent
+
+##
+# File classes
+#
+
+class DBFile(object):
+	"""
+	Base class for WDB and DBC files
+	"""
+	
+	def __init__(self, file, build, structure, environment):
+		self.file = file
+		self._addresses = {}
+		self._values = {}
+		self.environment = environment
+		self._load_structure(structure) # This should happen after self.build has been set
 	
 	def __repr__(self):
-		return "DBHeader(%s)" % ", ".join(["%s=%r" % (k, getattr(self, k)) for k in ("signature", "build", "locale", "wdb4",
-				"wdb5", "version", "row_count", "field_count", "reclen", "stringblocksize") if hasattr(self, k)])
+		return "%s(file=%r, build=%r)" % (self.__class__.__name__, self.file, self.build)
 	
-	def __setattr__(self, key, value):
-		if key == "build":
-			self.parent.build = value
-		return object.__setattr__(self, key, value)
+	def __contains__(self, id):
+		return id in self._addresses
 	
-	def __return(self):
-		if self.signature == "WDBC":
-			return (self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize)
-		else:
-			if self.build < 9438:
-				return (self.signature, self.build, self.locale, self.wdb4, self.wdb5)
-			else:
-				return (self.signature, self.build, self.locale, self.wdb4, self.wdb5, self.version)
+	def __getitem__(self, item):
+		if item not in self._values:
+			self._parse_row(item)
+		return self._values[item]
 	
-	
-	def _load_data(self):
-		"Load header data from the parent."
-		self.signature = self.parent.signature
-		if self.signature == "WDBC":
-			self.row_count = len(self.parent)
-			self.field_count = len(self.parent.structure)
-			self.reclen = self.field_count * 4 # TODO
-			if not hasattr(self, "stringblocksize"):
-				self.stringblocksize = 0 # TODO
-		else:
-			self.build = self.parent.build
-			if not hasattr(self, "locale"): self.locale = "SUne" # TODO
-			if not hasattr(self, "wdb4"): self.wdb4 = 0 #8316 # TODO
-			if not hasattr(self, "wdb5"): self.wdb5 = 0 #3 # TODO
-			if self.build >= 9438 and not hasattr(self, "version"):
-				self.version = 0
-	
-	def _load_stream(self, data):
-		"Load header data from a byte stream."
-		self.signature = data[:4]
-		if self.signature == "WDBC":
-			self.row_count, self.field_count, self.reclen, self.stringblocksize = unpack("4i", data[4:20])
-		else:
-			self.build, self.locale, self.wdb4, self.wdb5 = unpack("i4sii", data[4:20])
-			if self.build >= 9438:
-				self.version = unpack("i", data[20:24])[0]
-	
-	
-	def _data(self):
-		self._load_data()
-		return pack(self.structure(), *self.__return())
-	
-	def structure(self):
-		if self.signature == "WDBC":
-			return "4s4i"
-		else:
-			if self.build < 9438:
-				return "4si4sii"
-			else:
-				return "4si4s3i"
-	
-	def length(self):
-		if self.signature == "WDBC":
-			return 20
-		else:
-			if self.build < 9438:
-				return 20
-			else:
-				return 24
-
-
-class DBFile(dict):
-	"""A generic WDB or DBC file."""
-	writable = True
-	
-	def __init__(self, path="", build=0, name="", environment={}, mode="r", structure=None):
-		self.path = path				# Read/Write location
-		self.filename = name			# Logical filename
-		self.structure = structure		# Absolute structure
-		self.sort = []				# Row sort order
-		self.build = build			# Build number
-		self.header = DBHeader(self)		# Full header
-		self.stringblock = ""				# Stringblock
-		self.environment = environment	# Full environment
-		self.mode = mode				# Mode (read/write)
+	def __setitem__(self, item, value):
+		if not isinstance(item, int):
+			raise TypeError("DBFile indices must be integers, not %s" % type(item))
 		
-		if hasattr(self.structure, "signature"):
-			self.signature = self.structure.signature
+		if type(value) in (list, dict):
+			value = DBRow(self, columns=value)
+			self._values[key] = item
+			self[key].pk = item
 		
-		self._postinit()
+		# FIXME technically we should allow DBRow, but this is untested and will need resetting parent
+		raise TypeError("Unsupported type for DBFile.__setitem__: %s" % type(value))
 	
-	def __repr__(self):
-		return "%s(path=%r, build=%r, name=%r, mode=%r)" % (self.__class__.__name__, self.path, self.build, self.filename, self.mode)
+	def __delitem__(self, item):
+		if item in self._values:
+			del self._values[item]
+		if item in self._addresses: # Maybe we added it later
+			del self._addresses[item]
 	
-	
-	def _init_parse(self):
-		"Initiate parsing of a file. Used only in read mode."
-		assert self.path, "DBFile.path needs to be set before initiating parsing"
-		assert exists(self.path), "DBFile.path needs to be a valid file before initiating parsing"
-		
-		f = open(self.path)
-		self.header._load_stream(f.read(24))
-		f.close()
-		
-		self.signature = self.header.signature
-		
-		if not self.filename:
-			if self.signature != "WDBC" and self.signature in magic:
-				self.filename = magic[self.signature]
-			else:
-				self.filename = getfilename(self.path)
-		
-		if not self.build:
-			if self.signature == "WDBC":
-				log.warning("Build not set for a DBC file; assuming default structure.") 
-			else:
-				self.build = self.header.build
-			
-		if not self.structure:
-			self.load_structure(self.filename, self.build)
-		
-		log.info("Reading %s..." % (self.path)) 
-	
-	def _postinit(self):
-		if self.mode == "r" and self.path:
-			self.load()
-		elif self.mode == "w":
-			if not self.writable:
-				raise TypeError("%s is not a writable filetype" % (self.__class__.__name__))
-			if not self.structure:
-				self.load_structure()
-	
+	def __iter__(self):
+		return self._addresses.__iter__()
 	
 	def append(self, row):
-		"Appends a row at the end of the file. Returns the new row's index."
+		"Appends a row at the end of the file."
 		l = len(self) + 1
 		if "_id" not in row:
 			row["_id"] = l
 		self[l] = row
-		
-		return l
 	
 	def clear(self):
-		"Deletes every row in the file"
-		for k in self.keys():
+		"Delete every row in the file"
+		for k in self.keys(): # Use key, otherwise we get RuntimeError: dictionary changed size during iteration
 			del self[k]
+	
+	def keys(self):
+		return self._addresses.keys()
+	
+	def rows(self):
+		return [self[id] for id in self]
 	
 	def filter(self, args, limit=0):
 		results = []
@@ -232,45 +160,252 @@ class DBFile(dict):
 		
 		return results
 	
-	def parse(self):
-		raise NotImplementedError
-	
-	def load(self, path=""):
-		"Load a file. If path is not given, reloads the current file."
-		path = path or self.path
-		self.path = path
-		self.parse()
-	
-	def load_structure(self, filename=None, build=None):
-		self.structure = getstructure(filename or self.filename, build or self.build, parent=self)
-		self.signature = self.structure.signature
-		log.info("Using %s structure build %i" % (self.filename, self.build))
-	
-	def merge(self, other):
-		"Merge another file into self"
-		for k in other:
-			self[k] = other[k].dict()
-	
-	def rows(self):
-		"Return a list of all rows in the file"
-		return [self[k] for k in self]
-	
-	def update(self, other):
-		"Merge a file with an identical structure into self"
-		if len(self.structure) != len(other.structure):
-			raise ValueError("Structures are not identical (%r / %r)" % (len(self.structure), len(other.structure)))
-		dict.update(self, other)
-	
 	def write(self, filename=""):
-		"Write the cache to disk, defaulting filename to original file"
-		filename = filename or self.path
-		if not filename:
-			raise TypeError("No filename specified and self.path is not set.")
-		data = self._data()
-		f = open(filename, "w")
+		_filename = filename or self.file.name
+		
+		data = self.header.data() + self.data() + self.eof()
+		
+		f = open(_filename, "wb") # Don't open before calling data() as uncached rows would be empty
 		f.write(data)
 		f.close()
-		log.info("Written %i bytes at %s" % (len(data), filename))
+		log.info("Written %i bytes at %s" % (os.path.getsize(f.name), f.name))
+		
+		if not filename: # Reopen self.file, we modified it
+			# XXX do we need to wipe self._values here?
+			self.file.close()
+			self.file = open(f.name, "rb")
+
+
+class WDBFile(DBFile):
+	"""
+	A WDB file.
+	- The first column of every WDB file is an unique ID primary key.
+	- The second column specifies the record length (reclen). The reclen is the
+	  size in bytes of the following row (not counting the id and reclen itself).
+	- EOF is 8 NULL bytes (corresponding to id and reclen of 0).
+	"""
+	
+	MAGIC = {
+		"BDIW": "itemcache",
+		"BDNW": "itemnamecache",
+		"BOMW": "creaturecache",
+		"BOGW": "gameobjectcache",
+		"CPNW": "npccache",
+		"NDRW": "wowcache",
+		"TSQW": "questcache",
+		"XTIW": "itemtextcache",
+		"XTPW": "pagetextcache",
+	}
+	
+	def __init__(self, file, build, structure, environment):
+		self.header = WDBHeader()
+		if "w" in self.file.mode: # open for writing
+			self.header.signature = structure.signature
+			self.header.build = build
+		else:
+			self.header.load(file)
+			if not build:
+				build = self.header.build
+		self.build = build
+		
+		super(WDBFile, self).__init__(file, build, structure, environment)
+	
+	def __setitem__(self, key, item):
+		if type(item) in (list, dict) and item:
+			DBFile.__setitem__(self, key, DBRow(self, columns=item))
+			#if str(key).isdigit(): self[key].id = int(key)
+		else:
+			DBFile.__setitem__(self, key, item)
+	
+	def _parse_row(self, id):
+		address, reclen = self._addresses[id]
+		self.file.seek(address)
+		data = self.file.read(reclen + 8) # We also read id and reclen columns
+		row = DBRow(self, data=data, reclen=reclen)
+		self._values[id] = row
+	
+	def _load_structure(self, structure):
+		if self.header.signature in self.MAGIC:
+			name = self.MAGIC[self.header.signature]
+		else: # allow for custom structures
+			name = getfilename(self.file.name)
+		self.structure = getstructure(name, self.build, parent=self)
+		log.info("Using %s structure build %i" % (self.structure.name, self.build))
+	
+	def eof(self):
+		return "\0" * 8
+	
+	def data(self):
+		return "".join([self[k]._data() for k in self])
+	
+	def preload(self):
+		f = self.file
+		f.seek(len(self.header))
+		
+		rows = 0
+		while True:
+			address = f.tell() # Get the address of the full row
+			id, reclen = unpack("<ii", f.read(8))
+			if reclen == 0: # EOF
+				break
+			
+			if id in self._addresses: # Something's wrong here
+				log.warning("Multiple instances of row #%r found" % (id))
+			self._addresses[id] = (address, reclen)
+			
+			f.seek(reclen, os.SEEK_CUR)
+			rows += 1
+		
+		log.info("%i rows total" % (rows))
+	
+	def update_dynfields(self):
+		"""Update all the dynfields in the file"""
+		dyns = [k for k in self.structure.columns if isinstance(k, DynamicFields)]
+		for k in self:
+			for group in dyns:
+				master_name = group[0].name
+				amount = 0 # Amount of active fields
+				for fields in group[1:]:
+					values = [self[k]._raw(col.name) for col in fields]
+					if set(values) == set([None]):
+						continue
+					elif None in values: # TODO log event
+						for col in fields:
+							if self[k]._raw(col.name) != None:
+								setattr(self[0], col.name, 0)
+					amount += 1
+				setattr(self[k], master_name, amount) # set master to correct field amount
+	
+	def update_reclens(self):
+		"""Update all the reclens in the file"""
+		for k in self:
+			self[k]._reclen = self[k].reclen()
+
+
+class WoWCache(WDBFile):
+	def preload(self):
+		f = self.file
+		f.seek(len(self.header))
+		
+		rows = 0
+		while True:
+			address = f.tell() # Get the address of the full row
+			id, reclen = unpack("<16si", f.read(20))
+			if reclen == 0: # EOF
+				break
+			
+			if id in self._addresses: # Something's wrong here
+				log.warning("Multiple instances of row #%r found" % (id))
+			self._addresses[id] = (address, reclen)
+			f.seek(reclen, os.SEEK_CUR)
+			rows += 1
+		
+		log.info("%i rows total" % (rows))
+
+
+class DBCFile(DBFile):
+	"""
+	A DBC file.
+	- ...
+	"""
+	
+	def __init__(self, file, build, structure, environment):
+		self.header = DBCHeader()
+		self.header.load(file)
+		if not build:
+			build = 0
+		self.build = build
+		
+		super(DBCFile, self).__init__(file, build, structure, environment)
+	
+	def __check_structure_integrity(self):
+		reclen = self.header.reclen
+		struct_len = self.structure._reclen()
+		if struct_len != reclen:
+			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
+		
+		field_count = self.header.field_count
+		total_fields = len(self.structure)
+		if field_count != total_fields:
+			# Don't forget implicit fields
+			total_fields = len([k for k in self.structure if k.char])
+			if field_count != total_fields:
+				log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
+	
+	def __generate_structure(self):
+		"""Generates a structure based on header data"""
+		# TODO improve it, guess floats and shorter fields.
+		if self.header.field_count * 4 == self.header.reclen:
+			structure_string = "i" * self.header.field_count
+		else:
+			raise NotImplementedError
+		return GeneratedStructure(structure_string)
+	
+	def _load_structure(self, structure):
+		name = getfilename(self.file.name)
+		try:
+			self.structure = getstructure(name, self.build, parent=self)
+		except StructureNotFound:
+			self.structure = self.__generate_structure()
+		log.info("Using %s structure build %i" % (self.structure.name, self.build))
+		
+		self.__check_structure_integrity()
+	
+	def _parse_row(self, id):
+		address, reclen = self._addresses[id]
+		self.file.seek(address)
+		data = self.file.read(reclen) # We also read id and reclen columns
+		row = DBRow(self, data=data)
+		self._values[id] = row
+	
+	def _getstring(self, address):
+		f = self.file
+		pos = f.tell()
+		f.seek(-self.header.stringblocksize, os.SEEK_END) # Go to the stringblock
+		f.seek(address, os.SEEK_CUR) # seek to the address in the stringblock
+		
+		#Read until \0
+		chars = []
+		while True:
+			char = f.read(1)
+			if char == "\0":
+				break
+			if not char:
+				if not chars:
+					log.warning("No string found at 0x%08x, some values may be corrupt. Fix your structures!" % (address))
+					return ""
+				log.warning("Unfinished string, this file may be corrupted.")
+				break
+			chars.append(char)
+		
+		f.seek(pos)
+		
+		return "".join(chars)
+	
+	def data(self):
+		raise NotImplementedError # FIXME
+	
+	def eof(self):
+		raise NotImplementedError # FIXME
+	
+	def preload(self):
+		f = self.file
+		f.seek(len(self.header))
+		
+		rows = 0
+		reclen = self.header.reclen
+		while rows < self.header.row_count:
+			address = f.tell() # Get the address of the full row
+			id, = unpack("<i", f.read(4))
+			
+			if id in self._addresses: # Something's wrong here
+				log.warning("Multiple instances of row #%r found" % (id))
+			self._addresses[id] = (address, reclen)
+			
+			f.seek(reclen - 4, os.SEEK_CUR) # minus 4 bytes for id
+			rows += 1
+		
+		log.info("%i rows total" % (rows))
 
 
 class DBRow(list):
@@ -283,10 +418,9 @@ class DBRow(list):
 	def __init__(self, parent, data=None, columns=None, reclen=0):
 		self._parent = parent 
 		self._values = {} # Columns values storage
-		self._postload = [] # temporarily store col/val for _add_data once the column is loaded
 		self.structure = parent.structure
 		
-		self.initialized = True # need for normal work __setattr__
+		self.initialized = True # needed for __setattr__
 		
 		if columns:
 			if type(columns) == list:
@@ -313,11 +447,12 @@ class DBRow(list):
 				
 				elif char == "s":
 					if self.structure.signature == "WDBC":
-						if data[cursor:cursor+4] == "\x00\x00\x00\x00":
-							_data = ""
+						address, = unpack("<i", data[cursor:cursor+4])
+						if address == 0:
+							_data = u""
 						else:
 							try:
-								_data = unicode(parent._getstring(unpack("<i", data[cursor:cursor+4])[0]), "utf-8")
+								_data = unicode(parent._getstring(address), "utf-8")
 							except StructError:
 								_data = u""
 								#log.warning("Substring not found for %s, some values may be corrupt. Fix your structures!" % (col))
@@ -339,6 +474,10 @@ class DBRow(list):
 				elif char == "": # ImplicitIDField
 					_data = len(parent) + 1 # 1-indexed
 				
+				elif char == "x": # Data TODO
+					_data = repr(data[cursor:cursor+self.data_length])[:50] + "..."
+					cursor += self.data_length
+				
 				else:
 					size = col.size
 					try:
@@ -351,7 +490,7 @@ class DBRow(list):
 			
 			if reclen:
 				if cursor != reclen+8:
-					log.warning("Reclen not respected for row %i. Expected %i, read %i. (%+i)" % (self._id, reclen+8, cursor, reclen+8-cursor))
+					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self._id, reclen+8, cursor, reclen+8-cursor))
 	
 	def __int__(self):
 		return self._id
@@ -473,196 +612,30 @@ class DBRow(list):
 			self[k] = other[k]
 
 
-class WDBFile(DBFile):
-	"""
-	A non-encrypted WDB file.
-	- Every WDB file must contain build and locale info.
-	- The first column of every WDB file is an unique ID primary key. If you want
-	  more than one primary key, you will need to use a DBC file.
-	- The second column specifies the record length (reclen). The reclen is the
-	  size in bytes of the following row (not counting the id and reclen itself).
-	- EOF is 8 NULL bytes (corresponding to id and reclen of 0).
-	"""
-	def __setitem__(self, key, item):
-		if type(item) in (list, dict) and item:
-			DBFile.__setitem__(self, key, DBRow(self, columns=item))
-			#if str(key).isdigit(): self[key].id = int(key)
-		else:
-			DBFile.__setitem__(self, key, item)
-	
-	
-	def _setrow(self, data, reclen):
-		row = DBRow(self, data=data, reclen=reclen)
-		if row[0] in self:
-			log.warning("Multiple instances of row #%i found" % (row[0]))
-		self[row[0]] = row
-		self.sort.append(row[0])
-	
-	
-	def _data(self):
-		"""Convert the data dict into a byte stream"""
-		header = self.header._data()
-		data = "".join([self[k]._data() for k in self])
-		eof = "\x00" * 8
-		return header+data+eof
-	
-	def parse(self):
-		"""Parse a wdb file and build dict out of it"""
-		self._init_parse()
-		filename = self.path
-		size = getsize(filename)
-		f = open(filename, "rb")
-		f.seek(self.header.length())
-		
-		while size - f.tell() > 8: # while not EOF
-			data = f.read(8)
-			recid, reclen = unpack("ii", data)
-			data += f.read(reclen)
-			self._setrow(data, reclen)
-		
-		f.close()
-		log.info("%i rows total" % (len(self.rows())))
-	
-	def update_dynfields(self):
-		"""Update all the dynfields in the file"""
-		dyns = [k for k in self.structure.columns if isinstance(k, DynamicFields)]
-		for k in self:
-			for group in dyns:
-				master_name = group[0].name
-				amount = 0 # Amount of active fields
-				for fields in group[1:]:
-					values = [self[k]._raw(col.name) for col in fields]
-					if set(values) == set([None]):
-						continue
-					elif None in values: # TODO log event
-						for col in fields:
-							if self[k]._raw(col.name) != None:
-								setattr(self[0], col.name, 0)
-					amount += 1
-				setattr(self[k], master_name, amount) # set master to correct field amount
-	
-	def update_reclens(self):
-		"""Update all the reclens in the file"""
-		for k in self:
-			self[k]._reclen = self[k].reclen()
-
-
-class EncryptedWDBFile(WDBFile):
-	"""
-	An encryted WDB file (not implemented).
-	- Header is never encrypted.
-	- EOF is 20 NULL bytes.
-	"""
-	pass
-
-
-
-class DBCFile(DBFile):
-	"""
-	A regular DBC file.
-	"""
-	def __setitem__(self, key, item):
-		if type(item) in (list, dict) and item:
-			DBFile.__setitem__(self, key, DBRow(self, columns=item))
-			if key.isdigit(): self[key].id = key
-		else:
-			DBFile.__setitem__(self, key, item)
-	
-	
-	def _setrow(self, data):
-		row = DBRow(self, data=data, reclen=self.header.reclen-8)
-		if row[0] in self:
-			log.warning("Multiple instances of row #%i found" % (row[0]))
-		self[row[0]] = row
-	
-	def _init_stringblock(self):
-		log.info("Reading stringblock from %s..." % (self.path))
-		f = open(self.path, "rb")
-		f.seek(-self.header.stringblocksize, 2)
-		self.stringblock = f.read()
-		f.close()
-	
-	def _getstring(self, addr):
-		"""Return a string, given a pointer in the blockstring"""
-		if not self.stringblock:
-			self._init_stringblock()
-		try:
-			val = self.stringblock[addr:addr+self.stringblock[addr:addr+1024].index("\x00")]
-		except ValueError:
-			try:
-				val = self.stringblock[addr:addr+self.stringblock[addr:addr+2048].index("\x00")]
-			except ValueError:
-				log.warning("No string found at 0x%8x, some values may be corrupt. Fix your structures!" % (addr))
-				val = ""
-		return val
-	
-	def _generate_structure(self):
-		"""Generates a structure based on header data"""
-		# TODO improve it, guess floats and shorter fields.
-		if self.header.field_count * 4 == self.header.reclen:
-			structure_string = "i" * self.header.field_count
-		else:
-			raise NotImplementedError
-		return GeneratedStructure(structure_string)
-
-	
-	def parse(self):
-		"""Parse a dbc file and build dict out of it"""
-		self._init_parse()
-		filename = self.path
-		size = getsize(filename)
-		f = open(filename, "rb")
-		f.seek(self.header.length())
-		
-		reclen = self.header.reclen
-		struct_len = self.structure._reclen()
-		if struct_len != reclen:
-			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
-		
-		row_count = self.header.row_count
-		while row_count > len(self): # while lacking rows
-			self._setrow(f.read(reclen))
-		
-		field_count = self.header.field_count
-		total_fields = len(self.structure)
-		if field_count != total_fields:
-			# Don't forget implicit fields
-			total_fields = len([k for k in self.structure if k.char])
-			if field_count != total_fields:
-				log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
-		
-		log.info("%i rows total" % (row_count))
-		f.close()
-	
-	
-	def _data(self):
-		"""Convert the data dict into a byte string"""
-		header = self.header._data()
-		data = "".join([self[k]._data() for k in self])
-		eof = "\x00" * 8
-		return header+data+eof
-
-
 class ComplexDBCFile(DBCFile):
 	"""
-	A DBC file with two or more primary keys.
-	TODO test writing
+	Only used in ItemSubClass.dbc for now
+	Two IDFields.
 	"""
-	def _setrow(self, data):
-		row = DBRow(self, data=data)
-		id1, id2 = row[0], row[1] #TODO row.pkeys
-		if id1 not in self:
-			self[id1] = {}
-		self[id1][id2] = row
 	
-	
-	def rows(self):
-		"Return a list of all rows in the file"
-		li = []
-		for k in self:
-			for j in self[k]:
-				li.append(self[k][j])
-		return li # [[self[k][j] for j in self[k]] for k in self] ?
+	def preload(self):
+		f = self.file
+		f.seek(len(self.header))
+		
+		rows = 0
+		reclen = self.header.reclen
+		while rows < self.header.row_count:
+			address = f.tell() # Get the address of the full row
+			id = unpack("<ii", f.read(8)) # id is a tuple instead
+			
+			if id in self._addresses: # Something's wrong here
+				print "%r, %r in self.addresses" % id
+			self._addresses[id] = (address, reclen)
+			
+			f.seek(reclen - 8, os.SEEK_CUR) # minus 4 bytes for id
+			rows += 1
+		
+		log.info("%i rows total" % (rows))
 
 
 class UnknownDBCFile(DBCFile):
@@ -675,37 +648,30 @@ class UnknownDBCFile(DBCFile):
 		log.info("Using generated structure for file %s, build %i" % (self.filename, self.build))
 
 
-# TODO we need to use DBFile as base and
-# change class dynamically in __new__
-def fopen(*pargs, **kwargs):
-	try:
-		name = "name" in kwargs and kwargs["name"] or pargs[0]
-	except IndexError:
-		raise TypeError("Required argument 'name' not found")
-	sig = getsignature(name)
-	if sig == "WDBC":
-		filename = "name" in kwargs and kwargs["name"] or getfilename(name).lower()
-		if filename == "itemsubclass": # TODO
-			return ComplexDBCFile(*pargs, **kwargs)
-		try:
-			getstructure(filename)
-		except StructureNotFound:
-			return UnknownDBCFile(*pargs, **kwargs)
-		return DBCFile(*pargs, **kwargs)
-	return WDBFile(*pargs, **kwargs)
-
-
-def new(*pargs, **kwargs):
-	if not "name" in kwargs:
-		if not "structure" in kwargs:
-			raise TypeError("Required argument 'name' not found")
-		name = kwargs["structure"].__class__.__name__.lower()
+def fopen(name, build=0, structure=None, environment={}):
+	file = open(name, "rb")
+	signature = file.read(4)
+	if signature == "WDBC":
+		cls = DBCFile
+		if getfilename(file.name) == "itemsubclass":
+			cls = ComplexDBCFile # TODO morph in __new__
+	elif signature == "NDRW":
+		cls = WoWCache
 	else:
-		name = kwargs["name"]
+		cls = WDBFile
+	file = cls(file, build=build, structure=structure, environment=environment)
+	file.preload()
+	return file
+
+
+def new(name, build=0, structure=None, environment={}):
+	filename = getfilename(name)
+	if not structure:
+		structure = getstructure(filename, build=build)
+	name = structure.name
 	
-	s = "structure" in kwargs and kwargs["structure"] or getstructure(name)
+	file = open(name, "wb")
 	
-	if s.signature == "WDBC":
-		return DBCFile(mode="w", *pargs, **kwargs)
-	
-	return WDBFile(mode="w", *pargs, **kwargs)
+	if structure.signature == "WDBC":
+		return DBCFile(file, build=build, structure=structure, environment=environment)
+	return WDBFile(file, build=build, structure=structure, environment=environment)
