@@ -92,7 +92,6 @@ class DBFile(object):
 		self._addresses = {}
 		self._values = {}
 		self.environment = environment
-		self._load_structure(structure) # This should happen after self.build has been set
 	
 	def __repr__(self):
 		return "%s(file=%r, build=%r)" % (self.__class__.__name__, self.file, self.build)
@@ -198,6 +197,8 @@ class WDBFile(DBFile):
 	}
 	
 	def __init__(self, file, build, structure, environment):
+		super(WDBFile, self).__init__(file, build, structure, environment)
+		
 		self.header = WDBHeader()
 		if "w" in self.file.mode: # open for writing
 			self.header.signature = structure.signature
@@ -208,7 +209,7 @@ class WDBFile(DBFile):
 				build = self.header.build
 		self.build = build
 		
-		super(WDBFile, self).__init__(file, build, structure, environment)
+		self.__load_structure(structure)
 	
 	def __setitem__(self, key, item):
 		if type(item) in (list, dict) and item:
@@ -217,20 +218,20 @@ class WDBFile(DBFile):
 		else:
 			DBFile.__setitem__(self, key, item)
 	
-	def _parse_row(self, id):
-		address, reclen = self._addresses[id]
-		self.file.seek(address)
-		data = self.file.read(reclen + 8) # We also read id and reclen columns
-		row = DBRow(self, data=data, reclen=reclen)
-		self._values[id] = row
-	
-	def _load_structure(self, structure):
+	def __load_structure(self, structure):
 		if self.header.signature in self.MAGIC:
 			name = self.MAGIC[self.header.signature]
 		else: # allow for custom structures
 			name = getfilename(self.file.name)
 		self.structure = getstructure(name, self.build, parent=self)
 		log.info("Using %s structure build %i" % (self.structure.name, self.build))
+	
+	def _parse_row(self, id):
+		address, reclen = self._addresses[id]
+		self.file.seek(address)
+		data = self.file.read(reclen + 8) # We also read id and reclen columns
+		row = DBRow(self, data=data, reclen=reclen)
+		self._values[id] = row
 	
 	def eof(self):
 		return "\0" * 8
@@ -310,13 +311,13 @@ class DBCFile(DBFile):
 	"""
 	
 	def __init__(self, file, build, structure, environment):
+		super(DBCFile, self).__init__(file, build, structure, environment)
 		self.header = DBCHeader()
 		self.header.load(file)
 		if not build:
 			build = 0
 		self.build = build
-		
-		super(DBCFile, self).__init__(file, build, structure, environment)
+		self.__load_structure(structure)
 	
 	def __check_structure_integrity(self):
 		reclen = self.header.reclen
@@ -341,7 +342,7 @@ class DBCFile(DBFile):
 			raise NotImplementedError
 		return GeneratedStructure(structure_string)
 	
-	def _load_structure(self, structure):
+	def __load_structure(self, structure):
 		name = getfilename(self.file.name)
 		try:
 			self.structure = getstructure(name, self.build, parent=self)
@@ -657,6 +658,8 @@ def fopen(name, build=0, structure=None, environment={}):
 			cls = ComplexDBCFile # TODO morph in __new__
 	elif signature == "NDRW":
 		cls = WoWCache
+	elif not signature:
+		raise IOError()
 	else:
 		cls = WDBFile
 	file = cls(file, build=build, structure=structure, environment=environment)
