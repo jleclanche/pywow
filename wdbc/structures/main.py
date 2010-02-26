@@ -2712,7 +2712,6 @@ class PetLoyalty(Structure):
 class PetPersonality(Structure):
 	"""
 	PetPersonality.dbc
-	UNUSED
 	"""
 	base = Skeleton(
 		IDField(),
@@ -2776,6 +2775,30 @@ class QuestFactionReward(Structure):
 	)
 
 
+class QuestInfo(Structure):
+	"""
+	QuestInfo.dbc
+	Quest type names
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+	)
+
+
+class QuestSort(Structure):
+	"""
+	QuestSort.dbc
+	Additional sort fields for quests
+	Note: Zones are directly gathered from AreaTable.dbc
+	linked by a negative id in questcache.wdb
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+	)
+
+
 class QuestXP(Structure):
 	"""
 	QuestXP.dbc
@@ -2829,30 +2852,6 @@ class Resistances(Structure):
 		IDField(),
 		BooleanField("armor"),
 		UnknownField(), # Not spellicon
-		LocalizedFields("name"),
-	)
-
-
-class QuestInfo(Structure):
-	"""
-	QuestInfo.dbc
-	Quest type names
-	"""
-	base = Skeleton(
-		IDField(),
-		LocalizedFields("name"),
-	)
-
-
-class QuestSort(Structure):
-	"""
-	QuestSort.dbc
-	Additional sort fields for quests
-	Note: Zones are directly gathered from AreaTable.dbc
-	linked by a negative id in questcache.wdb
-	"""
-	base = Skeleton(
-		IDField(),
 		LocalizedFields("name"),
 	)
 
@@ -2961,6 +2960,21 @@ class ServerMessages(Structure):
 	)
 
 
+class SheatheSoundLookups(Structure):
+	"""
+	SheatheSoundLookups.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("sound_sheath", "SoundEntries"),
+		ForeignKey("sound_unsheath", "SoundEntries"),
+	)
+
+
 class SkillCostsData(Structure):
 	"""
 	SkillCostsData.dbc
@@ -3013,6 +3027,7 @@ class SkillLineAbility(Structure):
 		UnknownField(),
 		#UnknownField(), Deleted somewhere between 4125 and 9551
 	)
+
 
 class SkillLineCategory(Structure):
 	"""
@@ -3548,16 +3563,6 @@ class SpellAuraNames(Structure):
 	)
 
 
-class SpellCategory(Structure):
-	"""
-	SpellCategory.dbc
-	"""
-	base = Skeleton(
-		IDField(),
-		UnknownField(),
-	)
-
-
 class SpellCastTimes(Structure):
 	"""
 	SpellCastTimes.dbc
@@ -3568,6 +3573,32 @@ class SpellCastTimes(Structure):
 		DurationField("cast_time", unit="milliseconds"),
 		IntegerField("modifier"),
 		DurationField("cast_time_max", unit="milliseconds"),
+	)
+
+
+class SpellCategory(Structure):
+	"""
+	SpellCategory.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+	)
+
+
+class SpellChainEffects(Structure):
+	"""
+	SpellChainEffects.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField(),
+		IntegerField(),
+		FilePathField("texture")
 	)
 
 
@@ -3596,6 +3627,19 @@ class SpellDifficulty(Structure):
 	)
 
 
+class SpellDispelType(Structure):
+	"""
+	SpellDispelType.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+		UnknownField(),
+		BooleanField("shown"), # in debuff tooltip
+		StringField(), # same as name for magic/curse/disease/poison, used where?
+	)
+
+
 class SpellDuration(Structure):
 	"""
 	SpellDuration.dbc
@@ -3609,6 +3653,18 @@ class SpellDuration(Structure):
 	)
 
 
+class SpellEffectCameraShakes(Structure):
+	"""
+	SpellEffectCameraShakes.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
 class SpellEffectNames(Structure):
 	"""
 	SpellEffectNames.dbc
@@ -3618,6 +3674,16 @@ class SpellEffectNames(Structure):
 	base = Skeleton(
 		IDField(),
 		LocalizedFields("name", locales=OLD_LOCALES),
+	)
+
+
+class SpellFocusObject(Structure):
+	"""
+	SpellFocusObject.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
 	)
 
 
