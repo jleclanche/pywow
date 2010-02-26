@@ -3967,6 +3967,143 @@ class UnitBloodLevels(Structure):
 	)
 
 
+class Vehicle(Structure):
+	"""
+	Vehicle.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		BitMaskField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FilePathField("texture_1"),
+		FilePathField("texture_2"),
+		FilePathField("model_1"),
+		FilePathField("model_2"),
+		FloatField(),
+		UnknownField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class VehicleSeat(Structure):
+	"""
+	VehicleSeat.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
+class VehicleUIIndicator(Structure):
+	"""
+	VehicleUIIndicator.dbc
+	"""
+	base = Skeleton(
+		IDField(), # id seems shared between VehicleUIInd*
+		UnknownField(),
+	)
+
+
+class VehicleUIIndSeat(Structure):
+	"""
+	VehicleUIIndSeat.dbc
+	"""
+	base = Skeleton(
+		IDField(), # id seems shared between VehicleUIInd*
+		UnknownField(), # id seems shared between VehicleUIInd*
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
 class VideoHardware(Structure):
 	"""
 	VideoHardware.dbc
@@ -3998,23 +4135,21 @@ class VideoHardware(Structure):
 	)
 
 
-class Weather(Structure):
+class VocalUISounds(Structure):
 	"""
-	Weather.dbc
-	Weather lookups
+	VocalUISounds.dbc
+	Contains UI error sounds for all the different races and genders,
+	eg "Already in a group", "Not Enough Mana", etc.
 	"""
 	base = Skeleton(
 		IDField(),
-		ForeignKey("sound", "SoundEntries"),
-		IntegerField("type"), #	 1 = Rain, 2 = Snow, 3 = Sandstorm
-		FloatField(), # cmyk?
-		FloatField(),
-		FloatField(),
-		FilePathField("texture"),
+		UnknownField(),
+		ForeignKey("race", "ChrRaces"),
+		ForeignKey("sound_male", "SoundEntries"),
+		ForeignKey("sound_female", "SoundEntries"),
+		UnknownField(),
+		UnknownField(),
 	)
-	
-	def changed_10522(self, base):
-		base.insert_field(FloatField(), before="texture")
 
 
 class WeaponImpactSounds(Structure):
@@ -4058,6 +4193,25 @@ class WeaponSwingSounds2(Structure):
 		BooleanField("critical"),
 		ForeignKey("sound", "SoundEntries")
 	)
+
+
+class Weather(Structure):
+	"""
+	Weather.dbc
+	Weather lookups
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("sound", "SoundEntries"),
+		IntegerField("type"), #	 1 = Rain, 2 = Snow, 3 = Sandstorm
+		FloatField(), # cmyk?
+		FloatField(),
+		FloatField(),
+		FilePathField("texture"),
+	)
+	
+	def changed_10522(self, base):
+		base.insert_field(FloatField(), before="texture")
 
 
 class WMOAreaTable(Structure):
