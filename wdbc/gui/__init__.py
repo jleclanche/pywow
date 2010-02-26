@@ -107,7 +107,7 @@ class MainTableModel(QtCore.QAbstractTableModel):
 		return len(self.arraydata)
 
 	def columnCount(self, parent):
-		return len(self.arraydata[0])
+		return len(HEADER_DATA)
 	
 	def data(self, index, role):
 		if not index.isValid():
