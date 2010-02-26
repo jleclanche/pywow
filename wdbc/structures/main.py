@@ -4202,6 +4202,30 @@ class WorldMapTransforms(Structure):
 		base.append_fields(UnknownField())
 
 
+class WorldStateUI(Structure):
+	"""
+	WorldStateUI.dbc
+	Used for drawing icons on the world map (eg naxx/wotlk event)
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("map", "Map"),
+		UnknownField(),
+		UnknownField(),
+		FilePathField("path"),
+		LocalizedFields("name"),
+		LocalizedFields("description"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		LocalizedFields("battleground"),
+		StringField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
 class WorldStateZoneSounds(Structure):
 	"""
 	WorldStateZoneSounds.dbc
