@@ -12,13 +12,6 @@ def getfilename(val):
 	"Returns 'item' from /home/adys/Item.dbc"
 	return os.path.splitext(os.path.basename(val))[0].lower()
 
-def getsignature(path):
-	"Attempts to find the signature of the given file"
-	f = open(path, "rb")
-	sig = f.read(4)
-	f.close()
-	return sig
-
 
 ##
 # Header classes
@@ -108,32 +101,41 @@ class DBFile(object):
 		if not isinstance(item, int):
 			raise TypeError("DBFile indices must be integers, not %s" % type(item))
 		
-		if type(value) in (list, dict):
+		if value and type(value) in (list, dict):
 			value = DBRow(self, columns=value)
-			self._values[key] = item
-			self[key].pk = item
 		
-		# FIXME technically we should allow DBRow, but this is untested and will need resetting parent
-		raise TypeError("Unsupported type for DBFile.__setitem__: %s" % type(value))
+		if isinstance(value, DBRow):
+			self._values[item] = value
+			self._addresses[item] = -1
+			#self[key].pk = item
+		else: # FIXME technically we should allow DBRow, but this is untested and will need resetting parent
+			raise TypeError("Unsupported type for DBFile.__setitem__: %s" % type(value))
 	
 	def __delitem__(self, item):
 		if item in self._values:
 			del self._values[item]
-		if item in self._addresses: # Maybe we added it later
-			del self._addresses[item]
+		del self._addresses[item]
 	
 	def __iter__(self):
 		return self._addresses.__iter__()
 	
+	def __len__(self):
+		return len(self._addresses)
+	
 	def append(self, row):
-		"Appends a row at the end of the file."
-		l = len(self) + 1
+		"""
+		Append a row at the end of the file.
+		If the row does not have an id, one is automatically assigned.
+		"""
+		i = len(self) + 1 # FIXME this wont work properly in incomplete files
 		if "_id" not in row:
-			row["_id"] = l
-		self[l] = row
+			row["_id"] = i
+		self[i] = row
 	
 	def clear(self):
-		"Delete every row in the file"
+		"""
+		Delete every row in the file
+		"""
 		for k in self.keys(): # Use key, otherwise we get RuntimeError: dictionary changed size during iteration
 			del self[k]
 	
@@ -141,9 +143,12 @@ class DBFile(object):
 		return self._addresses.keys()
 	
 	def rows(self):
+		"""
+		Return a list of each row in the file
+		"""
 		return [self[id] for id in self]
 	
-	def filter(self, args, limit=0):
+	def filter(self, args, limit=0): # TODO either vastly improve or remove
 		results = []
 		match = len(args)
 		for k in self:
@@ -160,6 +165,9 @@ class DBFile(object):
 		return results
 	
 	def write(self, filename=""):
+		"""
+		Write the file data on disk. If filename is not given, use currently opened file.
+		"""
 		_filename = filename or self.file.name
 		
 		data = self.header.data() + self.data() + self.eof()
@@ -210,13 +218,6 @@ class WDBFile(DBFile):
 		self.build = build
 		
 		self.__load_structure(structure)
-	
-	def __setitem__(self, key, item):
-		if type(item) in (list, dict) and item:
-			DBFile.__setitem__(self, key, DBRow(self, columns=item))
-			#if str(key).isdigit(): self[key].id = int(key)
-		else:
-			DBFile.__setitem__(self, key, item)
 	
 	def __load_structure(self, structure):
 		if self.header.signature in self.MAGIC:
