@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import wdbc
-from pywow.log import log
+from .log import log
 
 class Environment(dict):
 	def __init__(self, path, files, build):

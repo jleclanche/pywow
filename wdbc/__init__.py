@@ -3,9 +3,8 @@
 
 import os, os.path
 from struct import pack, unpack, error as StructError
-from pywow.log import log
-from pywow.structures import fields
-from .structures import GeneratedStructure, StructureNotFound, getstructure
+from .log import log
+from .structures import fields, GeneratedStructure, StructureNotFound, getstructure
 
 
 def getfilename(val):
