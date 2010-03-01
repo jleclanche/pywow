@@ -6,9 +6,10 @@ import os
 import signal
 import sys
 
+from binascii import hexlify
 from PyQt4 import QtCore, QtGui
 
-from pywow import wdbc
+from pywow import wdbc, structures
 
 fname = sys.argv[1]
 build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
@@ -98,27 +99,34 @@ class MainTable(QtGui.QWidget):
 
 
 class MainTableModel(QtCore.QAbstractTableModel):
-	def __init__(self, datain, HEADER_DATA, parent=None, *args):
+	def __init__(self, datain, header_data, parent=None, *args):
 		QtCore.QAbstractTableModel.__init__(self, parent, *args)
 		self.arraydata = datain
-		self.HEADER_DATA = HEADER_DATA
+		self.header_data = header_data
 	
 	def rowCount(self, parent):
 		return len(self.arraydata)
 
 	def columnCount(self, parent):
-		return len(HEADER_DATA)
+		return len(self.header_data)
 	
 	def data(self, index, role):
 		if not index.isValid():
 			return QtCore.QVariant()
 		elif role != QtCore.Qt.DisplayRole:
 			return QtCore.QVariant()
-		return QtCore.QVariant(self.arraydata[index.row()][index.column()])
+		
+		cell = self.arraydata[index.row()][index.column()]
+		field = f.structure[index.column()]
+		if isinstance(field, structures.HashField) or isinstance(field, structures.DataField):
+			cell = hexlify(cell)
+		if isinstance(cell, str) and len(cell) > 200:
+			cell = cell[:200] + "..."
+		return QtCore.QVariant(cell)
 	
 	def headerData(self, col, orientation, role):
 		if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-			return QtCore.QVariant(self.HEADER_DATA[col])
+			return QtCore.QVariant(self.header_data[col])
 		return QtCore.QAbstractTableModel.headerData(self, col, orientation, role)
 	
 	def sizeHintForRow(self, row):
@@ -130,14 +138,6 @@ class MainTableModel(QtCore.QAbstractTableModel):
 		if order == QtCore.Qt.AscendingOrder:
 			self.arraydata.reverse()
 		self.emit(QtCore.SIGNAL("layoutChanged()"))
-
-
-class TableView(QtGui.QTableView):
-	def verticalHeader(self, col):
-		return "Foo"
-	
-	def sizeHintForRow(self, row):
-		return 20
 
 
 if __name__ == "__main__":

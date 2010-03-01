@@ -437,7 +437,6 @@ class SpellMacroField(StringField):
 class HashField(Field):
 	char = "16s"
 	size = 16
-	#from binascii import hexlify
 
 class DataField(Field):
 	char = "x"

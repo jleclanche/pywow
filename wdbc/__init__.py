@@ -459,7 +459,7 @@ class DBRow(list):
 					_data = len(parent) + 1 # 1-indexed
 				
 				elif char == "x": # Data TODO
-					_data = repr(data[cursor:cursor+self.data_length])[:50] + "..."
+					_data = data[cursor:cursor+self.data_length]
 					cursor += self.data_length
 				
 				else:
