@@ -218,6 +218,8 @@ class WDBFile(DBFile):
 		self.build = build
 		
 		self.__load_structure(structure)
+		
+		self.row_header_size = self.structure[0].size + 4
 	
 	def __load_structure(self, structure):
 		if self.header.signature in self.MAGIC:
@@ -230,12 +232,12 @@ class WDBFile(DBFile):
 	def _parse_row(self, id):
 		address, reclen = self._addresses[id]
 		self.file.seek(address)
-		data = self.file.read(reclen + 8) # We also read id and reclen columns
+		data = self.file.read(reclen + self.row_header_size) # We also read id and reclen columns
 		row = DBRow(self, data=data, reclen=reclen)
 		self._values[id] = row
 	
 	def eof(self):
-		return "\0" * 8
+		return "\0" * self.row_header_size
 	
 	def data(self):
 		return "".join([self[k]._data() for k in self])
@@ -245,11 +247,10 @@ class WDBFile(DBFile):
 		f.seek(len(self.header))
 		
 		rows = 0
-		idfield = self.structure[0]
-		struct_string = "<%si" % (idfield.char)
+		struct_string = "<%si" % (self.structure[0].char)
 		while True:
 			address = f.tell() # Get the address of the full row
-			id, reclen = unpack(struct_string, f.read(idfield.size + 4))
+			id, reclen = unpack(struct_string, f.read(self.row_header_size))
 			if reclen == 0: # EOF
 				break
 			
@@ -259,7 +260,6 @@ class WDBFile(DBFile):
 			
 			f.seek(reclen, os.SEEK_CUR)
 			rows += 1
-			break
 		
 		log.info("%i rows total" % (rows))
 	
@@ -473,8 +473,9 @@ class DBRow(list):
 				self.append(_data)
 			
 			if reclen:
-				if cursor != reclen+8:
-					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self._id, reclen+8, cursor, reclen+8-cursor))
+				real_reclen = reclen + self._parent.row_header_size
+				if cursor != real_reclen:
+					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self._id, real_reclen, cursor, real_reclen-cursor))
 	
 	def __int__(self):
 		return self._id
@@ -589,7 +590,7 @@ class DBRow(list):
 		return dict(zip(self.structure.column_names, self))
 	
 	def reclen(self):
-		return len(self._data())-8
+		return len(self._data()) - self.parent.row_header_size
 	
 	def update(self, other):
 		for k in other:
