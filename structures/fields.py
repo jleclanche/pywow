@@ -24,10 +24,11 @@ class DBField(object):
 	"""
 	A database field.
 	"""
-	def __init__(self, name="", dynamic=0, group=None, dead=False):
+	def __init__(self, name="", dynamic=0, group=None, primary_key=False):
 		self.name = name or "unknown"
 		self.dyn = dynamic
 		self.group = group
+		self.primary_key = primary_key
 	
 	def __repr__(self):
 		return "<%s: %s>" % (self.__class__.__name__, self.name)
@@ -87,8 +88,7 @@ class IDField(IntegerField):
 	"""
 	Integer field containing the row's ID
 	"""
-	primary_key = True
-	def __init__(self, name="_id"):
+	def __init__(self, name="_id", primary_key=True):
 		IntegerField.__init__(self, name=name)
 
 class RecLenField(IntegerField):
