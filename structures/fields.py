@@ -54,6 +54,11 @@ class SmallIntegerField(Field):
 	char = "h"
 	size = 2
 
+class UnsignedSmallIntegerField(Field):
+	"""An uint16 field."""
+	char = "H"
+	size = 2
+
 class IntegerField(Field):
 	"""An int32 field."""
 	char = "i"
@@ -67,6 +72,11 @@ class UnsignedIntegerField(Field):
 class BigIntegerField(Field):
 	"""An int64 field."""
 	char = "q"
+	size = 8
+
+class UnsignedBigIntegerField(Field):
+	"""An uint64 field."""
+	char = "Q"
 	size = 8
 
 class FloatField(Field):
@@ -97,12 +107,6 @@ class RecLenField(IntegerField):
 	"""
 	def __init__(self, name="_reclen"):
 		IntegerField.__init__(self, name=name)
-
-class StringIDField(IDField):
-	"""
-	String field as pkey (see GameTables.dbc)
-	"""
-	char = "s"
 
 
 ##
@@ -429,7 +433,7 @@ class HashField(Field):
 	size = 16
 
 class DataField(Field):
-	char = "x"
+	char = "s"
 	def __init__(self, name, master):
 		Field.__init__(self, name=name)
 		self.master = master

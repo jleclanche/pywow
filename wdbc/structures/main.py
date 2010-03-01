@@ -2030,7 +2030,7 @@ class GameTables(Structure):
 	Unknown use
 	"""
 	fields = Skeleton(
-		StringIDField(),
+		StringField(primary_key=True),
 		IntegerField(), # 1-100
 		IntegerField(),
 	)
