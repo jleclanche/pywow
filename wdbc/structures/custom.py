@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
 
-from pywow.structures import Structure, Skeleton
-from pywow.structures.fields import *
+from ..structures import *
 
 class SoldItemCache(Structure):
 	signature = "CISW"

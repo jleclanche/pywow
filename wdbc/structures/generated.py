@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pywow.structures import Skeleton, Structure
-from pywow.structures.fields import UnknownField
+from ..structures import Skeleton, Structure, UnknownField
 
 
 class GeneratedStructure(Structure):

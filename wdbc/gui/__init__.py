@@ -118,7 +118,7 @@ class MainTableModel(QtCore.QAbstractTableModel):
 		
 		cell = self.arraydata[index.row()][index.column()]
 		field = f.structure[index.column()]
-		if isinstance(field, structures.HashField) or isinstance(field, structures.DataField):
+		if isinstance(field, wdbc.structures.HashField) or isinstance(field, wdbc.structures.DataField):
 			cell = hexlify(cell)
 		if isinstance(cell, str) and len(cell) > 200:
 			cell = cell[:200] + "..."

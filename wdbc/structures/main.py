@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .gameobject import GAME_OBJECT_TYPES
-from pywow.structures import Structure, Skeleton
-from pywow.structures.fields import *
+from ..structures import *
 
 
 ##

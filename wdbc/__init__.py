@@ -430,6 +430,16 @@ class DBRow(list):
 				if dyn > dynfields:
 					_data = None # The column doesn't exist in this row, we set it to None
 				
+				elif isinstance(col, fields.DynamicMaster):
+					_data = unpack("<i", data[cursor:cursor+4])[0]
+					cursor += 4
+					dynfields = _data
+				
+				elif isinstance(col, fields.DataField):
+					data_length = getattr(self, col.master)
+					_data = data[cursor:cursor+data_length]
+					cursor += data_length
+				
 				elif char == "s":
 					if self.structure.signature == "WDBC":
 						address, = unpack("<i", data[cursor:cursor+4])
@@ -442,16 +452,6 @@ class DBRow(list):
 						index = data.index("\x00", cursor)
 						_data = unicode(data[cursor:index], "utf-8")
 						cursor += index - cursor + 1
-				
-				elif isinstance(col, fields.DynamicMaster):
-					_data = unpack("<i", data[cursor:cursor+4])[0]
-					cursor += 4
-					dynfields = _data
-				
-				elif isinstance(col, fields.DataField):
-					data_length = getattr(self, col.master)
-					_data = data[cursor:cursor+data_length]
-					cursor += data_length
 				
 				else:
 					size = col.size
