@@ -88,8 +88,8 @@ class IDField(IntegerField):
 	"""
 	Integer field containing the row's ID
 	"""
-	def __init__(self, name="_id", primary_key=True):
-		IntegerField.__init__(self, name=name)
+	def __init__(self, name="_id"):
+		IntegerField.__init__(self, name=name, primary_key=True)
 
 class RecLenField(IntegerField):
 	"""
@@ -264,8 +264,8 @@ class ForeignKeyBase(IntegerField):
 	def from_python(self, value): # FIXME use isinstance(DBFile) instead
 		if isinstance(value, int) or isinstance(value, long):
 			return value
-		pkey = value.structure.pkeys[0] # TODO: what about multiple pkeys ?
-		index = value.structure.index(pkey.name)
+		pk = value.structure.primary_keys[0] # TODO: what about multiple primary keys ?
+		index = value.structure.index(pk.name)
 		return value[index]
 	
 	def to_python(self, value, row):
@@ -322,7 +322,7 @@ class ForeignByte(ForeignKey):
 	This is a HACK
 	"""
 	char = "b"
-	size = 2
+	size = 1
 
 class GenericForeignKey(ForeignKeyBase):
 	def __init__ (self, name="", get_relation=None, get_value=lambda x, value: value):

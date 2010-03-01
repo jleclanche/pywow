@@ -25,9 +25,12 @@ class Structure(list):
 	def name(cls): # ItemCache.name == "itemcache"
 		return cls.__name__.lower()
 	
+	def __repr__(self):
+		return "<Structure %s>" % (self.__class__.__name__)
+	
 	def __init__(self, build=0, parent=None):
 		self.parent = parent # DBC file
-		self.pkeys = []
+		self.primary_keys = []
 		self.column_names = []
 		self._abstractions = {}
 		names = []
@@ -56,8 +59,8 @@ class Structure(list):
 					_lazy_rename(_col)
 					self.add_column(_col)
 			else:
-				if hasattr(col, "primary_key") and col.primary_key: # XXX change that
-					self.pkeys.append(col)
+				if col.primary_key:
+					self.primary_keys.append(col)
 				_lazy_rename(col)
 				self.add_column(col)
 	
