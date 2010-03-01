@@ -104,16 +104,6 @@ class StringIDField(IDField):
 	"""
 	char = "s"
 
-class ImplicitIDField(Field):
-	"""
-	IDField used when there isn't one. Always equal to
-	the row's position in the dbc.
-	"""
-	char = ""
-	size = 0
-	def __init__(self, name="_id"):
-		Field.__init__(self, name=name)
-
 
 ##
 # Dynamic types
