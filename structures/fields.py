@@ -117,7 +117,7 @@ class DynamicMaster(IntegerField):
 	"""
 	Master field for dynamic columns, determining how many will be present.
 	"""
-	char = "A"
+	pass
 
 class DynamicFields(DynamicFieldsBase):
 	"""

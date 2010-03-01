@@ -42,10 +42,10 @@ class Structure(list):
 				col.name = "%s_%d" % (col.name, i-1)
 		
 		self.columns = copy.deepcopy(self.base)
-		self.builds = sorted([int(m[8:]) for m in dir(self) if m.startswith("changed_")])
+		self.builds = sorted(int(m[8:]) for m in dir(self) if m.startswith("changed_"))
 		
 		if self.builds and build:
-			_builds = sorted([k for k in self.builds if k <= build])
+			_builds = sorted(k for k in self.builds if k <= build)
 			if _builds:
 				getattr(self, "changed_%i" % _builds[-1:][0])(self.columns)
 		

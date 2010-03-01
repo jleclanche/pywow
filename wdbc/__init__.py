@@ -4,7 +4,7 @@
 import os, os.path
 from struct import pack, unpack, error as StructError
 from pywow.log import log
-from pywow.structures.fields import RelationError, UnresolvedRelation, UnresolvedObjectRef, DynamicFields, RecLenField
+from pywow.structures import fields
 from .structures import GeneratedStructure, StructureNotFound, getstructure
 
 
@@ -265,7 +265,7 @@ class WDBFile(DBFile):
 	
 	def update_dynfields(self):
 		"""Update all the dynfields in the file"""
-		dyns = [k for k in self.structure.columns if isinstance(k, DynamicFields)]
+		dyns = [k for k in self.structure.columns if isinstance(k, fields.DynamicFields)]
 		for k in self:
 			for group in dyns:
 				master_name = group[0].name
@@ -437,29 +437,22 @@ class DBRow(list):
 						if address == 0:
 							_data = u""
 						else:
-							try:
-								_data = unicode(parent._getstring(address), "utf-8")
-							except StructError:
-								_data = u""
-								#log.warning("Substring not found for %s, some values may be corrupt. Fix your structures!" % (col))
+							_data = unicode(parent._getstring(address), "utf-8")
 						cursor += 4
 					else:
-						try:
-							_data = unicode(data[cursor:data.index("\x00", cursor)], "utf-8")
-							cursor += len(str(_data.encode("utf-8"))) + 1
-						except ValueError:
-							_data = u""
-							cursor += 1
-							log.warning("Substring not found for %s, some values may be corrupt. Fix your structures!" % (col))
+						index = data.index("\x00", cursor)
+						_data = unicode(data[cursor:index], "utf-8")
+						cursor += index - cursor + 1
 				
-				elif char == "A": # The amount of dynamic columns in the row
+				elif isinstance(col, fields.DynamicMaster):
 					_data = unpack("<i", data[cursor:cursor+4])[0]
 					cursor += 4
 					dynfields = _data
 				
-				elif char == "x": # Data TODO
-					_data = data[cursor:cursor+self.data_length]
-					cursor += self.data_length
+				elif isinstance(col, fields.DataField):
+					data_length = getattr(self, col.master)
+					_data = data[cursor:cursor+data_length]
+					cursor += data_length
 				
 				else:
 					size = col.size
@@ -503,7 +496,7 @@ class DBRow(list):
 		col = self.structure[index]
 		try:
 			self._values[col.name] = col.to_python(value, row=self)
-		except UnresolvedRelation:
+		except fields.UnresolvedRelation:
 			self._values[col.name] = value
 	
 	def __dir__(self):
@@ -519,7 +512,7 @@ class DBRow(list):
 		col = self.structure[self.structure.index(name)]
 		try:
 			self._values[name] = col.to_python(value, self)
-		except UnresolvedRelation:
+		except fields.UnresolvedRelation:
 			self._values[name] = value
 	
 	def _get_value(self, name):
@@ -527,9 +520,9 @@ class DBRow(list):
 			raw_value = self[self.structure.index(name)]
 			try:
 				self._set_value(name, raw_value)
-			except UnresolvedRelation, e:
-				return UnresolvedObjectRef(e.reference)
-			except RelationError:
+			except fields.UnresolvedRelation, e:
+				return fields.UnresolvedObjectRef(e.reference)
+			except fields.RelationError:
 				return None # Key doesn't exist, or equals 0
 		return self._values[name]
 	
@@ -547,7 +540,7 @@ class DBRow(list):
 		for k, v in zip(self.structure, self):
 			if v == None:
 				continue
-			elif isinstance(k, RecLenField):
+			elif isinstance(k, fields.RecLenField):
 				reclen = k
 			elif k.char == "s":
 				_data = v.encode("utf-8") + "\x00"
