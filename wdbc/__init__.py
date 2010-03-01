@@ -245,9 +245,11 @@ class WDBFile(DBFile):
 		f.seek(len(self.header))
 		
 		rows = 0
+		idfield = self.structure[0]
+		struct_string = "<%si" % (idfield.char)
 		while True:
 			address = f.tell() # Get the address of the full row
-			id, reclen = unpack("<ii", f.read(8))
+			id, reclen = unpack(struct_string, f.read(idfield.size + 4))
 			if reclen == 0: # EOF
 				break
 			
@@ -257,6 +259,7 @@ class WDBFile(DBFile):
 			
 			f.seek(reclen, os.SEEK_CUR)
 			rows += 1
+			break
 		
 		log.info("%i rows total" % (rows))
 	
@@ -282,27 +285,6 @@ class WDBFile(DBFile):
 		"""Update all the reclens in the file"""
 		for k in self:
 			self[k]._reclen = self[k].reclen()
-
-
-class WoWCache(WDBFile):
-	def preload(self):
-		f = self.file
-		f.seek(len(self.header))
-		
-		rows = 0
-		while True:
-			address = f.tell() # Get the address of the full row
-			id, reclen = unpack("<16si", f.read(20))
-			if reclen == 0: # EOF
-				break
-			
-			if id in self._addresses: # Something's wrong here
-				log.warning("Multiple instances of row #%r found" % (id))
-			self._addresses[id] = (address, reclen)
-			f.seek(reclen, os.SEEK_CUR)
-			rows += 1
-		
-		log.info("%i rows total" % (rows))
 
 
 class DBCFile(DBFile):
@@ -657,8 +639,6 @@ def fopen(name, build=0, structure=None, environment={}):
 		cls = DBCFile
 		if getfilename(file.name) == "itemsubclass":
 			cls = ComplexDBCFile # TODO morph in __new__
-	elif signature == "NDRW":
-		cls = WoWCache
 	elif not signature:
 		raise IOError()
 	else:
