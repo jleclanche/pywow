@@ -239,6 +239,9 @@ class MPQArchive(object):
 	def __len__(self):
 		return self.files
 	
+	def listfile(self):
+		return str(self["(listfile)"]).split()
+	
 	def __contains__(self, item, ctypes=ctypes, libmpq=libmpq):
 		if isinstance(item, str):
 			data = ctypes.c_uint32()
