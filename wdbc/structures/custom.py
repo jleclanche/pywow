@@ -20,7 +20,7 @@ class SoldItemCache(Structure):
 		0x400: "DRUID",
 	}
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		ForeignKey("vendor", "creaturecache"),
@@ -49,7 +49,7 @@ class SoldItemCache(Structure):
 class TrainedSpellCache(Structure):
 	signature = "CSTW"
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		ForeignKey("trainer", "creaturecache"),

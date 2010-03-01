@@ -41,7 +41,7 @@ class Structure(list):
 			if i > 1:
 				col.name = "%s_%d" % (col.name, i-1)
 		
-		self.columns = copy.deepcopy(self.base)
+		self.columns = copy.deepcopy(self.fields)
 		self.builds = sorted(int(m[8:]) for m in dir(self) if m.startswith("changed_"))
 		
 		if self.builds and build:

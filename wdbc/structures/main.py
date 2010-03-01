@@ -16,7 +16,7 @@ class CreatureCache(Structure):
 	NPC/mob data
 	"""
 	signature = "BOMW"
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		StringField("name"),
@@ -39,9 +39,9 @@ class CreatureCache(Structure):
 		ByteField("leader"),
 	)
 
-	def changed_9614(self, base):
-		base.insert_field(ForeignKey("vehicle_spells", "CreatureSpellData"), before="model_1")
-		base.append_fields(
+	def changed_9614(self, fields):
+		fields.insert_field(ForeignKey("vehicle_spells", "CreatureSpellData"), before="model_1")
+		fields.append_fields(
 			ForeignKey("quest_item_1", "Item"),
 			ForeignKey("quest_item_2", "Item"),
 			ForeignKey("quest_item_3", "Item"),
@@ -49,9 +49,9 @@ class CreatureCache(Structure):
 			IntegerField(),
 		)
 
-	def changed_10026(self, base):
-		self.changed_9614(base)
-		base.append_fields(
+	def changed_10026(self, fields):
+		self.changed_9614(fields)
+		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
 		)
@@ -64,7 +64,7 @@ class GameObjectCache(Structure):
 	"""
 	signature = "BOGW"
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		IntegerField("type"),
@@ -112,8 +112,8 @@ class GameObjectCache(Structure):
 		ForeignKey("quest_item_4", "Item"),
 	)
 
-	def changed_10314(self, base):
-		base.append_fields(
+	def changed_10314(self, fields):
+		fields.append_fields(
 			ForeignKey("quest_item_5", "Item"),
 			ForeignKey("quest_item_6", "Item"),
 		)
@@ -179,7 +179,7 @@ class ItemCache(Structure):
 		0x00000400: "draenei",
 	}
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		ForeignKey("category", "itemclass"),
@@ -315,76 +315,76 @@ class ItemCache(Structure):
 		IntegerField("extended_cost"),
 	)
 	
-	def changed_5875(self, base):
+	def changed_5875(self, fields):
 		"""
 		- New disenchant IntegerField
 		  UNKNOWN BUILD
 		"""
-		base.append_fields(
+		fields.append_fields(
 			IntegerField("disenchant"),
 		)
 	
-	def changed_6022(self, base):
+	def changed_6022(self, fields):
 		"""
 		- New unknown IntegerField before name field
 		"""
-		self.changed_5875(base)
-		base.insert_field(IntegerField("depclass"), before="name")
+		self.changed_5875(fields)
+		fields.insert_field(IntegerField("depclass"), before="name")
 	
-	def changed_6213(self, base):
+	def changed_6213(self, fields):
 		"""
 		- New unknown IntegerField
 		"""
-		self.changed_6022(base)
-		base.insert_field(ForeignKey("randomenchantment2", "itemrandomsuffix"), before="block")
+		self.changed_6022(fields)
+		fields.insert_field(ForeignKey("randomenchantment2", "itemrandomsuffix"), before="block")
 	
-	def changed_6577(self, base):
+	def changed_6577(self, fields):
 		"""
 		- New armordmgmod FloatField
 		"""
-		self.changed_6213(base)
-		base.append_fields(
+		self.changed_6213(fields)
+		fields.append_fields(
 			FloatField("armordmgmod"),
 		)
 	
-	def changed_7382(self, base):
+	def changed_7382(self, fields):
 		"""
 		- New ItemCondExtCosts fkey before disenchant field
 		  UNKNOWN BUILD
 		"""
-		self.changed_6577(base)
-		base.insert_field(IntegerField("extended_cost_cond"), before="disenchant")
+		self.changed_6577(fields)
+		fields.insert_field(IntegerField("extended_cost_cond"), before="disenchant")
 	
-	def changed_7994(self, base):
+	def changed_7994(self, fields):
 		"""
 		- Removed extendedcost and extendedcostcond fields
 		  UNKNOWN BUILD
 		"""
-		self.changed_7382(base)
-		base.delete_fields("extended_cost", "extended_cost_cond")
+		self.changed_7382(fields)
+		fields.delete_fields("extended_cost", "extended_cost_cond")
 	
-	def changed_8268(self, base):
+	def changed_8268(self, fields):
 		"""
 		- Added duration field at the end, replacing the old server overwrite model
 		  This might be changed_8209.
 		"""
-		self.changed_7994(base)
-		base.append_fields(DurationField("duration", unit="seconds"))
+		self.changed_7994(fields)
+		fields.append_fields(DurationField("duration", unit="seconds"))
 	
-	def changed_8391(self, base):
+	def changed_8391(self, fields):
 		"""
 		- New uniquecategory field at the end, fkey of new ItemLimitCategory.dbc file
 		"""
-		self.changed_8268(base)
-		base.append_fields(ForeignKey("unique_category", "ItemLimitCategory"))
+		self.changed_8268(fields)
+		fields.append_fields(ForeignKey("unique_category", "ItemLimitCategory"))
 	
-	def changed_8471(self, base):
+	def changed_8471(self, fields):
 		"""
 		- Made the 20 stats column dynamic
 		- New scalingdist and scalingflags fields after the new stats columns
 		"""
-		self.changed_8391(base)
-		base.delete_fields(
+		self.changed_8391(fields)
+		fields.delete_fields(
 			"stats_id_dyn1", "stats_amt_dyn1",
 			"stats_id_dyn2", "stats_amt_dyn2",
 			"stats_id_dyn3", "stats_amt_dyn3",
@@ -396,39 +396,39 @@ class ItemCache(Structure):
 			"stats_id_dyn9", "stats_amt_dyn9",
 			"stats_id_dyn10", "stats_amt_dyn10",
 		)
-		base.insert_field(
+		fields.insert_field(
 			DynamicFields("stats", ((
 				(IntegerField, "id"),
 				(IntegerField, "amt"),
 			), 10)
 		), before="dmgmin1")
-		base.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="dmgmin1")
-		base.insert_field(BitMaskField("scaling_flags"), before="dmgmin1")
+		fields.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="dmgmin1")
+		fields.insert_field(BitMaskField("scaling_flags"), before="dmgmin1")
 	
-	def changed_8478(self, base):
-		self.changed_8268(base)
+	def changed_8478(self, fields):
+		self.changed_8268(fields)
 	
-	def changed_8770(self, base):
-		self.changed_8471(base)
+	def changed_8770(self, fields):
+		self.changed_8471(fields)
 	
-	def changed_9614(self, base):
+	def changed_9614(self, fields):
 		"""
 		- Deleted unused dmgmin, dmgmax and dmgtype 3-5 fields
 		- Added new unknown IntegerField at the end
 		"""
-		self.changed_8770(base)
-		base.delete_fields(
+		self.changed_8770(fields)
+		fields.delete_fields(
 			"dmgmin3", "dmgmax3", "dmgtype3",
 			"dmgmin4", "dmgmax4", "dmgtype4",
 			"dmgmin5", "dmgmax5", "dmgtype5",
 		)
-		base.append_fields(
+		fields.append_fields(
 			ForeignKey("required_holiday", "holidays"),
 		)
 	
-	def changed_10026(self, base):
-		self.changed_9614(base)
-		base.insert_field(BitMaskField("flags2"), before="buy_price")
+	def changed_10026(self, fields):
+		self.changed_9614(fields)
+		fields.insert_field(BitMaskField("flags2"), before="buy_price")
 
 
 class ItemNameCache(Structure):
@@ -437,7 +437,7 @@ class ItemNameCache(Structure):
 	Cached itemset data
 	"""
 	signature = "BDNW"
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		StringField("name"),
@@ -451,7 +451,7 @@ class ItemTextCache(Structure):
 	Mails and misc
 	"""
 	signature = "XTIW"
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		StringField(),
@@ -464,7 +464,7 @@ class NPCCache(Structure):
 	NPC gossip data
 	"""
 	signature = "BDNW"
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		FloatField(),
@@ -576,7 +576,7 @@ class QuestCache(Structure):
 	get_kill_relation = lambda x, value: value == value & 0x7fffffff and "creaturecache" or "gameobjectcache"
 	get_kill_value = lambda x, value: value & 0x7fffffff
 
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		ForeignKey("self", "questcache"),
@@ -647,32 +647,32 @@ class QuestCache(Structure):
 		StringField("objective_text_4"),
 	)
 	
-	def changed_8125(self, base):
-		base.insert_field(ForeignKey("title_reward", "CharTitles"), before="item_reward_1")
+	def changed_8125(self, fields):
+		fields.insert_field(ForeignKey("title_reward", "CharTitles"), before="item_reward_1")
 	
-	def changed_8770(self, base):
-		self.changed_8125(base)
-		base.insert_fields((
+	def changed_8770(self, fields):
+		self.changed_8125(fields)
+		fields.insert_fields((
 			IntegerField("required_player_kills"),
 			IntegerField("bonus_talents"),
 		), before="item_reward_1")
-		base.insert_fields((
+		fields.insert_fields((
 			ForeignKey("required_item_3", "Item"),
 			IntegerField("required_item_amount_3"),
 			ForeignKey("required_item_4", "Item"),
 			IntegerField("required_item_amount_4"),
 		), before="objective_text_1")
 	
-	def changed_9355(self, base):
-		self.changed_8770(base)
-		base.insert_fields((
+	def changed_9355(self, fields):
+		self.changed_8770(fields)
+		fields.insert_fields((
 			ForeignKey("required_item_5", "Item"),
 			IntegerField("required_item_amount_5"),
 		), before="objective_text_1")
 	
-	def changed_10026(self, base):
-		self.changed_9355(base)
-		base.insert_fields((
+	def changed_10026(self, fields):
+		self.changed_9355(fields)
+		fields.insert_fields((
 			ForeignKey("required_item_6", "Item"),
 			IntegerField("required_item_amount_6"),
 		), before="objective_text_1")
@@ -685,12 +685,12 @@ class QuestCache(Structure):
 	get_reputation_reward_row = lambda x, row, value: 2 if value < 0 else 1
 	get_reputation_reward_column = lambda x, row, value: "reputation_gain_%i" % (abs(value))
 	
-	def changed_10522(self, base):
-		self.changed_10026(base)
-		base.insert_field(FloatField("honor_reward_multiplier"), before="provided_item")
-		base.insert_field(IntegerField("arena_reward"), before="item_reward_1")
-		base.insert_field(UnknownField(), before="item_reward_1")
-		base.insert_fields([
+	def changed_10522(self, fields):
+		self.changed_10026(fields)
+		fields.insert_field(FloatField("honor_reward_multiplier"), before="provided_item")
+		fields.insert_field(IntegerField("arena_reward"), before="item_reward_1")
+		fields.insert_field(UnknownField(), before="item_reward_1")
+		fields.insert_fields([
 			ForeignKey("faction_reward_1", "Faction"),
 			ForeignKey("faction_reward_2", "Faction"),
 			ForeignKey("faction_reward_3", "Faction"),
@@ -707,24 +707,24 @@ class QuestCache(Structure):
 			IntegerField("reputation_override_4"),
 			IntegerField("reputation_override_5"),
 		], before="instance")
-		base.insert_field(StringField("quick_summary"), before="required_kill_1")
+		fields.insert_field(StringField("quick_summary"), before="required_kill_1")
 	
-	def changed_10554(self, base):
-		self.changed_10522(base)
-		base.insert_field(IntegerField("required_level"), before="category")
-		base.insert_field(
+	def changed_10554(self, fields):
+		self.changed_10522(fields)
+		fields.insert_field(IntegerField("required_level"), before="category")
+		fields.insert_field(
 			ForeignCell("experience_reward", "QuestXP",
 				get_row = lambda row, value: row.level,
 				get_column = lambda row, value: "experience_%i" % (value) if value else None,
 			),
 		before="money_reward")
 	
-	def changed_10772(self, base):
-		self.changed_10554(base)
-		base.insert_field(IntegerField("quest_item_amount_1"), before="required_kill_2") # XXX thats not it ...
-		base.insert_field(IntegerField("quest_item_amount_2"), before="required_kill_3")
-		base.insert_field(IntegerField("quest_item_amount_3"), before="required_kill_4")
-		base.insert_field(IntegerField("quest_item_amount_4"), before="required_item_1")
+	def changed_10772(self, fields):
+		self.changed_10554(fields)
+		fields.insert_field(IntegerField("quest_item_amount_1"), before="required_kill_2") # XXX thats not it ...
+		fields.insert_field(IntegerField("quest_item_amount_2"), before="required_kill_3")
+		fields.insert_field(IntegerField("quest_item_amount_3"), before="required_kill_4")
+		fields.insert_field(IntegerField("quest_item_amount_4"), before="required_item_1")
 
 
 class PageTextCache(Structure):
@@ -733,7 +733,7 @@ class PageTextCache(Structure):
 	Cached page data
 	"""
 	signature = "XTPW"
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		RecLenField(),
 		StringField("text"),
@@ -746,7 +746,7 @@ class WoWCache(Structure):
 	Warden data
 	"""
 	signature = "NDRW"
-	base = Skeleton(
+	fields = Skeleton(
 		HashField("_id"),
 		RecLenField(),
 		IntegerField("data_length"),
@@ -772,7 +772,7 @@ class Achievement(Structure):
 		0x00000200: "serverfirst_raid",
 	}
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("faction"),
 		ForeignKey("instance", "map"),
@@ -795,7 +795,7 @@ class Achievement_Category(Structure):
 	Achievement_Category.dbc
 	Achievement categories
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("parent", "achievement_category"),
 		LocalizedFields("name"),
@@ -808,7 +808,7 @@ class Achievement_Criteria(Structure):
 	Achievement_Criteria.dbc
 	Achievement criterias
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("achievement", "achievement"),
 		IntegerField("type"),
@@ -832,7 +832,7 @@ class AnimationData(Structure):
 	AnimationData.dbc
 	Animation data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		BitMaskField("weapon_state"),
@@ -850,7 +850,7 @@ class AreaGroup(Structure):
 	Added during 3.0.x
 	XXX What's this used for?
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("area_1", "AreaTable"),
 		ForeignKey("area_2", "AreaTable"),
@@ -875,7 +875,7 @@ class AreaPOI(Structure):
 		0x200: "show_in_battlemap",
 	}
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		IntegerField("icon_normal"),
@@ -912,7 +912,7 @@ class AreaTable(Structure):
 		0x04: "Alliance",
 	}
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "map"),
 		ForeignKey("parent_area", "areatable"),
@@ -947,7 +947,7 @@ class AreaTrigger(Structure):
 	such use could be remembering settings per instance, for example,
 	draconid colors for Nefarian.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "map"),
 		FloatField("x"),
@@ -966,7 +966,7 @@ class AttackAnimKits(Structure):
 	AttackAnimKits.dbc
 	Unknown use
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("animation", "AnimationData"),
 		ForeignKey("type", "AttackAnimTypes"),
@@ -980,7 +980,7 @@ class AttackAnimTypes(Structure):
 	AttackAnimTypes.dbc
 	Attack animation types...
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 	)
@@ -991,7 +991,7 @@ class AuctionHouse(Structure):
 	AuctionHouse.dbc
 	Data about auction houses and their fees
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("faction", "Faction"),
 		IntegerField("auction_fee"),
@@ -1004,7 +1004,7 @@ class BarberShopStyle(Structure):
 	"""
 	Hairstyles, facial hair, etc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("type"), # 0 - Hair Style, 1 - Hair Color, 2 - Facial Hairstyle
 		LocalizedFields("name"),
@@ -1022,7 +1022,7 @@ class BattlemasterList(Structure):
 	Called when talking to a battlemaster.
 	Added in TBC
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("map_1", "Map"),
 		ForeignKey("map_2", "Map"),
@@ -1041,12 +1041,12 @@ class BattlemasterList(Structure):
 		LocalizedFields("name", locales=OLD_LOCALES)
 	)
 	
-	def changed_9551(self, base):
-		base.insert_field(IntegerField("min_players"), before="level_band")
-		base.update_locales(LOCALES) # XXX When did locales change?
-		base.append_fields(IntegerField("max_group_size"))
+	def changed_9551(self, fields):
+		fields.insert_field(IntegerField("min_players"), before="level_band")
+		fields.update_locales(LOCALES) # XXX When did locales change?
+		fields.append_fields(IntegerField("max_group_size"))
 	
-	def changed_9658(self, base):
+	def changed_9658(self, fields):
 		"""
 		What's this field? 0 for all arenas
 		1- Alterac Valley = 1941
@@ -1055,12 +1055,12 @@ class BattlemasterList(Structure):
 		7- Eye of the Storm = 2851
 		9- Strand of the Ancients = 3695
 		"""
-		self.changed_9551(base)
-		base.append_fields(IntegerField("unknown_9658"))
+		self.changed_9551(fields)
+		fields.append_fields(IntegerField("unknown_9658"))
 	
-	def changed_10554(self, base):
-		self.changed_9658(base)
-		base.delete_fields(
+	def changed_10554(self, fields):
+		self.changed_9658(fields)
+		fields.delete_fields(
 			"min_players",
 			"level_band",
 			"min_level",
@@ -1073,7 +1073,7 @@ class BankBagSlotPrices(Structure):
 	BankBagSlotPrices.dbc
 	Price for bank bag slots.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		MoneyField("price"),
 	)
@@ -1083,7 +1083,7 @@ class BannedAddons(Structure):
 	"""
 	BannedAddons.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -1105,7 +1105,7 @@ class CameraShakes(Structure):
 	Example:
 	CGCamera::AddShake( Col2, Type, Col4*0.027777778, Col5, Col6, Col7, Col8 );
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		IntegerField("type"),
@@ -1122,7 +1122,7 @@ class Cfg_Categories(Structure):
 	Cfg_Categories.dbc
 	Server localizations
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		BitMaskField("flags"), # 256: russia, 205: eu
 		IntegerField("type"), # 0: Development, 1: US and EU, 4: Russia, 10: Korea, 17: Taiwan & China
@@ -1136,7 +1136,7 @@ class Cfg_Configs(Structure):
 	Cfg_Configs.dbc
 	What the hell is this used for? Servers?
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(), # always id-1
 		BooleanField(),
@@ -1150,7 +1150,7 @@ class CharacterCreateCameras(Structure):
 	Removed in 6320
 	"""
 	DEAD = True
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		BooleanField(),
 		BooleanField(),
@@ -1166,7 +1166,7 @@ class CharacterFacialHairStyles(Structure):
 	Used for all facial changes, hair styles, markings, tusks...
 	"""
 	implicit_id = True
-	base = Skeleton(
+	fields = Skeleton(
 		ForeignKey("race", "ChrRaces"),
 		IntegerField("gender"),
 		IntegerField("specific_id"),
@@ -1187,7 +1187,7 @@ class CharBaseInfo(Structure):
 	Defines availability of classes for the different races.
 	"""
 	implicit_id = True
-	base = Skeleton(
+	fields = Skeleton(
 		ForeignByte("race", "ChrRaces"), #, field=ByteField),
 		ForeignByte("class", "ChrClasses"), #, field=ByteField),
 	)
@@ -1197,7 +1197,7 @@ class CharHairGeosets(Structure):
 	"""
 	CharHairGeosets.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("race", "ChrRaces"),
 		IntegerField("gender"),
@@ -1211,7 +1211,7 @@ class CharHairTextures(Structure):
 	"""
 	CharHairTextures.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("race", "ChrRaces"),
 		IntegerField("gender"),
@@ -1230,7 +1230,7 @@ class CharSections(Structure):
 	character-variations that involve a texture only.
 	These are hair, beards, the base skin etc.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("race", "ChrRaces"),
 		IntegerField("gender"),
@@ -1250,7 +1250,7 @@ class CharStartOutfit(Structure):
 	Items characters get when they are created.
 	Also includes hearthstone/food, etc.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ByteField("race"),
 		ByteField("class"),
@@ -1293,12 +1293,12 @@ class CharStartOutfit(Structure):
 		IntegerField("inventory_type_12"),
 	)
 	
-	def changed_9901(self, base):
+	def changed_9901(self, fields):
 		"""
 		Doubled all the items
 		XXX When did this happen?
 		"""
-		base.insert_fields([
+		fields.insert_fields([
 			ForeignKey("item_12", "Item"),
 			ForeignKey("item_13", "Item"),
 			ForeignKey("item_14", "Item"),
@@ -1314,7 +1314,7 @@ class CharStartOutfit(Structure):
 			ForeignKey("item_24", "Item"),
 		], before="display_1")
 		
-		base.insert_fields([
+		fields.insert_fields([
 			ForeignKey("display_13", "ItemDisplayInfo"),
 			ForeignKey("display_14", "ItemDisplayInfo"),
 			ForeignKey("display_15", "ItemDisplayInfo"),
@@ -1329,7 +1329,7 @@ class CharStartOutfit(Structure):
 			ForeignKey("display_24", "ItemDisplayInfo"),
 		], before="inventory_type_1")
 		
-		base.append_fields(
+		fields.append_fields(
 			IntegerField("inventory_type_13"),
 			IntegerField("inventory_type_14"),
 			IntegerField("inventory_type_15"),
@@ -1350,7 +1350,7 @@ class CharTitles(Structure):
 	CharTitles.dbc
 	Player titles
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(), # related to achievements?
 		LocalizedFields("title"),
@@ -1363,7 +1363,7 @@ class CharVariations(Structure):
 	"""
 	CharVariations.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(), # shared with ChrRaces
 		IntegerField("gender"),
 		UnknownField(),
@@ -1378,7 +1378,7 @@ class ChatChannels(Structure):
 	ChatChannels.dbc
 	Default chat channels
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		BitMaskField("flags"),
 		IntegerField(),
@@ -1392,7 +1392,7 @@ class ChatProfanity(Structure):
 	ChatProfanity.dbc
 	Chat filtering
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("filter"),
 		IntegerField("language"),
@@ -1404,7 +1404,7 @@ class ChrClasses(Structure):
 	ChrClasses.dbc
 	Class properties
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		IntegerField("power_type"),
@@ -1425,7 +1425,7 @@ class ChrRaces(Structure):
 	ChrRaces.dbc
 	Player race data (including some inaccessible)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		BitMaskField("flags"),
 		ForeignKey("faction_template", "FactionTemplate"),
@@ -1449,19 +1449,19 @@ class ChrRaces(Structure):
 		IntegerField("expansion"),
 	)
 	
-	def changed_10048(self, base):
-		base.delete_fields("scale")
+	def changed_10048(self, fields):
+		fields.delete_fields("scale")
 	
-	def changed_10433(self, base):
-		self.changed_10048(base)
-		base.insert_field(UnknownField(), before="name_male") # Faction?
+	def changed_10433(self, fields):
+		self.changed_10048(fields)
+		fields.insert_field(UnknownField(), before="name_male") # Faction?
 
 
 class CinematicCamera(Structure):
 	"""
 	CinematicCamera.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FilePathField("path"),
 		ForeignKey("voiceover", "SoundEntries"),
@@ -1476,7 +1476,7 @@ class CinematicSequences(Structure):
 	"""
 	CinematicSequences.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -1495,7 +1495,7 @@ class CreatureDisplayInfo(Structure):
 	CreatureDisplayInfo.dbc
 	Display data for NPCs
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		#ForeignKey("inherits", "creaturedisplayinfo"), #not always valid...
 		IntegerField(),
@@ -1520,7 +1520,7 @@ class CreatureDisplayInfoExtra(Structure):
 	"""
 	CreatureDisplayInfoExtra.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("gender"),
 		IntegerField("skin_color"),
@@ -1549,7 +1549,7 @@ class CreatureFamily(Structure):
 	"""
 	CreatureFamily.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FloatField(),
 		ForeignKey("pet_personality", "PetPersonality"),
@@ -1569,7 +1569,7 @@ class CreatureModelData(Structure):
 	"""
 	CreatureModelData.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("weapon_display_info"),
 		FilePathField("path"),
@@ -1605,7 +1605,7 @@ class CreatureSoundData(Structure):
 	"""
 	CreatureSoundData.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(), # SoundEntries
 		UnknownField(), # SoundEntries
@@ -1651,7 +1651,7 @@ class CreatureSpellData(Structure):
 	"""
 	CreatureSpellData.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("spell_1", "Spell"),
 		ForeignKey("spell_2", "Spell"),
@@ -1669,7 +1669,7 @@ class CreatureType(Structure):
 	CreatureType.dbc
 	Creature types
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		IntegerField(),
@@ -1682,7 +1682,7 @@ class CurrencyCategory(Structure):
 	CurrencyCategory.dbc
 	Currency categories
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(), # 3 for unused, rest 0
 		LocalizedFields("name"),
@@ -1694,7 +1694,7 @@ class CurrencyTypes(Structure):
 	CurrencyTypes.dbc
 	Currency data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("item", "Item"),
 		ForeignKey("category", "currencycategory"),
@@ -1707,7 +1707,7 @@ class DanceMoves(Structure):
 	DanceMoves.dbc
 	Not yet implemented.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("type"),
 		UnknownField(),
@@ -1723,7 +1723,7 @@ class DeathThudLookups(Structure):
 	"""
 	DeathThudLookups.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("class", "ChrClasses"),
 		ForeignKey("race", "ChrRaces"),
@@ -1737,7 +1737,7 @@ class DeclinedWord(Structure):
 	DeclinedWord.dbc
 	Only russian strings so far...
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("text"),
 	)
@@ -1747,7 +1747,7 @@ class DeclinedWordCases(Structure):
 	"""
 	DeclinedWordCases.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("declined_word", "DeclinedWord"),
 		UnknownField(),
@@ -1759,7 +1759,7 @@ class DungeonEncounter(Structure):
 	"""
 	DungeonEncounter.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "Map"),
 		IntegerField("difficulty"),
@@ -1774,7 +1774,7 @@ class DungeonMap(Structure):
 	"""
 	DungeonMap.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "Map"),
 		IntegerField("floor"), # which map floor
@@ -1790,7 +1790,7 @@ class DungeonMapChunk(Structure):
 	"""
 	DungeonMapChunk.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("map", "Map"),
 		ForeignKey("wmo", "WMOAreaTable"), # key="group"
@@ -1805,7 +1805,7 @@ class DurabilityCosts(Structure):
 	Each column corresponds to a class.subclass category for items.
 	(Current - Ma) * ItemClassModifier * QualityModifier
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("cost_2_0"),
 		IntegerField("cost_2_1"),
@@ -1843,7 +1843,7 @@ class DurabilityQuality(Structure):
 	"""
 	DurabilityQuality.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FloatField("modifier"),
 	)
@@ -1862,7 +1862,7 @@ class Emotes(Structure):
 		0x100: "laugh",
 	}
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		ForeignKey("animation", "AnimationData"),
@@ -1878,7 +1878,7 @@ class Exhaustion(Structure):
 	Exhaustion.dbc
 	China's exhaustion system?
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		FloatField(),
@@ -1893,7 +1893,7 @@ class Faction(Structure):
 	Faction.dbc
 	In-game faction data.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("ordering"),
 		BitMaskField("base_race_mask_1"),
@@ -1917,18 +1917,18 @@ class Faction(Structure):
 		LocalizedFields("description"),
 	)
 
-	def changed_10522(self, base):
-		base.insert_field(FloatField(), before="name")
-		base.insert_field(FloatField(), before="name")
-		base.insert_field(UnknownField(), before="name")
-		base.insert_field(UnknownField(), before="name")
+	def changed_10522(self, fields):
+		fields.insert_field(FloatField(), before="name")
+		fields.insert_field(FloatField(), before="name")
+		fields.insert_field(UnknownField(), before="name")
+		fields.insert_field(UnknownField(), before="name")
 
 
 class FactionGroup(Structure):
 	"""
 	FactionGroup.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		StringField("internal_name"),
@@ -1939,7 +1939,7 @@ class FactionTemplate(Structure):
 	"""
 	FactionTemplate.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("faction", "Faction"),
 		BitMaskField("flags"),
@@ -1962,7 +1962,7 @@ class FileData(Structure):
 	FileData.dbc
 	Movie file data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("filename"),
 		FilePathField("path"),
@@ -1975,7 +1975,7 @@ class FootprintTextures(Structure):
 	Paths to the footprint textures
 	visible on snow, sand, etc.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FilePathField("path"),
 	)
@@ -1985,7 +1985,7 @@ class GameObjectArtKit(Structure):
 	"""
 	GameObjectArtKit.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("texture_1"),
 		StringField("texture_2"),
@@ -2001,7 +2001,7 @@ class GameObjectDisplayInfo(Structure):
 	"""
 	GameObjectDisplayInfo.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FilePathField("model"),
 		UnknownField(),
@@ -2029,7 +2029,7 @@ class GameTables(Structure):
 	GameTables.dbc
 	Unknown use
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		StringIDField(),
 		IntegerField(), # 1-100
 		IntegerField(),
@@ -2041,7 +2041,7 @@ class GameTips(Structure):
 	GameTips.dbc
 	Loading screen tips.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("description"),
 	)
@@ -2052,7 +2052,7 @@ class GemProperties(Structure):
 	GemProperties.dbc
 	Gem data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("enchant", "SpellItemEnchantment"),
 		BooleanField(),
@@ -2071,7 +2071,7 @@ class GlyphProperties(Structure):
 		0x00000001: "minor",
 	}
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("spell", "spell"),
 		BitMaskField("flags", flags=FLAGS),
@@ -2083,7 +2083,7 @@ class GlyphSlot(Structure):
 	"""
 	GlyphSlot.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("type"),
 		IntegerField("ordering"),
@@ -2094,7 +2094,7 @@ class GMTicketCategory(Structure):
 	"""
 	GMTicketCategory.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -2104,7 +2104,7 @@ class GroundEffectDoodad(Structure):
 	"""
 	GroundEffectDoodad.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("model"),
 		BooleanField(),
@@ -2118,7 +2118,7 @@ class GroundEffectTexture(Structure):
 	(the ID thats used is the effectID on the base texture of each map chunk).
 	These doodads are the little tiny plants & rocks you see on the ground.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("doodad_effect_1"),
 		IntegerField("doodad_effect_2"),
@@ -2137,7 +2137,7 @@ class gtCombatRatings(Structure):
 	"""
 	gtCombatRatings.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		FloatField("ratio"),
 	)
 
@@ -2146,7 +2146,7 @@ class gtOCTRegenHP(Structure):
 	gtOCTRegenHP.dbc
 	"""
 	
-	base = Skeleton(
+	fields = Skeleton(
 		FloatField("ratio"),
 	)
 
@@ -2155,7 +2155,7 @@ class gtOCTRegenMP(Structure):
 	gtOCTRegenMP.dbc
 	"""
 	
-	base = Skeleton(
+	fields = Skeleton(
 		FloatField("ratio"),
 	)
 
@@ -2164,7 +2164,7 @@ class gtRegenHPPerSpt(Structure):
 	gtRegenHPPerSpt.dbc
 	"""
 	
-	base = Skeleton(
+	fields = Skeleton(
 		FloatField("ratio"),
 	)
 
@@ -2173,7 +2173,7 @@ class gtRegenMPPerSpt(Structure):
 	gtRegenMPPerSpt.dbc
 	"""
 	
-	base = Skeleton(
+	fields = Skeleton(
 		FloatField("ratio"),
 	)
 
@@ -2183,7 +2183,7 @@ class HelmetGeosetVisData(Structure):
 	HelmetGeosetVisData.dbc
 	Unknown use
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		IntegerField(),
@@ -2199,7 +2199,7 @@ class HolidayDescriptions(Structure):
 	"""
 	HolidayDescriptions.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("description"),
 	)
@@ -2209,7 +2209,7 @@ class HolidayNames(Structure):
 	"""
 	HolidayNames.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -2219,7 +2219,7 @@ class Holidays(Structure):
 	"""
 	Holidays.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -2284,7 +2284,7 @@ class Item(Structure):
 	Contains all in-game items, and their display data.
 	Used for icons, dressing room, etc.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("category", "itemclass"),
 		ForeignKey("subcategory", "itemsubclass"),
@@ -2301,7 +2301,7 @@ class ItemBagFamily(Structure):
 	ItemBagFamily.dbc
 	Item bag categories
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -2311,7 +2311,7 @@ class ItemClass(Structure):
 	"""
 	ItemClass.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		IntegerField(),
@@ -2323,7 +2323,7 @@ class ItemCondExtCost(Structure):
 	"""
 	ItemCondExtCost.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		ForeignKey("extended_cost", "ItemExtendedCost"),
@@ -2336,7 +2336,7 @@ class ItemDisplayInfo(Structure):
 	ItemDisplayInfo.dbc
 	Item display data. Icons, models, ...
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("model"),
 		StringField("model2"),
@@ -2370,7 +2370,7 @@ class ItemExtendedCost(Structure):
 	ItemExtendedCost.dbc
 	Extended cost data (buy with items, honor points, arena points, ...)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("honor_points"),
 		IntegerField("arena_points"),
@@ -2388,15 +2388,15 @@ class ItemExtendedCost(Structure):
 		UnknownField(), # maybe pvprankreq?
 	)
 
-	def changed_10026(self, base):
-		base.insert_field(IntegerField("bracket"), before="item1")
+	def changed_10026(self, fields):
+		fields.insert_field(IntegerField("bracket"), before="item1")
 
 
 class ItemGroupSounds(Structure):
 	"""
 	ItemGroupSounds.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("sound_pickup", "SoundEntries"),
 		ForeignKey("sound_putdown", "SoundEntries"),
@@ -2410,7 +2410,7 @@ class ItemLimitCategory(Structure):
 	ItemLimitCategory.dbc
 	Unique item categories
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		IntegerField("amount"),
@@ -2423,7 +2423,7 @@ class ItemPetFood(Structure):
 	ItemPetFood.dbc
 	Hunter pet food categories
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -2434,7 +2434,7 @@ class ItemPurchaseGroup(Structure):
 	ItemPurchaseGroup.dbc
 	"Group" buys, seems to be a feature not in-game. Only one row (34529, 34530, 33006)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("item1", "Item"),
 		ForeignKey("item2", "Item"),
@@ -2453,7 +2453,7 @@ class ItemRandomProperties(Structure):
 	ItemRandomProperties.dbc
 	Random enchantments for items (of stamina, ...)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		IntegerField(),
@@ -2471,7 +2471,7 @@ class ItemSet(Structure):
 	Contains data for item sets. Item IDs linked are
 	requested directly in itemtextcache.wdb
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		ForeignKey("item1", "itemtextcache"),
@@ -2517,7 +2517,7 @@ class ItemSubClass(Structure):
 	ItemSubClass.dbc
 	Item subclasses
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IDField(),
 		IntegerField(),
@@ -2548,7 +2548,7 @@ class ItemSubClassMask(Structure):
 	])
 	"""
 	implicit_id = True
-	base = Skeleton(
+	fields = Skeleton(
 		IntegerField("id1"),
 		BitMaskField("id2_mask"),
 		LocalizedFields("name"),
@@ -2559,7 +2559,7 @@ class ItemVisualEffects(Structure):
 	"""
 	ItemVisualEffects.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FilePathField("model"),
 	)
@@ -2569,7 +2569,7 @@ class ItemVisuals(Structure):
 	"""
 	ItemVisuals.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("visual_1", "ItemVisualEffects"), # Something's wrong, some of those have insane ids...
 		ForeignKey("visual_2", "ItemVisualEffects"),
@@ -2584,7 +2584,7 @@ class Languages(Structure):
 	Languages.dbc
 	Player/NPC language data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -2594,7 +2594,7 @@ class LanguageWords(Structure):
 	"""
 	LanguageWords.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("language", "Languages"),
 		StringField("word"),
@@ -2606,7 +2606,7 @@ class LFGDungeons(Structure):
 	LFGDungeons.dbc
 	"""
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		IntegerField("level_1"), # level_min
@@ -2631,7 +2631,7 @@ class LFGDungeonExpansion(Structure):
 	LFGDungeonExpansion.dbc
 	"""
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("lfg_1", "LFGDungeons"),
 		UnknownField(),
@@ -2648,7 +2648,7 @@ class LFGDungeonGroup(Structure):
 	LFGDungeonGroup.dbc
 	"""
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		UnknownField(),
@@ -2665,7 +2665,7 @@ class Light(Structure):
 	used to be stored in the .lit files but in 1.9 was moved to Light.dbc and
 	the other Light* DBC files.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "Map"),
 		FloatField("x"),
@@ -2689,7 +2689,7 @@ class LightFloatBand(Structure):
 	corresponding to every ID so take the ID*6 to get the proper start ID
 	to look at it and the next 5 rows after it go along with it as well.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("entry_count"),
 		UnsignedIntegerField("time_1"),
@@ -2736,7 +2736,7 @@ class LightIntBand(Structure):
 	to look at it and the next 17 rows after it go along with it as well.
 	See http://www.sourcepeek.com/wiki/LightIntBand.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("entry_count"),
 		UnsignedIntegerField("time_1"),
@@ -2778,7 +2778,7 @@ class LightParams(Structure):
 	"""
 	LightParams.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -2796,7 +2796,7 @@ class LightSkybox(Structure):
 	LightSkybox.dbc
 	Skybox data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FilePathField("path"),
 		IntegerField("type"), # 2 = aurora, ...?
@@ -2809,7 +2809,7 @@ class LiquidMaterial(Structure):
 	Unknown use. Lava/Water? Only 3 rows (1, 2, 3).
 	Added with WotLK
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -2820,7 +2820,7 @@ class LiquidType(Structure):
 	"""
 	LiquidType.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		BitMaskField("flags"),
@@ -2873,7 +2873,7 @@ class LoadingScreenTaxiSplines(Structure):
 	"""
 	LoadingScreenTaxiSplines.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("taxi", "TaxiPath"),
 		FloatField(),
@@ -2901,14 +2901,14 @@ class LoadingScreens(Structure):
 	LoadingScreens.dbc
 	Loading screen lookups
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		FilePathField("path"),
 	)
 	
-	def changed_10676(self, base):
-		base.append_fields(BooleanField("continent"))
+	def changed_10676(self, fields):
+		fields.append_fields(BooleanField("continent"))
 
 
 class Lock(Structure):
@@ -2923,7 +2923,7 @@ class Lock(Structure):
 	}
 	properties_relation = lambda x, value: PROPERTY_TYPES[value]
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("type_1"),
 		IntegerField("type_2"),
@@ -2965,7 +2965,7 @@ class LockType(Structure):
 	LockType.dbc
 	"""
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		LocalizedFields("state"),
@@ -2979,7 +2979,7 @@ class MailTemplate(Structure):
 	MailTemplate.dbc
 	In-game mails recieved.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("title"),
 		LocalizedFields("message"),
@@ -2991,7 +2991,7 @@ class Map(Structure):
 	Map.dbc
 	Instance data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("internal_name"),
 		IntegerField("type"), # 0: normal, 1: instance, 2: raid, 3: battleground, 4: arena
@@ -3016,8 +3016,8 @@ class Map(Structure):
 		DurationField(unit="seconds"),
 	)
 
-	def changed_10026(self, base):
-		base.delete_fields(
+	def changed_10026(self, fields):
+		fields.delete_fields(
 			"normal_requirements",
 			"heroic_requirements",
 			"epic_requirements",
@@ -3026,20 +3026,20 @@ class Map(Structure):
 			"epic_reset"
 		)
 
-	def changed_10083(self, base):
-		self.changed_10026(base)
-		base.append_fields(IntegerField("max_players"))
+	def changed_10083(self, fields):
+		self.changed_10026(fields)
+		fields.append_fields(IntegerField("max_players"))
 
-	def changed_10522(self, base):
-		self.changed_10083(base)
-		base.insert_field(UnknownField(), before="battleground")
+	def changed_10522(self, fields):
+		self.changed_10083(fields)
+		fields.insert_field(UnknownField(), before="battleground")
 
 
 class MapDifficulty(Structure):
 	"""
 	MapDifficulty.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "map"),
 		IntegerField("mode"),
@@ -3054,14 +3054,14 @@ class Material(Structure):
 	"""
 	Material.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("page_material", "PageTextMaterial"),
 		UnknownField(),
 	)
 	
-	def changed_9901(self, base):
-		base.append_fields(
+	def changed_9901(self, fields):
+		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
 		)
@@ -3072,7 +3072,7 @@ class Movie(Structure):
 	Movie.dbc
 	Supposedly for movies. 3 rows at the time: 1, 2, 14
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		IntegerField(),
@@ -3084,7 +3084,7 @@ class MovieFileData(Structure):
 	MovieFileData.dbc
 	Movie resolution data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("resolution"), #800 or 1024
 	)
@@ -3095,7 +3095,7 @@ class MovieVariation(Structure):
 	MovieVariation.dbc
 	Unknown use
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField(),
 		ForeignKey("resolution", "moviefiledata"),
@@ -3107,7 +3107,7 @@ class NameGen(Structure):
 	NameGen.dbc
 	Character creation name generator data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		IntegerField("class"),
@@ -3119,7 +3119,7 @@ class NamesProfanity(Structure):
 	"""
 	NamesProfanity.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("pattern"),
 		IntegerField("language"),
@@ -3130,7 +3130,7 @@ class NamesReserved(Structure):
 	"""
 	NamesReserved.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("pattern"),
 		IntegerField("language"),
@@ -3141,7 +3141,7 @@ class NPCSounds(Structure):
 	"""
 	NPCSounds.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("greeting", "SoundEntries"),
 		ForeignKey("farewell", "SoundEntries"),
@@ -3154,7 +3154,7 @@ class ObjectEffect(Structure):
 	"""
 	ObjectEffect.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		UnknownField(),
@@ -3174,7 +3174,7 @@ class ObjectEffectGroup(Structure):
 	"""
 	ObjectEffectGroup.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 	)
@@ -3184,7 +3184,7 @@ class ObjectEffectModifier(Structure):
 	"""
 	ObjectEffectModifier.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -3200,7 +3200,7 @@ class ObjectEffectPackage(Structure):
 	"""
 	ObjectEffectPackage.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 	)
@@ -3210,7 +3210,7 @@ class ObjectEffectPackageElem(Structure):
 	"""
 	ObjectEffectPackageElem.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("package", "ObjectEffectPackage"),
 		ForeignKey("group", "ObjectEffectGroup"),
@@ -3222,7 +3222,7 @@ class OverrideSpellData(Structure):
 	"""
 	OverrideSpellData.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("spell_1", "Spell"),
 		ForeignKey("spell_2", "Spell"),
@@ -3248,7 +3248,7 @@ class Package(Structure):
 	This is not used in the current client's UI and is likely to be filtered serverside.
 	Note: This is the field behind stationary in the CMSG_SEND_MAIL packet.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("icon"),
 		MoneyField("price"), # in copper?
@@ -3261,7 +3261,7 @@ class PageTextMaterial(Structure):
 	PageTextMaterial.dbc
 	Material (background image) for pages
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 	)
@@ -3271,7 +3271,7 @@ class PaperDollItemFrame(Structure):
 	"""
 	PaperDollItemFrame.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FilePathField("path"),
 		IntegerField("slot"),
@@ -3282,7 +3282,7 @@ class PetitionType(Structure):
 	"""
 	PetitionType.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		UnknownField(),
@@ -3294,7 +3294,7 @@ class PetLoyalty(Structure):
 	PetLoyalty.dbc
 	Hunter pet loyalty
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -3304,7 +3304,7 @@ class PetPersonality(Structure):
 	"""
 	PetPersonality.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		UnknownField(),
@@ -3320,7 +3320,7 @@ class PowerDisplay(Structure):
 	"""
 	PowerDisplay.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		StringField("name"),
@@ -3335,7 +3335,7 @@ class PvpDifficulty(Structure):
 	PvpDifficulty.dbc
 	Battleground/arena brackets
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "Map"),
 		IntegerField("ordering"),
@@ -3351,7 +3351,7 @@ class QuestFactionReward(Structure):
 	Two rows - one for positive gains and
 	one for negative gains
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("reputation_gain_0"),
 		IntegerField("reputation_gain_1"),
@@ -3371,7 +3371,7 @@ class QuestInfo(Structure):
 	QuestInfo.dbc
 	Quest type names
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -3384,7 +3384,7 @@ class QuestSort(Structure):
 	Note: Zones are directly gathered from AreaTable.dbc
 	linked by a negative id in questcache.wdb
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -3396,7 +3396,7 @@ class QuestXP(Structure):
 	Quest experience amounts
 	100 rows, one for each level
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		IntegerField("experience_1"),
@@ -3415,7 +3415,7 @@ class RandPropPoints(Structure):
 	"""
 	RandPropPoints.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("epic_points_1"),
 		IntegerField("epic_points_2"),
@@ -3439,7 +3439,7 @@ class Resistances(Structure):
 	"""
 	Resistances.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		BooleanField("armor"),
 		UnknownField(), # Not spellicon
@@ -3451,7 +3451,7 @@ class ScalingStatDistribution(Structure):
 	"""
 	ScalingStatDistribution.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("stat_1"),
 		IntegerField("stat_2"),
@@ -3482,7 +3482,7 @@ class ScalingStatValues(Structure):
 	ScalingStatValues.dbc
 	Heirloom stat scaling (one row per level)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("level"),
 		IntegerField("coefficient_1"),
@@ -3509,7 +3509,7 @@ class ScalingStatValues(Structure):
 		IntegerField("plate"),
 	)
 
-	def changed_10026(self, base):
+	def changed_10026(self, fields):
 		"""
 		TODO 5 new fields
 		"""
@@ -3526,7 +3526,7 @@ class ScreenEffect(Structure):
 	2: ffxNetherWorld
 	3: ffxSpecial / EffectGlow, -Fog, +color
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		IntegerField("type"),
@@ -3545,7 +3545,7 @@ class ServerMessages(Structure):
 	ServerMessages.dbc
 	Server-wide broadcast messages (in-game chat)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("message"),
 	)
@@ -3555,7 +3555,7 @@ class SheatheSoundLookups(Structure):
 	"""
 	SheatheSoundLookups.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -3570,7 +3570,7 @@ class SkillCostsData(Structure):
 	"""
 	SkillCostsData.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -3584,7 +3584,7 @@ class SkillLine(Structure):
 	SkillLine.dbc
 	Contains all skill-related data.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("category", "SkillLineCategory"),
 		ForeignKey("cost", "SkillCostsData"),
@@ -3601,7 +3601,7 @@ class SkillLineAbility(Structure):
 	SkillLineAbility.dbc
 	turns_green is averaged with: a + (b-a)/2
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("skill", "SkillLine"),
 		ForeignKey("spell", "Spell"),
@@ -3624,7 +3624,7 @@ class SkillLineCategory(Structure):
 	"""
 	SkillLineCategory.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		IntegerField("sort")
@@ -3635,7 +3635,7 @@ class SkillTiers(Structure):
 	"""
 	SkillTiers.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("value_1"),
 		IntegerField("value_2"),
@@ -3676,7 +3676,7 @@ class SoundAmbience(Structure):
 	"""
 	SoundAmbience.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("day", "SoundEntries"),
 		ForeignKey("night", "SoundEntries"),
@@ -3688,7 +3688,7 @@ class SoundCharacterMacroLines(Structure):
 	SoundCharacterMacroLines.dbc
 	"""
 	DEAD = True
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		IntegerField("gender"),
@@ -3703,7 +3703,7 @@ class SoundEmitters(Structure):
 	Seems to replace the ADT-sound-emitters.
 	Mainly used for waterfalls.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FloatField("x"),
 		FloatField("y"),
@@ -3722,7 +3722,7 @@ class SoundEntries(Structure):
 	SoundEntries.dbc
 	Defines many kinds of sounds ingame.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("type"),
 		StringField("name"),
@@ -3760,7 +3760,7 @@ class SoundEntriesAdvanced(Structure):
 	"""
 	SoundEntriesAdvanced.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("sound", "SoundEntries"),
 		FloatField(),
@@ -3793,7 +3793,7 @@ class SoundFilter(Structure):
 	Death knight voice filters
 	See http://www.madx.dk/wowdev/wiki/index.php?title=SoundFilter.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField(),
 	)
@@ -3803,7 +3803,7 @@ class SoundFilterElem(Structure):
 	"""
 	SoundFilterElem.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("filter", "SoundFilter"),
 		UnknownField(),
@@ -3830,7 +3830,7 @@ class SoundProviderPreferences(Structure):
 	check the EAX2 and EAX3 documentation at http://developer.creative.com/
 	under the downloads section.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		UnknownField(),
@@ -3863,7 +3863,7 @@ class SoundSamplePreferences(Structure):
 	SoundSamplePreferences.dbc
 	Two rows only
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -3888,7 +3888,7 @@ class SoundWaterType(Structure):
 	"""
 	SoundWaterType.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("liquid_type", "LiquidType"),
 		BitMaskField("fluid_speed"), # Water speed. 0x0 = still; 0x4 = slow; 0x8 fast
@@ -3901,7 +3901,7 @@ class SpamMessages(Structure):
 	SpamMessages.dbc
 	Regex matches for spam check (?)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("regex"),
 	)
@@ -3937,7 +3937,7 @@ class Spell(Structure):
 		0x00040000: "usable_while_confused",
 	}
 	
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("category", "SpellCategory"),
 		IntegerField("dispel_type"),
@@ -4107,30 +4107,30 @@ class Spell(Structure):
 		ForeignKey("missile", "SpellMissile"),
 	)
 	
-	def changed_9614(self, base): # between 9614 and 9637
-		base.append_fields(ForeignKey("power_display", "PowerDisplay"))
+	def changed_9614(self, fields): # between 9614 and 9637
+		fields.append_fields(ForeignKey("power_display", "PowerDisplay"))
 
-	def changed_10026(self, base):
-		self.changed_9614(base)
-		base.insert_field(UnknownField(), before="required_stances") # Likely int->bigint
-		base.insert_field(UnknownField(), before="excluded_stances")
-		base.insert_field(UnknownField(), before="required_target")
-		base.append_fields(
+	def changed_10026(self, fields):
+		self.changed_9614(fields)
+		fields.insert_field(UnknownField(), before="required_stances") # Likely int->bigint
+		fields.insert_field(UnknownField(), before="excluded_stances")
+		fields.insert_field(UnknownField(), before="required_target")
+		fields.append_fields(
 			FloatField("multiplier_effect_1"),
 			FloatField("multiplier_effect_2"),
 			FloatField("multiplier_effect_3"),
 			ForeignKey("descriptionvars", "SpellDescriptionVariables"),
 		)
 
-	def changed_10522(self, base):
-		self.changed_10026(base)
-		base.append_fields(
+	def changed_10522(self, fields):
+		self.changed_10026(fields)
+		fields.append_fields(
 			ForeignKey("spell_difficulty", "SpellDifficulty"),
 		)
 	
-	def changed_11573(self, base):
-		self.changed_10522(base)
-		base.delete_fields(
+	def changed_11573(self, fields):
+		self.changed_10522(fields)
+		fields.delete_fields(
 			"dice_base_effect_1",
 			"dice_base_effect_2",
 			"dice_base_effect_3",
@@ -4146,7 +4146,7 @@ class SpellAuraNames(Structure):
 	Removed shortly after release
 	"""
 	DEAD = True
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		StringField("internal_name"),
@@ -4159,7 +4159,7 @@ class SpellCastTimes(Structure):
 	SpellCastTimes.dbc
 	Spell cast time info
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		DurationField("cast_time", unit="milliseconds"),
 		IntegerField("modifier"),
@@ -4171,7 +4171,7 @@ class SpellCategory(Structure):
 	"""
 	SpellCategory.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 	)
@@ -4181,7 +4181,7 @@ class SpellChainEffects(Structure):
 	"""
 	SpellChainEffects.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FloatField(),
 		FloatField(),
@@ -4198,7 +4198,7 @@ class SpellDescriptionVariables(Structure):
 	SpellDescriptionVariables.dbc
 	Used in spellstrings
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("variables"),
 	)
@@ -4209,7 +4209,7 @@ class SpellDifficulty(Structure):
 	SpellDifficulty.dbc
 	Spell heroic modes/raid sizes
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("10_man", "Spell"),
 		ForeignKey("25_man", "Spell"),
@@ -4222,7 +4222,7 @@ class SpellDispelType(Structure):
 	"""
 	SpellDispelType.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		UnknownField(),
@@ -4236,7 +4236,7 @@ class SpellDuration(Structure):
 	SpellDuration.dbc
 	Spell duration data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		DurationField("duration_1", unit="milliseconds"),
 		DurationField("duration_2", unit="milliseconds"),
@@ -4248,7 +4248,7 @@ class SpellEffectCameraShakes(Structure):
 	"""
 	SpellEffectCameraShakes.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -4262,7 +4262,7 @@ class SpellEffectNames(Structure):
 	Removed shortly after release
 	"""
 	DEAD = True
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name", locales=OLD_LOCALES),
 	)
@@ -4272,7 +4272,7 @@ class SpellFocusObject(Structure):
 	"""
 	SpellFocusObject.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -4283,7 +4283,7 @@ class SpellIcon(Structure):
 	SpellIcon.dbc
 	Spell icons
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FilePathField("path"),
 	)
@@ -4295,7 +4295,7 @@ class SpellItemEnchantment(Structure):
 	Item enchants (Including temporary
 	enchants and socketbonuses)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("charges"),
 		IntegerField("type_effect_1"),
@@ -4319,8 +4319,8 @@ class SpellItemEnchantment(Structure):
 		IntegerField("required_skill_level"), # added 3.x
 	)
 	
-	def changed_9637(self, base):
-		base.append_fields(
+	def changed_9637(self, fields):
+		fields.append_fields(
 			IntegerField("required_level"),
 		)
 
@@ -4329,7 +4329,7 @@ class SpellItemEnchantmentCondition(Structure):
 	"""
 	SpellItemEnchantmentCondition.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ByteField("gem_color_1"),
 		ByteField("gem_color_2"),
@@ -4369,7 +4369,7 @@ class SpellMechanic(Structure):
 	SpellMechanic.dbc
 	Spell mechanic names
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 	)
@@ -4380,7 +4380,7 @@ class SpellRadius(Structure):
 	SpellRadius.dbc
 	Spell radius data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FloatField("radius_min"),
 		IntegerField(),
@@ -4393,7 +4393,7 @@ class SpellRange(Structure):
 	SpellRange.dbc
 	Spell range data
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FloatField("range_min"),
 		FloatField("range_min_friendly"),
@@ -4410,7 +4410,7 @@ class SpellRuneCost(Structure):
 	SpellRunecost.dbc
 	Death Knight abilities' rune costs
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("blood"),
 		IntegerField("unholy"),
@@ -4424,7 +4424,7 @@ class SpellShapeshiftForm(Structure):
 	SpellShapeshiftForm.dbc
 	Different shapeshifts/stances for spells
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("button_position"),
 		LocalizedFields("name"),
@@ -4451,7 +4451,7 @@ class SpellVisual(Structure):
 	"""
 	SpellVisual.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("precast_effect", "SpellVisualKit"),
 		ForeignKey("casting_effect", "SpellVisualKit"),
@@ -4491,7 +4491,7 @@ class SpellVisualKit(Structure):
 	"""
 	SpellVisualKit.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("caster_animation_1", "AnimationData"),
 		ForeignKey("caster_animation_2", "AnimationData"),
@@ -4533,15 +4533,15 @@ class SpellVisualKit(Structure):
 		BitMaskField(),
 	)
 	
-	def changed_9637(self, base):
-		base.delete_fields("caster_animation_3")
+	def changed_9637(self, fields):
+		fields.delete_fields("caster_animation_3")
 
 
 class SpellVisualEffectName(Structure):
 	"""
 	SpellVisualEffectName.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		FilePathField("path"),
@@ -4555,7 +4555,7 @@ class SpellVisualPrecastTransitions(Structure):
 	"""
 	SpellVisualPrecastTransitions.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("load"),
 		StringField("hold"),
@@ -4566,7 +4566,7 @@ class StableSlotPrices(Structure):
 	"""
 	StableSlotPrices.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		MoneyField("price"),
 	)
@@ -4577,7 +4577,7 @@ class Startup_Strings(Structure):
 	Startup_Strings.dbc
 	Runtime messages and warnings
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		LocalizedFields("message"),
@@ -4589,7 +4589,7 @@ class Stationery(Structure):
 	Stationery.dbc
 	In-game mail background
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("item", "Item"),
 		StringField("name"),
@@ -4601,7 +4601,7 @@ class StringLookups(Structure):
 	"""
 	StringLookups.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FilePathField("path"),
 	)
@@ -4611,7 +4611,7 @@ class SummonProperties(Structure):
 	"""
 	SummonProperties.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("category"),
 		IntegerField("faction"), # doesn't seem to be Faction.dbc
@@ -4626,7 +4626,7 @@ class Talent(Structure):
 	Talent.dbc
 	Player/pet talents
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("tab", "TalentTab"),
 		UnsignedIntegerField("row"),
@@ -4658,7 +4658,7 @@ class TalentTab(Structure):
 	TalentTab.dbc
 	Talent panel tabs
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		ForeignKey("icon", "SpellIcon"),
@@ -4675,7 +4675,7 @@ class TaxiNodes(Structure):
 	TaxiNodes.dbc
 	Flight paths, teleports, etc.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("map", "Map"),
 		FloatField("x"),
@@ -4691,7 +4691,7 @@ class TaxiPath(Structure):
 	"""
 	TaxiPath.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("taxi_from", "TaxiNodes"),
 		ForeignKey("taxi_to", "TaxiNodes"),
@@ -4703,7 +4703,7 @@ class TaxiPathNode(Structure):
 	"""
 	TaxiPathNode.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("taxi", "TaxiPath"),
 		IntegerField("index"),
@@ -4722,7 +4722,7 @@ class TeamContributionPoints(Structure):
 	"""
 	TeamContributionPoints.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FloatField("points"),
 	)
@@ -4732,7 +4732,7 @@ class TerrainType(Structure):
 	"""
 	TerrainType.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("type"),
 		UnknownField(),
@@ -4746,7 +4746,7 @@ class TerrainTypeSounds(Structure):
 	"""
 	TerrainTypeSounds.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 	)
 
@@ -4756,7 +4756,7 @@ class TotemCategory(Structure):
 	TotemCategory.dbc
 	Item tools, totems etc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
 		IntegerField("category"),
@@ -4768,7 +4768,7 @@ class TransportAnimation(Structure):
 	"""
 	TransportAnimation.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -4783,7 +4783,7 @@ class TransportPhysics(Structure):
 	"""
 	TransportPhysics.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		FloatField(),
 		FloatField(),
@@ -4802,7 +4802,7 @@ class UISoundLookups(Structure):
 	"""
 	UISoundLookups.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("sound", "SoundEntries"),
 		StringField("name"),
@@ -4813,7 +4813,7 @@ class UnitBlood(Structure):
 	"""
 	UnitBlood.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -4831,7 +4831,7 @@ class UnitBloodLevels(Structure):
 	"""
 	UnitBloodLevels.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -4843,7 +4843,7 @@ class Vehicle(Structure):
 	"""
 	Vehicle.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		BitMaskField(),
 		FloatField(),
@@ -4891,7 +4891,7 @@ class VehicleSeat(Structure):
 	"""
 	VehicleSeat.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -4957,7 +4957,7 @@ class VehicleUIIndicator(Structure):
 	"""
 	VehicleUIIndicator.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(), # id seems shared between VehicleUIInd*
 		UnknownField(),
 	)
@@ -4967,7 +4967,7 @@ class VehicleUIIndSeat(Structure):
 	"""
 	VehicleUIIndSeat.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(), # id seems shared between VehicleUIInd*
 		UnknownField(), # id seems shared between VehicleUIInd*
 		UnknownField(),
@@ -4980,7 +4980,7 @@ class VideoHardware(Structure):
 	"""
 	VideoHardware.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -5013,7 +5013,7 @@ class VocalUISounds(Structure):
 	Contains UI error sounds for all the different races and genders,
 	eg "Already in a group", "Not Enough Mana", etc.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		ForeignKey("race", "ChrRaces"),
@@ -5028,7 +5028,7 @@ class WeaponImpactSounds(Structure):
 	"""
 	WeaponImpactSounds.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(), # boolean? for crits maybe?
@@ -5059,7 +5059,7 @@ class WeaponSwingSounds2(Structure):
 	"""
 	WeaponSwingSounds2.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		BooleanField("critical"),
@@ -5072,7 +5072,7 @@ class Weather(Structure):
 	Weather.dbc
 	Weather lookups
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("sound", "SoundEntries"),
 		IntegerField("type"), #	 1 = Rain, 2 = Snow, 3 = Sandstorm
@@ -5082,15 +5082,15 @@ class Weather(Structure):
 		FilePathField("texture"),
 	)
 	
-	def changed_10522(self, base):
-		base.insert_field(FloatField(), before="texture")
+	def changed_10522(self, fields):
+		fields.insert_field(FloatField(), before="texture")
 
 
 class WMOAreaTable(Structure):
 	"""
 	WMOAreaTable.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		IntegerField("root"),
 		IntegerField("nameset"),
@@ -5111,7 +5111,7 @@ class WorldChunkSounds(Structure):
 	WorldChunkSounds.dbc
 	"""
 	DEAD = True
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
@@ -5129,7 +5129,7 @@ class WorldMapArea(Structure):
 	WorldMapArea.dbc
 	Map data for each "zone" (instance)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "Map"),
 		ForeignKey("area", "AreaTable"),
@@ -5142,8 +5142,8 @@ class WorldMapArea(Structure):
 		ForeignKey("dungeon_map", "DungeonMap"),
 	)
 	
-	def changed_10116(self, base):
-		base.append_fields(
+	def changed_10116(self, fields):
+		fields.append_fields(
 			ForeignKey("parent_area", "WorldMapArea"), # Not for all?!
 		)
 
@@ -5152,7 +5152,7 @@ class WorldMapContinent(Structure):
 	"""
 	WorldMapContinent.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "Map"),
 		UnknownField(),
@@ -5168,11 +5168,11 @@ class WorldMapContinent(Structure):
 		FloatField(),
 	)
 	
-	def changed_9901(self, base):
+	def changed_9901(self, fields):
 		"""
 		XXX Unknown build!
 		"""
-		base.append_fields(
+		fields.append_fields(
 			UnknownField(),
 		)
 
@@ -5181,7 +5181,7 @@ class WorldMapOverlay(Structure):
 	"""
 	WorldMapOverlay.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("zone", "WorldMapArea"),
 		ForeignKey("area_1", "AreaTable"),
@@ -5209,7 +5209,7 @@ class WorldMapTransforms(Structure):
 	instance to another - Example:
 	Expansion01 -> Azuremyst Isles
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("map", "Map"),
 		FloatField("x1"),
@@ -5221,11 +5221,11 @@ class WorldMapTransforms(Structure):
 		FloatField("target_y"),
 	)
 	
-	def changed_9658(self, base):
+	def changed_9658(self, fields):
 		"""
 		XXX When was this added? 6080->9658
 		"""
-		base.append_fields(UnknownField())
+		fields.append_fields(UnknownField())
 
 
 class WorldStateUI(Structure):
@@ -5233,7 +5233,7 @@ class WorldStateUI(Structure):
 	WorldStateUI.dbc
 	Used for drawing icons on the world map (eg naxx/wotlk event)
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("map", "Map"),
 		UnknownField(),
@@ -5257,7 +5257,7 @@ class WorldStateZoneSounds(Structure):
 	WorldStateZoneSounds.dbc
 	"""
 	implicit_id = True
-	base = Skeleton(
+	fields = Skeleton(
 		IntegerField("world_state"),
 		IntegerField("value"),
 		ForeignKey("area", "AreaTable"),
@@ -5274,7 +5274,7 @@ class WowError_Strings(Structure):
 	WowError_Strings.dbc
 	Localization called by WowError.exe when the game crashes.
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		LocalizedFields("description"),
@@ -5285,7 +5285,7 @@ class ZoneIntroMusicTable(Structure):
 	"""
 	ZoneIntroMusicTable.dbc
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		ForeignKey("sound", "SoundEntries"),
@@ -5299,7 +5299,7 @@ class ZoneMusic(Structure):
 	ZoneMusic.dbc
 	Music played in a zone
 	"""
-	base = Skeleton(
+	fields = Skeleton(
 		IDField(),
 		StringField("name"),
 		DurationField("duration_day", unit="milliseconds"),

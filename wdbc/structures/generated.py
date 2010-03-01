@@ -8,5 +8,5 @@ class GeneratedStructure(Structure):
 	"""Dynamically generated DBC structure."""
 	def __init__(self, structure_string, *pargs, **kwargs):
 		columns = []
-		self.base = Skeleton(*[UnknownField() for s in structure_string])
+		self.fields = Skeleton(*[UnknownField() for s in structure_string])
 		Structure.__init__(self)

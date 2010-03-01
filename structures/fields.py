@@ -66,7 +66,7 @@ class UnsignedIntegerField(Field):
 
 class BigIntegerField(Field):
 	"""An int64 field."""
-	char = "l"
+	char = "q"
 	size = 8
 
 class FloatField(Field):
