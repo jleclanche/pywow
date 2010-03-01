@@ -20,7 +20,7 @@ OLD_LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx")
 LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx",
 	"ruru", "unk1", "unk2", "unk3", "unk4", "unk5", "unk6", "unk7")
 
-class DBField(object):
+class Field(object):
 	"""
 	A database field.
 	"""
@@ -44,37 +44,37 @@ class DBField(object):
 # Base types
 #
 
-class ByteField(DBField):
+class ByteField(Field):
 	"""A 1-byte field."""
 	char = "b"
 	size = 1
 
-class SmallIntegerField(DBField):
+class SmallIntegerField(Field):
 	"""An int16 field."""
 	char = "h"
 	size = 2
 
-class IntegerField(DBField):
+class IntegerField(Field):
 	"""An int32 field."""
 	char = "i"
 	size = 4
 
-class UnsignedIntegerField(DBField):
+class UnsignedIntegerField(Field):
 	"""An uint32 field."""
 	char = "I"
 	size = 4
 
-class BigIntegerField(DBField):
+class BigIntegerField(Field):
 	"""An int64 field."""
 	char = "l"
 	size = 8
 
-class FloatField(DBField):
+class FloatField(Field):
 	"""A float32 field."""
 	char = "f"
 	size = 4
 
-class StringField(DBField):
+class StringField(Field):
 	"""A string field."""
 	char = "s"
 	size = 4
@@ -104,7 +104,7 @@ class StringIDField(IDField):
 	"""
 	char = "s"
 
-class ImplicitIDField(DBField):
+class ImplicitIDField(Field):
 	"""
 	IDField used when there isn't one. Always equal to
 	the row's position in the dbc.
@@ -112,7 +112,7 @@ class ImplicitIDField(DBField):
 	char = ""
 	size = 0
 	def __init__(self, name="_id"):
-		DBField.__init__(self, name=name)
+		Field.__init__(self, name=name)
 
 
 ##
@@ -434,14 +434,14 @@ class SpellMacroField(StringField):
 		val = SpellString(value)
 		return val.format(row)
 
-class HashField(DBField):
+class HashField(Field):
 	char = "16s"
 	size = 16
 	#from binascii import hexlify
 
-class DataField(DBField):
+class DataField(Field):
 	char = "x"
 	def __init__(self, name, master):
-		DBField.__init__(self, name=name)
+		Field.__init__(self, name=name)
 		self.master = master
 
