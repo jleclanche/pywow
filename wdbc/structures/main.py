@@ -1935,6 +1935,27 @@ class FactionGroup(Structure):
 		LocalizedFields("name"),
 	)
 
+class FactionTemplate(Structure):
+	"""
+	FactionTemplate.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("faction", "Faction"),
+		BitMaskField("flags"),
+		BitMaskField("support_flags"), # LUA::GetFactionForRace shifts 1 by col 2 in FactionGroup and & it with this column.
+		BitMaskField("friendly_flags"),
+		BitMaskField("hostile_mask"),
+		ForeignKey("enemy_faction_1", "Faction"),
+		ForeignKey("enemy_faction_2", "Faction"),
+		ForeignKey("enemy_faction_3", "Faction"),
+		ForeignKey("enemy_faction_4", "Faction"),
+		ForeignKey("friendly_faction_1", "Faction"),
+		ForeignKey("friendly_faction_2", "Faction"),
+		ForeignKey("friendly_faction_3", "Faction"),
+		ForeignKey("friendly_faction_4", "Faction"),
+	)
+
 
 class FileData(Structure):
 	"""
@@ -2035,7 +2056,7 @@ class GemProperties(Structure):
 		IDField(),
 		ForeignKey("enchant", "SpellItemEnchantment"),
 		BooleanField(),
-		BooleanField(),
+		BooleanField("unique_equipped"),
 		IntegerField("color"),
 	)
 
@@ -4426,6 +4447,96 @@ class SpellShapeshiftForm(Structure):
 	)
 
 
+class SpellVisual(Structure):
+	"""
+	SpellVisual.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("precast_effect", "SpellVisualKit"),
+		ForeignKey("casting_effect", "SpellVisualKit"),
+		ForeignKey("target_effect", "SpellVisualKit"),
+		ForeignKey("buff_effect", "SpellVisualKit"),
+		IntegerField("shapeshift"),
+		ForeignKey("channel_effect", "SpellVisualKit"),
+		BooleanField("has_missile"),
+		ForeignKey("missile_effect", "SpellVisualKit"),
+		BitMaskField("flags"),
+		UnknownField(),
+		ForeignKey("sound", "SoundEntries"),
+		UnknownField(),
+		ForeignKey("center_effect", "SpellVisualKit"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("aoe_effect", "SpellVisualKit"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class SpellVisualKit(Structure):
+	"""
+	SpellVisualKit.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		ForeignKey("caster_animation_1", "AnimationData"),
+		ForeignKey("caster_animation_2", "AnimationData"),
+		ForeignKey("caster_animation_3", "AnimationData"),
+		ForeignKey("visual_head", "SpellVisualEffectName"),
+		ForeignKey("visual_chest", "SpellVisualEffectName"),
+		ForeignKey("visual_base", "SpellVisualEffectName"),
+		ForeignKey("visual_right", "SpellVisualEffectName"),
+		ForeignKey("visual_left", "SpellVisualEffectName"),
+		ForeignKey("visual_aoe", "SpellVisualEffectName"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("visual_unk", "SpellVisualEffectName"),
+		ForeignKey("sound", "SoundEntries"),
+		ForeignKey("camera_effect", "SpellEffectCameraShakes"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		BitMaskField(),
+	)
+	
+	def changed_9637(self, base):
+		base.delete_fields("caster_animation_3")
+
+
 class SpellVisualEffectName(Structure):
 	"""
 	SpellVisualEffectName.dbc
@@ -4435,9 +4546,19 @@ class SpellVisualEffectName(Structure):
 		StringField("name"),
 		FilePathField("path"),
 		FloatField(),
-		FloatField(),
+		FloatField("scale"),
 		FloatField(), #scale?
 		FloatField(), #alpha?
+	)
+
+class SpellVisualPrecastTransitions(Structure):
+	"""
+	SpellVisualPrecastTransitions.dbc
+	"""
+	base = Skeleton(
+		IDField(),
+		StringField("load"),
+		StringField("hold"),
 	)
 
 
