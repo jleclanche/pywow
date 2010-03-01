@@ -1165,8 +1165,8 @@ class CharacterFacialHairStyles(Structure):
 	CharacterFacialHairStyles.dbc
 	Used for all facial changes, hair styles, markings, tusks...
 	"""
+	implicit_id = True
 	base = Skeleton(
-		ImplicitIDField(),
 		ForeignKey("race", "ChrRaces"),
 		IntegerField("gender"),
 		IntegerField("specific_id"),
@@ -1186,8 +1186,8 @@ class CharBaseInfo(Structure):
 	CharBaseInfo.dbc
 	Defines availability of classes for the different races.
 	"""
+	implicit_id = True
 	base = Skeleton(
-		ImplicitIDField(),
 		ForeignByte("race", "ChrRaces"), #, field=ByteField),
 		ForeignByte("class", "ChrClasses"), #, field=ByteField),
 	)
@@ -2547,8 +2547,8 @@ class ItemSubClassMask(Structure):
 		
 	])
 	"""
+	implicit_id = True
 	base = Skeleton(
-		ImplicitIDField(),
 		IntegerField("id1"),
 		BitMaskField("id2_mask"),
 		LocalizedFields("name"),
@@ -5256,8 +5256,8 @@ class WorldStateZoneSounds(Structure):
 	"""
 	WorldStateZoneSounds.dbc
 	"""
+	implicit_id = True
 	base = Skeleton(
-		ImplicitIDField(),
 		IntegerField("world_state"),
 		IntegerField("value"),
 		ForeignKey("area", "AreaTable"),
