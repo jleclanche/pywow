@@ -227,7 +227,7 @@ class WDBFile(DBFile):
 		else: # allow for custom structures
 			name = getfilename(self.file.name)
 		self.structure = getstructure(name, self.build, parent=self)
-		log.info("Using %s structure build %i" % (self.structure.name, self.build))
+		log.info("Using %s build %i" % (self.structure, self.build))
 	
 	def _parse_row(self, id):
 		address, reclen = self._addresses[id]
@@ -247,10 +247,10 @@ class WDBFile(DBFile):
 		f.seek(len(self.header))
 		
 		rows = 0
-		struct_string = "<%si" % (self.structure[0].char)
+		structure_string = "<%si" % (self.structure[0].char)
 		while True:
 			address = f.tell() # Get the address of the full row
-			id, reclen = unpack(struct_string, f.read(self.row_header_size))
+			id, reclen = unpack(structure_string, f.read(self.row_header_size))
 			if reclen == 0: # EOF
 				break
 			
@@ -331,7 +331,7 @@ class DBCFile(DBFile):
 			self.structure = getstructure(name, self.build, parent=self)
 		except StructureNotFound:
 			self.structure = self.__generate_structure()
-		log.info("Using %s structure build %i" % (self.structure.name, self.build))
+		log.info("Using %s build %i" % (self.structure, self.build))
 		
 		self.__check_structure_integrity()
 	
@@ -377,16 +377,18 @@ class DBCFile(DBFile):
 		f.seek(len(self.header))
 		
 		rows = 0
+		row_header_size = self.structure[0].size
+		structure_string = "<%s" % (self.structure[0].char)
 		reclen = self.header.reclen
 		while rows < self.header.row_count:
 			address = f.tell() # Get the address of the full row
-			id, = unpack("<i", f.read(4))
+			id, = unpack(structure_string, f.read(row_header_size))
 			
 			if id in self._addresses: # Something's wrong here
 				log.warning("Multiple instances of row #%r found" % (id))
 			self._addresses[id] = (address, reclen)
 			
-			f.seek(reclen - 4, os.SEEK_CUR) # minus 4 bytes for id
+			f.seek(reclen - row_header_size, os.SEEK_CUR) # minus length of id
 			rows += 1
 		
 		log.info("%i rows total" % (rows))
@@ -454,9 +456,6 @@ class DBRow(list):
 					_data = unpack("<i", data[cursor:cursor+4])[0]
 					cursor += 4
 					dynfields = _data
-				
-				elif char == "": # ImplicitIDField
-					_data = len(parent) + 1 # 1-indexed
 				
 				elif char == "x": # Data TODO
 					_data = data[cursor:cursor+self.data_length]
@@ -597,6 +596,29 @@ class DBRow(list):
 			self[k] = other[k]
 
 
+class InferredDBCFile(DBCFile):
+	"""
+	DBCFile with implicit ordering. These files have no IDField.
+	"""
+	
+	def preload(self):
+		f = self.file
+		f.seek(len(self.header))
+		
+		rows = 0
+		reclen = self.header.reclen
+		while rows < self.header.row_count:
+			address = f.tell() # Get the address of the full row
+			id = rows + 1
+			
+			self._addresses[id] = (address, reclen)
+			
+			f.seek(reclen, os.SEEK_CUR)
+			rows += 1
+		
+		log.info("%i rows total" % (rows))
+
+
 class ComplexDBCFile(DBCFile):
 	"""
 	Only used in ItemSubClass.dbc for now
@@ -614,10 +636,10 @@ class ComplexDBCFile(DBCFile):
 			id = unpack("<ii", f.read(8)) # id is a tuple instead
 			
 			if id in self._addresses: # Something's wrong here
-				print "%r, %r in self.addresses" % id
+				log.warning("Multiple instances of row #%s found" % (".".join(id)))
 			self._addresses[id] = (address, reclen)
 			
-			f.seek(reclen - 8, os.SEEK_CUR) # minus 4 bytes for id
+			f.seek(reclen - 8, os.SEEK_CUR) # minus 4 bytes for each id
 			rows += 1
 		
 		log.info("%i rows total" % (rows))
@@ -637,9 +659,12 @@ def fopen(name, build=0, structure=None, environment={}):
 	file = open(name, "rb")
 	signature = file.read(4)
 	if signature == "WDBC":
+		_structure = structure or getstructure(getfilename(file.name))
 		cls = DBCFile
-		if getfilename(file.name) == "itemsubclass":
-			cls = ComplexDBCFile # TODO morph in __new__
+		if len(_structure.primary_keys) > 1:
+			cls = ComplexDBCFile
+		elif hasattr(_structure, "implicit_id") and _structure.implicit_id:
+			cls = InferredDBCFile
 	elif not signature:
 		raise IOError()
 	else:
