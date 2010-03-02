@@ -124,7 +124,7 @@ class DBFile(object):
 	def __len__(self):
 		return len(self._addresses)
 	
-	def _parse_field(self, data, field, row):
+	def _parse_field(self, data, field, row=None):
 		"""
 		Parse a single field in a StringIO stream.
 		"""
@@ -414,12 +414,12 @@ class DBCFile(DBFile):
 		f.seek(len(self.header))
 		
 		rows = 0
-		row_header_size = self.structure[0].size
-		structure_string = "<%s" % (self.structure[0].char)
+		field = self.structure[0]
+		row_header_size = field.size
 		reclen = self.header.reclen
 		while rows < self.header.row_count:
 			address = f.tell() # Get the address of the full row
-			id, = unpack(structure_string, f.read(row_header_size))
+			id = self._parse_field(f, field)
 			
 			if id in self._addresses: # Something's wrong here
 				log.warning("Multiple instances of row #%r found" % (id))
