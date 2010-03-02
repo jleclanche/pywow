@@ -1718,7 +1718,7 @@ class CurrencyTypes(Structure):
 		IDField(),
 		ForeignKey("item", "Item"),
 		ForeignKey("category", "currencycategory"),
-		IntegerField(),
+		IntegerField("index"),
 	)
 
 

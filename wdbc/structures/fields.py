@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pywow.structures.fields import *
-
+from pywow.spellstrings import SpellString
 
 ##
 # Core custom types for WDB/DBC files

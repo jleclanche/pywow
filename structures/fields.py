@@ -5,8 +5,7 @@ Database fields
 """
 
 from datetime import timedelta
-from pywow.spellstrings import SpellString
-from pywow.bitflags import BitFlags
+from .bitflags import BitFlags
 
 
 ##
