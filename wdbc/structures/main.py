@@ -433,7 +433,9 @@ class ItemCache(Structure):
 class ItemNameCache(Structure):
 	"""
 	itemnamecache.wdb
-	Cached itemset data
+	Mirrors itemcache.wdb but only contains name and slot.
+	Used for itemset tooltips so they don't query a bunch
+	of possibly locked items.
 	"""
 	signature = "BDNW"
 	fields = Skeleton(
@@ -1065,6 +1067,15 @@ class BattlemasterList(Structure):
 			"min_level",
 			"max_level",
 		)
+	
+	def changed_11573(self, fields):
+		self.changed_10554(fields)
+		fields.delete_fields("max_players")
+		fields.rename_field("max_group_size", "max_players")
+		fields.append_fields(
+			IntegerField("min_level"),
+			IntegerField("max_level"),
+		)
 
 
 class BankBagSlotPrices(Structure):
@@ -1364,7 +1375,7 @@ class CharVariations(Structure):
 	"""
 	fields = Skeleton(
 		IDField(), # shared with ChrRaces
-		IntegerField("gender"),
+		IDField("gender"),
 		UnknownField(),
 		BitMaskField(),
 		BitMaskField(),
@@ -1600,6 +1611,16 @@ class CreatureModelData(Structure):
 	)
 
 
+class CreatureMovementInfo(Structure):
+	"""
+	CreatureMovementInfo.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+	)
+
+
 class CreatureSoundData(Structure):
 	"""
 	CreatureSoundData.dbc
@@ -1728,6 +1749,33 @@ class DeathThudLookups(Structure):
 		ForeignKey("race", "ChrRaces"),
 		ForeignKey("dirt_sound", "SoundEntries"),
 		ForeignKey("water_sound", "SoundEntries"),
+	)
+
+
+class DestructibleModelData(Structure):
+	"""
+	DestructibleModelData.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -1868,7 +1916,69 @@ class Emotes(Structure):
 		BitMaskField("flags"),
 		IntegerField("loop"),
 		IntegerField("hold"),
+		ForeignKey("sound", "SoundEntries"),
+	)
+
+
+class EmotesText(Structure):
+	"""
+	EmotesText.dbc
+	FIXME need to update
+	"""
+	fields = Skeleton(
+		IDField(),
+		StringField("name"),
+		ForeignKey("3_to_3", "EmotesTextData"),
+		ForeignKey("3_to_1", "EmotesTextData"),
+		ForeignKey("1_to_3", "EmotesTextData"),
+		UnknownField(),
+		ForeignKey("2_to_0", "EmotesTextData"),
+		UnknownField(),
+		ForeignKey("1_to_0", "EmotesTextData"),
+		UnknownField(),
+		ForeignKey("3_to_3_female", "EmotesTextData"),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("2_to_0_female", "EmotesTextData"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class EmotesTextData(Structure):
+	"""
+	EmotesTextData.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		LocalizedFields("text"),
+	)
+
+
+class EmotesTextSound(Structure):
+	"""
+	EmotesTextSound.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("text", "EmotesText"),
+		ForeignKey("race", "ChrRaces"),
+		IntegerField("gender"),
 		ForeignKey("sound", "SoundEntries")
+	)
+
+
+class EnvironmentalDamage(Structure):
+	"""
+	EnvironmentalDamage.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("index"),
+		ForeignKey("visual", "SpellVisual"),
 	)
 
 
@@ -1977,6 +2087,19 @@ class FootprintTextures(Structure):
 	fields = Skeleton(
 		IDField(),
 		FilePathField("path"),
+	)
+
+
+class FootstepTerrainLookup(Structure):
+	"""
+	FootstepTerrainLookup.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("ground_effect", "GroundEffectDoodad"),
+		ForeignKey("terrain_type", "TerrainType"),
+		ForeignKey("sound_dry", "SoundEntries"),
+		ForeignKey("sound_wet", "SoundEntries"),
 	)
 
 
@@ -2089,6 +2212,57 @@ class GlyphSlot(Structure):
 	)
 
 
+class GMSurveyAnswers(Structure):
+	"""
+	GMSurveyAnswers.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("index"),
+		UnknownField(),
+		LocalizedFields("text"),
+	)
+
+
+class GMSurveyCurrentSurvey(Structure):
+	"""
+	GMSurveyCurrentSurvey.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+	)
+
+
+class GMSurveyQuestions(Structure):
+	"""
+	GMSurveyQuestions.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		LocalizedFields("text"),
+	)
+
+
+class GMSurveySurveys(Structure):
+	"""
+	GMSurveySurveys.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("question_1", "GMSurveyQuestions"),
+		ForeignKey("question_2", "GMSurveyQuestions"),
+		ForeignKey("question_3", "GMSurveyQuestions"),
+		ForeignKey("question_4", "GMSurveyQuestions"),
+		ForeignKey("question_5", "GMSurveyQuestions"),
+		ForeignKey("question_6", "GMSurveyQuestions"),
+		ForeignKey("question_7", "GMSurveyQuestions"),
+		ForeignKey("question_8", "GMSurveyQuestions"),
+		ForeignKey("question_9", "GMSurveyQuestions"),
+		ForeignKey("question_10", "GMSurveyQuestions"),
+	)
+
+
 class GMTicketCategory(Structure):
 	"""
 	GMTicketCategory.dbc
@@ -2161,12 +2335,52 @@ class gtChanceToMeleeCritBase(Structure):
 	)
 
 
+class gtChanceToMeleeCrit(Structure):
+	"""
+	gtChanceToMeleeCrit.dbc
+	"""
+	implicit_id = True
+	fields = Skeleton(
+		FloatField("ratio"),
+	)
+
+
 class gtChanceToSpellCrit(Structure):
 	"""
 	gtChanceToSpellCrit.dbc
 	"""
 	implicit_id = True
 	fields = Skeleton(
+		FloatField("ratio"),
+	)
+
+
+class gtChanceToSpellCritBase(Structure):
+	"""
+	gtChanceToSpellCritBase.dbc
+	"""
+	implicit_id = True
+	fields = Skeleton(
+		FloatField("ratio"),
+	)
+
+
+class gtNPCManaCostScaler(Structure):
+	"""
+	gtNPCManaCostScaler.dbc
+	"""
+	implicit_id = True
+	fields = Skeleton(
+		FloatField("ratio"),
+	)
+
+class gtOCTClassCombatRatingScalar(Structure):
+	"""
+	gtOCTClassCombatRatingScalar.dbc
+	"""
+	implicit_id = True
+	fields = Skeleton(
+		IDField(),
 		FloatField("ratio"),
 	)
 
@@ -2352,7 +2566,7 @@ class ItemClass(Structure):
 	)
 
 
-class ItemCondExtCost(Structure):
+class ItemCondExtCosts(Structure):
 	"""
 	ItemCondExtCost.dbc
 	"""
@@ -2469,14 +2683,14 @@ class ItemPurchaseGroup(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		ForeignKey("item1", "Item"),
-		ForeignKey("item2", "Item"),
-		ForeignKey("item3", "Item"),
-		ForeignKey("item4", "Item"),
-		ForeignKey("item5", "Item"),
-		ForeignKey("item6", "Item"),
-		ForeignKey("item7", "Item"),
-		ForeignKey("item8", "Item"),
+		ForeignKey("item_1", "Item"),
+		ForeignKey("item_2", "Item"),
+		ForeignKey("item_3", "Item"),
+		ForeignKey("item_4", "Item"),
+		ForeignKey("item_5", "Item"),
+		ForeignKey("item_6", "Item"),
+		ForeignKey("item_7", "Item"),
+		ForeignKey("item_8", "Item"),
 		LocalizedFields("name"),
 	)
 
@@ -2488,13 +2702,35 @@ class ItemRandomProperties(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		StringField("name"),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		StringField("internal_name"),
+		ForeignKey("enchantment_1", "SpellItemEnchantment"),
+		ForeignKey("enchantment_2", "SpellItemEnchantment"),
+		ForeignKey("enchantment_3", "SpellItemEnchantment"),
+		ForeignKey("enchantment_4", "SpellItemEnchantment"),
+		ForeignKey("enchantment_5", "SpellItemEnchantment"),
 		LocalizedFields("name"),
+	)
+
+
+class ItemRandomSuffix(Structure):
+	"""
+	ItemRandomSuffix.dbc
+	XXX What's the difference with ItemRandomProperties?
+	"""
+	fields = Skeleton(
+		IDField(),
+		LocalizedFields("name"),
+		StringField("internal_name"),
+		ForeignKey("enchantment_1", "SpellItemEnchantment"),
+		ForeignKey("enchantment_2", "SpellItemEnchantment"),
+		ForeignKey("enchantment_3", "SpellItemEnchantment"),
+		ForeignKey("enchantment_4", "SpellItemEnchantment"),
+		ForeignKey("enchantment_5", "SpellItemEnchantment"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -2507,31 +2743,31 @@ class ItemSet(Structure):
 	fields = Skeleton(
 		IDField(),
 		LocalizedFields("name"),
-		ForeignKey("item1", "itemtextcache"),
-		ForeignKey("item2", "itemtextcache"),
-		ForeignKey("item3", "itemtextcache"),
-		ForeignKey("item4", "itemtextcache"),
-		ForeignKey("item5", "itemtextcache"),
-		ForeignKey("item6", "itemtextcache"),
-		ForeignKey("item7", "itemtextcache"),
-		ForeignKey("item8", "itemtextcache"),
-		ForeignKey("item9", "itemtextcache"),
-		ForeignKey("item10", "itemtextcache"),
-		ForeignKey("item11", "itemtextcache"),
-		ForeignKey("item12", "itemtextcache"),
-		ForeignKey("item13", "itemtextcache"),
-		ForeignKey("item14", "itemtextcache"),
-		ForeignKey("item15", "itemtextcache"),
-		ForeignKey("item16", "itemtextcache"),
-		ForeignKey("item17", "itemtextcache"),
-		ForeignKey("bonus1", "spell"),
-		ForeignKey("bonus2", "spell"),
-		ForeignKey("bonus3", "spell"),
-		ForeignKey("bonus4", "spell"),
-		ForeignKey("bonus5", "spell"),
-		ForeignKey("bonus6", "spell"),
-		ForeignKey("bonus7", "spell"),
-		ForeignKey("bonus8", "spell"),
+		ForeignKey("item_1", "Item"),
+		ForeignKey("item_2", "Item"),
+		ForeignKey("item_3", "Item"),
+		ForeignKey("item_4", "Item"),
+		ForeignKey("item_5", "Item"),
+		ForeignKey("item_6", "Item"),
+		ForeignKey("item_7", "Item"),
+		ForeignKey("item_8", "Item"),
+		ForeignKey("item_9", "Item"),
+		ForeignKey("item_10", "Item"),
+		ForeignKey("item_11", "Item"),
+		ForeignKey("item_12", "Item"),
+		ForeignKey("item_13", "Item"),
+		ForeignKey("item_14", "Item"),
+		ForeignKey("item_15", "Item"),
+		ForeignKey("item_16", "Item"),
+		ForeignKey("item_17", "Item"),
+		ForeignKey("bonus_1", "Spell"),
+		ForeignKey("bonus_2", "Spell"),
+		ForeignKey("bonus_3", "Spell"),
+		ForeignKey("bonus_4", "Spell"),
+		ForeignKey("bonus_5", "Spell"),
+		ForeignKey("bonus_6", "Spell"),
+		ForeignKey("bonus_7", "Spell"),
+		ForeignKey("bonus_8", "Spell"),
 		IntegerField("piecesreqbonus1"),
 		IntegerField("piecesreqbonus2"),
 		IntegerField("piecesreqbonus3"),
@@ -2540,7 +2776,7 @@ class ItemSet(Structure):
 		IntegerField("piecesreqbonus6"),
 		IntegerField("piecesreqbonus7"),
 		IntegerField("piecesreqbonus8"),
-		ForeignKey("required_skill", "skillline"),
+		ForeignKey("required_skill", "SkillLine"),
 		IntegerField("required_skill_level"),
 	)
 
@@ -2648,15 +2884,20 @@ class LFGDungeons(Structure):
 		IntegerField("level_4"),
 		IntegerField("level_5"),
 		ForeignKey("instance", "Map"),
-		UnknownField(),
+		IntegerField("heroic_level"),
 		UnknownField(),
 		UnknownField(),
 		IntegerField("faction"), # -1 = all, 0 = Horde, 1 = Alliance
 		StringField("icon"),
 		UnknownField(),
 		UnknownField(),
-		UnknownField(),
+		IntegerField("type"),
 	)
+	
+	def changed_11573(self, fields):
+		fields.append_fields(
+			LocalizedFields("description")
+		)
 
 
 class LFGDungeonExpansion(Structure):
@@ -2708,6 +2949,9 @@ class Light(Structure):
 		FloatField("outer_radius"),
 		IntegerField("sky_settings"),
 		IntegerField("fog_settings"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 		UnknownField(),
 		UnknownField(),
 		UnknownField(),
@@ -3311,6 +3555,33 @@ class PaperDollItemFrame(Structure):
 	)
 
 
+class ParticleColor(Structure):
+	"""
+	ParticleColor.dbc
+	This dbc defines colors that are used in CreatureDisplayInfo.dbc
+	to replace particle colors between instances of a model. This is
+	used at imps for example. They normally have "normal" flames in
+	red/orange and get new green/yellow ones assigned, when they are
+	"felimps" with a green texture.
+	To have models that support this, you need to give the particles
+	an ID at 0x2A in the emitters. This Id should be 0, 11, 12 or 13,
+	depending on which color / behaviour you want.
+	
+	"""
+	fields = Skeleton(
+		IDField(),
+		ColorField("red_1"),
+		ColorField("green_1"),
+		ColorField("blue_1"),
+		ColorField("red_2"),
+		ColorField("green_2"),
+		ColorField("blue_2"),
+		ColorField("red_3"),
+		ColorField("green_3"),
+		ColorField("blue_3"),
+	)
+
+
 class PetitionType(Structure):
 	"""
 	PetitionType.dbc
@@ -3661,6 +3932,21 @@ class SkillLineCategory(Structure):
 		IDField(),
 		LocalizedFields("name"),
 		IntegerField("sort")
+	)
+
+
+class SkillRaceClassInfo(Structure):
+	"""
+	SkillRaceClassInfo.dbc
+	"""
+	fields = Skeleton(
+		ForeignKey("skill", "SkillLine"),
+		ForeignMask("races", "ChrRaces"),
+		ForeignMask("classes", "ChrClasses"),
+		BitMaskField("flags"),
+		IntegerField("required_level"),
+		ForeignKey("skill_tier", "SkillTiers"),
+		ForeignKey("skill_cost", "SkillCostsData"),
 	)
 
 
@@ -4270,6 +4556,10 @@ class SpellChainEffects(Structure):
 			UnsignedSmallIntegerField(),
 			SmallIntegerField(),
 		)
+	
+	def changed_10026(self, fields):
+		self.changed_9637(fields)
+		fields.append_fields(UnknownField())
 
 
 class SpellDescriptionVariables(Structure):
@@ -4454,6 +4744,42 @@ class SpellMechanic(Structure):
 	)
 
 
+class SpellMissile(Structure):
+	"""
+	SpellMissile.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
+class SpellMissileMotion(Structure):
+	"""
+	SpellMissileMotion.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		StringField("name"),
+		StringField("formula"),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
 class SpellRadius(Structure):
 	"""
 	SpellRadius.dbc
@@ -4462,7 +4788,7 @@ class SpellRadius(Structure):
 	fields = Skeleton(
 		IDField(),
 		FloatField("radius_min"),
-		IntegerField(),
+		UnknownField(),
 		FloatField("radius_max"),
 	)
 
@@ -4486,7 +4812,7 @@ class SpellRange(Structure):
 
 class SpellRuneCost(Structure):
 	"""
-	SpellRunecost.dbc
+	SpellRuneCost.dbc
 	Death Knight abilities' rune costs
 	"""
 	fields = Skeleton(
@@ -4566,6 +4892,21 @@ class SpellVisual(Structure):
 	)
 
 
+class SpellVisualEffectName(Structure):
+	"""
+	SpellVisualEffectName.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		StringField("name"),
+		FilePathField("path"),
+		FloatField(),
+		FloatField("scale"),
+		FloatField(), #scale?
+		FloatField(), #alpha?
+	)
+
+
 class SpellVisualKit(Structure):
 	"""
 	SpellVisualKit.dbc
@@ -4616,18 +4957,14 @@ class SpellVisualKit(Structure):
 		fields.delete_fields("caster_animation_3")
 
 
-class SpellVisualEffectName(Structure):
+class SpellVisualKitAreaModel(Structure):
 	"""
-	SpellVisualEffectName.dbc
+	SpellVisualKitAreaModel.dbc
 	"""
 	fields = Skeleton(
 		IDField(),
-		StringField("name"),
-		FilePathField("path"),
-		FloatField(),
-		FloatField("scale"),
-		FloatField(), #scale?
-		FloatField(), #alpha?
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -4895,6 +5232,20 @@ class TransportPhysics(Structure):
 		FloatField(),
 	)
 
+
+class TransportRotation(Structure):
+	"""
+	TransportRotation.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
 
 class UISoundLookups(Structure):
 	"""
@@ -5324,6 +5675,20 @@ class WorldMapTransforms(Structure):
 		XXX When was this added? 6080->9658
 		"""
 		fields.append_fields(UnknownField())
+
+
+class WorldSafeLocs(Structure):
+	"""
+	WorldSafeLocs.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("map", "Map"),
+		FloatField("x"),
+		FloatField("y"),
+		FloatField("z"),
+		LocalizedFields("name"),
+	)
 
 
 class WorldStateUI(Structure):
