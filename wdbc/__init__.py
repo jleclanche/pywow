@@ -651,12 +651,17 @@ def fopen(name, build=0, structure=None, environment={}):
 	file = open(name, "rb")
 	signature = file.read(4)
 	if signature == "WDBC":
-		_structure = structure or getstructure(getfilename(file.name))
 		cls = DBCFile
-		if len(_structure.primary_keys) > 1:
-			cls = ComplexDBCFile
-		elif hasattr(_structure, "implicit_id") and _structure.implicit_id:
-			cls = InferredDBCFile
+		try:
+			_structure = structure or getstructure(getfilename(file.name))
+		except StructureNotFound:
+			pass
+		else:
+			cls = DBCFile
+			if len(_structure.primary_keys) > 1:
+				cls = ComplexDBCFile
+			elif hasattr(_structure, "implicit_id") and _structure.implicit_id:
+				cls = InferredDBCFile
 	elif not signature:
 		raise IOError()
 	else:
