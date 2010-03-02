@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os, os.path
+from cStringIO import StringIO
 from struct import pack, unpack, error as StructError
 from .log import log
 from .structures import fields, GeneratedStructure, StructureNotFound, getstructure
@@ -84,6 +85,8 @@ class DBFile(object):
 		self._addresses = {}
 		self._values = {}
 		self.environment = environment
+		
+		self.__row_dynfields = 0 # Dynamic fields index, used when parsing a row
 	
 	def __repr__(self):
 		return "%s(file=%r, build=%r)" % (self.__class__.__name__, self.file, self.build)
@@ -120,6 +123,31 @@ class DBFile(object):
 	
 	def __len__(self):
 		return len(self._addresses)
+	
+	def _parse_field(self, data, field, row):
+		"""
+		Parse a single field in a StringIO stream.
+		"""
+		if field.dyn > self.__row_dynfields:
+			ret = None # The column doesn't exist in this row, we set it to None
+		
+		if isinstance(field, fields.DynamicMaster):
+			self.__row_dynfields = ret
+		
+		if isinstance(field, fields.DataField):
+			length = getattr(self, field.master)
+			ret = data.read(length)
+		
+		elif isinstance(field, fields.StringField):
+			ret = self._parse_string(data)
+		
+		else:
+			try:
+				ret, = unpack("<%s" % (field.char), data.read(field.size))
+			except StructError:
+				ret = None # There is no data left in the row, we set it to None
+		
+		return ret
 	
 	def append(self, row):
 		"""
@@ -235,6 +263,12 @@ class WDBFile(DBFile):
 		row = DBRow(self, data=data, reclen=reclen)
 		self._values[id] = row
 	
+	def _parse_string(self, data):
+		pos = data.tell()
+		index = data.read().index("\x00")
+		data.seek(pos)
+		return unicode(data.read(index + 1)[:-1], "utf-8")
+	
 	def eof(self):
 		return "\0" * self.row_header_size
 	
@@ -341,13 +375,17 @@ class DBCFile(DBFile):
 		row = DBRow(self, data=data)
 		self._values[id] = row
 	
-	def _getstring(self, address):
+	def _parse_string(self, data):
+		address, = unpack("<I", data.read(4))
+		if not address:
+			return ""
+		
 		f = self.file
 		pos = f.tell()
 		f.seek(-self.header.stringblocksize, os.SEEK_END) # Go to the stringblock
 		f.seek(address, os.SEEK_CUR) # seek to the address in the stringblock
 		
-		#Read until \0
+		# Read until \0
 		chars = []
 		while True:
 			char = f.read(1)
@@ -422,51 +460,15 @@ class DBRow(list):
 		
 		elif data:
 			dynfields = 0
-			cursor = 0
-			for col in self.structure:
-				char = col.char
-				dyn = col.dyn
-				
-				if dyn > dynfields:
-					_data = None # The column doesn't exist in this row, we set it to None
-				
-				elif isinstance(col, fields.DynamicMaster):
-					_data = unpack("<i", data[cursor:cursor+4])[0]
-					cursor += 4
-					dynfields = _data
-				
-				elif isinstance(col, fields.DataField):
-					data_length = getattr(self, col.master)
-					_data = data[cursor:cursor+data_length]
-					cursor += data_length
-				
-				elif char == "s":
-					if self.structure.signature == "WDBC":
-						address, = unpack("<i", data[cursor:cursor+4])
-						if address == 0:
-							_data = u""
-						else:
-							_data = unicode(parent._getstring(address), "utf-8")
-						cursor += 4
-					else:
-						index = data.index("\x00", cursor)
-						_data = unicode(data[cursor:index], "utf-8")
-						cursor += index - cursor + 1
-				
-				else:
-					size = col.size
-					try:
-						_data, = unpack("<%s" % (char), data[cursor:cursor+size])
-					except StructError:
-						_data = None # There is no data left in the row, we set it to None
-					cursor += size
-				
+			data = StringIO(data)
+			for field in self.structure:
+				_data = parent._parse_field(data, field, self)
 				self.append(_data)
 			
 			if reclen:
 				real_reclen = reclen + self._parent.row_header_size
-				if cursor != real_reclen:
-					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self._id, real_reclen, cursor, real_reclen-cursor))
+				if data.tell() != real_reclen:
+					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self._id, real_reclen, data.tell(), real_reclen-data.tell()))
 	
 	def __int__(self):
 		return self._id
@@ -549,7 +551,7 @@ class DBRow(list):
 				_data = pack("<%s" % (k.char), v)
 			data.append(str(_data))
 		if reclen:
-			length = pack("<i", len("".join(data[2:])))
+			length = pack("<I", len("".join(data[2:])))
 			data[self.structure.index(reclen.name)] = length
 		data = "".join(data)
 		
