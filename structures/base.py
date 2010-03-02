@@ -95,6 +95,10 @@ class Skeleton(list):
 		for field in fields:
 			self.append(field)
 	
+	def append_fields(self, *fields):
+		for field in fields:
+			self.append(field)
+	
 	def insert_field(self, field, before):
 		names = [f.name for f in self]
 		try:
@@ -102,9 +106,9 @@ class Skeleton(list):
 		except ValueError:
 			raise StructureError("%r is not a valid column reference for insert_field" % (before))
 	
-	def append_fields(self, *fields):
+	def insert_fields(self, fields, before):
 		for field in fields:
-			self.append(field)
+			self.insert_field(field, before=before)
 	
 	def delete_fields(self, *fields):
 		names = [field.name for field in self]
@@ -116,6 +120,6 @@ class Skeleton(list):
 			except ValueError:
 				raise StructureError("%r is not a valid column to delete" % (field))
 	
-	def insert_fields(self, fields, before):
-		for field in fields:
-			self.insert_field(field, before=before)
+	def rename_field(self, before, after):
+		index = [field.name for field in self].index(before)
+		self[index].name = after
