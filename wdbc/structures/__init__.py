@@ -32,3 +32,16 @@ class StructureLoader():
 
 StructureLoader.setup()
 getstructure = StructureLoader.getstructure
+
+
+def __update_locales(self, locales):
+	updated = False
+	for field in self:
+		if isinstance(field, LocalizedFields):
+			field.update_locales(locales)
+			updated = True
+	
+	if not updated:
+		raise StructureError("No locales to update for update_locales")
+
+Skeleton.update_locales = __update_locales

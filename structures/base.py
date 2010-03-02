@@ -3,6 +3,7 @@
 
 import copy
 
+
 class StructureError(Exception):
 	pass
 
@@ -18,7 +19,10 @@ class StructureProperty(object):
 		return self.method(type)
 
 class Structure(list):
-	""" A database structure. """
+	"""
+	An arbitrary structure.
+	The "fields" class property should be defined. as a Skeleton.
+	"""
 	signature = "WDBC"
 	
 	@StructureProperty
@@ -84,7 +88,9 @@ class Structure(list):
 
 
 class Skeleton(list):
-	"""The database's actual structure. Used to concatenate columns into a single structure."""
+	"""
+	The database's actual structure. Used to concatenate columns into a single structure.
+	"""
 	def __init__(self, *fields):
 		for field in fields:
 			self.append(field)
@@ -113,15 +119,3 @@ class Skeleton(list):
 	def insert_fields(self, fields, before):
 		for field in fields:
 			self.insert_field(field, before=before)
-	
-	def update_locales(self, locales):
-		# TODO move this to wdbc
-		from wdbc.structures.fields import LocalizedFields
-		updated = False
-		for field in self:
-			if isinstance(field, LocalizedFields):
-				field.update_locales(locales)
-				updated = True
-		
-		if not updated:
-			raise StructureError("No locales to update for update_locales")
