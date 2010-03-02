@@ -45,8 +45,13 @@ class Field(object):
 #
 
 class ByteField(Field):
-	"""A 1-byte field."""
+	"""A byte field."""
 	char = "b"
+	size = 1
+
+class UnsignedByteField(Field):
+	"""An unsigned byte field."""
+	char = "B"
 	size = 1
 
 class SmallIntegerField(Field):
