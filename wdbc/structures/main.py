@@ -2136,42 +2136,67 @@ class gtCombatRatings(Structure):
 	"""
 	gtCombatRatings.dbc
 	"""
+	implicit_id = True
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
+
+
+class gtChanceToMeleeCritBase(Structure):
+	"""
+	gtChanceToMeleeCritBase.dbc
+	"""
+	implicit_id = True
+	fields = Skeleton(
+		FloatField("ratio"),
+	)
+
+
+class gtChanceToSpellCrit(Structure):
+	"""
+	gtChanceToSpellCrit.dbc
+	"""
+	implicit_id = True
+	fields = Skeleton(
+		FloatField("ratio"),
+	)
+
 
 class gtOCTRegenHP(Structure):
 	"""
 	gtOCTRegenHP.dbc
 	"""
-	
+	implicit_id = True
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
+
 
 class gtOCTRegenMP(Structure):
 	"""
 	gtOCTRegenMP.dbc
 	"""
-	
+	implicit_id = True
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
+
 
 class gtRegenHPPerSpt(Structure):
 	"""
 	gtRegenHPPerSpt.dbc
 	"""
-	
+	implicit_id = True
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
+
 
 class gtRegenMPPerSpt(Structure):
 	"""
 	gtRegenMPPerSpt.dbc
 	"""
-	
+	implicit_id = True
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
@@ -2388,7 +2413,7 @@ class ItemExtendedCost(Structure):
 	)
 
 	def changed_10026(self, fields):
-		fields.insert_field(IntegerField("bracket"), before="item1")
+		fields.insert_field(IntegerField("bracket"), before="item_1")
 
 
 class ItemGroupSounds(Structure):
@@ -4549,6 +4574,25 @@ class SpellVisualEffectName(Structure):
 		FloatField(), #scale?
 		FloatField(), #alpha?
 	)
+
+
+class SpellVisualKitModelAttach(Structure):
+	"""
+	SpellVisualKitModelAttach.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("visual", "SpellVisualKit"),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
 
 class SpellVisualPrecastTransitions(Structure):
 	"""
