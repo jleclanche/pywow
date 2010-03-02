@@ -2132,6 +2132,15 @@ class GroundEffectTexture(Structure):
 	)
 
 
+class gtBarberShopCostBase(Structure):
+	"""
+	gtBarberShopCostBase.dbc
+	"""
+	implicit_id = True
+	fields = Skeleton(
+		FloatField("ratio"),
+	)
+
 class gtCombatRatings(Structure):
 	"""
 	gtCombatRatings.dbc
@@ -4211,10 +4220,56 @@ class SpellChainEffects(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField(),
-		IntegerField(),
-		FilePathField("texture")
+		UnknownField(),
+		UnknownField(),
+		FilePathField("texture"),
 	)
+	
+	def changed_9637(self, fields):
+		"""
+		FIXME This happened somewhere between 4125 and 9637
+		"""
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			FloatField(),
+			UnknownField(),
+			UnknownField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			UnsignedByteField(),
+			UnsignedSmallIntegerField(),
+			SmallIntegerField(),
+			SmallIntegerField(),
+			SmallIntegerField(),
+			UnknownField(),
+			UnsignedSmallIntegerField(),
+			SmallIntegerField(),
+		)
 
 
 class SpellDescriptionVariables(Structure):
