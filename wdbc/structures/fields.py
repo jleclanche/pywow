@@ -277,6 +277,9 @@ class ForeignCell(ForeignKeyBase):
 class UnknownField(IntegerField):
 	pass
 
+class ColorField(UnsignedIntegerField):
+	pass
+
 class MoneyField(UnsignedIntegerField):
 	pass
 
