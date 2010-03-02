@@ -115,7 +115,8 @@ class Skeleton(list):
 			self.insert_field(field, before=before)
 	
 	def update_locales(self, locales):
-		from .fields import LocalizedFields
+		# TODO move this to wdbc
+		from wdbc.structures.fields import LocalizedFields
 		updated = False
 		for field in self:
 			if isinstance(field, LocalizedFields):
