@@ -585,7 +585,7 @@ class DBRow(list):
 		return dict(zip(self.structure.column_names, self))
 	
 	def reclen(self):
-		return len(self._data()) - self.parent.row_header_size
+		return len(self._data()) - self._parent.row_header_size
 	
 	def update(self, other):
 		for k in other:
