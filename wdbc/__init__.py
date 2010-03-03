@@ -135,7 +135,7 @@ class DBFile(object):
 			return self._parse_string(data)
 		
 		if isinstance(field, fields.DataField): # wowcache.wdb
-			length = getattr(self, field.master)
+			length = getattr(row, field.master)
 			return data.read(length)
 		
 		if isinstance(field, fields.DynamicMaster):
@@ -678,7 +678,6 @@ def new(name, build=0, structure=None, environment={}):
 	filename = getfilename(name)
 	if not structure:
 		structure = getstructure(filename, build=build)
-	name = structure.name
 	
 	file = open(name, "wb")
 	
