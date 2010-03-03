@@ -129,17 +129,18 @@ class DBFile(object):
 		Parse a single field in a StringIO stream.
 		"""
 		if field.dyn > self.__row_dynfields:
-			ret = None # The column doesn't exist in this row, we set it to None
+			return None # The column doesn't exist in this row, we set it to None
+		
+		if isinstance(field, fields.StringField):
+			return self._parse_string(data)
+		
+		if isinstance(field, fields.DataField): # wowcache.wdb
+			length = getattr(self, field.master)
+			return data.read(length)
 		
 		if isinstance(field, fields.DynamicMaster):
+			ret, = unpack("<I", data.read(4))
 			self.__row_dynfields = ret
-		
-		if isinstance(field, fields.DataField):
-			length = getattr(self, field.master)
-			ret = data.read(length)
-		
-		elif isinstance(field, fields.StringField):
-			ret = self._parse_string(data)
 		
 		else:
 			try:
@@ -267,7 +268,8 @@ class WDBFile(DBFile):
 		pos = data.tell()
 		index = data.read().index("\x00")
 		data.seek(pos)
-		return unicode(data.read(index + 1)[:-1], "utf-8")
+		_data = repr(data.read(index + 1)[:-1])
+		return unicode(_data, "utf-8")
 	
 	def eof(self):
 		return "\0" * self.row_header_size
