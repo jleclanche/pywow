@@ -369,10 +369,7 @@ class DBCFile(DBFile):
 		field_count = self.header.field_count
 		total_fields = len(self.structure)
 		if field_count != total_fields:
-			# Don't forget implicit fields
-			total_fields = len([k for k in self.structure if k.char])
-			if field_count != total_fields:
-				log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
+			log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
 	
 	def __generate_structure(self):
 		"""Generates a structure based on header data"""
