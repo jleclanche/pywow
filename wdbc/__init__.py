@@ -274,7 +274,31 @@ class WDBFile(DBFile):
 		return "\0" * self.row_header_size
 	
 	def data(self):
-		return "".join([self[k]._data() for k in self])
+		ret = []
+		for row in self:
+			row = self[row]
+			row._save()
+			_data = []
+			reclen = None
+			
+			for field, value in zip(self.structure, row):
+				if value is None:
+					continue
+				elif isinstance(field, fields.RecLenField):
+					reclen = len(_data)
+					_data.append(0)
+				elif isinstance(field, fields.StringField):
+					_data.append(value.encode("utf-8") + "\x00")
+				elif isinstance(field, fields.StringField):
+					_data.append(pack("<I", value))
+				else:
+					_data.append(pack("<%s" % (field.char), value))
+			
+			length = pack("<I", len("".join(_data[2:])))
+			_data[reclen] = length
+			ret.append("".join(_data))
+		
+		return "".join(ret)
 	
 	def preload(self):
 		f = self.file
@@ -559,30 +583,6 @@ class DBRow(list):
 			index = self.structure.index(name)
 			col = self.structure[index]
 			self[index] = col.from_python(self._values[name])
-	
-	def _data(self):
-		"Convert the column list into a byte stream"
-		self._save()
-		data = []
-		reclen = None
-		for k, v in zip(self.structure, self):
-			if v == None:
-				continue
-			elif isinstance(k, fields.RecLenField):
-				reclen = k
-			elif k.char == "s":
-				_data = v.encode("utf-8") + "\x00"
-			elif k.char == "A":
-				_data = pack("<i", v)
-			else:
-				_data = pack("<%s" % (k.char), v)
-			data.append(str(_data))
-		if reclen:
-			length = pack("<I", len("".join(data[2:])))
-			data[self.structure.index(reclen.name)] = length
-		data = "".join(data)
-		
-		return data
 	
 	def _raw(self, name):
 		""" Returns the raw value from field 'name' """
