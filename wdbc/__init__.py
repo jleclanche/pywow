@@ -338,11 +338,6 @@ class WDBFile(DBFile):
 								setattr(self[0], col.name, 0)
 					amount += 1
 				setattr(self[k], master_name, amount) # set master to correct field amount
-	
-	def update_reclens(self):
-		"""Update all the reclens in the file"""
-		for k in self:
-			self[k]._reclen = self[k].reclen()
 
 
 class DBCFile(DBFile):
@@ -608,9 +603,6 @@ class DBRow(list):
 	def dict(self):
 		"Return a dict of the row as colname: value"
 		return dict(zip(self.structure.column_names, self))
-	
-	def reclen(self):
-		return len(self._data()) - self._parent.row_header_size
 	
 	def update(self, other):
 		for k in other:
