@@ -3347,12 +3347,12 @@ class Material(Structure):
 class Movie(Structure):
 	"""
 	Movie.dbc
-	Supposedly for movies. 3 rows at the time: 1, 2, 14
+	For cinematics.
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
+		FilePathField("path"),
+		UnknownField(),
 	)
 
 
@@ -3374,7 +3374,7 @@ class MovieVariation(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField(),
+		UnknownField(), # Likely fkey to Movie.dbc
 		ForeignKey("resolution", "moviefiledata"),
 	)
 
