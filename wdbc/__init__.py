@@ -405,10 +405,36 @@ class DBCFile(DBFile):
 		return "".join(chars)
 	
 	def data(self):
-		raise NotImplementedError # FIXME
+		ret = []
+		self.__stringblock = []
+		address_lookup = {}
+		address = 1
+		for row in self:
+			row = self[row]
+			row._save()
+			_data = []
+			for field, value in zip(self.structure, row):
+				if isinstance(field, fields.StringField):
+					if not value:
+						_value = 0
+					elif value in address_lookup: # the string is already in the stringblock
+						_value = address_lookup[value]
+					else:
+						_value = address
+						address_lookup[value] = address
+						self.__stringblock.append(value)
+						address += len(value) + 1
+					value = pack("<I", _value)
+				
+				else:
+					value = pack("<%s" % (field.char), value)
+				
+				_data.append(value)
+			ret.append("".join(_data))
+		return "".join(ret)
 	
 	def eof(self):
-		raise NotImplementedError # FIXME
+		return "\0" + ("\0".join(self.__stringblock)) + "\0"
 	
 	def preload(self):
 		f = self.file
