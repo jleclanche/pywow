@@ -343,7 +343,12 @@ class WDBFile(DBFile):
 class DBCFile(DBFile):
 	"""
 	A DBC file.
-	- ...
+	- Each file has an arbitrary amount of columns always of the same length and
+	  structure (defined in the header).
+	- Each string is a 32-bit pointer to an address inside the stringblock, starting
+	  from 0 as the stringblock address (defined in the header as well).
+	- EOF is 1 NULL byte, followed by the stringblock if there is one.
+	- The stringblock is a non-repetitive block of null-terminated strings.
 	"""
 	
 	def __init__(self, file, build, structure, environment):
