@@ -308,7 +308,12 @@ class WDBFile(DBFile):
 		structure_string = "<%si" % (self.structure[0].char)
 		while True:
 			address = f.tell() # Get the address of the full row
-			id, reclen = unpack(structure_string, f.read(self.row_header_size))
+			try:
+				id, reclen = unpack(structure_string, f.read(self.row_header_size))
+			except StructError:
+				log.warning("Breaking early, possible corruption")
+				break
+			
 			if reclen == 0: # EOF
 				break
 			
