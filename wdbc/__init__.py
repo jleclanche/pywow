@@ -124,6 +124,11 @@ class DBFile(object):
 	def __len__(self):
 		return len(self._addresses)
 	
+	def _add_row(self, id, address, reclen):
+		if id in self._addresses: # Something's wrong here
+			log.warning("Multiple instances of row #%r found" % (id))
+		self._addresses[id] = (address, reclen)
+	
 	def _parse_field(self, data, field, row=None):
 		"""
 		Parse a single field in stream.
@@ -317,9 +322,7 @@ class WDBFile(DBFile):
 			if reclen == 0: # EOF
 				break
 			
-			if id in self._addresses: # Something's wrong here
-				log.warning("Multiple instances of row #%r found" % (id))
-			self._addresses[id] = (address, reclen)
+			self._add_row(id, address, reclen)
 			
 			f.seek(reclen, os.SEEK_CUR)
 			rows += 1
@@ -474,9 +477,7 @@ class DBCFile(DBFile):
 			address = f.tell() # Get the address of the full row
 			id = self._parse_field(f, field)
 			
-			if id in self._addresses: # Something's wrong here
-				log.warning("Multiple instances of row #%r found" % (id))
-			self._addresses[id] = (address, reclen)
+			self._add_row(id, address, reclen)
 			
 			f.seek(reclen - row_header_size, os.SEEK_CUR) # minus length of id
 			rows += 1
@@ -502,9 +503,7 @@ class WCFFile(DBCFile):
 			if id is None:
 				break
 			
-			if id in self._addresses: # Something's wrong here
-				log.warning("Multiple instances of row #%r found" % (id))
-			self._addresses[id] = (address, reclen)
+			self._add_row(id, address, reclen)
 			
 			f.seek(reclen - row_header_size, os.SEEK_CUR) # minus length of id
 			rows += 1
