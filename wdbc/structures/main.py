@@ -1106,6 +1106,12 @@ class BannedAddons(Structure):
 		UnknownField(),
 	)
 
+class Baddons(BannedAddons):
+	"""
+	baddons.wcf
+	"""
+	pass
+
 
 class CameraShakes(Structure):
 	"""
