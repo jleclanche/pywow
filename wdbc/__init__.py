@@ -126,7 +126,7 @@ class DBFile(object):
 	
 	def _parse_field(self, data, field, row=None):
 		"""
-		Parse a single field in a StringIO stream.
+		Parse a single field in stream.
 		"""
 		if field.dyn > self.__row_dynfields:
 			return None # The column doesn't exist in this row, we set it to None
@@ -484,6 +484,34 @@ class DBCFile(DBFile):
 		log.info("%i rows total" % (rows))
 
 
+class WCFFile(DBCFile):
+	"""
+	Pretty much a DBC file without a header.
+	Currently only used with baddons.wcf.
+	"""
+	def preload(self):
+		f = self.file
+		f.seek(0)
+		rows = 0
+		field = self.structure[0]
+		reclen = sum(k.size for k in self.structure)
+		row_header_size = field.size
+		while True:
+			address = f.tell() # Get the address of the full row
+			id = self._parse_field(f, field)
+			if id is None:
+				break
+			
+			if id in self._addresses: # Something's wrong here
+				log.warning("Multiple instances of row #%r found" % (id))
+			self._addresses[id] = (address, reclen)
+			
+			f.seek(reclen - row_header_size, os.SEEK_CUR) # minus length of id
+			rows += 1
+		
+		log.info("%i rows total" % (rows))
+
+
 class DBRow(list):
 	"""
 	A database row.
@@ -692,6 +720,9 @@ def fopen(name, build=0, structure=None, environment={}):
 				cls = InferredDBCFile
 	elif not signature:
 		raise IOError()
+	elif name.endswith(".wcf"):
+		cls = WCFFile
+		structure = structure or getstructure(getfilename(file.name))
 	else:
 		cls = WDBFile
 	file = cls(file, build=build, structure=structure, environment=environment)
