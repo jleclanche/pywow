@@ -319,16 +319,14 @@ class ItemCache(Structure):
 		- New disenchant IntegerField
 		  UNKNOWN BUILD
 		"""
-		fields.append_fields(
-			IntegerField("disenchant"),
-		)
+		fields.append_fields(IntegerField("disenchant"))
 	
 	def changed_6022(self, fields):
 		"""
 		- New unknown IntegerField before name field
 		"""
 		self.changed_5875(fields)
-		fields.insert_field(IntegerField("depclass"), before="name")
+		fields.insert_field(IntegerField("sound_override_subclassid"), before="name")
 	
 	def changed_6213(self, fields):
 		"""
@@ -339,12 +337,12 @@ class ItemCache(Structure):
 	
 	def changed_6577(self, fields):
 		"""
-		- New armordmgmod FloatField
+		- New float quality modifier
+		  When positive, describes the amount of additional armor the item gets.
+		  When negative, describes a coefficient of the dps lost to the item budget.
 		"""
 		self.changed_6213(fields)
-		fields.append_fields(
-			FloatField("armordmgmod"),
-		)
+		fields.append_fields(FloatField("armordmgmod"))
 	
 	def changed_7382(self, fields):
 		"""
@@ -1092,18 +1090,19 @@ class BankBagSlotPrices(Structure):
 class BannedAddons(Structure):
 	"""
 	BannedAddons.dbc
+	Structure also used in baddons.wcf
 	"""
 	fields = Skeleton(
 		IDField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
+		UnsignedIntegerField(),
+		UnsignedIntegerField(),
+		UnsignedIntegerField(),
+		UnsignedIntegerField(),
+		UnsignedIntegerField(),
+		UnsignedIntegerField(),
+		UnsignedIntegerField(),
+		UnsignedIntegerField(),
+		UnsignedIntegerField(),
 		UnknownField(),
 	)
 
@@ -2535,7 +2534,7 @@ class Item(Structure):
 		IDField(),
 		ForeignKey("category", "itemclass"),
 		ForeignKey("subcategory", "itemsubclass"),
-		IntegerField("depclass"),
+		IntegerField("sound_override_subclassid"),
 		IntegerField(), # sheath or something
 		ForeignKey("display", "itemdisplayinfo"),
 		IntegerField("slot"),
@@ -3947,6 +3946,7 @@ class SkillRaceClassInfo(Structure):
 		IntegerField("required_level"),
 		ForeignKey("skill_tier", "SkillTiers"),
 		ForeignKey("skill_cost", "SkillCostsData"),
+		UnknownField(),
 	)
 
 
