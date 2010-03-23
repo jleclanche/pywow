@@ -11,6 +11,7 @@ class StructureError(Exception):
 class StructureProperty(object):
 	"""
 	Helper to be able to access Structure.name
+	without having to instance it
 	"""
 	def __init__(self, method):
 		self.method = method

@@ -1556,7 +1556,7 @@ class CreatureDisplayInfoExtra(Structure):
 		ForeignKey("back", "ItemDisplayInfo"), # added 5849
 		UnknownField(),
 		UnknownField(), # added 5991
-		StringField("texture")
+		StringField("texture"),
 	)
 
 
@@ -1566,15 +1566,15 @@ class CreatureFamily(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		ForeignKey("pet_personality", "PetPersonality"),
-		FloatField(),
-		UnknownField(),
-		ForeignKey("skills", "SkillLine"),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
-		ForeignKey("pet_food", "ItemPetFood"),
+		FloatField("min_scale"),
+		IntegerField("min_scale_level"),
+		FloatField("max_scale"),
+		IntegerField("max_scale_level"),
+		ForeignKey("skill_tree", "SkillLine"),
+		ForeignKey("skill_tree_generic", "SkillLine"),
+		ForeignMask("pet_food_mask", "ItemPetFood"),
+		IntegerField("talent_type"),
+		IntegerField("index"),
 		LocalizedFields("name"),
 		FilePathField("icon"),
 	)
