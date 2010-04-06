@@ -331,8 +331,13 @@ class SpellString(object):
 		global SPELL_DESCRIPTION_VARIABLES
 		if not SPELL_DESCRIPTION_VARIABLES: # Cache the dbc
 			SPELL_DESCRIPTION_VARIABLES = parse_sdv(self.env["spelldescriptionvariables"])
-		i = int(self.row.descriptionvars) #descriptionvars id
+		
+		i = int(self.row.descriptionvars) # descriptionvars id
+		if i not in SPELL_DESCRIPTION_VARIABLES:
+			return ""
 		row = SPELL_DESCRIPTION_VARIABLES[i]
+		if var not in row:
+			return ""
 		return row[var]
 	
 	def fmt_boolean(self):
