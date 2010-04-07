@@ -113,6 +113,8 @@ class Skeleton(list):
 			raise StructureError("%r is not a valid column reference for insert_field" % (before))
 	
 	def insert_fields(self, fields, before="", after=""):
+		if after:
+			fields = reversed(fields)
 		for field in fields:
 			self.insert_field(field, before=before, after=after)
 	
