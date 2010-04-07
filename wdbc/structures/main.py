@@ -23,37 +23,53 @@ class CreatureCache(Structure):
 		StringField("name3"),
 		StringField("name4"),
 		StringField("title"),
-		StringField("cursor"),
 		BitMaskField("flags"),
 		ForeignKey("category", "CreatureType"), #dragonkin, ...
 		ForeignKey("family", "CreatureFamily"), # hunter pet family
 		IntegerField("type"), # elite, rareelite, boss, rare
+		UnknownField("unknown_8885"),
 		ForeignKey("tamed_spells", "CreatureSpellData"),
 		ForeignKey("model_1", "CreatureDisplayInfo"),
-		ForeignKey("model_2", "CreatureDisplayInfo"), # added in 2.2
-		ForeignKey("model_3", "CreatureDisplayInfo"), # added in 2.2
-		ForeignKey("model_4", "CreatureDisplayInfo"), # added in 2.2
 		FloatField(),
 		FloatField(),
+		ByteField("unknown_flag"),
 		ByteField("leader"),
 	)
-
+	
+	def changed_7799(self, fields):
+		"""
+		Added cursor stringfield, overrides mouseover cursor
+		Unknown build, somewhere between 6898 and 7799
+		"""
+		fields.insert_field(StringField("cursor"), after="title")
+		fields.insert_fields((
+			ForeignKey("model_2", "CreatureDisplayInfo"),
+			ForeignKey("model_3", "CreatureDisplayInfo"),
+			ForeignKey("model_4", "CreatureDisplayInfo"),
+		), after="model_1")
+		fields.delete_fields("unknown_flag")
+	
+	def changed_8885(self, fields):
+		self.changed_7799(fields)
+		fields.delete_fields("unknown_8885")
+	
 	def changed_9614(self, fields):
-		fields.insert_field(ForeignKey("vehicle_spells", "CreatureSpellData"), before="model_1")
+		self.changed_8885(fields)
+		fields.insert_field(ForeignKey("vehicle_spells", "CreatureSpellData"), after="tamed_spells")
 		fields.append_fields(
 			ForeignKey("quest_item_1", "Item"),
 			ForeignKey("quest_item_2", "Item"),
 			ForeignKey("quest_item_3", "Item"),
 			ForeignKey("quest_item_4", "Item"),
-			IntegerField(),
+			ForeignKey("movement_info", "CreatureMovementInfo"),
 		)
 
 	def changed_10026(self, fields):
 		self.changed_9614(fields)
-		fields.append_fields(
-			UnknownField(),
-			UnknownField(),
-		)
+		fields.insert_fields((
+			ForeignKey("quest_item_5", "Item"),
+			ForeignKey("quest_item_6", "Item"),
+		), after="quest_item_4")
 
 
 class GameObjectCache(Structure):
