@@ -3282,7 +3282,7 @@ class MailTemplate(Structure):
 	fields = Skeleton(
 		IDField(),
 		LocalizedFields("title"),
-		LocalizedFields("message"),
+		LocalizedFields("text"),
 	)
 
 
