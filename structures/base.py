@@ -100,16 +100,21 @@ class Skeleton(list):
 		for field in fields:
 			self.append(field)
 	
-	def insert_field(self, field, before):
+	def insert_field(self, field, before="", after=""):
+		if (before and after) or (not before and not after):
+			raise TypeError("insert_field expected 1 'before' or 'after' argument, got %i" % (int(bool(before)) + int(bool(after))))
 		names = [f.name for f in self]
 		try:
-			self.insert(names.index(before), field)
+			if before:
+				self.insert(names.index(before), field)
+			elif after:
+				self.insert(names.index(after) + 1, field)
 		except ValueError:
 			raise StructureError("%r is not a valid column reference for insert_field" % (before))
 	
-	def insert_fields(self, fields, before):
+	def insert_fields(self, fields, before="", after=""):
 		for field in fields:
-			self.insert_field(field, before=before)
+			self.insert_field(field, before=before, after=after)
 	
 	def delete_fields(self, *fields):
 		names = [field.name for field in self]
