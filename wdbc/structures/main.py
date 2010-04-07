@@ -3281,7 +3281,7 @@ class MailTemplate(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("title"),
+		LocalizedFields("name"),
 		LocalizedFields("text"),
 	)
 
