@@ -5105,10 +5105,10 @@ class Talent(Structure):
 		IntegerField("depends_count_1"),
 		IntegerField("depends_count_2"),
 		IntegerField("depends_count_3"),
-		BooleanField("single_point"), # More like "teaches spell"
+		BooleanField("active"),
 		UnknownField(),
-		UnknownField(),
-		UnknownField(),
+		BitMaskField("unknown_pet_1"),
+		BitMaskField("unknown_pet_2"),
 	)
 
 
