@@ -136,24 +136,27 @@ class DBFile(object):
 		if field.dyn > self.__row_dynfields:
 			return None # The column doesn't exist in this row, we set it to None
 		
-		if isinstance(field, fields.StringField):
-			return self._parse_string(data)
+		ret = None
 		
-		if isinstance(field, fields.DataField): # wowcache.wdb
-			length = getattr(row, field.master)
-			return data.read(length)
-		
-		if isinstance(field, fields.DynamicMaster):
-			ret, = unpack("<I", data.read(4))
-			self.__row_dynfields = ret
-		
-		else:
-			try:
+		try:
+			if isinstance(field, fields.StringField):
+				ret = self._parse_string(data)
+			
+			elif isinstance(field, fields.DataField): # wowcache.wdb
+				length = getattr(row, field.master)
+				ret = data.read(length)
+			
+			elif isinstance(field, fields.DynamicMaster):
+				ret, = unpack("<I", data.read(4))
+				self.__row_dynfields = ret
+			
+			else:
 				ret, = unpack("<%s" % (field.char), data.read(field.size))
-			except StructError:
-				ret = None # There is no data left in the row, we set it to None
-		
-		return ret
+		except StructError:
+			log.warning("Field %s could not be parsed properly" % (field))
+			ret = None
+		finally:
+			return ret
 	
 	def append(self, row):
 		"""
@@ -423,7 +426,7 @@ class DBCFile(DBFile):
 				break
 			if not char:
 				if not chars:
-					log.warning("No string found at 0x%08x (%i), some values may be corrupt. Fix your structures!" % (address, address - self.header.stringblocksize))
+					#log.warning("No string found at 0x%08x (%i), some values may be corrupt. Fix your structures!" % (address, address - self.header.stringblocksize))
 					return ""
 				log.warning("Unfinished string, this file may be corrupted.")
 				break
