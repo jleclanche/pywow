@@ -29,6 +29,21 @@ class RecLenField(IntegerField):
 class DynamicFieldsBase(list):
 	def get_fields(self):
 		return self
+	
+	def delete_field(self, name):
+		"""
+		Delete a field, by name or by instance
+		"""
+		if isinstance(name, basestring):
+			for index, field in enumerate(self):
+				if field.name == name:
+					del self[index]
+					break
+		else:
+			for index, field in enumerate(self):
+				if isinstance(field, name.__class__):
+					del self[index]
+					break
 
 class DynamicMaster(IntegerField):
 	"""
@@ -77,6 +92,11 @@ class LocalizedFields(DynamicFieldsBase):
 	def update_locales(self, locales):
 		del self[:]
 		self.__regenerate(locales)
+	
+	def delete_locflags(self):
+		for field in self:
+			if isinstance(field, BitMaskField): # XXX better way
+				self.delete_field(field)
 
 class SubRow(object):
 	"""
