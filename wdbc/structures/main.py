@@ -805,6 +805,9 @@ class Achievement(Structure):
 		IntegerField("amountreq"),
 		ForeignKey("ancestor", "achievement"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class Achievement_Category(Structure):
@@ -818,6 +821,9 @@ class Achievement_Category(Structure):
 		LocalizedFields("name"),
 		IntegerField("groupsort"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class Achievement_Criteria(Structure):
@@ -842,6 +848,9 @@ class Achievement_Criteria(Structure):
 		DurationField("timer", unit="seconds"),
 		IntegerField("sort"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class AnimationData(Structure):
@@ -858,6 +867,45 @@ class AnimationData(Structure):
 		ForeignKey("animation_before", "AnimationData"),
 		ForeignKey("real_animation", "AnimationData"),
 		IntegerField("flying"), # fly = 3
+	)
+
+
+class AnimKitSegment(Structure):
+	"""
+	AnimKitSegment.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		FloatField(),
+		IntegerField(),
+		IntegerField(),
+		BitMaskField(),
+		IntegerField(), # ordering?
+	)
+
+
+class AreaAssignment(Structure):
+	"""
+	AreaAssignment.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("instance", "Map"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -916,6 +964,9 @@ class AreaPOI(Structure):
 		IntegerField("world_state"),
 		UnknownField(),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class AreaTable(Structure):
@@ -951,6 +1002,9 @@ class AreaTable(Structure):
 		FloatField(),
 		IntegerField(), # 0
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class AreaTrigger(Structure):
@@ -976,6 +1030,12 @@ class AreaTrigger(Structure):
 		FloatField("box_z"),
 		FloatField("box_orientation"),
 	)
+	def changed_11927(self, fields):
+		fields.append_fields(
+			FloatField(),
+			FloatField(),
+			FloatField(),
+		)
 
 
 class AttackAnimKits(Structure):
@@ -1031,6 +1091,9 @@ class BarberShopStyle(Structure):
 		IntegerField("gender"),
 		UnknownField(), # what?: This is option $ID2 in the shop when looking in category $Type. OR "real ID to hair/facial hair"
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class BattlemasterList(Structure):
@@ -1390,6 +1453,10 @@ class CharTitles(Structure):
 		LocalizedFields("title_female"),
 		IntegerField("index"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
+		fields.append_fields(UnknownField())
 
 
 class CharVariations(Structure):
@@ -1536,9 +1603,9 @@ class CreatureDisplayInfo(Structure):
 		IntegerField(), # go figure
 		FloatField("scale"),
 		IntegerField("alpha"),
-		StringField("file1"),
-		StringField("file2"),
-		StringField("file3"),
+		StringField("texture_1"),
+		StringField("texture_2"),
+		StringField("texture_3"),
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
@@ -1547,6 +1614,11 @@ class CreatureDisplayInfo(Structure):
 		IntegerField(),
 		IntegerField(),
 	)
+	
+	def changed_11927(self, fields):
+		fields.insert_field(
+			StringField("icon"), after="texture_3"
+		)
 
 
 class CreatureDisplayInfoExtra(Structure):
@@ -1688,6 +1760,12 @@ class CreatureSoundData(Structure):
 		IntegerField(),
 		IntegerField(),
 	)
+	
+	def changed_11927(self, fields):
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class CreatureSpellData(Structure):
@@ -1838,6 +1916,9 @@ class DungeonEncounter(Structure):
 		LocalizedFields("name"),
 		UnknownField(),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class DungeonMap(Structure):
@@ -1979,6 +2060,9 @@ class EmotesTextData(Structure):
 		IDField(),
 		LocalizedFields("text"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class EmotesTextSound(Structure):
@@ -2054,6 +2138,13 @@ class Faction(Structure):
 		fields.insert_field(FloatField(), before="name")
 		fields.insert_field(UnknownField(), before="name")
 		fields.insert_field(UnknownField(), before="name")
+	
+	def changed_11927(self, fields):
+		self.changed_10522(fields)
+		fields.update_locales_cataclysm()
+		fields.append_fields(
+			IntegerField("expansion"),
+		)
 
 
 class FactionGroup(Structure):
@@ -2179,6 +2270,13 @@ class GameTables(Structure):
 		IntegerField(), # 1-100
 		IntegerField(),
 	)
+	
+	def changed_11927(self, fields):
+		"""
+		A real id column has been added,
+		instead of relying on string lookups
+		"""
+		pass
 
 
 class GameTips(Structure):
@@ -2190,6 +2288,9 @@ class GameTips(Structure):
 		IDField(),
 		LocalizedFields("description"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class GemProperties(Structure):
@@ -2204,6 +2305,9 @@ class GemProperties(Structure):
 		BooleanField("unique_equipped"),
 		IntegerField("color"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.append_fields(UnknownField())
 
 
 class GlyphProperties(Structure):
@@ -2337,6 +2441,12 @@ class gtBarberShopCostBase(Structure):
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.insert_field(
+			IDField(),
+			before="ratio",
+		)
 
 class gtCombatRatings(Structure):
 	"""
@@ -2346,6 +2456,12 @@ class gtCombatRatings(Structure):
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.insert_field(
+			IDField(),
+			before="ratio",
+		)
 
 
 class gtChanceToMeleeCritBase(Structure):
@@ -2416,6 +2532,12 @@ class gtOCTRegenHP(Structure):
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.insert_field(
+			IDField(),
+			before="ratio",
+		)
 
 
 class gtOCTRegenMP(Structure):
@@ -2436,6 +2558,12 @@ class gtRegenHPPerSpt(Structure):
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.insert_field(
+			IDField(),
+			before="ratio",
+		)
 
 
 class gtRegenMPPerSpt(Structure):
@@ -2473,6 +2601,9 @@ class HolidayDescriptions(Structure):
 		IDField(),
 		LocalizedFields("description"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class HolidayNames(Structure):
@@ -2566,6 +2697,57 @@ class Item(Structure):
 	)
 
 
+class ItemArmorQuality(Structure):
+	"""
+	ItemArmorQuality.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
+	)
+
+
+class ItemArmorShield(Structure):
+	"""
+	ItemArmorShield.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("index"),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
+class ItemArmorTotal(Structure):
+	"""
+	ItemArmorTotal.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("index"),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
+
+
 class ItemBagFamily(Structure):
 	"""
 	ItemBagFamily.dbc
@@ -2575,6 +2757,9 @@ class ItemBagFamily(Structure):
 		IDField(),
 		LocalizedFields("name"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class ItemClass(Structure):
@@ -2598,6 +2783,150 @@ class ItemCondExtCosts(Structure):
 		IntegerField(),
 		ForeignKey("extended_cost", "ItemExtendedCost"),
 		IntegerField(),
+	)
+
+
+class ItemDamageAmmo(Structure):
+	"""
+	ItemDamageAmmo.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
+	)
+
+
+class ItemDamageOneHand(Structure):
+	"""
+	ItemDamageOneHand.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
+	)
+
+
+class ItemDamageOneHandCaster(Structure):
+	"""
+	ItemDamageOneHandCaster.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
+	)
+
+
+class ItemDamageRanged(Structure):
+	"""
+	ItemDamageRanged.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
+	)
+
+
+class ItemDamageThrown(Structure):
+	"""
+	ItemDamageThrown.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
+	)
+
+
+class ItemDamageTwoHand(Structure):
+	"""
+	ItemDamageTwoHand.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
+	)
+
+
+class ItemDamageTwoHandCaster(Structure):
+	"""
+	ItemDamageTwoHandCaster.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
+	)
+
+
+class ItemDamageWand(Structure):
+	"""
+	ItemDamageWand.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		IntegerField("index"),
 	)
 
 
@@ -2660,6 +2989,26 @@ class ItemExtendedCost(Structure):
 
 	def changed_10026(self, fields):
 		fields.insert_field(IntegerField("bracket"), before="item_1")
+	
+	def changed_11927(self, fields):
+		fields.insert_field(UnknownField(), before="item_1")
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class ItemGroupSounds(Structure):
@@ -2733,6 +3082,9 @@ class ItemRandomProperties(Structure):
 		ForeignKey("enchantment_5", "SpellItemEnchantment"),
 		LocalizedFields("name"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class ItemRandomSuffix(Structure):
@@ -2802,6 +3154,9 @@ class ItemSet(Structure):
 		ForeignKey("required_skill", "SkillLine"),
 		IntegerField("required_skill_level"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class ItemSubClass(Structure):
@@ -2921,6 +3276,10 @@ class LFGDungeons(Structure):
 		fields.append_fields(
 			LocalizedFields("description")
 		)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
+		fields.append_fields(UnknownField()) # ???
 
 
 class LFGDungeonExpansion(Structure):
@@ -3089,6 +3448,11 @@ class LightParams(Structure):
 		FloatField("deep_water_alpha"),
 		FloatField(),
 	)
+	
+	def changed_11927(self, fields):
+		fields.append_fields(
+			UnknownField(), # XXX
+		)
 
 
 class LightSkybox(Structure):
@@ -3284,6 +3648,9 @@ class MailTemplate(Structure):
 		LocalizedFields("name"),
 		LocalizedFields("text"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class Map(Structure):
@@ -3333,6 +3700,13 @@ class Map(Structure):
 	def changed_10522(self, fields):
 		self.changed_10083(fields)
 		fields.insert_field(UnknownField(), before="battleground")
+	
+	def changed_11927(self, fields):
+		self.changed_10522(fields)
+		fields.update_locales_cataclysm()
+		fields.append_fields(
+			ForeignKey("phasing_parent", "Map"),
+		)
 
 
 class MapDifficulty(Structure):
@@ -3945,6 +4319,11 @@ class SkillLineAbility(Structure):
 		UnknownField(),
 		#UnknownField(), Deleted somewhere between 4125 and 9551
 	)
+	
+	def changed_11927(self, fields):
+		fields.append_fields(
+			UnknownField(), # XXX
+		)
 
 
 class SkillLineCategory(Structure):
@@ -4256,7 +4635,7 @@ class Spell(Structure):
 	Contains all spell data.
 	"""
 	
-	FLAGS = {
+	FLAGS_1 = {
 		0x00000004: "next_melee",
 		0x00000020: "tradespell",
 		0x00000040: "passive",
@@ -4268,10 +4647,18 @@ class Spell(Structure):
 	FLAGS_2 = {
 		0x00000004: "channeled",
 		0x00000040: "channeled_2",
+		0x01000000: "fishing",
+	}
+	
+	FLAGS_3 = {
+		0x00002000: "permanent_enchant",
+		0x00080000: "hide_shapeshifts",
 	}
 	
 	FLAGS_5 = {
-		0x00000040: "cannot_be_stolen"
+		0x00000040: "cannot_be_stolen",
+		0x00000200: "popup_on_activate",
+		0x04000000: "usable_only_flyable",
 	}
 	
 	FLAGS_6 = {
@@ -4280,12 +4667,32 @@ class Spell(Structure):
 		0x00040000: "usable_while_confused",
 	}
 	
+	FLAGS_7 = {
+		0x00000040: "popup_on_proc",
+	}
+	
+	FLAGS_8 = {
+		0x00000004: "paladin_aura",
+		0x00000020: "shaman_totem",
+		0x00000100: "horde_only",
+		0x00000200: "alliance_only",
+		0x10000000: "ui_collapse",
+	}
+	
+	FLAGS_9 = {
+		
+	}
+	
+	REQUIRED_TARGET_FLAGS = {
+		0x00000040: "targeted_aoe",
+	}
+	
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("category", "SpellCategory"),
 		IntegerField("dispel_type"),
 		ForeignKey("mechanic", "SpellMechanic"),
-		BitMaskField("flags_1", flags=FLAGS),
+		BitMaskField("flags_1", flags=FLAGS_1),
 		BitMaskField("flags_2", flags=FLAGS_2),
 		BitMaskField("flags_3"),
 		BitMaskField("flags_4"),
@@ -4294,7 +4701,7 @@ class Spell(Structure):
 		BitMaskField("flags_7"),
 		BitMaskField("required_stances"),
 		BitMaskField("excluded_stances"),
-		BitMaskField("required_target"),
+		BitMaskField("required_target", flags=REQUIRED_TARGET_FLAGS),
 		BitMaskField("required_target_type"),
 		IntegerField("required_object_focus"),
 		BitMaskField("facing_flags"),
@@ -4455,9 +4862,9 @@ class Spell(Structure):
 
 	def changed_10026(self, fields):
 		self.changed_9614(fields)
-		fields.insert_field(UnknownField(), before="required_stances") # Likely int->bigint
-		fields.insert_field(UnknownField(), before="excluded_stances")
-		fields.insert_field(UnknownField(), before="required_target")
+		fields.insert_field(BitMaskField("flags_8", flags=self.FLAGS_8), after="flags_7")
+		fields.insert_field(BitMaskField("required_stances_2"), after="required_stances")
+		fields.insert_field(BitMaskField("excluded_stances_2"), after="excluded_stances")
 		fields.append_fields(
 			FloatField("multiplier_effect_1"),
 			FloatField("multiplier_effect_2"),
@@ -4480,6 +4887,25 @@ class Spell(Structure):
 			"dice_per_level_effect_1",
 			"dice_per_level_effect_2",
 			"dice_per_level_effect_3",
+		)
+	
+	def changed_11927(self, fields):
+		self.changed_11573(fields)
+		fields.update_locales_cataclysm()
+		fields.insert_field(BitMaskField("flags_9", flags=self.FLAGS_9), after="flags_8")
+		fields.insert_field(UnknownField(), after="interrupt_flags")
+		fields.insert_field(UnknownField(), after="channeling_interrupt_flags")
+		fields.delete_fields("priority", "power_per_second_per_level")
+		fields.insert_fields((
+			UnknownField("???_effect_1"),
+			UnknownField("???_effect_2"),
+			UnknownField("???_effect_3"),
+		), before="amplitude_effect_1")
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
 		)
 
 
@@ -4716,6 +5142,11 @@ class SpellItemEnchantment(Structure):
 		fields.append_fields(
 			IntegerField("required_level"),
 		)
+	
+	def changed_11927(self, fields):
+		self.changed_9637(fields)
+		fields.update_locales_cataclysm()
+		fields.append_fields(UnknownField())
 
 
 class SpellItemEnchantmentCondition(Structure):
@@ -4845,6 +5276,29 @@ class SpellRuneCost(Structure):
 		IntegerField("unholy"),
 		IntegerField("frost"),
 		IntegerField("runic_power"),
+	)
+
+
+class SpellScaling(Structure):
+	"""
+	SpellScaling.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		IntegerField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
+		FloatField(),
+		UnknownField(),
+		UnknownField(),
 	)
 
 
@@ -5144,6 +5598,9 @@ class TaxiNodes(Structure):
 		ForeignKey("mount_horde", "creaturecache"),
 		ForeignKey("mount_alliance", "creaturecache"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class TaxiPath(Structure):
@@ -5577,6 +6034,9 @@ class WMOAreaTable(Structure):
 		ForeignKey("zone", "AreaTable"),
 		LocalizedFields("name"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class WorldChunkSounds(Structure):
@@ -5713,6 +6173,9 @@ class WorldSafeLocs(Structure):
 		FloatField("z"),
 		LocalizedFields("name"),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
 
 
 class WorldStateUI(Structure):
@@ -5728,15 +6191,22 @@ class WorldStateUI(Structure):
 		FilePathField("path"),
 		LocalizedFields("name"),
 		LocalizedFields("description"),
-		UnknownField(),
+		UnknownField("variable_1"),
 		UnknownField(),
 		UnknownField(),
 		LocalizedFields("battleground"),
-		StringField(),
-		UnknownField(),
-		UnknownField(),
+		StringField("capture_background"),
+		IntegerField("variable_2"),
+		IntegerField("variable_3"),
 		UnknownField(),
 	)
+	
+	def changed_11927(self, fields):
+		fields.update_locales_cataclysm()
+		fields.insert_fields((
+			UnknownField(),
+			UnknownField(),
+		), before="path")
 
 
 class WorldStateZoneSounds(Structure):
