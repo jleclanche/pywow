@@ -1476,7 +1476,7 @@ class CharTitles(Structure):
 		UnknownField(), # related to achievements?
 		LocalizedFields("title"),
 		LocalizedFields("title_female"),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 	
 	def changed_11927(self, fields):
@@ -1706,7 +1706,7 @@ class CreatureFamily(Structure):
 		ForeignKey("skill_tree_generic", "SkillLine"),
 		ForeignMask("pet_food_mask", "ItemPetFood"),
 		IntegerField("talent_type"),
-		IntegerField("index"),
+		IntegerField("ordering"),
 		LocalizedFields("name"),
 		FilePathField("icon"),
 	)
@@ -1870,7 +1870,7 @@ class CurrencyTypes(Structure):
 		IDField(),
 		ForeignKey("item", "Item"),
 		ForeignKey("category", "currencycategory"),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 	
 	def changed_11927(self, fields):
@@ -2153,7 +2153,7 @@ class EnvironmentalDamage(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 		ForeignKey("visual", "SpellVisual"),
 	)
 
@@ -2439,7 +2439,7 @@ class GMSurveyAnswers(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 		UnknownField(),
 		LocalizedFields("text"),
 	)
@@ -2859,7 +2859,7 @@ class ItemArmorQuality(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -2870,7 +2870,7 @@ class ItemArmorShield(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 		FloatField(),
 		FloatField(),
 		FloatField(),
@@ -2888,7 +2888,7 @@ class ItemArmorTotal(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 		FloatField(),
 		FloatField(),
 		FloatField(),
@@ -2952,7 +2952,7 @@ class ItemDamageAmmo(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -2970,7 +2970,7 @@ class ItemDamageOneHand(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -2988,7 +2988,7 @@ class ItemDamageOneHandCaster(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -3006,7 +3006,7 @@ class ItemDamageRanged(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -3024,7 +3024,7 @@ class ItemDamageThrown(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -3042,7 +3042,7 @@ class ItemDamageTwoHand(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -3060,7 +3060,7 @@ class ItemDamageTwoHandCaster(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -3078,7 +3078,7 @@ class ItemDamageWand(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -5882,7 +5882,7 @@ class TaxiPathNode(Structure):
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("taxi", "TaxiPath"),
-		IntegerField("index"),
+		IntegerField("ordering"),
 		ForeignKey("map", "Map"),
 		FloatField("x"),
 		FloatField("y"),
