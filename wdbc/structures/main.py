@@ -132,6 +132,12 @@ class GameObjectCache(Structure):
 			ForeignKey("quest_item_5", "Item"),
 			ForeignKey("quest_item_6", "Item"),
 		)
+	
+	def changed_11927(self, fields):
+		self.changed_10314(fields)
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class ItemCache(Structure):
@@ -742,6 +748,27 @@ class QuestCache(Structure):
 		fields.insert_field(IntegerField("quest_item_amount_2"), before="required_kill_3")
 		fields.insert_field(IntegerField("quest_item_amount_3"), before="required_kill_4")
 		fields.insert_field(IntegerField("quest_item_amount_4"), before="required_item_1")
+	
+	def changed_11927(self, fields):
+		self.changed_10772(fields)
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class PageTextCache(Structure):
