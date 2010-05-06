@@ -279,7 +279,7 @@ class ItemCache(Structure):
 		IntegerField("arcane_resist"),
 		IntegerField("speed"),
 		IntegerField("ammo"),
-		FloatField(),
+		FloatField("ammo_unknown"),
 		ForeignKey("spell1", "spell"),
 		IntegerField("spelltrigger1"),
 		IntegerField("spellcharges1"),
@@ -450,6 +450,37 @@ class ItemCache(Structure):
 	def changed_10026(self, fields):
 		self.changed_9614(fields)
 		fields.insert_field(BitMaskField("flags2"), before="buy_price")
+	
+	def changed_11927(self, fields):
+		self.changed_10026(fields)
+		fields.delete_fields("stats")
+		fields.insert_field( # FIXME
+			DynamicFields("stats", ((
+				(IntegerField, "id"),
+				(IntegerField, "amt"),
+				(IntegerField, "unk1"),
+				(IntegerField, "unk2"),
+			), 10)
+		), before="scaling_stats")
+		fields.delete_fields(
+			"dmgmin1", "dmgmax1",
+		)
+		fields.delete_fields(
+			"dmgmin2", "dmgmax2", "dmgtype2",
+		)
+		fields.delete_fields(
+			"holy_resist",
+			"fire_resist",
+			"nature_resist",
+			"frost_resist",
+			"shadow_resist",
+			"arcane_resist",
+			"armor",
+		)
+		fields.delete_fields(
+			"ammo",
+		)
+		fields.append_fields(FloatField())
 
 
 class ItemNameCache(Structure):
@@ -5159,7 +5190,7 @@ class Spell(Structure):
 			UnknownField("???_effect_1"),
 			UnknownField("???_effect_2"),
 			UnknownField("???_effect_3"),
-		), before="amplitude_effect_1")
+		), before="aura_effect_1")
 		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
