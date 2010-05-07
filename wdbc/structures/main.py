@@ -255,21 +255,21 @@ class ItemCache(Structure):
 		IntegerField("stats_amt_dyn9"),
 		IntegerField("stats_id_dyn10"),
 		IntegerField("stats_amt_dyn10"),
-		FloatField("dmgmin1"),
-		FloatField("dmgmax1"),
-		IntegerField("dmgtype1"),
-		FloatField("dmgmin2"),
-		FloatField("dmgmax2"),
-		IntegerField("dmgtype2"),
-		FloatField("dmgmin3"),
-		FloatField("dmgmax3"),
-		IntegerField("dmgtype3"),
-		FloatField("dmgmin4"),
-		FloatField("dmgmax4"),
-		IntegerField("dmgtype4"),
-		FloatField("dmgmin5"),
-		FloatField("dmgmax5"),
-		IntegerField("dmgtype5"),
+		FloatField("damage_min"),
+		FloatField("damage_max"),
+		IntegerField("damage_type"),
+		FloatField("damage_min_2"),
+		FloatField("damage_max_2"),
+		IntegerField("damage_type_2"),
+		FloatField("damage_min_3"),
+		FloatField("damage_max_3"),
+		IntegerField("damage_type_3"),
+		FloatField("damage_min_4"),
+		FloatField("damage_max_4"),
+		IntegerField("damage_type_4"),
+		FloatField("damage_min_5"),
+		FloatField("damage_max_5"),
+		IntegerField("damage_type_5"),
 		IntegerField("armor"),
 		IntegerField("holy_resist"),
 		IntegerField("fire_resist"),
@@ -340,10 +340,10 @@ class ItemCache(Structure):
 	
 	def changed_5875(self, fields):
 		"""
-		- New disenchant IntegerField
+		- New IntegerField for required disenchant level
 		  UNKNOWN BUILD
 		"""
-		fields.append_fields(IntegerField("disenchant"))
+		fields.append_fields(IntegerField("disenchanting"))
 	
 	def changed_6022(self, fields):
 		"""
@@ -374,7 +374,7 @@ class ItemCache(Structure):
 		  UNKNOWN BUILD
 		"""
 		self.changed_6577(fields)
-		fields.insert_field(IntegerField("extended_cost_cond"), before="disenchant")
+		fields.insert_field(IntegerField("extended_cost_cond"), after="extended_cost")
 	
 	def changed_7994(self, fields):
 		"""
@@ -422,9 +422,9 @@ class ItemCache(Structure):
 				(IntegerField, "id"),
 				(IntegerField, "amt"),
 			), 10)
-		), before="dmgmin1")
-		fields.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="dmgmin1")
-		fields.insert_field(BitMaskField("scaling_flags"), before="dmgmin1")
+		), before="damage_min")
+		fields.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="damage_min")
+		fields.insert_field(BitMaskField("scaling_flags"), before="damage_min")
 	
 	def changed_8478(self, fields):
 		self.changed_8268(fields)
@@ -434,14 +434,14 @@ class ItemCache(Structure):
 	
 	def changed_9614(self, fields):
 		"""
-		- Deleted unused dmgmin, dmgmax and dmgtype 3-5 fields
+		- Deleted unused damage_min, damage_max and damage_type 3-5 fields
 		- Added new unknown IntegerField at the end
 		"""
 		self.changed_8770(fields)
 		fields.delete_fields(
-			"dmgmin3", "dmgmax3", "dmgtype3",
-			"dmgmin4", "dmgmax4", "dmgtype4",
-			"dmgmin5", "dmgmax5", "dmgtype5",
+			"damage_min_3", "damage_max_3", "damage_type_3",
+			"damage_min_4", "damage_max_4", "damage_type_4",
+			"damage_min_5", "damage_max_5", "damage_type_5",
 		)
 		fields.append_fields(
 			ForeignKey("required_holiday", "holidays"),
@@ -449,9 +449,19 @@ class ItemCache(Structure):
 	
 	def changed_10026(self, fields):
 		self.changed_9614(fields)
-		fields.insert_field(BitMaskField("flags2"), before="buy_price")
+		fields.insert_field(BitMaskField("flags_2"), before="buy_price")
 	
 	def changed_11927(self, fields):
+		"""
+		- Added two unknown fields for each stats
+		- Deleted damage_min and damage_max fields
+		  (replaced by scaling dbcs)
+		- Deleted damage_*2 fields entirely
+		- Deleted all resist fields, including armor
+		  (replaced by scaling dbcs)
+		- Deleted ammo field (replaced by scaling dbcs)
+		- Added a new float at the end
+		"""
 		self.changed_10026(fields)
 		fields.delete_fields("stats")
 		fields.insert_field( # FIXME
@@ -463,24 +473,14 @@ class ItemCache(Structure):
 			), 10)
 		), before="scaling_stats")
 		fields.delete_fields(
-			"dmgmin1", "dmgmax1",
-		)
-		fields.delete_fields(
-			"dmgmin2", "dmgmax2", "dmgtype2",
-		)
-		fields.delete_fields(
-			"holy_resist",
-			"fire_resist",
-			"nature_resist",
-			"frost_resist",
-			"shadow_resist",
-			"arcane_resist",
+			"damage_min", "damage_max",
+			"damage_min_2", "damage_max_2", "damage_type_2",
+			"holy_resist", "fire_resist", "nature_resist",
+			"frost_resist", "shadow_resist", "arcane_resist",
 			"armor",
-		)
-		fields.delete_fields(
 			"ammo",
 		)
-		fields.append_fields(FloatField())
+		fields.append_fields(FloatField()) # scaling mod?
 
 
 class ItemNameCache(Structure):
