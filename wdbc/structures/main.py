@@ -325,7 +325,7 @@ class ItemCache(Structure):
 		IntegerField("durability"),
 		ForeignKey("zone_bind", "AreaTable"),
 		ForeignKey("instance_bind", "Map"),
-		IntegerField("bag_category"),
+		BitMaskField("bag_category"),
 		ForeignKey("tool_category", "TotemCategory"),
 		BitMaskField("socket_1"),
 		IntegerField("socket_info_1"),
