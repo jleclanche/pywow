@@ -319,7 +319,7 @@ class ItemCache(Structure):
 		ForeignKey("lock", "Lock"),
 		ForeignKey("material", "Material"),
 		IntegerField("sheath_type"),
-		ForeignKey("randomenchantment", "ItemRandomProperties"),
+		ForeignKey("random_enchantment", "ItemRandomProperties"),
 		IntegerField("block"),
 		ForeignKey("itemset", "ItemSet"),
 		IntegerField("durability"),
@@ -350,14 +350,14 @@ class ItemCache(Structure):
 		- New unknown IntegerField before name field
 		"""
 		self.changed_5875(fields)
-		fields.insert_field(IntegerField("sound_override_subclassid"), before="name")
+		fields.insert_field(IntegerField("sound_override_subclassid"), after="subcategory")
 	
 	def changed_6213(self, fields):
 		"""
 		- New unknown IntegerField
 		"""
 		self.changed_6022(fields)
-		fields.insert_field(ForeignKey("randomenchantment2", "itemrandomsuffix"), before="block")
+		fields.insert_field(ForeignKey("random_suffix", "ItemRandomSuffix"), after="random_enchantment")
 	
 	def changed_6577(self, fields):
 		"""
@@ -480,7 +480,7 @@ class ItemCache(Structure):
 			"armor",
 			"ammo",
 		)
-		fields.append_fields(FloatField()) # scaling mod?
+		fields.append_fields(FloatField("scaling_factor"))
 
 
 class ItemNameCache(Structure):
