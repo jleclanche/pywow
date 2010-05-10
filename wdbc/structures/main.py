@@ -5484,6 +5484,20 @@ class SpellItemEnchantmentCondition(Structure):
 	)
 
 
+class SpellMastery(Structure):
+	"""
+	SpellScaling.dbc
+	Contains class/spell lookups for each masteries
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("class", "ChrClasses"),
+		ForeignKey("spell", "Spell"),
+		IntegerField("page")
+	)
+
+
 class SpellMechanic(Structure):
 	"""
 	SpellMechanic.dbc
