@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import wdbc
+from .. import wdbc
 from .log import log
 
 class Environment(dict):
