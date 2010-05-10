@@ -5492,7 +5492,7 @@ class SpellMastery(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		ForeignKey("class", "ChrClasses"),
+		ForeignKey("required_class", "ChrClasses"),
 		ForeignKey("spell", "Spell"),
 		IntegerField("page")
 	)
