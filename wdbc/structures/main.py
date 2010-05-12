@@ -279,7 +279,7 @@ class ItemCache(Structure):
 		IntegerField("arcane_resist"),
 		IntegerField("speed"),
 		IntegerField("ammo"),
-		FloatField("ammo_unknown"),
+		FloatField("range"),
 		ForeignKey("spell1", "spell"),
 		IntegerField("spelltrigger1"),
 		IntegerField("spellcharges1"),
@@ -423,7 +423,7 @@ class ItemCache(Structure):
 				(IntegerField, "amt"),
 			), 10)
 		), before="damage_min")
-		fields.insert_field(ForeignKey("scaling_stats", "scalingstatdistribution"), before="damage_min")
+		fields.insert_field(ForeignKey("scaling_stats", "ScalingStatDistribution"), before="damage_min")
 		fields.insert_field(BitMaskField("scaling_flags"), before="damage_min")
 	
 	def changed_8478(self, fields):
@@ -444,7 +444,7 @@ class ItemCache(Structure):
 			"damage_min_5", "damage_max_5", "damage_type_5",
 		)
 		fields.append_fields(
-			ForeignKey("required_holiday", "holidays"),
+			ForeignKey("required_holiday", "Holidays"),
 		)
 	
 	def changed_10026(self, fields):
@@ -1927,7 +1927,7 @@ class CurrencyTypes(Structure):
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("item", "Item"),
-		ForeignKey("category", "currencycategory"),
+		ForeignKey("category", "CurrencyCategory"),
 		IntegerField("ordering"),
 	)
 	
@@ -4984,7 +4984,7 @@ class Spell(Structure):
 		ForeignKey("mechanic", "SpellMechanic"),
 		BitMaskField("flags_1", flags=FLAGS_1),
 		BitMaskField("flags_2", flags=FLAGS_2),
-		BitMaskField("flags_3"),
+		BitMaskField("flags_3", flags=FLAGS_3),
 		BitMaskField("flags_4"),
 		BitMaskField("flags_5", flags=FLAGS_5),
 		BitMaskField("flags_6", flags=FLAGS_6),
@@ -5159,7 +5159,7 @@ class Spell(Structure):
 			FloatField("multiplier_effect_1"),
 			FloatField("multiplier_effect_2"),
 			FloatField("multiplier_effect_3"),
-			ForeignKey("descriptionvars", "SpellDescriptionVariables"),
+			ForeignKey("description_variables", "SpellDescriptionVariables"),
 		)
 
 	def changed_10522(self, fields):
@@ -5187,10 +5187,10 @@ class Spell(Structure):
 		fields.insert_field(UnknownField(), after="channeling_interrupt_flags")
 		fields.delete_fields("priority", "power_per_second_per_level")
 		fields.insert_fields((
-			UnknownField("???_effect_1"),
-			UnknownField("???_effect_2"),
-			UnknownField("???_effect_3"),
-		), before="aura_effect_1")
+			ForeignKey("radius_max_effect_1", "SpellRadius"),
+			ForeignKey("radius_max_effect_2", "SpellRadius"),
+			ForeignKey("radius_max_effect_3", "SpellRadius"),
+		), after="radius_effect_3")
 		fields.append_fields(
 			UnknownField(),
 			UnknownField(),

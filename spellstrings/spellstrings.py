@@ -45,7 +45,7 @@ paperdolldict = {
 	"sph":  "SPELL_POWER_HOLY",
 	"spi":  "SPIRIT",
 	"spn":  "SPELL_POWER_NATURE",
-	"sps":  "SPELL_POWER_SHADOW",	
+	"sps":  "SPELL_POWER_SHADOW",
 }
 paperdolls = paperdolldict.keys()
 case_insensitive(paperdolls)
@@ -332,7 +332,7 @@ class SpellString(object):
 		if not SPELL_DESCRIPTION_VARIABLES: # Cache the dbc
 			SPELL_DESCRIPTION_VARIABLES = parse_sdv(self.env["spelldescriptionvariables"])
 		
-		i = int(self.row.descriptionvars) # descriptionvars id
+		i = int(self.row.description_variables) # descriptionvars id
 		if i not in SPELL_DESCRIPTION_VARIABLES:
 			return ""
 		row = SPELL_DESCRIPTION_VARIABLES[i]
