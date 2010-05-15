@@ -852,20 +852,17 @@ class Achievement(Structure):
 		IntegerField("faction"),
 		ForeignKey("instance", "map"),
 		ForeignKey("parent", "achievement"),
-		LocalizedFields("name"),
-		LocalizedFields("objective"),
+		LocalizedField("name"),
+		LocalizedField("objective"),
 		ForeignKey("category", "achievement_category"),
 		IntegerField("points"),
 		IntegerField(),
 		BitMaskField("flags", flags=FLAGS),
 		ForeignKey("icon", "spellicon"),
-		LocalizedFields("reward"),
+		LocalizedField("reward"),
 		IntegerField("amountreq"),
 		ForeignKey("ancestor", "achievement"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Achievement_Category(Structure):
@@ -876,12 +873,9 @@ class Achievement_Category(Structure):
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("parent", "achievement_category"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		IntegerField("groupsort"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Achievement_Criteria(Structure):
@@ -899,16 +893,13 @@ class Achievement_Criteria(Structure):
 		IntegerField("value4"),
 		IntegerField("value5"),
 		IntegerField("value6"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		IntegerField(),
 		IntegerField(),
 		IntegerField(),
 		DurationField("timer", unit="seconds"),
 		IntegerField("sort"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class AnimationData(Structure):
@@ -1017,14 +1008,11 @@ class AreaPOI(Structure):
 		ForeignKey("instance", "map"),
 		BitMaskField("display_flags", flags=FLAGS),
 		ForeignKey("area", "AreaTable"),
-		LocalizedFields("name"),
-		LocalizedFields("description"),
+		LocalizedField("name"),
+		LocalizedField("description"),
 		IntegerField("world_state"),
 		UnknownField(),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class AreaTable(Structure):
@@ -1050,7 +1038,7 @@ class AreaTable(Structure):
 		ForeignKey("music", "ZoneMusic"),
 		ForeignKey("intro_music", "ZoneIntroMusicTable"),
 		IntegerField("level"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		BitMaskField("territory_flags", flags=TERRITORY_FLAGS),
 		IntegerField(), # 81 61 41 1...
 		IntegerField(), # 0
@@ -1060,9 +1048,6 @@ class AreaTable(Structure):
 		FloatField(),
 		IntegerField(), # 0
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class AreaTrigger(Structure):
@@ -1131,11 +1116,8 @@ class AuctionHouse(Structure):
 		ForeignKey("faction", "Faction"),
 		IntegerField("auction_fee"),
 		IntegerField("deposit_fee"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class BarberShopStyle(Structure):
@@ -1145,16 +1127,13 @@ class BarberShopStyle(Structure):
 	fields = Skeleton(
 		IDField(),
 		IntegerField("type"), # 0 - Hair Style, 1 - Hair Color, 2 - Facial Hairstyle
-		LocalizedFields("name"),
-		LocalizedFields("unknown"),
+		LocalizedField("name"),
+		LocalizedField("unknown"),
 		FloatField("price_modifier"),
 		ForeignKey("race", "ChrRaces"),
 		IntegerField("gender"),
 		UnknownField(), # what?: This is option $ID2 in the shop when looking in category $Type. OR "real ID to hair/facial hair"
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class BattlemasterList(Structure):
@@ -1179,12 +1158,11 @@ class BattlemasterList(Structure):
 		IntegerField("max_players"),
 		IntegerField("level_band"), # 10-19, 20-29, ...
 		BooleanField("join_as_group"),
-		LocalizedFields("name", locales=OLD_LOCALES)
+		LocalizedField("name")
 	)
 	
 	def changed_9551(self, fields):
 		fields.insert_field(IntegerField("min_players"), before="level_band")
-		fields.update_locales(LOCALES) # XXX When did locales change?
 		fields.append_fields(IntegerField("max_group_size"))
 	
 	def changed_9658(self, fields):
@@ -1216,10 +1194,6 @@ class BattlemasterList(Structure):
 			IntegerField("min_level"),
 			IntegerField("max_level"),
 		)
-	
-	def changed_11927(self, fields):
-		self.changed_11573(fields)
-		fields.update_locales_cataclysm()
 
 
 class BankBagSlotPrices(Structure):
@@ -1288,11 +1262,8 @@ class Cfg_Categories(Structure):
 		BitMaskField("flags"), # 256: russia, 205: eu
 		IntegerField("type"), # 0: Development, 1: US and EU, 4: Russia, 10: Korea, 17: Taiwan & China
 		BooleanField("tournament"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Cfg_Configs(Structure):
@@ -1352,6 +1323,9 @@ class CharacterFacialHairStyles(Structure):
 		Added a real id field
 		"""
 		fields.insert_field(IDField(), before="race")
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class CharBaseInfo(Structure):
@@ -1532,13 +1506,12 @@ class CharTitles(Structure):
 	fields = Skeleton(
 		IDField(),
 		UnknownField(), # related to achievements?
-		LocalizedFields("title"),
-		LocalizedFields("title_female"),
+		LocalizedField("title"),
+		LocalizedField("title_female"),
 		IntegerField("ordering"),
 	)
 	
 	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 		fields.append_fields(UnknownField())
 
 
@@ -1565,12 +1538,9 @@ class ChatChannels(Structure):
 		IDField(),
 		BitMaskField("flags"),
 		IntegerField(),
-		LocalizedFields("localname"),
-		LocalizedFields("name"),
+		LocalizedField("localname"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ChatProfanity(Structure):
@@ -1595,9 +1565,9 @@ class ChrClasses(Structure):
 		IntegerField(),
 		IntegerField("power_type"),
 		StringField("pet_name"),
-		LocalizedFields("name_male"),
-		LocalizedFields("name_female"),
-		LocalizedFields("name_neutral"),
+		LocalizedField("name_male"),
+		LocalizedField("name_female"),
+		LocalizedField("name_neutral"),
 		StringField("internal_name"),
 		IntegerField(),
 		IntegerField(),
@@ -1606,13 +1576,15 @@ class ChrClasses(Structure):
 	)
 	
 	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 		fields.delete_fields("name_neutral")
 		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
 			UnknownField(),
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class ChrRaces(Structure):
@@ -1635,9 +1607,9 @@ class ChrRaces(Structure):
 		UnknownField(), # 1090 for dwarves, 1096 for the others. Getting stored in CGUnit at CGUnit::PostInit.
 		StringField("internal_name"),
 		ForeignKey("cinematic", "CinematicSequences"),
-		LocalizedFields("name_male"),
-		LocalizedFields("name_female"),
-		LocalizedFields("name_neutral"),
+		LocalizedField("name_male"),
+		LocalizedField("name_female"),
+		LocalizedField("name_neutral"),
 		StringField("feature_1"), # facial_hair
 		StringField("feature_2"), # earrings
 		StringField("feature_3"), # horns
@@ -1653,8 +1625,10 @@ class ChrRaces(Structure):
 	
 	def changed_11927(self, fields):
 		self.changed_10433(fields)
-		fields.update_locales_cataclysm()
 		fields.append_fields(UnknownField()) # only set to 1 for worgen
+	
+	def changed_11993(self, fields):
+		self.changed_10433(fields)
 
 
 class CinematicCamera(Structure):
@@ -1765,12 +1739,9 @@ class CreatureFamily(Structure):
 		ForeignMask("pet_food_mask", "ItemPetFood"),
 		IntegerField("talent_type"),
 		IntegerField("ordering"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		FilePathField("icon"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class CreatureModelData(Structure):
@@ -1895,13 +1866,9 @@ class CreatureType(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		IntegerField(),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
-
 
 
 class CurrencyCategory(Structure):
@@ -1912,11 +1879,8 @@ class CurrencyCategory(Structure):
 	fields = Skeleton(
 		IDField(),
 		IntegerField(), # 3 for unused, rest 0
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class CurrencyTypes(Structure):
@@ -1956,12 +1920,9 @@ class DanceMoves(Structure):
 		UnknownField(),
 		BitMaskField("flags"),
 		StringField("name"),
-		LocalizedFields("description"),
+		LocalizedField("description"),
 		IntegerField(),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class DeathThudLookups(Structure):
@@ -2040,13 +2001,9 @@ class DungeonEncounter(Structure):
 		IntegerField("difficulty"),
 		UnknownField(),
 		IntegerField("ordering"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		UnknownField(),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
-
 
 class DungeonMap(Structure):
 	"""
@@ -2185,11 +2142,8 @@ class EmotesTextData(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("text"),
+		LocalizedField("text"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class EmotesTextSound(Structure):
@@ -2227,12 +2181,9 @@ class Exhaustion(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		FloatField(),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Faction(Structure):
@@ -2260,8 +2211,8 @@ class Faction(Structure):
 		BitMaskField("flags_3"),
 		BitMaskField("flags_4"),
 		ForeignKey("parent_faction", "faction"),
-		LocalizedFields("name"),
-		LocalizedFields("description"),
+		LocalizedField("name"),
+		LocalizedField("description"),
 	)
 
 	def changed_10522(self, fields):
@@ -2272,7 +2223,6 @@ class Faction(Structure):
 	
 	def changed_11927(self, fields):
 		self.changed_10522(fields)
-		fields.update_locales_cataclysm()
 		fields.append_fields(
 			IntegerField("expansion"),
 		)
@@ -2286,11 +2236,8 @@ class FactionGroup(Structure):
 		IDField(),
 		IntegerField("zero_id"),
 		StringField("internal_name"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class FactionTemplate(Structure):
@@ -2421,11 +2368,8 @@ class GameTips(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("description"),
+		LocalizedField("description"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class GemProperties(Structure):
@@ -2443,6 +2387,9 @@ class GemProperties(Structure):
 	
 	def changed_11927(self, fields):
 		fields.append_fields(UnknownField())
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class GlueScreenEmote(Structure):
@@ -2499,11 +2446,8 @@ class GMSurveyAnswers(Structure):
 		IDField(),
 		IntegerField("ordering"),
 		UnknownField(),
-		LocalizedFields("text"),
+		LocalizedField("text"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class GMSurveyCurrentSurvey(Structure):
@@ -2522,11 +2466,8 @@ class GMSurveyQuestions(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("text"),
+		LocalizedField("text"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class GMSurveySurveys(Structure):
@@ -2554,11 +2495,8 @@ class GMTicketCategory(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class GroundEffectDoodad(Structure):
@@ -2608,6 +2546,9 @@ class gtBarberShopCostBase(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 class gtCombatRatings(Structure):
 	"""
@@ -2623,6 +2564,9 @@ class gtCombatRatings(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class gtChanceToMeleeCritBase(Structure):
@@ -2639,6 +2583,9 @@ class gtChanceToMeleeCritBase(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class gtChanceToMeleeCrit(Structure):
@@ -2655,6 +2602,9 @@ class gtChanceToMeleeCrit(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class gtChanceToSpellCrit(Structure):
@@ -2671,6 +2621,9 @@ class gtChanceToSpellCrit(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class gtChanceToSpellCritBase(Structure):
@@ -2687,6 +2640,9 @@ class gtChanceToSpellCritBase(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class gtNPCManaCostScaler(Structure):
@@ -2729,6 +2685,9 @@ class gtOCTRegenHP(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class gtOCTRegenMP(Structure):
@@ -2745,6 +2704,9 @@ class gtOCTRegenMP(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class gtRegenHPPerSpt(Structure):
@@ -2761,6 +2723,9 @@ class gtRegenHPPerSpt(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class gtRegenMPPerSpt(Structure):
@@ -2777,6 +2742,9 @@ class gtRegenMPPerSpt(Structure):
 			IDField(),
 			before="ratio",
 		)
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class HelmetGeosetVisData(Structure):
@@ -2802,11 +2770,8 @@ class HolidayDescriptions(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("description"),
+		LocalizedField("description"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class HolidayNames(Structure):
@@ -2815,11 +2780,8 @@ class HolidayNames(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Holidays(Structure):
@@ -2961,11 +2923,8 @@ class ItemBagFamily(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ItemClass(Structure):
@@ -2976,11 +2935,10 @@ class ItemClass(Structure):
 		IDField(),
 		UnknownField(),
 		BooleanField("is_weapon"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
 	
 	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 		fields.insert_field(UnknownField(), before="is_weapon")
 
 
@@ -3241,13 +3199,10 @@ class ItemLimitCategory(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		IntegerField("amount"),
 		BooleanField("equipped"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ItemPetFood(Structure):
@@ -3257,11 +3212,8 @@ class ItemPetFood(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ItemPurchaseGroup(Structure):
@@ -3279,11 +3231,8 @@ class ItemPurchaseGroup(Structure):
 		ForeignKey("item_6", "Item"),
 		ForeignKey("item_7", "Item"),
 		ForeignKey("item_8", "Item"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ItemRandomProperties(Structure):
@@ -3299,11 +3248,8 @@ class ItemRandomProperties(Structure):
 		ForeignKey("enchantment_3", "SpellItemEnchantment"),
 		ForeignKey("enchantment_4", "SpellItemEnchantment"),
 		ForeignKey("enchantment_5", "SpellItemEnchantment"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ItemRandomSuffix(Structure):
@@ -3313,7 +3259,7 @@ class ItemRandomSuffix(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		StringField("internal_name"),
 		ForeignKey("enchantment_1", "SpellItemEnchantment"),
 		ForeignKey("enchantment_2", "SpellItemEnchantment"),
@@ -3326,9 +3272,6 @@ class ItemRandomSuffix(Structure):
 		UnknownField(),
 		UnknownField(),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ItemSet(Structure):
@@ -3339,7 +3282,7 @@ class ItemSet(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		ForeignKey("item_1", "Item"),
 		ForeignKey("item_2", "Item"),
 		ForeignKey("item_3", "Item"),
@@ -3365,20 +3308,17 @@ class ItemSet(Structure):
 		ForeignKey("bonus_6", "Spell"),
 		ForeignKey("bonus_7", "Spell"),
 		ForeignKey("bonus_8", "Spell"),
-		IntegerField("piecesreqbonus1"),
-		IntegerField("piecesreqbonus2"),
-		IntegerField("piecesreqbonus3"),
-		IntegerField("piecesreqbonus4"),
-		IntegerField("piecesreqbonus5"),
-		IntegerField("piecesreqbonus6"),
-		IntegerField("piecesreqbonus7"),
-		IntegerField("piecesreqbonus8"),
+		IntegerField("required_items_1"),
+		IntegerField("required_items_2"),
+		IntegerField("required_items_3"),
+		IntegerField("required_items_4"),
+		IntegerField("required_items_5"),
+		IntegerField("required_items_6"),
+		IntegerField("required_items_7"),
+		IntegerField("required_items_8"),
 		ForeignKey("required_skill", "SkillLine"),
 		IntegerField("required_skill_level"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ItemSubClass(Structure):
@@ -3398,8 +3338,8 @@ class ItemSubClass(Structure):
 		IntegerField(),
 		IntegerField(),
 		IntegerField("hands"),
-		LocalizedFields("name"),
-		LocalizedFields("category_name"),
+		LocalizedField("name"),
+		LocalizedField("category_name"),
 	)
 	
 	def changed_11927(self, fields):
@@ -3408,7 +3348,6 @@ class ItemSubClass(Structure):
 		to cataclysm-style locales.
 		"""
 		fields.insert_field(IDField(), before="id_1")
-		fields.update_locales_cataclysm()
 
 
 class ItemSubClassMask(Structure):
@@ -3429,7 +3368,7 @@ class ItemSubClassMask(Structure):
 	fields = Skeleton(
 		IntegerField("id1"),
 		BitMaskField("id2_mask"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
 	
 	def changed_11927(self, fields):
@@ -3437,7 +3376,6 @@ class ItemSubClassMask(Structure):
 		Added a real id field
 		"""
 		fields.insert_field(IDField(), before="id1")
-		fields.update_locales_cataclysm()
 
 
 class ItemVisualEffects(Structure):
@@ -3471,11 +3409,8 @@ class Languages(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class LanguageWords(Structure):
@@ -3496,7 +3431,7 @@ class LFGDungeons(Structure):
 	
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		IntegerField("level_1"), # level_min
 		IntegerField("level_2"),
 		IntegerField("level_3"),
@@ -3515,12 +3450,14 @@ class LFGDungeons(Structure):
 	
 	def changed_11573(self, fields):
 		fields.append_fields(
-			LocalizedFields("description")
+			LocalizedField("description")
 		)
 	
 	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 		fields.append_fields(UnknownField()) # ???
+	
+	def changed_11993(self, fields):
+		self.changed_11573(fields)
 
 
 class LFGDungeonExpansion(Structure):
@@ -3547,14 +3484,11 @@ class LFGDungeonGroup(Structure):
 	
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		UnknownField(),
 		UnknownField(),
 		IntegerField("type"), # 1 = normal, 2 = raid, 5 = heroic
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Light(Structure):
@@ -3884,14 +3818,11 @@ class LockType(Structure):
 	
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
-		LocalizedFields("state"),
-		LocalizedFields("process"),
+		LocalizedField("name"),
+		LocalizedField("state"),
+		LocalizedField("process"),
 		StringField("internal_name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class MailTemplate(Structure):
@@ -3901,12 +3832,9 @@ class MailTemplate(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
-		LocalizedFields("text"),
+		LocalizedField("name"),
+		LocalizedField("text"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Map(Structure):
@@ -3919,15 +3847,15 @@ class Map(Structure):
 		StringField("internal_name"),
 		IntegerField("type"), # 0: normal, 1: instance, 2: raid, 3: battleground, 4: arena
 		BooleanField("battleground"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		ForeignKey("zone", "AreaTable"), # instance zone id
-		LocalizedFields("description_horde"),
-		LocalizedFields("description_alliance"),
+		LocalizedField("description_horde"),
+		LocalizedField("description_alliance"),
 		ForeignKey("loading_screen", "LoadingScreens"),
 		FloatField(), # BattlefieldMapIconScale
-		LocalizedFields("normal_requirements"),
-		LocalizedFields("heroic_requirements"),
-		LocalizedFields("epic_requirements"),
+		LocalizedField("normal_requirements"),
+		LocalizedField("heroic_requirements"),
+		LocalizedField("epic_requirements"),
 		ForeignKey("continent", "map"),
 		FloatField("entrance_x"),
 		FloatField("entrance_y"),
@@ -3959,7 +3887,6 @@ class Map(Structure):
 	
 	def changed_11927(self, fields):
 		self.changed_10522(fields)
-		fields.update_locales_cataclysm()
 		fields.append_fields(
 			ForeignKey("phasing_parent", "Map"),
 		)
@@ -3973,14 +3900,11 @@ class MapDifficulty(Structure):
 		IDField(),
 		ForeignKey("instance", "map"),
 		IntegerField("mode"),
-		LocalizedFields("requirements"),
+		LocalizedField("requirements"),
 		DurationField("resettime"),
 		IntegerField("raidsize"),
 		UnknownField(),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Material(Structure):
@@ -4185,11 +4109,8 @@ class Package(Structure):
 		IDField(),
 		StringField("icon"),
 		MoneyField("price"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class PageTextMaterial(Structure):
@@ -4262,12 +4183,8 @@ class PetLoyalty(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		pass # FIXME Not in dbcs?
-		#fields.update_locales_cataclysm()
 
 
 class PetPersonality(Structure):
@@ -4276,7 +4193,7 @@ class PetPersonality(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		UnknownField(),
 		UnknownField(),
 		UnknownField(),
@@ -4284,9 +4201,6 @@ class PetPersonality(Structure):
 		FloatField(),
 		FloatField(),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class PowerDisplay(Structure):
@@ -4346,11 +4260,8 @@ class QuestInfo(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class QuestSort(Structure):
@@ -4362,11 +4273,8 @@ class QuestSort(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class QuestXP(Structure):
@@ -4422,11 +4330,8 @@ class Resistances(Structure):
 		IDField(),
 		BooleanField("armor"),
 		UnknownField(), # Not spellicon
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ScalingStatDistribution(Structure):
@@ -4529,11 +4434,8 @@ class ServerMessages(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("message"),
+		LocalizedField("message"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class SheatheSoundLookups(Structure):
@@ -4573,15 +4475,12 @@ class SkillLine(Structure):
 		IDField(),
 		ForeignKey("category", "SkillLineCategory"),
 		ForeignKey("cost", "SkillCostsData"),
-		LocalizedFields("name"),
-		LocalizedFields("description"),
+		LocalizedField("name"),
+		LocalizedField("description"),
 		ForeignKey("icon", "SpellIcon"),
-		LocalizedFields("action"),
+		LocalizedField("action"),
 		BooleanField("tradeskill"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class SkillLineAbility(Structure):
@@ -4619,12 +4518,9 @@ class SkillLineCategory(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		IntegerField("sort")
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class SkillRaceClassInfo(Structure):
@@ -5117,10 +5013,10 @@ class Spell(Structure):
 		ForeignKey("icon", "SpellIcon"),
 		ForeignKey("buff_icon", "SpellIcon"),
 		IntegerField("priority"),
-		LocalizedFields("name"),
-		LocalizedFields("rank"),
-		LocalizedFields("description", field_type=SpellMacroField),
-		LocalizedFields("buff_description", field_type=SpellMacroField),
+		LocalizedField("name"),
+		LocalizedField("rank"),
+		LocalizedField("description"),
+		LocalizedField("buff_description"),
 		IntegerField("mana_cost_percent"),#
 		ForeignKey("category_cooldown_start", "SpellCategory"),
 		DurationField("cooldown_start", unit="milliseconds"),
@@ -5181,7 +5077,6 @@ class Spell(Structure):
 	
 	def changed_11927(self, fields):
 		self.changed_11573(fields)
-		fields.update_locales_cataclysm()
 		fields.insert_field(BitMaskField("flags_9", flags=self.FLAGS_9), after="flags_8")
 		fields.insert_field(UnknownField(), after="interrupt_flags")
 		fields.insert_field(UnknownField(), after="channeling_interrupt_flags")
@@ -5209,7 +5104,7 @@ class SpellAuraNames(Structure):
 		IDField(),
 		UnknownField(),
 		StringField("internal_name"),
-		LocalizedFields("name", locales=OLD_LOCALES),
+		LocalizedField("name"),
 	)
 
 
@@ -5333,14 +5228,11 @@ class SpellDispelType(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		UnknownField(),
 		BooleanField("shown"), # in debuff tooltip
 		StringField(), # same as name for magic/curse/disease/poison, used where?
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class SpellDuration(Structure):
@@ -5376,7 +5268,7 @@ class SpellEffectNames(Structure):
 	DEAD = True
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name", locales=OLD_LOCALES),
+		LocalizedField("name"),
 	)
 
 
@@ -5386,11 +5278,8 @@ class SpellFocusObject(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class SpellIcon(Structure):
@@ -5425,7 +5314,7 @@ class SpellItemEnchantment(Structure):
 		IntegerField("effect_1"), #fkey stat/spell
 		IntegerField("effect_2"), #fkey stat/spell
 		IntegerField("effect_3"), #fkey stat/spell
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		ForeignKey("glow", "ItemVisuals"),
 		IntegerField(),
 		ForeignKey("gem", "Item"), # added 5610
@@ -5441,7 +5330,6 @@ class SpellItemEnchantment(Structure):
 	
 	def changed_11927(self, fields):
 		self.changed_9637(fields)
-		fields.update_locales_cataclysm()
 		fields.append_fields(UnknownField())
 
 
@@ -5505,11 +5393,8 @@ class SpellMechanic(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class SpellMissile(Structure):
@@ -5573,12 +5458,9 @@ class SpellRange(Structure):
 		FloatField("range_max"),
 		FloatField("range_max_friendly"),
 		BitMaskField("flags"),
-		LocalizedFields("name"),
-		LocalizedFields("tooltip_name"),
+		LocalizedField("name"),
+		LocalizedField("tooltip_name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class SpellRuneCost(Structure):
@@ -5626,7 +5508,7 @@ class SpellShapeshiftForm(Structure):
 	fields = Skeleton(
 		IDField(),
 		IntegerField("button_position"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		BitMaskField("flags"),
 		IntegerField("creature_type"),
 		ForeignKey("icon", "SpellIcon"),
@@ -5644,9 +5526,6 @@ class SpellShapeshiftForm(Structure):
 		ForeignKey("spell_7", "Spell"),
 		ForeignKey("spell_8", "Spell"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class SpellVisual(Structure):
@@ -5818,11 +5697,8 @@ class Startup_Strings(Structure):
 	fields = Skeleton(
 		IDField(),
 		StringField("name"),
-		LocalizedFields("message"),
+		LocalizedField("message"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class Stationery(Structure):
@@ -5901,7 +5777,7 @@ class TalentTab(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		ForeignKey("icon", "SpellIcon"),
 		UnknownField("unk_unused"),
 		BitMaskField("class_mask"),
@@ -5911,7 +5787,6 @@ class TalentTab(Structure):
 	)
 	
 	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 		fields.delete_fields("unk_unused")
 
 
@@ -5926,13 +5801,10 @@ class TaxiNodes(Structure):
 		FloatField("x"),
 		FloatField("y"),
 		FloatField("z"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		ForeignKey("mount_horde", "creaturecache"),
 		ForeignKey("mount_alliance", "creaturecache"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class TaxiPath(Structure):
@@ -5991,6 +5863,9 @@ class TerrainType(Structure):
 	
 	def changed_11927(self, fields):
 		fields.append_fields(UnknownField())
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class TerrainTypeSounds(Structure):
@@ -6009,13 +5884,10 @@ class TotemCategory(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 		IntegerField("category"),
 		BitMaskField("flags"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class TransportAnimation(Structure):
@@ -6380,11 +6252,8 @@ class WMOAreaTable(Structure):
 		UnknownField(),
 		UnknownField(),
 		ForeignKey("zone", "AreaTable"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class WorldChunkSounds(Structure):
@@ -6525,11 +6394,8 @@ class WorldSafeLocs(Structure):
 		FloatField("x"),
 		FloatField("y"),
 		FloatField("z"),
-		LocalizedFields("name"),
+		LocalizedField("name"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class WorldStateUI(Structure):
@@ -6543,12 +6409,12 @@ class WorldStateUI(Structure):
 		UnknownField(),
 		UnknownField(),
 		FilePathField("path"),
-		LocalizedFields("name"),
-		LocalizedFields("description"),
+		LocalizedField("name"),
+		LocalizedField("description"),
 		UnknownField("variable_1"),
 		UnknownField(),
 		UnknownField(),
-		LocalizedFields("battleground"),
+		LocalizedField("battleground"),
 		StringField("capture_background"),
 		IntegerField("variable_2"),
 		IntegerField("variable_3"),
@@ -6556,11 +6422,13 @@ class WorldStateUI(Structure):
 	)
 	
 	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 		fields.insert_fields((
 			UnknownField(),
 			UnknownField(),
 		), before="path")
+	
+	def changed_11993(self, fields):
+		pass
 
 
 class WorldStateZoneSounds(Structure):
@@ -6591,11 +6459,8 @@ class WowError_Strings(Structure):
 	fields = Skeleton(
 		IDField(),
 		StringField("name"),
-		LocalizedFields("description"),
+		LocalizedField("description"),
 	)
-	
-	def changed_11927(self, fields):
-		fields.update_locales_cataclysm()
 
 
 class ZoneIntroMusicTable(Structure):

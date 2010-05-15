@@ -15,11 +15,6 @@ from .bitflags import BitFlags
 class FieldError(Exception):
 	pass
 
-OLD_LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx")
-LOCALES = ("enus", "kokr", "frfr", "dede", "zhcn", "zhtw", "eses", "esmx",
-	"ruru", "unk1", "unk2", "unk3", "unk4", "unk5", "unk6", "unk7")
-LOCALES_CATACLYSM = ("enus", )
-
 class Field(object):
 	"""
 	A database field.

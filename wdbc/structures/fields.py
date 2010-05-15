@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from pywow.structures.fields import *
-from pywow.spellstrings import SpellString
 
 ##
 # Core custom types for WDB/DBC files
@@ -308,11 +307,6 @@ class FilePathField(StringField):
 
 class GUIDField(BigIntegerField):
 	pass
-
-class SpellMacroField(StringField):
-	def to_python(self, value, row):
-		val = SpellString(value)
-		return val.format(row)
 
 class HashField(Field):
 	char = "16s"
