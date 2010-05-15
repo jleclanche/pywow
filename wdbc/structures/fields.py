@@ -20,6 +20,17 @@ class RecLenField(IntegerField):
 	def __init__(self, name="_reclen"):
 		IntegerField.__init__(self, name=name)
 
+class LocalizedField(Field):
+	"""
+	Localized StringField.
+	Structure handled at wdbc.structures.LocalizedStringField
+	"""
+	
+	@property
+	def size(self):
+		print self.__dict__
+		print dir(self)
+
 
 ##
 # Dynamic types
@@ -70,32 +81,6 @@ class DynamicFields(DynamicFieldsBase):
 		for v in self[1:]:
 			for f in v:
 				yield f
-
-class LocalizedFields(DynamicFieldsBase):
-	"""
-	Localized StringField.
-	16 StringField, 1 BitMaskField
-	"""
-	
-	def __init__(self, name, field_type=StringField, locales=LOCALES):
-		self.name = name
-		self.field_type = field_type
-		self.__regenerate(locales)
-	
-	def __regenerate(self, locales):
-		for loc in locales:
-			self.append(self.field_type(name="%s_%s" % (self.name, loc), group=self))
-		
-		self.append(BitMaskField("%s_locflags" % (self.name), group=self))
-	
-	def update_locales(self, locales):
-		del self[:]
-		self.__regenerate(locales)
-	
-	def delete_locflags(self):
-		for field in self:
-			if isinstance(field, BitMaskField): # XXX better way
-				self.delete_field(field)
 
 class SubRow(object):
 	"""

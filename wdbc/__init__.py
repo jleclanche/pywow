@@ -397,6 +397,16 @@ class DBCFile(DBFile):
 			self.structure = getstructure(name, self.build, parent=self)
 		except StructureNotFound:
 			self.structure = self.__generate_structure()
+		
+		# Generate the Localized Fields
+		fieldidx = []
+		fields = structures.LocalizedStringField(build=self.build)
+		for i, field in enumerate(self.structure):
+			if isinstance(field, structures.LocalizedField):
+				fieldidx.append((i, field.name))
+		for i, name in reversed(fieldidx):
+			self.structure[i:i+1] = [field.rename("%s_%s" % (name, field.name)) for field in fields]
+		
 		log.info("Using %s build %i" % (self.structure, self.build))
 		
 		self.__check_structure_integrity()
