@@ -33,6 +33,14 @@ class Field(object):
 	
 	def to_python(self, value, row):
 		return value
+	
+	def rename(self, name):
+		"""
+		Renames Field to name
+		Returns Field
+		"""
+		self.name = name
+		return self
 
 
 ##
