@@ -36,7 +36,6 @@ class Structure(list):
 	def __init__(self, build=0, parent=None):
 		self.parent = parent # DBC file
 		self.primary_keys = []
-		self.column_names = []
 		self._abstractions = {}
 		names = []
 		
@@ -55,7 +54,7 @@ class Structure(list):
 				getattr(self, "changed_%i" % _builds[-1:][0])(self.columns)
 		
 		for col in self.columns:
-			if hasattr(col, "get_abstraction"): # Abstraction for Union, LocalizedFields, etc
+			if hasattr(col, "get_abstraction"): # Abstraction for Union
 				name, func = col.get_abstraction()
 				self._abstractions[name] = (col, func)
 			
@@ -72,10 +71,13 @@ class Structure(list):
 	def __contains__(self, name):
 		return name in self.column_names
 	
+	@property
+	def column_names(self):
+		return [k.name for k in self]
+	
 	def add_column(self, col):
 		col.parent = self
 		self.append(col)
-		self.column_names.append(col.name)
 	
 	def get_column(self, column_name):
 		index = self.index(column_name)
