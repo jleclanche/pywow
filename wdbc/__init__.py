@@ -400,12 +400,17 @@ class DBCFile(DBFile):
 		
 		# Generate the Localized Fields
 		fieldidx = []
-		fields = structures.LocalizedStringField(build=self.build)
 		for i, field in enumerate(self.structure):
 			if isinstance(field, structures.LocalizedField):
 				fieldidx.append((i, field.name))
-		for i, name in reversed(fieldidx):
-			self.structure[i:i+1] = [field.rename("%s_%s" % (name, field.name)) for field in fields]
+		
+		if fieldidx:
+			from copy import copy
+			fields = structures.LocalizedStringField(build=self.build)
+			for i, name in reversed(fieldidx):
+				# Build a copy of the fields
+				toinsert = [copy(field).rename("%s_%s" % (name, field.name)) for field in fields]
+				self.structure[i:i+1] = toinsert
 		
 		log.info("Using %s build %i" % (self.structure, self.build))
 		
@@ -572,7 +577,7 @@ class DBRow(list):
 		if attr in self.structure._abstractions: # Union abstractions etc
 			field, func = self.structure._abstractions[attr]
 			return func(field, self)
-		return list.__getattribute__(self, attr)
+		return super(DBRow, self).__getattribute__(attr)
 	
 	def __setattr__(self, attr, value):
 		"""
@@ -581,7 +586,7 @@ class DBRow(list):
 		"""
 		if self.initialized and attr in self.structure:
 			self._set_value(attr, value)
-		list.__setattr__(self, attr, value)
+		return super(DBRow, self).__setattr__(attr, value)
 	
 	def __setitem__(self, index, value):
 		if not isinstance(index, int):
