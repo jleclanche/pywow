@@ -9,31 +9,29 @@ import sys
 from binascii import hexlify
 from PyQt4 import QtCore, QtGui
 
-from pywow import wdbc, structures
-
-fname = sys.argv[1]
-build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
-try:
-	f = wdbc.fopen(fname, build=build)
-except Exception, e:
-	print "%s could not be read: %s" % (fname, e)
-	exit(1)
-ARRAY = f.rows()
-
-HEADER_DATA = f.structure.column_names
+from pywow import wdbc
 
 def main():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 	app = QtGui.QApplication(sys.argv)
+	
+	name = sys.argv[1]
+	build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
+	try:
+		file = wdbc.fopen(name, build=build)
+	except Exception, e:
+		print "%s could not be read: %s" % (name, e)
+		exit(1)
+	
 	w = MainWindow()
+	w.setFile(file, name)
 	w.show()
-	w.setWindowTitle("%s - Sigrie Reader" % fname)
 	sys.exit(app.exec_())
 
 
 class MainWindow(QtGui.QMainWindow):
-	def __init__(self, *args):
-		QtGui.QMainWindow.__init__(self, *args)
+	def __init__(self, *pargs):
+		QtGui.QMainWindow.__init__(self, *pargs)
 		self.resize(1332, 886)
 		
 		exit = QtGui.QAction(QtGui.QIcon('icons/exit.png'), 'Exit', self)
@@ -53,15 +51,18 @@ class MainWindow(QtGui.QMainWindow):
 		
 		self.verticalLayout.addWidget(self.maintable)
 		self.setCentralWidget(self.centralwidget)
+	
+	def setFile(self, file, name):
+		self.setWindowTitle("%s - Sigrie Reader" % (name))
+		self.maintable.model.setFile(file)
 
 
 class MainTable(QtGui.QWidget):
-	def __init__(self, *args):
-		QtGui.QWidget.__init__(self, *args)
+	def __init__(self, *pargs):
+		QtGui.QWidget.__init__(self, *pargs)
 		
 		# create table
 		#self.get_table_data()
-		self.tabledata = ARRAY
 		table = self.createTable()
 		
 		# layout
@@ -74,9 +75,8 @@ class MainTable(QtGui.QWidget):
 		tv = QtGui.QTableView()
 		
 		# set the table model
-		header = HEADER_DATA
-		tm = MainTableModel(self.tabledata, header, self) 
-		tv.setModel(tm)
+		self.model = MainTableModel(self)
+		tv.setModel(self.model)
 		
 		# set the minimum size
 		tv.setMinimumSize(400, 300)
@@ -99,13 +99,20 @@ class MainTable(QtGui.QWidget):
 
 
 class MainTableModel(QtCore.QAbstractTableModel):
-	def __init__(self, datain, header_data, parent=None, *args):
-		QtCore.QAbstractTableModel.__init__(self, parent, *args)
-		self.arraydata = datain
-		self.header_data = header_data
+	def __init__(self, *pargs):
+		super(MainTableModel, self).__init__(*pargs)
+		self.table_data = []
+		self.header_data = []
+	
+	def setFile(self, file):
+		self.emit(QtCore.SIGNAL("layoutAboutToBeChanged()"))
+		self.table_data = file.rows()
+		self.header_data = file.structure.column_names
+		self.structure = file.structure
+		self.emit(QtCore.SIGNAL("layoutChanged()"))
 	
 	def rowCount(self, parent):
-		return len(self.arraydata)
+		return len(self.table_data)
 
 	def columnCount(self, parent):
 		return len(self.header_data)
@@ -116,8 +123,8 @@ class MainTableModel(QtCore.QAbstractTableModel):
 		elif role != QtCore.Qt.DisplayRole:
 			return QtCore.QVariant()
 		
-		cell = self.arraydata[index.row()][index.column()]
-		field = f.structure[index.column()]
+		cell = self.table_data[index.row()][index.column()]
+		field = self.structure[index.column()]
 		if isinstance(field, wdbc.structures.HashField) or isinstance(field, wdbc.structures.DataField):
 			cell = hexlify(cell)
 		if isinstance(cell, str) and len(cell) > 200:
@@ -134,12 +141,11 @@ class MainTableModel(QtCore.QAbstractTableModel):
 
 	def sort(self, Ncol, order):
 		self.emit(QtCore.SIGNAL("layoutAboutToBeChanged()"))
-		self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))
+		self.table_data = sorted(self.table_data, key=operator.itemgetter(Ncol))
 		if order == QtCore.Qt.AscendingOrder:
-			self.arraydata.reverse()
+			self.table_data.reverse()
 		self.emit(QtCore.SIGNAL("layoutChanged()"))
 
 
 if __name__ == "__main__":
 	main()
-
