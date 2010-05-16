@@ -126,7 +126,7 @@ class DBFile(object):
 	
 	def _add_row(self, id, address, reclen):
 		if id in self._addresses: # Something's wrong here
-			log.warning("Multiple instances of row #%r found" % (id))
+			log.warning("Multiple instances of row %r found" % (id))
 		self._addresses[id] = (address, reclen)
 	
 	def _parse_field(self, data, field, row=None):
@@ -717,7 +717,7 @@ class ComplexDBCFile(DBCFile):
 			id = unpack("<ii", f.read(8)) # id is a tuple instead
 			
 			if id in self._addresses: # Something's wrong here
-				log.warning("Multiple instances of row #%s found" % (".".join(id)))
+				log.warning("Multiple instances of row %s found" % (".".join(id)))
 			self._addresses[id] = (address, reclen)
 			
 			f.seek(reclen - 8, os.SEEK_CUR) # minus 4 bytes for each id
