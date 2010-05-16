@@ -95,8 +95,13 @@ class DBFile(object):
 		return id in self._addresses
 	
 	def __getitem__(self, item):
+		if isinstance(item, slice):
+			keys = sorted(self._addresses.keys())[item]
+			return [self[k] for k in keys]
+		
 		if item not in self._values:
 			self._parse_row(item)
+		
 		return self._values[item]
 	
 	def __setitem__(self, item, value):
