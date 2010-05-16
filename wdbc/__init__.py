@@ -391,6 +391,17 @@ class DBCFile(DBFile):
 			raise NotImplementedError
 		return GeneratedStructure(structure_string)
 	
+	def __check_padding(self, file, field):
+		"""
+		In 4.0.0 DBCs, fields are padded to their own size
+		within the file. Example:
+		byte, int -> byte, pad, pad, pad, int
+		"""
+		address = file.tell()
+		seek = (address % field.size)
+		seek = seek and -(seek - field.size)
+		file.seek(seek, os.SEEK_CUR)
+	
 	def __load_structure(self, structure):
 		name = getfilename(self.file.name)
 		try:
@@ -415,6 +426,11 @@ class DBCFile(DBFile):
 		log.info("Using %s build %i" % (self.structure, self.build))
 		
 		self.__check_structure_integrity()
+	
+	def _parse_field(self, data, field, row=None):
+		if self.build == 11927: # TODO pywow.builddata
+			self.__check_padding(data, field)
+		return super(DBCFile, self)._parse_field(data, field, row)
 	
 	def _parse_row(self, id):
 		address, reclen = self._addresses[id]
