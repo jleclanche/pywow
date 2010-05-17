@@ -81,9 +81,6 @@ class MainTable(QtGui.QWidget):
 		# set the minimum size
 		tv.setMinimumSize(400, 300)
 		
-		# hide grid
-#		tv.setShowGrid(False)
-		
 		# hide vertical header
 		vh = tv.verticalHeader()
 		vh.setVisible(True)
@@ -135,9 +132,6 @@ class MainTableModel(QtCore.QAbstractTableModel):
 		if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
 			return QtCore.QVariant(self.header_data[col])
 		return QtCore.QAbstractTableModel.headerData(self, col, orientation, role)
-	
-	def sizeHintForRow(self, row):
-		return 20
 
 	def sort(self, Ncol, order):
 		self.emit(QtCore.SIGNAL("layoutAboutToBeChanged()"))
