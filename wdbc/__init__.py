@@ -433,7 +433,7 @@ class DBCFile(DBFile):
 		self.__check_structure_integrity()
 	
 	def _parse_field(self, data, field, row=None):
-		if self.build == 11927: # TODO pywow.builddata
+		if self.build in (11927, 12025): # TODO pywow.builddata
 			self.__check_padding(data, field)
 		return super(DBCFile, self)._parse_field(data, field, row)
 	
