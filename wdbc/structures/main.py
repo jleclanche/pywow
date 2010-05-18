@@ -2695,233 +2695,117 @@ class GroundEffectTexture(Structure):
 	)
 
 
-class gtBarberShopCostBase(Structure):
+class GameTableDBC(Structure):
+	"""
+	Base structure for all 
+	gt* DBCs (Game Table)
+	"""
+	implicit_id = True
+	fields = Skeleton(
+		FloatField("ratio"),
+	)
+	
+	def changed_11927(self, fields):
+		fields.insert_field(
+			IDField(),
+			before="ratio",
+		)
+	
+	def changed_11993(self, fields):
+		pass
+	
+	def changed_12025(self, fields):
+		self.changed_11927(fields)
+
+
+class gtBarberShopCostBase(GameTableDBC):
 	"""
 	gtBarberShopCostBase.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
-class gtCombatRatings(Structure):
+class gtCombatRatings(GameTableDBC):
 	"""
 	gtCombatRatings.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtChanceToMeleeCritBase(Structure):
+class gtChanceToMeleeCritBase(GameTableDBC):
 	"""
 	gtChanceToMeleeCritBase.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtChanceToMeleeCrit(Structure):
+class gtChanceToMeleeCrit(GameTableDBC):
 	"""
 	gtChanceToMeleeCrit.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtChanceToSpellCrit(Structure):
+class gtChanceToSpellCrit(GameTableDBC):
 	"""
 	gtChanceToSpellCrit.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtChanceToSpellCritBase(Structure):
+class gtChanceToSpellCritBase(GameTableDBC):
 	"""
 	gtChanceToSpellCritBase.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtNPCManaCostScaler(Structure):
+class gtNPCManaCostScaler(GameTableDBC):
 	"""
 	gtNPCManaCostScaler.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
-class gtOCTClassCombatRatingScalar(Structure):
+class gtOCTClassCombatRatingScalar(GameTableDBC):
 	"""
 	gtOCTClassCombatRatingScalar.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		IDField(),
-		FloatField("ratio"),
-	)
+	pass
 
 
-class gtOCTRegenHP(Structure):
+class gtOCTRegenHP(GameTableDBC):
 	"""
 	gtOCTRegenHP.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtOCTRegenMP(Structure):
+class gtOCTRegenMP(GameTableDBC):
 	"""
 	gtOCTRegenMP.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtRegenHPPerSpt(Structure):
+class gtRegenHPPerSpt(GameTableDBC):
 	"""
 	gtRegenHPPerSpt.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtRegenMPPerSpt(Structure):
+class gtRegenMPPerSpt(GameTableDBC):
 	"""
 	gtRegenMPPerSpt.dbc
 	"""
-	implicit_id = True
-	fields = Skeleton(
-		FloatField("ratio"),
-	)
-	
-	def changed_11927(self, fields):
-		fields.insert_field(
-			IDField(),
-			before="ratio",
-		)
-	
-	def changed_11993(self, fields):
-		pass
+	pass
 
 
-class gtSpellScaling(Structure):
+class gtSpellScaling(GameTableDBC):
 	"""
 	gtSpellScaling.dbc
 	New in 4.0.0.11927
 	"""
-	fields = Skeleton(
-		IDField(),
-		FloatField("ratio"),
-	)
+	pass
 
 
 class HelmetGeosetVisData(Structure):
