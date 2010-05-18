@@ -75,3 +75,6 @@ class LocalizedStringField(Structure):
 	
 	def changed_11993(self, fields):
 		self.changed_5595(fields)
+	
+	def changed_12025(self, fields):
+		self.changed_11927(fields)

@@ -1943,6 +1943,10 @@ class CurrencyTypes(Structure):
 	
 	def changed_11993(self, fields):
 		pass
+	
+	def changed_12025(self, fields):
+		self.changed_11927(fields)
+		fields.append_fields(UnknownField())
 
 
 class DanceMoves(Structure):
@@ -3329,6 +3333,20 @@ class ItemRandomSuffix(Structure):
 	)
 
 
+class ItemReforge(Structure):
+	"""
+	ItemReforge.dbc
+	New in 4.0.0.12025
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		FloatField(),
+		IntegerField(),
+		UnknownField(),
+	)
+
+
 class ItemSet(Structure):
 	"""
 	ItemSet.dbc
@@ -4273,6 +4291,33 @@ class PetPersonality(Structure):
 		FloatField(),
 		FloatField(),
 		FloatField(),
+	)
+
+
+class Phase(Structure):
+	"""
+	Phase.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("instance", "Map"),
+		ForeignKey("instance_2", "Map"),
+		UnknownField(),
+		UnknownField(), # zone?
+		UnknownField(), # 0 or 4
+	)
+
+
+class PhaseXPPhaseGroup(Structure):
+	"""
+	PhaseXPPhaseGroup.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("phase", "Phase"),
+		UnknownField(),
 	)
 
 
