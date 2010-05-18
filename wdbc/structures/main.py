@@ -789,22 +789,22 @@ class QuestCache(Structure):
 	def changed_11927(self, fields):
 		self.changed_10772(fields)
 		fields.append_fields(
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
+			ForeignKey("currency_reward_1", "CurrencyTypes"),
+			IntegerField("currency_reward_amount_1"),
+			ForeignKey("currency_reward_2", "CurrencyTypes"),
+			IntegerField("currency_reward_amount_2"),
+			ForeignKey("currency_reward_3", "CurrencyTypes"),
+			IntegerField("currency_reward_amount_3"),
+			ForeignKey("currency_reward_4", "CurrencyTypes"),
+			IntegerField("currency_reward_amount_4"),
+			ForeignKey("required_currency_1", "CurrencyTypes"),
+			IntegerField("required_currency_amount_1"),
+			ForeignKey("required_currency_2", "CurrencyTypes"),
+			IntegerField("required_currency_amount_2"),
+			ForeignKey("required_currency_3", "CurrencyTypes"),
+			IntegerField("required_currency_amount_3"),
+			ForeignKey("required_currency_4", "CurrencyTypes"),
+			IntegerField("required_currency_amount_4"),
 		)
 	
 	def changed_11993(self, fields):
@@ -1925,8 +1925,8 @@ class CurrencyTypes(Structure):
 	def changed_11927(self, fields):
 		fields.delete_fields("item")
 		fields.append_fields(
-			UnknownField(),
-			UnknownField(),
+			StringField("name"),
+			StringField("icon"),
 			UnknownField(),
 			UnknownField(),
 			UnknownField(),
