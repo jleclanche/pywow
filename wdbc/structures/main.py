@@ -935,6 +935,104 @@ class AnimationData(Structure):
 		)
 
 
+class AnimReplacement(Structure):
+	"""
+	AnimReplacement.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class AnimReplacementSet(Structure):
+	"""
+	AnimReplacementSet.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+	)
+
+
+class AnimKit(Structure):
+	"""
+	AnimKit.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class AnimKitBoneSet(Structure):
+	"""
+	AnimKitBoneSet.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class AnimKitBoneSetAlias(Structure):
+	"""
+	AnimKitBoneSetAlias.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class AnimKitConfig(Structure):
+	"""
+	AnimKitConfig.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+	)
+
+
+class AnimKitConfigBoneSet(Structure):
+	"""
+	AnimKitConfigBoneSet.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class AnimKitPriority(Structure):
+	"""
+	AnimKitPriority.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+	)
+
+
 class AnimKitSegment(Structure):
 	"""
 	AnimKitSegment.dbc
@@ -1098,6 +1196,21 @@ class AreaTrigger(Structure):
 	
 	def changed_11993(self, fields):
 		pass
+
+
+class ArmorLocation(Structure):
+	"""
+	ArmorLocation.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+		FloatField(),
+	)
 
 
 class AttackAnimKits(Structure):
@@ -2800,6 +2913,17 @@ class gtRegenMPPerSpt(Structure):
 		pass
 
 
+class gtSpellScaling(Structure):
+	"""
+	gtSpellScaling.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField("ratio"),
+	)
+
+
 class HelmetGeosetVisData(Structure):
 	"""
 	HelmetGeosetVisData.dbc
@@ -4304,14 +4428,14 @@ class Phase(Structure):
 		ForeignKey("instance", "Map"),
 		ForeignKey("instance_2", "Map"),
 		UnknownField(),
-		UnknownField(), # zone?
+		StringField(),
 		UnknownField(), # 0 or 4
 	)
 
 
-class PhaseXPPhaseGroup(Structure):
+class PhaseXPhaseGroup(Structure):
 	"""
-	PhaseXPPhaseGroup.dbc
+	PhaseXPhaseGroup.dbc
 	New in 4.0.0.11927
 	"""
 	fields = Skeleton(
@@ -6615,6 +6739,33 @@ class ZoneIntroMusicTable(Structure):
 		ForeignKey("sound", "SoundEntries"),
 		BooleanField(),
 		DurationField(unit="seconds"),
+	)
+
+
+class ZoneLight(Structure):
+	"""
+	ZoneLight.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		StringField("name"),
+		ForeignKey("continent", "Map"),
+		UnknownField(),
+	)
+
+
+class ZoneLightPoint(Structure):
+	"""
+	ZoneLightPoint.dbc
+	New in 4.0.0.11927
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		FloatField(),
+		FloatField(),
+		UnknownField(),
 	)
 
 
