@@ -924,8 +924,15 @@ class AnimationData(Structure):
 		UnknownField(),
 		ForeignKey("animation_before", "AnimationData"),
 		ForeignKey("real_animation", "AnimationData"),
-		IntegerField("flying"), # fly = 3
 	)
+	
+	def changed_7468(self, fields):
+		"""
+		Unknown build
+		"""
+		fields.append_fields(
+			IntegerField("flying"), # fly = 3
+		)
 
 
 class AnimKitSegment(Structure):
