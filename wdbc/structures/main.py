@@ -452,7 +452,7 @@ class ItemCache(Structure):
 	
 	def changed_10026(self, fields):
 		self.changed_9614(fields)
-		fields.insert_field(BitMaskField("flags_2"), before="buy_price")
+		fields.insert_field(BitMaskField("flags_2", flags=self.FLAGS_2), before="buy_price")
 	
 	def changed_11927(self, fields):
 		"""
@@ -5228,7 +5228,7 @@ class Spell(Structure):
 		LocalizedField("rank"),
 		LocalizedField("description"),
 		LocalizedField("buff_description"),
-		IntegerField("mana_cost_percent"),#
+		IntegerField("mana_cost_percent"),
 		ForeignKey("category_cooldown_start", "SpellCategory"),
 		DurationField("cooldown_start", unit="milliseconds"),
 		IntegerField("max_target_level"),
@@ -5298,7 +5298,7 @@ class Spell(Structure):
 			ForeignKey("radius_max_effect_3", "SpellRadius"),
 		), after="radius_effect_3")
 		fields.append_fields(
-			UnknownField(),
+			ForeignKey("spell_scaling", "SpellScaling"),
 			UnknownField(),
 			UnknownField(),
 			UnknownField(),
@@ -5309,7 +5309,7 @@ class Spell(Structure):
 	
 	def changed_12025(self, fields):
 		self.changed_11927(fields)
-		fields.insert_field(FloatField(), after="spell_difficulty")
+		fields.insert_field(FloatField(), before="spell_scaling")
 
 
 class SpellAuraNames(Structure):
