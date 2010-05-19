@@ -41,16 +41,15 @@ class BitFlags(object):
 	
 	def __int__(self):
 		return self._bitmask
-	
-	# introspection support:
-	__members__ = property(lambda self: self.__dir__())
 
 	def __dir__(self):
 		result = self.__dict__.keys()
-		result.extend(self._flags)
+		result.extend(self._values.keys())
 		return result
 	
 	
 	def dict(self):
-		""" Convert the BitFlags to a dict """
+		"""
+		Convert the BitFlags to a dict
+		"""
 		return dict((k, getattr(self, k)) for k in self._flags)
