@@ -364,12 +364,12 @@ class ItemCache(Structure):
 	
 	def changed_6577(self, fields):
 		"""
-		- New float quality modifier
+		- New float budget modifier
 		  When positive, describes the amount of additional armor the item gets.
 		  When negative, describes a coefficient of the dps lost to the item budget.
 		"""
 		self.changed_6213(fields)
-		fields.append_fields(FloatField("armordmgmod"))
+		fields.append_fields(FloatField("budget_modifier"))
 	
 	def changed_7382(self, fields):
 		"""
