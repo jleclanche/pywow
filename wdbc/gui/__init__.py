@@ -5,15 +5,15 @@ import operator
 import os
 import signal
 import sys
-
-from binascii import hexlify
-from PyQt4 import QtCore, QtGui
-
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 from pywow import wdbc
 
+
+from binascii import hexlify
 def main():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
-	app = QtGui.QApplication(sys.argv)
+	app = QApplication(sys.argv)
 	
 	name = sys.argv[1]
 	build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
@@ -29,23 +29,29 @@ def main():
 	sys.exit(app.exec_())
 
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QMainWindow):
 	def __init__(self, *pargs):
-		QtGui.QMainWindow.__init__(self, *pargs)
+		QMainWindow.__init__(self, *pargs)
 		self.resize(1332, 886)
 		
-		exit = QtGui.QAction(QtGui.QIcon('icons/exit.png'), 'Exit', self)
-		exit.setShortcut('Ctrl+Q')
-		exit.setStatusTip('Exit application')
-		self.connect(exit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
+		exit = QAction(QIcon("icons/exit.png"), "Exit", self)
+		exit.setShortcut("Ctrl+Q")
+		exit.setStatusTip("Exit application")
+		self.connect(exit, SIGNAL("triggered()"), SLOT("close()"))
+		
+		open = QAction(QIcon("icons/open.png"), "Open", self)
+		open.setShortcut("Ctrl+O")
+		open.setStatusTip("Open a new file")
+		openFileDialog = QFileDialog()
+		openFileDialog.connect(open, SIGNAL("triggered()"), SLOT("open()"))
 		
 		menubar = self.menuBar()
-		mfile = menubar.addMenu('&File')
+		mfile = menubar.addMenu("&File")
+		mfile.addAction(open)
 		mfile.addAction(exit)
 		
-		
-		self.centralwidget = QtGui.QWidget(self)
-		self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
+		self.centralwidget = QWidget(self)
+		self.verticalLayout = QVBoxLayout(self.centralwidget)
 		
 		self.maintable = MainTable(self.centralwidget)
 		
@@ -57,22 +63,22 @@ class MainWindow(QtGui.QMainWindow):
 		self.maintable.model.setFile(file)
 
 
-class MainTable(QtGui.QWidget):
+class MainTable(QWidget):
 	def __init__(self, *pargs):
-		QtGui.QWidget.__init__(self, *pargs)
+		QWidget.__init__(self, *pargs)
 		
 		# create table
 		#self.get_table_data()
 		table = self.createTable()
 		
 		# layout
-		layout = QtGui.QVBoxLayout()
+		layout = QVBoxLayout()
 		layout.addWidget(table)
 		self.setLayout(layout)
 	
 	def createTable(self):
 		# create the view
-		tv = QtGui.QTableView()
+		tv = QTableView()
 		
 		# set the table model
 		self.model = MainTableModel(self)
@@ -95,18 +101,18 @@ class MainTable(QtGui.QWidget):
 		return tv
 
 
-class MainTableModel(QtCore.QAbstractTableModel):
+class MainTableModel(QAbstractTableModel):
 	def __init__(self, *pargs):
 		super(MainTableModel, self).__init__(*pargs)
 		self.table_data = []
 		self.header_data = []
 	
 	def setFile(self, file):
-		self.emit(QtCore.SIGNAL("layoutAboutToBeChanged()"))
+		self.emit(SIGNAL("layoutAboutToBeChanged()"))
 		self.table_data = file.rows()
 		self.header_data = file.structure.column_names
 		self.structure = file.structure
-		self.emit(QtCore.SIGNAL("layoutChanged()"))
+		self.emit(SIGNAL("layoutChanged()"))
 	
 	def rowCount(self, parent):
 		return len(self.table_data)
@@ -116,9 +122,9 @@ class MainTableModel(QtCore.QAbstractTableModel):
 	
 	def data(self, index, role):
 		if not index.isValid():
-			return QtCore.QVariant()
-		elif role != QtCore.Qt.DisplayRole:
-			return QtCore.QVariant()
+			return QVariant()
+		elif role != Qt.DisplayRole:
+			return QVariant()
 		
 		cell = self.table_data[index.row()][index.column()]
 		field = self.structure[index.column()]
@@ -126,19 +132,19 @@ class MainTableModel(QtCore.QAbstractTableModel):
 			cell = hexlify(cell)
 		if isinstance(cell, str) and len(cell) > 200:
 			cell = cell[:200] + "..."
-		return QtCore.QVariant(cell)
+		return QVariant(cell)
 	
 	def headerData(self, col, orientation, role):
-		if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-			return QtCore.QVariant(self.header_data[col])
-		return QtCore.QAbstractTableModel.headerData(self, col, orientation, role)
+		if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+			return QVariant(self.header_data[col])
+		return QAbstractTableModel.headerData(self, col, orientation, role)
 
 	def sort(self, Ncol, order):
-		self.emit(QtCore.SIGNAL("layoutAboutToBeChanged()"))
+		self.emit(SIGNAL("layoutAboutToBeChanged()"))
 		self.table_data = sorted(self.table_data, key=operator.itemgetter(Ncol))
-		if order == QtCore.Qt.AscendingOrder:
+		if order == Qt.AscendingOrder:
 			self.table_data.reverse()
-		self.emit(QtCore.SIGNAL("layoutChanged()"))
+		self.emit(SIGNAL("layoutChanged()"))
 
 
 if __name__ == "__main__":
