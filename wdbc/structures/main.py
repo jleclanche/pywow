@@ -4,6 +4,33 @@
 from .gameobject import GAME_OBJECT_TYPES
 from ..structures import *
 
+class Structure(Structure):
+	"""
+	Base structure for WDB/DBC files
+	This contains standard build branching such
+	as PTR/Beta/Live builds running concurrently
+	The changed builds can still be overwritten
+	"""
+	
+	def __get_build(self, build):
+		builds = [k for k in self.get_builds() if k <= build]
+		if builds:
+			return getattr(self, "changed_%i" % (builds[-1]))
+		
+		return lambda fields: None
+	
+	def changed_11993(self, fields):
+		self.__get_build(11723)(fields)
+	
+	def changed_12025(self, fields):
+		self.changed_11993(fields)
+	
+	def changed_12045(self, fields):
+		self.__get_build(11927)(fields)
+	
+	def changed_12065(self, fields):
+		self.changed_12025(fields)
+
 
 ##
 # WDB structures
@@ -138,9 +165,6 @@ class GameObjectCache(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		self.changed_10314(fields)
 
 
 class ItemCache(Structure):
@@ -484,9 +508,6 @@ class ItemCache(Structure):
 			"ammo",
 		)
 		fields.append_fields(FloatField("scaling_factor"))
-	
-	def changed_11993(self, fields):
-		self.changed_10026(fields)
 
 
 class ItemNameCache(Structure):
@@ -806,9 +827,6 @@ class QuestCache(Structure):
 			ForeignKey("required_currency_4", "CurrencyTypes"),
 			IntegerField("required_currency_amount_4"),
 		)
-	
-	def changed_11993(self, fields):
-		self.changed_10772(fields)
 
 
 class PageTextCache(Structure):
@@ -1196,12 +1214,6 @@ class AreaTrigger(Structure):
 			FloatField(),
 			FloatField(),
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class ArmorLocation(Structure):
@@ -1420,12 +1432,6 @@ class Cfg_Configs(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class CharacterCreateCameras(Structure):
@@ -1469,12 +1475,6 @@ class CharacterFacialHairStyles(Structure):
 		Added a real id field
 		"""
 		fields.insert_field(IDField(), before="race")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class CharBaseInfo(Structure):
@@ -1493,12 +1493,6 @@ class CharBaseInfo(Structure):
 		Added a real id field
 		"""
 		fields.insert_field(IDField(), before="race")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class CharHairGeosets(Structure):
@@ -1675,12 +1669,6 @@ class CharTitles(Structure):
 	
 	def changed_11927(self, fields):
 		fields.append_fields(UnknownField())
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class CharVariations(Structure):
@@ -1750,12 +1738,6 @@ class ChrClasses(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class ChrRaces(Structure):
@@ -1797,12 +1779,6 @@ class ChrRaces(Structure):
 	def changed_11927(self, fields):
 		self.changed_10433(fields)
 		fields.append_fields(UnknownField()) # only set to 1 for worgen
-	
-	def changed_11993(self, fields):
-		self.changed_10433(fields)
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class CinematicCamera(Structure):
@@ -1865,12 +1841,6 @@ class CreatureDisplayInfo(Structure):
 	
 	def changed_11927(self, fields):
 		fields.insert_field(StringField("icon"), after="texture_3")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class CreatureDisplayInfoExtra(Structure):
@@ -2018,12 +1988,6 @@ class CreatureSoundData(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class CreatureSpellData(Structure):
@@ -2091,9 +2055,6 @@ class CurrencyTypes(Structure):
 			UnknownField(),
 		)
 	
-	def changed_11993(self, fields):
-		pass
-	
 	def changed_12025(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(UnknownField())
@@ -2157,12 +2118,6 @@ class DestructibleModelData(Structure):
 	
 	def changed_11927(self, fields):
 		fields.append_fields(UnknownField())
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class DeclinedWord(Structure):
@@ -2423,12 +2378,6 @@ class Faction(Structure):
 		fields.append_fields(
 			IntegerField("expansion"),
 		)
-	
-	def changed_11993(self, fields):
-		self.changed_10522(fields)
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class FactionGroup(Structure):
@@ -2562,12 +2511,6 @@ class GameTables(Structure):
 		Added a real id field
 		"""
 		fields.insert_field(IDField(), before="name")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class GameTips(Structure):
@@ -2598,12 +2541,6 @@ class GemProperties(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class GlueScreenEmote(Structure):
@@ -2761,12 +2698,6 @@ class GameTableDBC(Structure):
 			IDField(),
 			before="ratio",
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class gtBarberShopCostBase(GameTableDBC):
@@ -3052,12 +2983,6 @@ class ItemClass(Structure):
 	
 	def changed_11927(self, fields):
 		fields.insert_field(UnknownField(), before="is_weapon")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class ItemCondExtCosts(Structure):
@@ -3295,12 +3220,6 @@ class ItemExtendedCost(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		self.changed_10026(fields)
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class ItemGroupSounds(Structure):
@@ -3486,12 +3405,6 @@ class ItemSubClass(Structure):
 		to cataclysm-style locales.
 		"""
 		fields.insert_field(IDField(), before="id_1")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class ItemSubClassMask(Structure):
@@ -3520,12 +3433,6 @@ class ItemSubClassMask(Structure):
 		Added a real id field
 		"""
 		fields.insert_field(IDField(), before="id1")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class ItemVisualEffects(Structure):
@@ -3605,9 +3512,6 @@ class LFGDungeons(Structure):
 	
 	def changed_11927(self, fields):
 		fields.append_fields(UnknownField()) # ???
-	
-	def changed_11993(self, fields):
-		self.changed_11573(fields)
 
 
 class LFGDungeonExpansion(Structure):
@@ -3781,13 +3685,6 @@ class LightParams(Structure):
 		fields.append_fields(
 			UnknownField(), # XXX
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
-
 
 class LightSkybox(Structure):
 	"""
@@ -3873,9 +3770,6 @@ class LiquidType(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		pass
 
 class LoadingScreenTaxiSplines(Structure):
 	"""
@@ -4049,12 +3943,6 @@ class Map(Structure):
 		fields.append_fields(
 			ForeignKey("phasing_parent", "Map"),
 		)
-	
-	def changed_11993(self, fields):
-		self.changed_10522(fields)
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class MapDifficulty(Structure):
@@ -4301,12 +4189,6 @@ class PaperDollItemFrame(Structure):
 	
 	def changed_11927(self, fields):
 		fields.insert_field(UnknownField(), before="slot")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class ParticleColor(Structure):
@@ -4708,12 +4590,6 @@ class SkillLineAbility(Structure):
 		fields.append_fields(
 			UnknownField(), # XXX
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class SkillLineCategory(Structure):
@@ -5302,9 +5178,6 @@ class Spell(Structure):
 			UnknownField(),
 		)
 	
-	def changed_11993(self, fields):
-		self.changed_11573(fields)
-	
 	def changed_12025(self, fields):
 		self.changed_11927(fields)
 		fields.insert_field(FloatField(), before="spell_scaling")
@@ -5547,12 +5420,6 @@ class SpellItemEnchantment(Structure):
 	def changed_11927(self, fields):
 		self.changed_9637(fields)
 		fields.append_fields(UnknownField())
-	
-	def changed_11993(self, fields):
-		self.changed_9637(fields)
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class SpellItemEnchantmentCondition(Structure):
@@ -5859,12 +5726,6 @@ class SpellVisualKit(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		self.changed_9637(fields)
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class SpellVisualKitAreaModel(Structure):
@@ -6016,12 +5877,6 @@ class TalentTab(Structure):
 	
 	def changed_11927(self, fields):
 		fields.delete_fields("unk_unused")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class TaxiNodes(Structure):
@@ -6099,12 +5954,6 @@ class TerrainType(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class TerrainTypeSounds(Structure):
@@ -6340,12 +6189,6 @@ class VehicleSeat(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class VehicleUIIndicator(Structure):
@@ -6523,12 +6366,6 @@ class WorldChunkSounds(Structure):
 		FIXME Is this a glitch in the rebuilder?
 		"""
 		fields.append_fields(UnknownField())
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class WorldMapArea(Structure):
@@ -6677,12 +6514,6 @@ class WorldStateUI(Structure):
 			UnknownField(),
 			UnknownField(),
 		), before="path")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class WorldStateZoneSounds(Structure):
@@ -6703,12 +6534,6 @@ class WorldStateZoneSounds(Structure):
 	
 	def changed_11927(self, fields):
 		fields.insert_field(UnknownField(), before="value")
-	
-	def changed_11993(self, fields):
-		pass
-	
-	def changed_12025(self, fields):
-		self.changed_11927(fields)
 
 
 class WowError_Strings(Structure):

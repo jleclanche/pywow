@@ -46,12 +46,12 @@ class Structure(list):
 				col.name = "%s_%d" % (col.name, i-1)
 		
 		self.columns = copy.deepcopy(self.fields)
-		self.builds = sorted(int(m[8:]) for m in dir(self) if m.startswith("changed_"))
+		builds = self.get_builds()
 		
-		if self.builds and build:
-			_builds = sorted(k for k in self.builds if k <= build)
-			if _builds:
-				getattr(self, "changed_%i" % _builds[-1:][0])(self.columns)
+		if builds and build:
+			builds = sorted(k for k in builds if k <= build)
+			if builds:
+				getattr(self, "changed_%i" % builds[-1])(self.columns)
 		
 		for col in self.columns:
 			if hasattr(col, "get_abstraction"): # Abstraction for Union
@@ -88,6 +88,9 @@ class Structure(list):
 	
 	def index(self, column_name):
 		return self.column_names.index(column_name)
+	
+	def get_builds(self):
+		return sorted(int(m[8:]) for m in dir(self) if m.startswith("changed_"))
 
 
 class Skeleton(list):
