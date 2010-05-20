@@ -1730,7 +1730,7 @@ class ChrClasses(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField(),
+		IntegerField("unknown_attr"),
 		IntegerField("power_type"),
 		StringField("pet_name"),
 		LocalizedField("name_male"),
@@ -1744,7 +1744,7 @@ class ChrClasses(Structure):
 	)
 	
 	def changed_11927(self, fields):
-		fields.delete_fields("name_neutral")
+		fields.delete_fields("unknown_attr")
 		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
@@ -1827,7 +1827,7 @@ class CinematicSequences(Structure):
 	fields = Skeleton(
 		IDField(),
 		UnknownField(),
-		UnknownField(),
+		ForeignKey("camera","CinematicCamera"),
 		UnknownField(),
 		UnknownField(),
 		UnknownField(),
@@ -1864,9 +1864,7 @@ class CreatureDisplayInfo(Structure):
 	)
 	
 	def changed_11927(self, fields):
-		fields.insert_field(
-			StringField("icon"), after="texture_3"
-		)
+		fields.insert_field(StringField("icon"), after="texture_3")
 	
 	def changed_11993(self, fields):
 		pass
@@ -4070,7 +4068,7 @@ class MapDifficulty(Structure):
 		LocalizedField("requirements"),
 		DurationField("resettime"),
 		IntegerField("raidsize"),
-		UnknownField(),
+		StringField("name"),
 	)
 
 
@@ -4386,7 +4384,7 @@ class Phase(Structure):
 		ForeignKey("instance", "Map"),
 		ForeignKey("instance_2", "Map"),
 		UnknownField(),
-		StringField(),
+		StringField("name"),
 		UnknownField(), # 0 or 4
 	)
 
