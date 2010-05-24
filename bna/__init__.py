@@ -37,16 +37,17 @@ def doEnroll(data, enroll_host="mobile-service.blizzard.com", enroll_uri="/enrol
 	conn.close()
 	return ret
 
-def __bc2bin(n):
+def encrypt(data):
+	data = int(data.encode("hex"), 16)
+	n = data ** RSA_MOD % RSA_KEY
 	ret = ""
 	while n > 0:
 		n, m = divmod(n, 256)
 		ret = chr(m) + ret
 	return ret
 
-def __bin2bc(d):
-	return int(d.encode("hex"), 16)
-
+def decrypt(response, otp):
+	return "".join(chr(ord(c) ^ ord(e)) for c, e in zip(response, otp))
 
 def requestNewSerial(region="US", model="Motorola RAZR v3"):
 	"""
@@ -56,11 +57,10 @@ def requestNewSerial(region="US", model="Motorola RAZR v3"):
 	def timedigest(): return sha1(str(time())).digest()
 	
 	otp = (timedigest() + timedigest())[:37]
-	msg = getEmptyEncryptMsg(otp, region, model)
+	data = getEmptyEncryptMsg(otp, region, model)
 	
-	e = __bc2bin(__bin2bc(msg) ** RSA_MOD % RSA_KEY)
-	response = doEnroll(e)[8:]
-	response = "".join(chr(ord(c) ^ ord(e)) for c, e in zip(response, otp))
+	e = encrypt(data)
+	response = decrypt(doEnroll(e)[8:])
 	
 	secret = response[:20]
 	serial = response[20:]
