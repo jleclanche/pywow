@@ -20,15 +20,27 @@ class Structure(Structure):
 		return lambda fields: None
 	
 	def changed_11993(self, fields):
+		"""
+		PTR 3.0.5
+		"""
 		self.__get_build(11723)(fields)
 	
 	def changed_12025(self, fields):
-		self.changed_11993(fields)
-	
-	def changed_12045(self, fields):
+		"""
+		F&F 4.0.0
+		"""
 		self.__get_build(11927)(fields)
 	
+	def changed_12045(self, fields):
+		"""
+		PTR 3.0.5
+		"""
+		self.changed_11993(fields)
+	
 	def changed_12065(self, fields):
+		"""
+		F&F 4.0.0
+		"""
 		self.changed_12025(fields)
 
 
@@ -97,6 +109,12 @@ class CreatureCache(Structure):
 			ForeignKey("quest_item_5", "Item"),
 			ForeignKey("quest_item_6", "Item"),
 		), after="quest_item_4")
+	
+	def changed_12065(self, fields):
+		self.changed_10026(fields)
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class GameObjectCache(Structure):
@@ -508,6 +526,13 @@ class ItemCache(Structure):
 			"ammo",
 		)
 		fields.append_fields(FloatField("scaling_factor"))
+	
+	def changed_12065(self, fields):
+		self.changed_11927(fields)
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class ItemNameCache(Structure):
@@ -826,6 +851,17 @@ class QuestCache(Structure):
 			IntegerField("required_currency_amount_3"),
 			ForeignKey("required_currency_4", "CurrencyTypes"),
 			IntegerField("required_currency_amount_4"),
+		)
+	
+	def changed_12065(self, fields):
+		self.changed_11927(fields)
+		fields.insert_fields((
+			UnknownField(),
+			UnknownField(),
+		), before="instance")
+		fields.append_fields(
+			StringField(), # ??
+			StringField(), # ??
 		)
 
 
@@ -3731,14 +3767,14 @@ class LiquidType(Structure):
 		BooleanField(),
 		UnknownField(),
 		ForeignKey("material", "LiquidMaterial"), # this defines the shaders used.*
-		StringField(),
-		StringField(),
-		StringField(),
-		StringField(),
-		StringField(),
-		StringField(),
-		StringField(),
-		StringField(),
+		StringField("texture_1"),
+		StringField("texture_2"),
+		StringField("texture_3"),
+		StringField("texture_4"),
+		StringField("texture_5"),
+		StringField("texture_6"),
+		StringField("texture_7"),
+		StringField("texture_8"),
 		FloatField(),
 		FloatField(),
 		FloatField(),
@@ -3765,11 +3801,14 @@ class LiquidType(Structure):
 	# *  (1: "*sLiquidWater", 2: "*sLiquidMagma", 3: "*sLiquidProcWater%s" where %s is an appendix that is currently always "")
 	
 	def changed_11927(self, fields):
-		fields.append_fields(
+		fields.insert_fields((
 			UnknownField(),
 			UnknownField(),
 			UnknownField(),
-		)
+		), before="name")
+	
+	def changed_12065(self, fields):
+		pass # Revert 11927 changes
 
 class LoadingScreenTaxiSplines(Structure):
 	"""
