@@ -251,7 +251,7 @@ class ItemCache(Structure):
 		IDField(),
 		RecLenField(),
 		ForeignKey("category", "ItemClass"),
-		ForeignKey("subcategory", "ItemSubClass"),
+		IntegerField("subcategory"),
 		StringField("name"),
 		StringField("name2"),
 		StringField("name3"),
@@ -2935,7 +2935,7 @@ class Item(Structure):
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("category", "ItemClass"),
-		ForeignKey("subcategory", "ItemSubClass"),
+		IntegerField("subcategory"),
 		IntegerField("sound_override_subclassid"),
 		IntegerField(), # sheath or something
 		ForeignKey("display", "ItemDisplayInfo"),
@@ -3018,7 +3018,7 @@ class ItemClass(Structure):
 	)
 	
 	def changed_11927(self, fields):
-		fields.insert_field(UnknownField(), before="is_weapon")
+		fields.insert_field(IntegerField("id_1"), after="_id")
 
 
 class ItemCondExtCosts(Structure):
@@ -3027,9 +3027,9 @@ class ItemCondExtCosts(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField(),
+		UnknownField(),
 		ForeignKey("extended_cost", "ItemExtendedCost"),
-		IntegerField(),
+		UnknownField(),
 	)
 
 
@@ -3421,15 +3421,15 @@ class ItemSubClass(Structure):
 	"""
 	implicit_id = True
 	fields = Skeleton(
-		IntegerField("id_1"),
+		ForeignKey("id_1", "ItemClass"),
 		IntegerField("id_2"),
-		IntegerField(),
+		UnknownField(),
+		UnknownField(),
 		BitMaskField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 		IntegerField("hands"),
 		LocalizedField("name"),
 		LocalizedField("category_name"),
