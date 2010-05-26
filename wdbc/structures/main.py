@@ -856,9 +856,9 @@ class QuestCache(Structure):
 	def changed_12065(self, fields):
 		self.changed_11927(fields)
 		fields.insert_fields((
-			UnknownField(),
-			UnknownField(),
-		), before="instance")
+			ForeignKey("item_choice_reward_7", "Item"),
+			IntegerField("item_choice_reward_amount_7"),
+		), after="item_choice_reward_amount_6")
 		fields.append_fields(
 			StringField(), # ??
 			StringField(), # ??
