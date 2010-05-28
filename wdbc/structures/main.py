@@ -42,6 +42,18 @@ class Structure(Structure):
 		F&F 4.0.0
 		"""
 		self.changed_12025(fields)
+	
+	def changed_12122(self, fields):
+		"""
+		F&F 4.0.0
+		"""
+		self.changed_12065(fields)
+	
+	def changed_12124(self, fields):
+		"""
+		PTR 3.0.5
+		"""
+		self.changed_12065(fields)
 
 
 ##
@@ -856,9 +868,9 @@ class QuestCache(Structure):
 	def changed_12065(self, fields):
 		self.changed_11927(fields)
 		fields.insert_fields((
-			ForeignKey("item_choice_reward_7", "Item"),
-			IntegerField("item_choice_reward_amount_7"),
-		), after="item_choice_reward_amount_6")
+			UnknownField(),
+			UnknownField(),
+		), before="item_reward_1")
 		fields.append_fields(
 			StringField(), # ??
 			StringField(), # ??
@@ -1417,6 +1429,16 @@ class Baddons(BannedAddons):
 	baddons.wcf
 	"""
 	pass
+
+
+class CameraMode(Structure):
+	"""
+	CameraMode.dbc
+	Added in 4.0.0.12122
+	"""
+	fields = Skeleton(
+		IDField(),
+	)
 
 
 class CameraShakes(Structure):
@@ -4786,6 +4808,14 @@ class SoundEntries(Structure):
 		IntegerField("eax_definition"),
 		UnknownField(),
 	)
+	
+	def changed_12122(self, fields):
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class SoundEntriesAdvanced(Structure):
@@ -6226,6 +6256,12 @@ class VehicleSeat(Structure):
 			UnknownField(),
 			UnknownField(),
 			UnknownField(),
+			UnknownField(),
+		)
+	
+	def changed_12122(self, fields):
+		self.changed_11927(fields)
+		fields.append_fields(
 			UnknownField(),
 		)
 
