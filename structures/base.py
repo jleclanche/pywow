@@ -114,7 +114,7 @@ class Skeleton(list):
 			elif after:
 				self.insert(names.index(after) + 1, field)
 		except ValueError:
-			raise StructureError("%r is not a valid column reference for insert_field" % (before))
+			raise StructureError("%r is not a valid column reference for insert_field" % (before or after))
 	
 	def insert_fields(self, fields, before="", after=""):
 		if after:
