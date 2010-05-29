@@ -594,9 +594,14 @@ class DBRow(list):
 	def __getattr__(self, attr):
 		if attr in self.structure:
 			return self._get_value(attr)
+		
 		if attr in self.structure._abstractions: # Union abstractions etc
 			field, func = self.structure._abstractions[attr]
 			return func(field, self)
+		
+		if "__" in attr:
+			return self.__get_deep_relation(attr)
+		
 		return super(DBRow, self).__getattribute__(attr)
 	
 	def __setattr__(self, attr, value):
@@ -623,8 +628,17 @@ class DBRow(list):
 		result.extend(self.structure.column_names)
 		return result
 	
-	# introspection support:
-	__members__ = property(lambda self: self.__dir__())
+	def __get_deep_relation(self, rel):
+		""" Parse a django-like multilevel relationship """
+		rels = rel.split("__")[::-1]
+		if "" in rels: # empty string
+			raise ValueError("Invalid relation string")
+		
+		ret = self
+		while rels:
+			ret = getattr(ret, rels.pop())
+		
+		return ret
 	
 	
 	def _set_value(self, name, value):
