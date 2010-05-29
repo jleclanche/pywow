@@ -53,7 +53,7 @@ class Structure(Structure):
 		"""
 		PTR 3.0.5
 		"""
-		self.changed_12065(fields)
+		self.changed_12045(fields)
 
 
 ##
