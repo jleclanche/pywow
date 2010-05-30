@@ -5038,8 +5038,8 @@ class Spell(Structure):
 		BitMaskField("flags_5", flags=FLAGS_5),
 		BitMaskField("flags_6", flags=FLAGS_6),
 		BitMaskField("flags_7"),
-		BitMaskField("required_stances"),
-		BitMaskField("excluded_stances"),
+		ForeignMask("required_stances", "SpellShapeshiftForm"),
+		ForeignMask("excluded_stances", "SpellShapeshiftForm"),
 		BitMaskField("required_target", flags=REQUIRED_TARGET_FLAGS),
 		BitMaskField("required_target_type"),
 		IntegerField("required_object_focus"),
@@ -5202,8 +5202,8 @@ class Spell(Structure):
 	def changed_10026(self, fields):
 		self.changed_9614(fields)
 		fields.insert_field(BitMaskField("flags_8", flags=self.FLAGS_8), after="flags_7")
-		fields.insert_field(BitMaskField("required_stances_2"), after="required_stances")
-		fields.insert_field(BitMaskField("excluded_stances_2"), after="excluded_stances")
+		fields.insert_field(ForeignMask("required_stances_2", "SpellShapeshiftForm"), after="required_stances")
+		fields.insert_field(ForeignMask("excluded_stances_2", "SpellShapeshiftForm"), after="excluded_stances")
 		fields.append_fields(
 			FloatField("multiplier_effect_1"),
 			FloatField("multiplier_effect_2"),
