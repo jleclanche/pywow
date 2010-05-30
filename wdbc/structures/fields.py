@@ -220,13 +220,37 @@ class ForeignKey(ForeignKeyBase):
 	def get_relation_key(self, value, row):
 		return value
 
-class ForeignMask(ForeignKey):
+class ForeignMask(BitMaskField):
 	"""
 	Integer field containing a bitmask relation to
 	multiple rows in another file.
-	TODO
 	"""
-	pass
+	def __init__(self, name, relation, **kwargs):
+		super(ForeignMask, self).__init__(name=name, **kwargs)
+		self.relation = relation
+		self.flags = {}
+	
+	def __init_flags(self):
+		env = self.parent.parent.environment
+		try:
+			f = env[self.relation]
+		except KeyError:
+			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (self.relation), value)
+		
+		for k in f:
+			self.flags[2 ** (k-1)] = f[k]
+	
+	def from_python(self, value):
+		assert isinstance(value, BitFlags)
+		return int(value)
+	
+	def to_python(self, value, row):
+		if isinstance(value, BitFlags):
+			return value
+		
+		if not self.flags:
+			self.__init_flags()
+		return BitMask(value, self.flags)
 
 class ForeignByte(ForeignKey):
 	"""
