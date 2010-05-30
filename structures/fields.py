@@ -4,7 +4,7 @@ Database fields
 """
 
 from datetime import timedelta
-from .bitflags import BitFlags
+from .bitflags import BitFlags, BitMask
 
 
 ##
