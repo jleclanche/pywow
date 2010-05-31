@@ -3,7 +3,6 @@
 from pywow.structures import Structure, Skeleton
 from .fields import *
 from .main import *
-from .custom import *
 from .generated import GeneratedStructure
 
 class StructureNotFound(Exception):
