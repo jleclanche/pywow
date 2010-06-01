@@ -3251,11 +3251,19 @@ class ItemExtendedCost(Structure):
 		IntegerField("item_amount_3"),
 		IntegerField("item_amount_4"),
 		IntegerField("item_amount_5"),
-		IntegerField("required_personal_rating"),
-		UnknownField(), # maybe pvprankreq?
 	)
-
+	
+	def changed_9551(self, fields):
+		"""
+		XXX Unknown build!
+		"""
+		fields.append_fields(
+			IntegerField("required_personal_rating"),
+			UnknownField(), # maybe pvprankreq?
+		)
+	
 	def changed_10026(self, fields):
+		self.changed_9551(fields)
 		fields.insert_field(IntegerField("bracket"), before="item_1")
 	
 	def changed_11927(self, fields):
