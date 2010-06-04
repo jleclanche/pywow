@@ -871,8 +871,8 @@ class QuestCache(Structure):
 			UnknownField(),
 		), before="item_reward_1")
 		fields.append_fields(
-			StringField(), # ??
-			StringField(), # ??
+			StringField("remote_accept_text"),
+			StringField("remote_handin_text"),
 		)
 
 
