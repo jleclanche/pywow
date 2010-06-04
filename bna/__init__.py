@@ -60,7 +60,7 @@ def requestNewSerial(region="US", model="Motorola RAZR v3"):
 	data = getEmptyEncryptMsg(otp, region, model)
 	
 	e = encrypt(data)
-	response = decrypt(doEnroll(e)[8:])
+	response = decrypt(doEnroll(e)[8:], otp)
 	
 	secret = response[:20]
 	serial = response[20:]
