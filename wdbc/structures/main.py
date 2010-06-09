@@ -53,6 +53,24 @@ class Structure(Structure):
 		PTR 3.0.5
 		"""
 		self.changed_12045(fields)
+	
+	def changed_12148(self, fields):
+		"""
+		PTR 3.0.5
+		"""
+		self.changed_12124(fields)
+	
+	def changed_12164(self, fields):
+		"""
+		F&F 4.0.0
+		"""
+		self.changed_12122(fields)
+	
+	def changed_12166(self, fields):
+		"""
+		PTR 3.0.5
+		"""
+		self.changed_12148(fields)
 
 
 ##
