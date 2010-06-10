@@ -3,8 +3,9 @@
 python-bna
 Battle.net Authenticator routines in Python.
 
-Initial work and reverse engineering by Nicolas Noble <nnoble@blizzard.com>
-Port from PHP to Python by Jerome Leclanche <j.leclanche@gmail.com>
+Specification can be found here:
+  <http://bnetauth.freeportal.us/specification.html>
+Python implementation by Jerome Leclanche <j.leclanche@gmail.com>
 """
 from time import time
 from hashlib import sha1
