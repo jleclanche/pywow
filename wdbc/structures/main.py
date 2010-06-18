@@ -3315,7 +3315,7 @@ class ItemExtendedCost(Structure):
 		fields.insert_field(IntegerField("bracket"), before="item_1")
 	
 	def changed_11927(self, fields):
-		fields.insert_field(UnknownField(), before="item_1")
+		self.changed_10026(fields)
 		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
