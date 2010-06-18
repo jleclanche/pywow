@@ -898,6 +898,12 @@ class QuestCache(Structure):
 			StringField("npcframe_accept_text"),
 			StringField("npcframe_handin_text"),
 		)
+	
+	def changed_12232(self, fields):
+		self.changed_12065(fields)
+		fields.insert_field(UnknownField(), before="item_reward_1")
+		fields.insert_field(StringField("npcframe_accept_text_2"), after="npcframe_accept_text")
+		fields.append_fields(StringField("npcframe_handin_text_2")) # insert after npcframe_handin_text
 
 
 class PageTextCache(Structure):
