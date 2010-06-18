@@ -71,6 +71,12 @@ class Structure(Structure):
 		PTR 3.0.5
 		"""
 		self.changed_12148(fields)
+	
+	def changed_12232(self, fields):
+		"""
+		Closed Beta 4.0.0
+		"""
+		self.changed_12164(fields)
 
 
 ##
