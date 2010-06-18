@@ -5300,14 +5300,97 @@ class Spell(Structure):
 		), after="radius_effect_3")
 		fields.append_fields(
 			ForeignKey("spell_scaling", "SpellScaling"),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
+			UnknownField("unknown_scaling_11927_effect_1"), # TODO
+			UnknownField("unknown_scaling_11927_effect_2"), # TODO
+			UnknownField("unknown_scaling_11927_effect_3"), # TODO
 		)
 	
 	def changed_12025(self, fields):
 		self.changed_11927(fields)
 		fields.insert_field(FloatField(), before="spell_scaling")
+	
+	def changed_12232(self, fields):
+		self.changed_12025(fields)
+		fields.delete_fields(
+			"category", "dispel_type", "mechanic",
+			"required_stances", "required_stances_2",
+			"excluded_stances", "excluded_stances_2",
+			"required_caster_aura", "required_target_aura",
+			"excluded_caster_aura", "excluded_target_aura",
+			"required_target", "required_object_focus",
+			"facing_flags", "required_caster_spell",
+			"required_target_type", "required_target_spell",
+			"excluded_caster_spell", "excluded_target_spell",
+			"cooldown", "category_cooldown", "interrupt_flags", "interrupt_flags_2",
+			"aura_interrupt_flags", "channeling_interrupt_flags", "channeling_interrupt_flags_2",
+			"proc_type_flags", "proc_chance", "proc_charges",
+			"power_type", "power_amount", "power_per_level", "power_per_second",
+			"next_spell", "stack",
+			"max_level", "base_level", "level",
+			"required_tool_1", "required_tool_2",
+			"required_reagent_1", "required_reagent_2", "required_reagent_3", "required_reagent_4",
+			"required_reagent_5", "required_reagent_6", "required_reagent_7",  "required_reagent_8",
+			"required_reagent_amount_1", "required_reagent_amount_2", "required_reagent_amount_3", "required_reagent_amount_4",
+			"required_reagent_amount_5", "required_reagent_amount_6", "required_reagent_amount_7", "required_reagent_amount_8",
+			"required_item_category", "required_item_subclasses", "required_item_slots",
+			"visual_1", "visual_2",
+			
+			"effect_1", "effect_2", "effect_3",
+			"radius_max_effect_1", "radius_max_effect_2", "radius_max_effect_3",
+			"die_sides_effect_1", "die_sides_effect_2", "die_sides_effect_3",
+			"dice_real_per_level_effect_1", "dice_real_per_level_effect_2", "dice_real_per_level_effect_3",
+			"damage_base_effect_1", "damage_base_effect_2", "damage_base_effect_3",
+			"mechanic_effect_1", "mechanic_effect_2", "mechanic_effect_3",
+			"implicit_target_1_effect_1", "implicit_target_1_effect_2", "implicit_target_1_effect_3",
+			"implicit_target_2_effect_1", "implicit_target_2_effect_2", "implicit_target_2_effect_3",
+			"radius_effect_1", "radius_effect_2", "radius_effect_3",
+			"aura_effect_1", "aura_effect_2", "aura_effect_3",
+			"aura_interval_effect_1", "aura_interval_effect_2", "aura_interval_effect_3",
+			"amplitude_effect_1", "amplitude_effect_2", "amplitude_effect_3",
+			"chain_targets_effect_1", "chain_targets_effect_2", "chain_targets_effect_3",
+			"type_effect_1", "type_effect_2", "type_effect_3",
+			"misc_value_1_effect_1", "misc_value_1_effect_2", "misc_value_1_effect_3",
+			"misc_value_2_effect_1", "misc_value_2_effect_2", "misc_value_2_effect_3",
+			"trigger_spell_effect_1", "trigger_spell_effect_2", "trigger_spell_effect_3",
+			"points_combo_effect_1", "points_combo_effect_2", "points_combo_effect_3",
+			"class_flags_1_effect_1", "class_flags_1_effect_2", "class_flags_1_effect_3",
+			"class_flags_2_effect_1", "class_flags_2_effect_2", "class_flags_2_effect_3",
+			"class_flags_3_effect_1", "class_flags_3_effect_2", "class_flags_3_effect_3",
+			"chain_amplitude_effect_1", "chain_amplitude_effect_2", "chain_amplitude_effect_3",
+			"multiplier_effect_1", "multiplier_effect_2", "multiplier_effect_3",
+			"unknown_scaling_11927_effect_1", "unknown_scaling_11927_effect_2", "unknown_scaling_11927_effect_3", # TODO
+			
+			"category_cooldown_start", "cooldown_start", "max_target_level",
+			"spell_class_set", "spell_class_flags_1", "spell_class_flags_2", "spell_class_flags_3",
+			"max_targets", "defense_type", "prevention_type", "stance_bar_order",
+			"required_faction", "required_reputation", "required_aura_vision",
+			"required_tool_category_1", "required_tool_category_2",
+			"required_area_group", "school_flags", "power_display",
+		)
+		fields.insert_field(UnknownField(), before="range")
+		fields.insert_field(UnknownField(), before="icon")
+		fields.insert_field(ForeignKey("visual", "SpellVisual"), before="icon")
+		
+		fields.append_fields(
+			ForeignKey("aura_options", "SpellAuraOptions"),
+			ForeignKey("aura_restrictions", "SpellAuraRestrictions"),
+			ForeignKey("casting_requirements", "SpellCastingRequirements"),
+			ForeignKey("spell_categories", "SpellCategories"),
+			ForeignKey("class_options", "SpellClassOptions"),
+			ForeignKey("cooldowns", "SpellCooldowns"),
+			UnknownField(),
+			ForeignKey("equipped_items", "SpellEquippedItems"),
+			ForeignKey("interrupts", "SpellInterrupts"),
+			UnknownField(), # SpellVisualKit?
+			ForeignKey("power", "SpellPower"),
+			ForeignKey("reagents", "SpellReagents"),
+			ForeignKey("shapeshift", "SpellShapeshift"),
+			ForeignKey("target_restrictions", "SpellTargetRestrictions"),
+			ForeignKey("totems", "SpellTotems"),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class SpellAuraNames(Structure):
