@@ -5324,7 +5324,7 @@ class Spell(Structure):
 			"cooldown", "category_cooldown", "interrupt_flags", "interrupt_flags_2",
 			"aura_interrupt_flags", "channeling_interrupt_flags", "channeling_interrupt_flags_2",
 			"proc_type_flags", "proc_chance", "proc_charges",
-			"power_type", "power_amount", "power_per_level", "power_per_second",
+			"power_amount", "power_per_level", "power_per_second",
 			"next_spell", "stack",
 			"max_level", "base_level", "level",
 			"required_tool_1", "required_tool_2",
@@ -5367,7 +5367,6 @@ class Spell(Structure):
 			"required_tool_category_1", "required_tool_category_2",
 			"required_area_group", "school_flags", "power_display",
 		)
-		fields.insert_field(UnknownField(), before="range")
 		fields.insert_field(UnknownField(), before="icon")
 		fields.insert_field(ForeignKey("visual", "SpellVisual"), before="icon")
 		
@@ -5381,7 +5380,7 @@ class Spell(Structure):
 			UnknownField(),
 			ForeignKey("equipped_items", "SpellEquippedItems"),
 			ForeignKey("interrupts", "SpellInterrupts"),
-			UnknownField(), # SpellVisualKit?
+			ForeignKey("levels", "SpellLevels"),
 			ForeignKey("power", "SpellPower"),
 			ForeignKey("reagents", "SpellReagents"),
 			ForeignKey("shapeshift", "SpellShapeshift"),
