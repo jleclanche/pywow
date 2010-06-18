@@ -1462,6 +1462,26 @@ class CameraMode(Structure):
 	fields = Skeleton(
 		IDField(),
 	)
+	
+	def changed_12232(self, fields):
+		fields.append_fields(
+			StringField("name"),
+			UnknownField(),
+			UnknownField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class CameraShakes(Structure):
@@ -2138,6 +2158,10 @@ class CurrencyTypes(Structure):
 	
 	def changed_12025(self, fields):
 		self.changed_11927(fields)
+		fields.append_fields(UnknownField())
+	
+	def changed_12232(self, fields):
+		self.changed_12025(fields)
 		fields.append_fields(UnknownField())
 
 
@@ -4534,6 +4558,9 @@ class ScalingStatDistribution(Structure):
 		IntegerField("modifier_10"),
 		IntegerField("max_level"),
 	)
+	
+	def changed_12232(self, fields):
+		fields.insert_field(IntegerField("min_level"), before="max_level")
 
 
 class ScalingStatValues(Structure):
@@ -5687,6 +5714,12 @@ class SpellScaling(Structure):
 		UnknownField(),
 		UnknownField(),
 	)
+	
+	def changed_12232(self, fields):
+		fields.append_fields(
+			FloatField(),
+			UnknownField(),
+		)
 
 
 class SpellShapeshiftForm(Structure):
@@ -6496,6 +6529,10 @@ class WorldMapArea(Structure):
 		fields.append_fields(
 			ForeignKey("parent_area", "WorldMapArea"), # Not for all?!
 		)
+	
+	def changed_12232(self, fields):
+		self.changed_10116(fields)
+		fields.append_fields(UnknownField())
 
 
 class WorldMapContinent(Structure):
