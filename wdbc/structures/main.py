@@ -5233,13 +5233,13 @@ class Spell(Structure):
 		ForeignKey("category_cooldown_start", "SpellCategory"),
 		DurationField("cooldown_start", unit="milliseconds"),
 		IntegerField("max_target_level"),
-		IntegerField(), # m_spellClassSet SpellFamilyName?
+		IntegerField("spell_class_set"), # m_spellClassSet SpellFamilyName?
 		BitMaskField("spell_class_flags_1"),
 		BitMaskField("spell_class_flags_2"),
 		BitMaskField("spell_class_flags_3"),
 		IntegerField("max_targets"),
-		IntegerField(), # m_defenseType DmgClass?
-		IntegerField(), # m_preventionType?
+		IntegerField("defense_type"), # m_defenseType DmgClass?
+		IntegerField("prevention_type"), # m_preventionType?
 		IntegerField("stance_bar_order"),
 		FloatField("chain_amplitude_effect_1"), # added when? 
 		FloatField("chain_amplitude_effect_2"),
@@ -5249,7 +5249,7 @@ class Spell(Structure):
 		IntegerField("required_aura_vision"),
 		ForeignKey("required_tool_category_1", "TotemCategory"),
 		ForeignKey("required_tool_category_2", "TotemCategory"),
-		IntegerField(), # m_requiredAreaGroupId?
+		IntegerField("required_area_group"), # TODO m_requiredAreaGroupId?
 		BitMaskField("school_flags"),
 		ForeignKey("rune_cost", "SpellRuneCost"),
 		ForeignKey("missile", "SpellMissile"),
@@ -5290,8 +5290,8 @@ class Spell(Structure):
 	def changed_11927(self, fields):
 		self.changed_11573(fields)
 		fields.insert_field(BitMaskField("flags_9", flags=self.FLAGS_9), after="flags_8")
-		fields.insert_field(UnknownField(), after="interrupt_flags")
-		fields.insert_field(UnknownField(), after="channeling_interrupt_flags")
+		fields.insert_field(BitMaskField("interrupt_flags_2"), after="interrupt_flags")
+		fields.insert_field(BitMaskField("channeling_interrupt_flags_2"), after="channeling_interrupt_flags")
 		fields.delete_fields("priority", "power_per_second_per_level")
 		fields.insert_fields((
 			ForeignKey("radius_max_effect_1", "SpellRadius"),
