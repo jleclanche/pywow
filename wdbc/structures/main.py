@@ -5679,6 +5679,33 @@ class SpellRange(Structure):
 	)
 
 
+class SpellReagents(Structure):
+	"""
+	SpellReagents.dbc
+	Spell reagents
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("reagent_1", "Item"),
+		ForeignKey("reagent_2", "Item"),
+		ForeignKey("reagent_3", "Item"),
+		ForeignKey("reagent_4", "Item"),
+		ForeignKey("reagent_5", "Item"),
+		ForeignKey("reagent_6", "Item"),
+		ForeignKey("reagent_7", "Item"),
+		ForeignKey("reagent_8", "Item"),
+		IntegerField("amount_1"),
+		IntegerField("amount_2"),
+		IntegerField("amount_3"),
+		IntegerField("amount_4"),
+		IntegerField("amount_5"),
+		IntegerField("amount_6"),
+		IntegerField("amount_7"),
+		IntegerField("amount_8"),
+	)
+
+
 class SpellRuneCost(Structure):
 	"""
 	SpellRuneCost.dbc
