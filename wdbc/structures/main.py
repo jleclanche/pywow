@@ -714,8 +714,8 @@ class QuestCache(Structure):
 		0x00008000: "weekly",
 	}
 	
-	get_kill_relation = lambda x, value: value == value & 0x7fffffff and "creaturecache" or "gameobjectcache"
-	get_kill_value = lambda x, value: value & 0x7fffffff
+	get_kill_relation = lambda x, value: value == abs(value) and "creaturecache" or "gameobjectcache"
+	get_kill_value = lambda x, value: abs(value)
 
 	fields = Skeleton(
 		IDField(),
