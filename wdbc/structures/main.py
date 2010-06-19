@@ -5409,6 +5409,38 @@ class SpellAuraNames(Structure):
 	)
 
 
+class SpellAuraOptions(Structure):
+	"""
+	SpellAuraOptions.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("stack"),
+		IntegerField("proc_chance"),
+		IntegerField("proc_charges"),
+		BitMaskField("proc_type_flags"),
+	)
+
+
+class SpellAuraRestrictions(Structure):
+	"""
+	SpellAuraRestrictions.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("required_caster_aura"),
+		IntegerField("required_target_aura"),
+		IntegerField("excluded_caster_aura"),
+		IntegerField("excluded_target_aura"),
+		ForeignKey("required_caster_spell", "Spell"),
+		ForeignKey("required_target_spell", "Spell"),
+		ForeignKey("excluded_caster_spell", "Spell"),
+		ForeignKey("excluded_target_spell", "Spell"),
+	)
+
+
 class SpellCastTimes(Structure):
 	"""
 	SpellCastTimes.dbc
@@ -5419,6 +5451,38 @@ class SpellCastTimes(Structure):
 		DurationField("cast_time", unit="milliseconds"),
 		IntegerField("modifier"),
 		DurationField("cast_time_max", unit="milliseconds"),
+	)
+
+
+class SpellCastingRequirements(Structure):
+	"""
+	SpellCastingRequirements.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		BitMaskField("facing_flags"),
+		ForeignKey("required_faction", "Faction"),
+		IntegerField("required_reputation"),
+		ForeignKey("required_area_group", "AreaGroup"),
+		IntegerField("required_aura_vision"),
+		ForeignKey("required_spell_focus", "SpellFocusObject"),
+	)
+
+
+class SpellCategories(Structure):
+	"""
+	SpellCategories.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("category", "SpellCategory"),
+		IntegerField("defense_type"),
+		IntegerField("dispel_type"),
+		ForeignKey("mechanic", "SpellMechanic"),
+		IntegerField("prevention_type"),
+		ForeignKey("category_cooldown_start", "SpellCategory"),
 	)
 
 
@@ -5498,6 +5562,34 @@ class SpellChainEffects(Structure):
 		fields.append_fields(UnknownField())
 
 
+class SpellClassOptions(Structure):
+	"""
+	SpellClassOptions.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = (
+		IDField(),
+		ForeignKey("next_spell", "Spell"),
+		BitMaskField("spell_class_flags_1"),
+		BitMaskField("spell_class_flags_2"),
+		BitMaskField("spell_class_flags_3"),
+		IntegerField("spell_class_set"),
+	)
+
+
+class SpellCooldowns(Structure):
+	"""
+	SpellCooldowns.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		DurationField("cooldown", unit="milliseconds"),
+		DurationField("category_cooldown", unit="milliseconds"),
+		DurationField("cooldown_start", unit="milliseconds"),
+	)
+
+
 class SpellDescriptionVariables(Structure):
 	"""
 	SpellDescriptionVariables.dbc
@@ -5549,6 +5641,41 @@ class SpellDuration(Structure):
 	)
 
 
+class SpellEffect(Structure):
+	"""
+	SpellEffect.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("effect", "SpellEffectNames"),
+		FloatField("amplitude"),
+		ForeignKey("aura", "SpellAuraNames"),
+		IntegerField("aura_interval"),
+		IntegerField("damage_base"),
+		UnknownField(),
+		FloatField("chain_amplitude"),
+		IntegerField("chain_targets"),
+		IntegerField("die_sides"),
+		UnsignedIntegerField("type"), # m_effectItemType
+		IntegerField("mechanic"),
+		IntegerField("misc_value_1"),
+		IntegerField("misc_value_2"),
+		FloatField("points_combo"),
+		ForeignKey("radius", "SpellRadius"),
+		ForeignKey("radius_max", "SpellRadius"),
+		FloatField("dice_real_per_level"),
+		BitMaskField("class_flags_1"),
+		BitMaskField("class_flags_2"),
+		BitMaskField("class_flags_3"),
+		ForeignKey("trigger_spell", "Spell"),
+		IntegerField("implicit_target_1"),
+		IntegerField("implicit_target_2"),
+		ForeignKey("spell", "Spell"),
+		IntegerField("index"),
+	)
+
+
 class SpellEffectCameraShakes(Structure):
 	"""
 	SpellEffectCameraShakes.dbc
@@ -5570,6 +5697,19 @@ class SpellEffectNames(Structure):
 	fields = Skeleton(
 		IDField(),
 		LocalizedField("name"),
+	)
+
+
+class SpellEquippedItems(Structure):
+	"""
+	SpellEquippedItems.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("required_item_category"),
+		BitMaskField("required_item_slots"),
+		BitMaskField("required_item_subclasses"),
 	)
 
 
@@ -5673,6 +5813,34 @@ class SpellItemEnchantmentCondition(Structure):
 	)
 
 
+class SpellInterrupts(Structure):
+	"""
+	SpellInterrupts.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		BitMaskField("aura_interrupt_flags"),
+		UnknownField(),
+		BitMaskField("channeling_interrupt_flags"),
+		UnknownField(),
+		BitMaskField("interrupt_flags"),
+	)
+
+
+class SpellLevels(Structure):
+	"""
+	SpellLevels.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("base_level"),
+		IntegerField("max_level"),
+		IntegerField("level"),
+	)
+
+
 class SpellMastery(Structure):
 	"""
 	SpellScaling.dbc
@@ -5731,6 +5899,20 @@ class SpellMissileMotion(Structure):
 		StringField("formula"),
 		UnknownField(),
 		UnknownField(),
+	)
+
+
+class SpellPower(Structure):
+	"""
+	SpellPower.dbc
+	Spell power costs
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("base_level"),
+		IntegerField("max_level"),
+		IntegerField("level"),
 	)
 
 
@@ -5834,6 +6016,21 @@ class SpellScaling(Structure):
 		)
 
 
+class SpellShapeshift(Structure):
+	"""
+	SpellShapeshift.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignMask("required_stances", "SpellShapeshiftForm"),
+		ForeignMask("required_stances_2", "SpellShapeshiftForm"),
+		ForeignMask("excluded_stances", "SpellShapeshiftForm"),
+		ForeignMask("excluded_stances_2", "SpellShapeshiftForm"),
+		IntegerField("index"), # stanceBarOrder
+	)
+
+
 class SpellShapeshiftForm(Structure):
 	"""
 	SpellShapeshiftForm.dbc
@@ -5859,6 +6056,34 @@ class SpellShapeshiftForm(Structure):
 		ForeignKey("spell_6", "Spell"),
 		ForeignKey("spell_7", "Spell"),
 		ForeignKey("spell_8", "Spell"),
+	)
+
+
+class SpellTargetRestrictions(Structure):
+	"""
+	SpellTargetRestrictions.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("max_targets"),
+		IntegerField("max_target_level"),
+		IntegerField("required_target_type"),
+		IntegerField("targets"), # XXX what's the original name?
+	)
+
+
+class SpellTotems(Structure):
+	"""
+	SpellTotems.dbc
+	Split off Spell.dbc in 4.0.0.12232
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("required_tool_category_1", "TotemCategory"),
+		ForeignKey("required_tool_category_2", "TotemCategory"),
+		ForeignKey("required_tool_1", "Item"),
+		ForeignKey("required_tool_2", "Item"),
 	)
 
 
