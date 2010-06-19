@@ -5662,7 +5662,7 @@ class SpellEffect(Structure):
 		IntegerField("misc_value_1"),
 		IntegerField("misc_value_2"),
 		FloatField("points_combo"),
-		ForeignKey("radius", "SpellRadius"),
+		ForeignKey("radius_min", "SpellRadius"),
 		ForeignKey("radius_max", "SpellRadius"),
 		FloatField("dice_real_per_level"),
 		BitMaskField("class_flags_1"),
@@ -5910,9 +5910,11 @@ class SpellPower(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField("base_level"),
-		IntegerField("max_level"),
-		IntegerField("level"),
+		IntegerField("power_amount"),
+		IntegerField("power_per_level"),
+		IntegerField("power_per_second"),
+		IntegerField("power_per_second_per_level"),
+		ForeignKey("power_display", "PowerDisplay"),
 	)
 
 
