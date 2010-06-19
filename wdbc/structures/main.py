@@ -761,7 +761,7 @@ class QuestCache(Structure):
 		ForeignKey("instance", "Map"),
 		FloatField("coord_x"),
 		FloatField("coord_y"),
-		UnknownField(),
+		IntegerField("coord_unk"), # 0, 1 or 3
 		StringField("name"),
 		StringField("objective"),
 		StringField("description"),
@@ -5107,7 +5107,7 @@ class Spell(Structure):
 		ForeignMask("excluded_stances", "SpellShapeshiftForm"),
 		BitMaskField("required_target", flags=REQUIRED_TARGET_FLAGS),
 		BitMaskField("required_target_type"),
-		IntegerField("required_object_focus"),
+		ForeignKey("required_spell_focus", "SpellFocusObject"),
 		BitMaskField("facing_flags"),
 		IntegerField("required_caster_aura"),
 		IntegerField("required_target_aura"),
@@ -5239,13 +5239,13 @@ class Spell(Structure):
 		ForeignKey("category_cooldown_start", "SpellCategory"),
 		DurationField("cooldown_start", unit="milliseconds"),
 		IntegerField("max_target_level"),
-		IntegerField("spell_class_set"), # m_spellClassSet SpellFamilyName?
+		IntegerField("spell_class_set"),
 		BitMaskField("spell_class_flags_1"),
 		BitMaskField("spell_class_flags_2"),
 		BitMaskField("spell_class_flags_3"),
 		IntegerField("max_targets"),
-		IntegerField("defense_type"), # m_defenseType DmgClass?
-		IntegerField("prevention_type"), # m_preventionType?
+		IntegerField("defense_type"),
+		IntegerField("prevention_type"),
 		IntegerField("stance_bar_order"),
 		FloatField("chain_amplitude_effect_1"), # added when? 
 		FloatField("chain_amplitude_effect_2"),
@@ -5255,7 +5255,7 @@ class Spell(Structure):
 		IntegerField("required_aura_vision"),
 		ForeignKey("required_tool_category_1", "TotemCategory"),
 		ForeignKey("required_tool_category_2", "TotemCategory"),
-		IntegerField("required_area_group"), # TODO m_requiredAreaGroupId?
+		ForeignKey("required_area_group", "AreaGroup"),
 		BitMaskField("school_flags"),
 		ForeignKey("rune_cost", "SpellRuneCost"),
 		ForeignKey("missile", "SpellMissile"),
@@ -5323,7 +5323,7 @@ class Spell(Structure):
 			"excluded_stances", "excluded_stances_2",
 			"required_caster_aura", "required_target_aura",
 			"excluded_caster_aura", "excluded_target_aura",
-			"required_target", "required_object_focus",
+			"required_target", "required_spell_focus",
 			"facing_flags", "required_caster_spell",
 			"required_target_type", "required_target_spell",
 			"excluded_caster_spell", "excluded_target_spell",
@@ -5339,7 +5339,6 @@ class Spell(Structure):
 			"required_reagent_amount_1", "required_reagent_amount_2", "required_reagent_amount_3", "required_reagent_amount_4",
 			"required_reagent_amount_5", "required_reagent_amount_6", "required_reagent_amount_7", "required_reagent_amount_8",
 			"required_item_category", "required_item_subclasses", "required_item_slots",
-			"visual_1", "visual_2",
 			
 			"effect_1", "effect_2", "effect_3",
 			"radius_max_effect_1", "radius_max_effect_2", "radius_max_effect_3",
@@ -5373,8 +5372,6 @@ class Spell(Structure):
 			"required_tool_category_1", "required_tool_category_2",
 			"required_area_group", "school_flags", "power_display",
 		)
-		fields.insert_field(UnknownField(), before="icon")
-		fields.insert_field(ForeignKey("visual", "SpellVisual"), before="icon")
 		
 		fields.append_fields(
 			ForeignKey("aura_options", "SpellAuraOptions"),
