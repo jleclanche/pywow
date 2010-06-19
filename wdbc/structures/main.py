@@ -5235,8 +5235,8 @@ class Spell(Structure):
 		LocalizedField("rank"),
 		LocalizedField("description"),
 		LocalizedField("buff_description"),
-		IntegerField("mana_cost_percent"),
-		ForeignKey("category_cooldown_start", "SpellCategory"),
+		IntegerField("power_percent"),
+		ForeignKey("recovery_category", "SpellCategory"),
 		DurationField("cooldown_start", unit="milliseconds"),
 		IntegerField("max_target_level"),
 		IntegerField("spell_class_set"),
@@ -5365,19 +5365,19 @@ class Spell(Structure):
 			"multiplier_effect_1", "multiplier_effect_2", "multiplier_effect_3",
 			"unknown_scaling_11927_effect_1", "unknown_scaling_11927_effect_2", "unknown_scaling_11927_effect_3", # TODO
 			
-			"category_cooldown_start", "cooldown_start", "max_target_level",
+			"recovery_category", "cooldown_start", "max_target_level",
 			"spell_class_set", "spell_class_flags_1", "spell_class_flags_2", "spell_class_flags_3",
 			"max_targets", "defense_type", "prevention_type", "stance_bar_order",
 			"required_faction", "required_reputation", "required_aura_vision",
 			"required_tool_category_1", "required_tool_category_2",
-			"required_area_group", "school_flags", "power_display",
+			"required_area_group", "power_percent", "power_display",
 		)
 		
 		fields.append_fields(
 			ForeignKey("aura_options", "SpellAuraOptions"),
 			ForeignKey("aura_restrictions", "SpellAuraRestrictions"),
 			ForeignKey("casting_requirements", "SpellCastingRequirements"),
-			ForeignKey("spell_categories", "SpellCategories"),
+			ForeignKey("categories", "SpellCategories"),
 			ForeignKey("class_options", "SpellClassOptions"),
 			ForeignKey("cooldowns", "SpellCooldowns"),
 			UnknownField(),
@@ -5482,7 +5482,7 @@ class SpellCategories(Structure):
 		IntegerField("dispel_type"),
 		ForeignKey("mechanic", "SpellMechanic"),
 		IntegerField("prevention_type"),
-		ForeignKey("category_cooldown_start", "SpellCategory"),
+		ForeignKey("recovery_category", "SpellCategory"),
 	)
 
 
@@ -5653,7 +5653,7 @@ class SpellEffect(Structure):
 		ForeignKey("aura", "SpellAuraNames"),
 		IntegerField("aura_interval"),
 		IntegerField("damage_base"),
-		UnknownField(),
+		FloatField("scaling"),
 		FloatField("chain_amplitude"),
 		IntegerField("chain_targets"),
 		IntegerField("die_sides"),
@@ -5672,7 +5672,7 @@ class SpellEffect(Structure):
 		IntegerField("implicit_target_1"),
 		IntegerField("implicit_target_2"),
 		ForeignKey("spell", "Spell"),
-		IntegerField("index"),
+		IntegerField("ordering"),
 	)
 
 
@@ -5912,8 +5912,8 @@ class SpellPower(Structure):
 		IDField(),
 		IntegerField("power_amount"),
 		IntegerField("power_per_level"),
+		IntegerField("power_percent"),
 		IntegerField("power_per_second"),
-		IntegerField("power_per_second_per_level"),
 		ForeignKey("power_display", "PowerDisplay"),
 	)
 
@@ -6029,7 +6029,7 @@ class SpellShapeshift(Structure):
 		ForeignMask("required_stances_2", "SpellShapeshiftForm"),
 		ForeignMask("excluded_stances", "SpellShapeshiftForm"),
 		ForeignMask("excluded_stances_2", "SpellShapeshiftForm"),
-		IntegerField("index"), # stanceBarOrder
+		IntegerField("ordering"), # stanceBarOrder
 	)
 
 
