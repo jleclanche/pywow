@@ -42,7 +42,7 @@ TESTS = { # 11927
 
 def main():
 	from pywow.wdbc.environment import Environment
-	from pywow.spellstrings import SpellString
+	from pywow.spellstrings import SpellString, WDBCProxy
 	
 	f = Environment(11723)["Spell.dbc"]
 	
