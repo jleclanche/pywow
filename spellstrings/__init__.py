@@ -229,7 +229,7 @@ class StringLookup(object):
 		
 		if identifier == "t":
 			value = self.__macro_t(spell, identifier, effect)
-			if value != int(value): # FIXME: WTF?
+			if not value.is_integer():
 				return "%.2f" % (value)
 			return int(value)
 		
