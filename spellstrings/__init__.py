@@ -498,11 +498,9 @@ class SpellString(str):
 			block = SpellString(block).format(self.obj, proxy=self.proxy, braced=True)
 			try: # FIXME
 				block = eval(block)
-				if isinstance(block, float):
-					formatting = "%%.%if" % decimals
-				else:
-					formatting = "%i"
-				return formatting % (block)
+				if decimals:
+					block = round(block, decimals)
+				return "%g" % (block)
 			except Exception:
 				return "[%s]" % (block)
 		
