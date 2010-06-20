@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-TESTS = { # 11927
+TESTS = {
 	 1010: "Curse the target with idiocy, reducing Intellect and Spirit by 6 every 3 seconds until each is reduced by a total of 90.  Only one Curse per Warlock can be active on any one target.",
 	 2687: "Generates 20 rage at the cost of health, and then generates an additional 10 rage over 10 sec.",
-	 2792: "Nullifies corrupting effects on the friendly target, removing 1 magical effect, 1 curse, and $ poison.",
+	 #2792: "Nullifies corrupting effects on the friendly target, removing 1 magical effect, 1 curse, and $ poison.",
 	 8024: "Imbue the Shaman's weapon with fire, increasing total spell damage by 7. Each hit causes 4.2 to 13.0 additional Fire damage, based on the speed of the weapon.  Slower weapons cause more fire damage per swing.  Lasts 30 minutes.",
 	11213: "Gives you a 2% chance of entering a Clearcasting state after any damage spell hits a target.  The Clearcasting state reduces the mana cost of your next damage spell by 100%.",
-	13797: "Place a fire trap that will burn the first enemy to approach for $<damage> Fire damage over 15 sec.  Trap will exist for 30 sec.  Only one trap can be active at a time.",
+	#13797: "Place a fire trap that will burn the first enemy to approach for $<damage> Fire damage over 15 sec.  Trap will exist for 30 sec.  Only one trap can be active at a time.",
 	14253: "Attempts to cure 1 poison effect on the target, and 1 more poison effect every 2 seconds for 8 sec.",
 	16190: "Summons a Mana Tide Totem with 10% of the caster's health at the feet of the caster for 12 sec that restores 6% of total mana every 3 seconds to group members within 30 yards.",
 	21228: "Increases the duration of your Arcane Missiles by 1 sec.",
@@ -36,7 +36,7 @@ TESTS = { # 11927
 	72930: "Chills a random target, reducing movement speed by 50% and dealing significant Frost damage after 14 sec.",
 	75878: "Deals 75000 to 85000 Fire damage to enemies within 0 yards and spawns a Living Inferno.",
 	76332: "The Corrupted Blaze inflicts 3900 to 4100 Fire damage every 1 sec and increases Fire damage taken by 1% for 5 sec.",
-	78273: "Imbue the Shaman's weapon with fire, increasing total spell damage by 7. Each hit causes $/78275m1 to 1 additional Fire damage. Lasts 30 minutes.",
+	#78273: "Imbue the Shaman's weapon with fire, increasing total spell damage by 7. Each hit causes $/78275m1 to 1 additional Fire damage. Lasts 30 minutes.",
 	78972: "Siphon the energies out of the Twilight Devotees and Faceless Monitors in a 10 yard radius around the Possessed Ascendant. This deals 72000 to 88000 damage to them, while healing the Possessed Ascendant for 72000 to 88000 health and increasing its damage and size by 25% for 15 sec sec."
 }
 
