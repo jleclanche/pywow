@@ -184,7 +184,8 @@ class StringLookup(object):
 			return self.get_effect(spell, "multiplier", effect)
 		
 		if identifier == "b":
-			return self.get_effect(spell, "points_combo", effect)
+			value = self.get_effect(spell, "points_combo", effect)
+			return int(value)
 		
 		if identifier == "d":
 			value = self.get_value(spell, "duration_1") # FIXME use duration class
