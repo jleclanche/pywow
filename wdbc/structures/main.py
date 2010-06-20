@@ -1260,6 +1260,11 @@ class AreaTable(Structure):
 		FloatField(),
 		IntegerField(), # 0
 	)
+	
+	def changed_12266(self, fields):
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class AreaTrigger(Structure):
@@ -4703,7 +4708,7 @@ class SkillLineAbility(Structure):
 		ForeignMask("excluded_classes", "ChrClasses"),
 		IntegerField("required_skill_level"),
 		ForeignKey("parent", "Spell"),
-		UnknownField(), # acquireMethod learnOnGetSkill ?!
+		IntegerField("acquire_method"), # acquireMethod learnOnGetSkill ?!
 		IntegerField("turns_grey"),
 		IntegerField("turns_yellow"),
 		UnknownField(), # Character points ?! [2]
@@ -4713,7 +4718,13 @@ class SkillLineAbility(Structure):
 	
 	def changed_11927(self, fields):
 		fields.append_fields(
-			UnknownField(), # XXX
+			IntegerField("unknown_11927"),
+		)
+	
+	def changed_12266(self, fields):
+		self.changed_11927(fields)
+		fields.append_fields(
+			IntegerField("unknown_12266"),
 		)
 
 
