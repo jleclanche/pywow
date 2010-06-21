@@ -619,20 +619,28 @@ class WDBCProxy(object):
 		except AttributeError, e:
 			return 0
 	
-	effect_lookup = {
+	effect_lookup_old = {
 		"radius_min_effect_%i": "radius_effect_%i__radius_min",
 	}
 	
-	@classmethod
-	def get_effect(self, instance, spell, effect, ordering):
+	def get_effect_old(self, instance, spell, effect, ordering):
 		field = "%s_effect_%%i" % (effect)
-		if field in self.effect_lookup:
-			field = self.effect_lookup[field]
+		if field in self.effect_lookup_old:
+			field = self.effect_lookup_old[field]
 		field = field % (ordering)
 		try:
 			return getattr(spell, field)
 		except AttributeError, e:
 			return 0
+	
+	@classmethod
+	def get_effect(self, instance, spell, effect, ordering):
+		if spell._parent.build < 12232:
+			return self.get_effect_old(instance, spell, effect, ordering)
+		
+		effects = spell.spelleffect__spell
+		row = [k for k in effects if k.ordering+1 == ordering][0]
+		return getattr(row, effect)
 	
 	@classmethod
 	def get_spell(self, instance, id):
