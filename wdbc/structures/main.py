@@ -945,6 +945,7 @@ class Achievement(Structure):
 	
 	FLAGS = {
 		0x00000001: "statistic",
+		0x00000002: "hidden",
 		0x00000040: "show_average",
 		0x00000080: "show_progress_bar",
 		0x00000100: "serverfirst",
@@ -960,11 +961,11 @@ class Achievement(Structure):
 		LocalizedField("objective"),
 		ForeignKey("category", "achievement_category"),
 		IntegerField("points"),
-		IntegerField(),
+		IntegerField("ordering"),
 		BitMaskField("flags", flags=FLAGS),
 		ForeignKey("icon", "spellicon"),
 		LocalizedField("reward"),
-		IntegerField("amountreq"),
+		IntegerField("required_amount"),
 		ForeignKey("ancestor", "achievement"),
 	)
 
@@ -978,7 +979,7 @@ class Achievement_Category(Structure):
 		IDField(),
 		ForeignKey("parent", "achievement_category"),
 		LocalizedField("name"),
-		IntegerField("groupsort"),
+		IntegerField("ordering"),
 	)
 
 
