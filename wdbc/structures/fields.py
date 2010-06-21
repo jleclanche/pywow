@@ -182,19 +182,27 @@ class ForeignKeyBase(IntegerField):
 	def to_python(self, value, row):
 		if isinstance(value, int):
 			self.raw_value = value
-			env = self.parent.parent.environment
-			rel = self.get_relation(value)
+			f = self.get_relation_table()
 			try:
-				f = env[rel]
+				relation_key = self.get_relation_key(value, row)
 			except KeyError:
 				raise UnresolvedRelation("Relation %r does not exist in the current environment" % (rel), value)
-			relation_key = self.get_relation_key(value, row)
+			
 			try:
 				value = f[relation_key]
 			except KeyError:
 				raise RelationError("Key %r does not exist in %s" % (relation_key, rel))
+			
 			return self.get_final_value(value, row)
 		return value
+	
+	def get_relation_table(self):
+		"""
+		Return the forward relation "table" (file) in the Environment
+		"""
+		env = self.parent.parent.environment
+		rel = self.get_relation(value)
+		return env[rel]
 	
 	def get_final_value(self, value, row):
 		return value
