@@ -198,7 +198,7 @@ class ForeignKeyBase(IntegerField):
 		env = self.parent.parent.environment
 		rel = self.get_relation(value)
 		try:
-			return = env[rel]
+			return env[rel]
 		except KeyError:
 			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (rel), value)
 	
