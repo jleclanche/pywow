@@ -612,13 +612,42 @@ class DBRow(list):
 		result.extend(self.structure.column_names)
 		return result
 	
+	
+	def __get_reverse_relation(self, table, field):
+		""" Return a list of rows matching the reverse relation """
+		if not hasattr(self._parent, "_reverse_relation_cache"):
+			self._parent._reverse_relation_cache = {}
+		cache = self._parent._reverse_relation_cache
+		
+		tfield = table + "__" + field
+		if tfield not in cache:
+			cache[tfield] = {}
+			# First time lookup, let's build the cache
+			table = self._parent.environment[table]
+			for row in table:
+				row = table[row]
+				id = row._raw(field)
+				if id not in cache[tfield]:
+					cache[tfield][id] = []
+				cache[tfield][id].append(row)
+		
+		return cache[tfield].get(self._id, None)
+	
 	def __get_deep_relation(self, rel):
 		""" Parse a django-like multilevel relationship """
-		rels = rel.split("__")[::-1]
+		rels = rel.split("__")
 		if "" in rels: # empty string
 			raise ValueError("Invalid relation string")
 		
+		first = rels[0]
+		if not hasattr(self, first):
+			if first in self._parent.environment:
+				remainder = rel[len(first + "__"):]
+				return self.__get_reverse_relation(first, remainder)
+			raise ValueError("Invalid relation string")
+		
 		ret = self
+		rels = rels[::-1]
 		while rels:
 			ret = getattr(ret, rels.pop())
 		
