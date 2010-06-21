@@ -187,7 +187,7 @@ class ForeignKeyBase(IntegerField):
 			try:
 				value = f[relation_key]
 			except KeyError:
-				raise RelationError("Key %r does not exist in %s" % (relation_key, rel))
+				raise RelationError("Key %r does not exist in %s" % (relation_key, f.structure.name))
 			return self.get_final_value(value, row)
 		return value
 	
