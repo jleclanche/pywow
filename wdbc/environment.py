@@ -24,3 +24,6 @@ class Environment(object):
 		if item not in self.__cache:
 			self.__cache[item] = wdbc.fopen(self.files[item], build=self.build, environment=self)
 		return self.__cache[item]
+	
+	def __in__(self, item):
+		return stripfilename(item) in self.files
