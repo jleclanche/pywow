@@ -188,22 +188,6 @@ class DBFile(object):
 		"""
 		return [self[id] for id in self]
 	
-	def filter(self, args, limit=0): # TODO either vastly improve or remove
-		results = []
-		match = len(args)
-		for k in self:
-			i = 0
-			for arg in args:
-				if self[k]._raw(arg) != args[arg]:
-					break
-				i += 1
-			if i == match:
-				results.append(k)
-				if len(results) >= limit:
-					return results
-		
-		return results
-	
 	def write(self, filename=""):
 		"""
 		Write the file data on disk. If filename is not given, use currently opened file.
