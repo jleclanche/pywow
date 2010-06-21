@@ -25,5 +25,5 @@ class Environment(object):
 			self.__cache[item] = wdbc.fopen(self.files[item], build=self.build, environment=self)
 		return self.__cache[item]
 	
-	def __in__(self, item):
+	def __contains__(self, item):
 		return stripfilename(item) in self.files
