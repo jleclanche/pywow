@@ -38,7 +38,7 @@ TESTS[11723] = {
 	75878: "Deals 75000 to 85000 Fire damage to enemies within 0 yards and spawns a Living Inferno.",
 }
 
-_ = TESTS[12266] = TESTS[11723]
+_ = TESTS[12266] = TESTS[11723].copy()
 del _[1010], _[37360], _[47471], _[57861], _[75878]
 _[14253] = "Attempts to cure 1 poison effect on the target, and $s1 more poison effect every 2 seconds for 8 sec."
 _[16190] = "Summons a Mana Tide Totem with 10% of the caster's health at the feet of the caster for 12 sec that restores 6% of total mana every 3 seconds to group members within 10 yards." # scaling
