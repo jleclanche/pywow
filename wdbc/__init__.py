@@ -290,8 +290,8 @@ class WDBFile(DBFile):
 				else:
 					_data.append(pack("<%s" % (field.char), value))
 			
-			length = pack("<I", len("".join(_data[2:])))
-			_data[reclen] = length
+			length = len("".join(_data[2:]))
+			_data[reclen] = pack("<I", length)
 			ret.append("".join(_data))
 		
 		return "".join(ret)
