@@ -599,8 +599,48 @@ class WDBCProxy(object):
 	Default proxy for wdbc-like structure
 	"""
 	
-	value_lookup = {
+	value_lookup_old = {
 		"radius_min": "radius__radius_min"
+	}
+	
+	@classmethod
+	def get_value_old(self, instance, spell, value):
+		if value == "duration_1":
+			duration = spell.duration
+			if not duration:
+				return 0
+			return duration._raw("duration_1") * 1000
+		
+		if value in self.value_lookup_old:
+			value = self.value_lookup_old[value]
+		
+		try:
+			return getattr(spell, value)
+		except AttributeError, e:
+			return 0
+	
+	effect_lookup_old = {
+		"radius_min_effect_%i": "radius_effect_%i__radius_min",
+	}
+	
+	@classmethod
+	def get_effect_old(self, instance, spell, effect, ordering):
+		field = "%s_effect_%%i" % (effect)
+		if field in self.effect_lookup_old:
+			field = self.effect_lookup_old[field]
+		field = field % (ordering)
+		try:
+			return getattr(spell, field)
+		except AttributeError, e:
+			return 0
+	
+	
+	value_lookup = {
+		"proc_chance": "aura_options__proc_chance",
+		"proc_charges": "aura_options__proc_charges",
+		"radius_min": "radius__radius_min",
+		"max_target_level": "target_restrictions__max_target_level",
+		"max_targets": "target_restrictions__max_targets",
 	}
 	
 	@classmethod
@@ -619,28 +659,16 @@ class WDBCProxy(object):
 		except AttributeError, e:
 			return 0
 	
-	effect_lookup_old = {
-		"radius_min_effect_%i": "radius_effect_%i__radius_min",
-	}
-	
-	def get_effect_old(self, instance, spell, effect, ordering):
-		field = "%s_effect_%%i" % (effect)
-		if field in self.effect_lookup_old:
-			field = self.effect_lookup_old[field]
-		field = field % (ordering)
-		try:
-			return getattr(spell, field)
-		except AttributeError, e:
-			return 0
-	
 	@classmethod
 	def get_effect(self, instance, spell, effect, ordering):
 		if spell._parent.build < 12232:
 			return self.get_effect_old(instance, spell, effect, ordering)
 		
 		effects = spell.spelleffect__spell
-		row = [k for k in effects if k.ordering+1 == ordering][0]
-		return getattr(row, effect)
+		effects = [k for k in effects if k.ordering+1 == ordering] or effects
+		row = effects[0]
+		ret = getattr(row, effect)
+		return ret if ret != None else 0
 	
 	@classmethod
 	def get_spell(self, instance, id):
