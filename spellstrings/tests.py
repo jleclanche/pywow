@@ -64,6 +64,7 @@ def main():
 			print "FAIL"
 			print "Returned:", repr(description)
 			print "Expected:", repr(expected)
+			print "Original:", repr(spell.description_enus)
 			fail += 1
 		else:
 			print "OK"
