@@ -327,12 +327,12 @@ class WDBFile(DBFile):
 			for group in dyns:
 				master_name = group[0].name
 				amount = 0 # Amount of active fields
-				for fields in group[1:]:
-					values = [self[k]._raw(col.name) for col in fields]
+				for columns in group[1:]:
+					values = [self[k]._raw(col.name) for col in columns]
 					if set(values) == set([None]):
 						continue
 					elif None in values: # TODO log event
-						for col in fields:
+						for col in columns:
 							if self[k]._raw(col.name) != None:
 								setattr(self[0], col.name, 0)
 					amount += 1
