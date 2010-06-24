@@ -27,3 +27,6 @@ class Environment(object):
 	
 	def __contains__(self, item):
 		return stripfilename(item) in self.files
+	
+	def __iter__(self):
+		return self.files.__iter__()
