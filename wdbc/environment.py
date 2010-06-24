@@ -30,3 +30,6 @@ class Environment(object):
 	
 	def __iter__(self):
 		return self.files.__iter__()
+	
+	def __len__(self):
+		return self.files.__len__()
