@@ -182,6 +182,9 @@ class DBFile(object):
 	def keys(self):
 		return self._addresses.keys()
 	
+	def items(self):
+		return [(k, self[k]) for k in self]
+	
 	def rows(self):
 		"""
 		Return a list of each row in the file
