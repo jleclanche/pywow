@@ -9,7 +9,7 @@ from math import ceil, floor
 
 SEEK_CUR = 1 # os.SEEK_CUR
 
-BOOLEANS = ("g", "l")
+BOOLEANS = ("G", "g", "l")
 
 PAPERDOLL_VALUES = {
 	"ap":   "ATTACK_POWER",
@@ -118,7 +118,7 @@ class StringLookup(object):
 	
 	
 	def format_boolean(self, identifier, values):
-		if identifier == "g":
+		if identifier.lower() == "g":
 			return "<%s/%s>" % (values)
 		
 		if identifier == "l":
