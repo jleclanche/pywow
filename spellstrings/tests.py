@@ -33,6 +33,7 @@ TESTS[11723] = {
 	58645: "Restores 18480 health and 12840 mana over 30 sec.  Must remain seated while eating.",
 	61905: "Summons a Magma Totem with 5000 health at the feet of the caster for -1 sec that causes 371 Fire damage to creatures within 8 yards every 2 seconds.",
 	64936: "Shield Block also grants you $s1% reduction to magical damage taken.",
+	66188: "A deadly attack that deals 150% offhand weapon damage plus a bonus and heals the Death Knight for 5.0% of <his/her> maximum health for each of <his/her> diseases on the target.",
 	69561: "Restores 19200 mana over 30 sec.  Must remain seated while drinking.  If you spend at least 10 seconds drinking you will become \"well fed\" and gain 40 critical strike rating for 1 hour. Standard alcohol.",
 	71180: "Reduces the cast time of your next Frostbolt or Frostfire Bolt by $/1000S1 sec.  Lasts 10 sec.",
 	72930: "Chills a random target, reducing movement speed by 50% and dealing significant Frost damage after 14 sec.",
