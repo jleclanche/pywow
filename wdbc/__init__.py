@@ -709,6 +709,11 @@ class DBRow(list):
 	def update(self, other):
 		for k in other:
 			self[k] = other[k]
+	
+	@property
+	def id(self):
+		"Temporary hack to transition between _id and id"
+		return self._id
 
 
 class InferredDBCFile(DBCFile):
