@@ -1306,11 +1306,11 @@ class ArmorLocation(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("no_armor"),
+		FloatField("cloth"),
+		FloatField("leather"),
+		FloatField("mail"),
+		FloatField("plate"),
 	)
 
 
@@ -3032,13 +3032,13 @@ class ItemArmorQuality(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
@@ -3069,10 +3069,10 @@ class ItemArmorTotal(Structure):
 	fields = Skeleton(
 		IDField(),
 		IntegerField("ordering"),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("cloth"),
+		FloatField("leather"),
+		FloatField("mail"),
+		FloatField("plate"),
 	)
 
 
