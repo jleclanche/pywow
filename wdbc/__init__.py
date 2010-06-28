@@ -814,6 +814,10 @@ def new(name, build=0, structure=None, environment={}):
 	return WDBFile(file, build=build, structure=structure, environment=environment)
 
 
+__envcache = {}
+
 def get(name, build):
 	from .environment import Environment
-	return Environment(build)[name]
+	if build not in __envcache:
+		__envcache[build] = Environment(build)
+	return __envcache[build][name]
