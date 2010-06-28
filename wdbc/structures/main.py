@@ -254,6 +254,7 @@ class ItemCache(Structure):
 		0x00000002: "alliance",
 		0x00000004: "sell_extended_price", # At NPCs, sells for both money and gold
 		0x00000100: "need_roll_disabled",
+		0x00000200: "caster_item",
 	}
 	
 	CLASSES = {
