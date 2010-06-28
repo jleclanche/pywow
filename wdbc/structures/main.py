@@ -3052,13 +3052,13 @@ class ItemArmorShield(Structure):
 	fields = Skeleton(
 		IDField(),
 		IntegerField("ordering"),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 	)
 
 
