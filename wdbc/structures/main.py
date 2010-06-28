@@ -1307,11 +1307,11 @@ class ArmorLocation(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField("no_armor"),
 		FloatField("cloth"),
 		FloatField("leather"),
 		FloatField("mail"),
 		FloatField("plate"),
+		FloatField("no_armor"),
 	)
 
 
