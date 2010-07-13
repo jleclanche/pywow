@@ -1267,6 +1267,14 @@ class AreaTable(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
+	
+	def changed_12319(self, fields):
+		self.changed_12266(fields)
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class AreaTrigger(Structure):
@@ -6833,6 +6841,13 @@ class WMOAreaTable(Structure):
 		ForeignKey("zone", "AreaTable"),
 		LocalizedField("name"),
 	)
+	
+	def changed_12319(self, fields):
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class WorldChunkSounds(Structure):
