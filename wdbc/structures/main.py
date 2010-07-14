@@ -1006,6 +1006,12 @@ class Achievement_Criteria(Structure):
 		DurationField("timer", unit="seconds"),
 		IntegerField("sort"),
 	)
+	
+	def changed_12479(self, fields):
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class AnimationData(Structure):
@@ -2170,7 +2176,7 @@ class CurrencyTypes(Structure):
 		fields.append_fields(
 			StringField("name"),
 			StringField("icon"),
-			UnknownField(),
+			UnknownField("unknown_12479"),
 			UnknownField(),
 			UnknownField(),
 			UnknownField(),
@@ -2184,6 +2190,10 @@ class CurrencyTypes(Structure):
 	def changed_12232(self, fields):
 		self.changed_12025(fields)
 		fields.append_fields(UnknownField())
+	
+	def changed_12479(self, fields):
+		self.changed_12232(fields)
+		fields.delete_fields("unknown_12479")
 
 
 class DanceMoves(Structure):
@@ -2659,7 +2669,12 @@ class GameTips(Structure):
 		IDField(),
 		LocalizedField("description"),
 	)
-
+	
+	def changed_12479(self, fields):
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+		)
 
 class GemProperties(Structure):
 	"""
@@ -4732,20 +4747,26 @@ class SkillLineAbility(Structure):
 		IntegerField("acquire_method"), # acquireMethod learnOnGetSkill ?!
 		IntegerField("turns_grey"),
 		IntegerField("turns_yellow"),
-		UnknownField(), # Character points ?! [2]
-		UnknownField(),
+		IntegerField("character_points"), # XXX Character points ?! [2]
+		IntegerField("unknown_12379"),
 		#UnknownField(), Deleted somewhere between 4125 and 9551
 	)
 	
 	def changed_11927(self, fields):
 		fields.append_fields(
-			IntegerField("unknown_11927"),
+			UnknownField("unknown_11927"),
 		)
 	
 	def changed_12266(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(
-			IntegerField("unknown_12266"),
+			UnknownField("unknown_12266"),
+		)
+	
+	def changed_12379(self, fields):
+		self.changed_12266(fields)
+		fields.delete_fields(
+			"character_points", "unknown_12379",
 		)
 
 
@@ -5421,9 +5442,15 @@ class Spell(Structure):
 			ForeignKey("shapeshift", "SpellShapeshift"),
 			ForeignKey("target_restrictions", "SpellTargetRestrictions"),
 			ForeignKey("totems", "SpellTotems"),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
+			UnknownField("unknown_scaling_1"),
+			UnknownField("unknown_scaling_2"),
+			UnknownField("unknown_scaling_3"),
+		)
+	
+	def changed_12479(self, fields):
+		self.changed_12232(fields)
+		fields.delete_fields(
+			"unknown_scaling_2", "unknown_scaling_3",
 		)
 
 
@@ -6361,6 +6388,11 @@ class Talent(Structure):
 		BitMaskField("unknown_pet_1"),
 		BitMaskField("unknown_pet_2"),
 	)
+	
+	def changed_12479(self, fields):
+		fields.delete_fields(
+			"rank_6", "rank_7", "rank_8", "rank_9",
+		)
 
 
 class TalentTab(Structure):
@@ -6381,6 +6413,26 @@ class TalentTab(Structure):
 	
 	def changed_11927(self, fields):
 		fields.delete_fields("unk_unused")
+	
+	def changed_12479(self, fields):
+		self.changed_11927(fields)
+		fields.append_fields(
+			LocalizedField("description"),
+		)
+
+
+class TalentTreePrimarySpells(Structure):
+	"""
+	TalentTreePrimarySpells.dbc
+	Primary spells (m2m) for each tree
+	New in 4.0.0.12479
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("tab", "TalentTab"),
+		ForeignKey("spell", "Spell"),
+		UnknownField(), # boolean, active?
+	)
 
 
 class TaxiNodes(Structure):
