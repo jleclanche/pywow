@@ -2243,7 +2243,18 @@ class DestructibleModelData(Structure):
 	)
 	
 	def changed_11927(self, fields):
-		fields.append_fields(UnknownField())
+		fields.append_fields(
+			UnknownField()
+		)
+	
+	def changed_12319(self, fields):
+		self.changed_11927(fields)
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class DeclinedWord(Structure):
