@@ -1906,7 +1906,16 @@ class ChrRaces(Structure):
 	
 	def changed_11927(self, fields):
 		self.changed_10433(fields)
-		fields.append_fields(UnknownField()) # only set to 1 for worgen
+		fields.append_fields(
+			UnknownField(), # only set to 1 for worgen
+		)
+	
+	def changed_12604(self, fields):
+		self.changed_11927(fields)
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class CinematicCamera(Structure):
@@ -2893,6 +2902,14 @@ class gtChanceToSpellCritBase(GameTableDBC):
 	pass
 
 
+class gtMasteryMultipliers(GameTableDBC):
+	"""
+	gtMasteryMultipliers.dbc
+	New in 4.0.0.12232
+	Deleted in 4.0.0.12604
+	"""
+
+
 class gtNPCManaCostScaler(GameTableDBC):
 	"""
 	gtNPCManaCostScaler.dbc
@@ -3618,6 +3635,15 @@ class ItemVisuals(Structure):
 		ForeignKey("visual_5", "ItemVisualEffects"),
 	)
 
+
+class KeyChain(Structure):
+	"""
+	KeyChain.dbc
+	File encryption
+	"""
+	fields = Skeleton(
+		IDField(),
+	)
 
 class Languages(Structure):
 	"""
@@ -4702,6 +4728,7 @@ class SheatheSoundLookups(Structure):
 class SkillCostsData(Structure):
 	"""
 	SkillCostsData.dbc
+	Deleted in 4.0.0.12604
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -5618,7 +5645,9 @@ class SpellChainEffects(Structure):
 	
 	def changed_10026(self, fields):
 		self.changed_9637(fields)
-		fields.append_fields(UnknownField())
+		fields.append_fields(
+			UnknownField()
+		)
 
 
 class SpellClassOptions(Structure):
@@ -5626,7 +5655,7 @@ class SpellClassOptions(Structure):
 	SpellClassOptions.dbc
 	Split off Spell.dbc in 4.0.0.12232
 	"""
-	fields = (
+	fields = Skeleton(
 		IDField(),
 		ForeignKey("next_spell", "Spell"),
 		BitMaskField("spell_class_flags_1"),
@@ -5634,6 +5663,11 @@ class SpellClassOptions(Structure):
 		BitMaskField("spell_class_flags_3"),
 		IntegerField("spell_class_set"),
 	)
+	
+	def changed_12604(self, fields):
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class SpellCooldowns(Structure):
@@ -5772,6 +5806,35 @@ class SpellEquippedItems(Structure):
 	)
 
 
+class SpellFlyout(Structure):
+	"""
+	SpellFlyout.dbc
+	Added in 4.0.0.12479
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		StringField("name"),
+		StringField("description"),
+	)
+
+
+class SpellFlyoutItem(Structure):
+	"""
+	SpellFlyoutItem.dbc
+	Added in 4.0.0.12479
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("flyout", "SpellFlyout"),
+		ForeignKey("spell", "Spell"),
+		IntegerField("ordering"),
+	)
+
+
 class SpellFocusObject(Structure):
 	"""
 	SpellFocusObject.dbc
@@ -5905,6 +5968,7 @@ class SpellMastery(Structure):
 	SpellScaling.dbc
 	Contains class/spell lookups for each masteries
 	New in 4.0.0.11927
+	Deleted in 4.0.0.12604
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -6302,6 +6366,7 @@ class SpellVisualPrecastTransitions(Structure):
 class StableSlotPrices(Structure):
 	"""
 	StableSlotPrices.dbc
+	Deleted in 4.0.0.12479
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -6418,6 +6483,17 @@ class TalentTab(Structure):
 		self.changed_11927(fields)
 		fields.append_fields(
 			LocalizedField("description"),
+		)
+	
+	def changed_12539(self, fields):
+		self.changed_12479(fields)
+		ROLES = {
+			0x2: "tank",
+			0x4: "heal",
+			0x8: "dps",
+		}
+		fields.append_fields(
+			BitMaskField("roles", flags=ROLES),
 		)
 
 
