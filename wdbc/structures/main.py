@@ -569,6 +569,13 @@ class ItemCache(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
+	
+	def changed_12539(self, fields):
+		"""
+		XXX Unknown build (12319-12539)
+		"""
+		self.changed_12065(fields)
+		fields.delete_fields("scaling_flags") # moved to the dbc?
 
 
 class ItemNameCache(Structure):
@@ -831,7 +838,7 @@ class QuestCache(Structure):
 		self.changed_10026(fields)
 		fields.insert_field(FloatField("honor_reward_multiplier"), before="provided_item")
 		fields.insert_field(IntegerField("arena_reward"), before="item_reward_1")
-		fields.insert_field(UnknownField(), before="item_reward_1")
+		fields.insert_field(IntegerField("unknown_10522"), before="item_reward_1")
 		fields.insert_fields([
 			ForeignKey("faction_reward_1", "Faction"),
 			ForeignKey("faction_reward_2", "Faction"),
@@ -894,7 +901,7 @@ class QuestCache(Structure):
 		fields.insert_fields((
 			UnknownField(),
 			UnknownField(),
-		), before="item_reward_1")
+		), before="unknown_10522")
 		fields.append_fields(
 			StringField("npcframe_accept_text"),
 			StringField("npcframe_handin_text"),
@@ -905,6 +912,16 @@ class QuestCache(Structure):
 		fields.insert_field(UnknownField(), before="item_reward_1")
 		fields.insert_field(StringField("npcframe_accept_text_2"), after="npcframe_accept_text")
 		fields.append_fields(StringField("npcframe_handin_text_2")) # insert after npcframe_handin_text
+	
+	def changed_12539(self, fields):
+		"""
+		XXX Unknown build (12232-12539)
+		"""
+		self.changed_12232(fields)
+		fields.insert_field(BitMaskField("flags_2"), after="flags")
+		fields.insert_field(UnknownField(), before="item_reward_1")
+		fields.insert_field(UnknownField(), after="required_item_amount_6")
+		#fields.delete_fields("arena_reward")
 
 
 class PageTextCache(Structure):
