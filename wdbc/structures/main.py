@@ -603,7 +603,7 @@ class ItemTextCache(Structure):
 	fields = Skeleton(
 		IDField(),
 		RecLenField(),
-		StringField(),
+		StringField("text"),
 	)
 
 
@@ -5156,10 +5156,14 @@ class Spell(Structure):
 		0x00080000: "hide_shapeshifts",
 	}
 	
+	FLAGS_4 = {
+		
+	}
+	
 	FLAGS_5 = {
 		0x00000040: "cannot_be_stolen",
 		0x00000200: "popup_on_activate",
-		0x04000000: "usable_only_flyable",
+		0x04000000: "usable_only_while_flying",
 	}
 	
 	FLAGS_6 = {
