@@ -5503,7 +5503,7 @@ class Spell(Structure):
 	
 	def changed_12694(self, fields):
 		self.changed_12479(fields)
-		fields.append_fields(UnknownField())
+		fields.insert_field(BitMaskField("flags_10"), after="flags_9")
 
 
 class SpellAuraNames(Structure):
