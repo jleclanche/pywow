@@ -5500,6 +5500,10 @@ class Spell(Structure):
 		fields.delete_fields(
 			"unknown_scaling_2", "unknown_scaling_3",
 		)
+	
+	def changed_12694(self, fields):
+		self.changed_12479(fields)
+		fields.append_fields(UnknownField())
 
 
 class SpellAuraNames(Structure):
