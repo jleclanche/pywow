@@ -4266,6 +4266,17 @@ class NPCSounds(Structure):
 	)
 
 
+class NumTalentsAtLevel(Structure):
+	"""
+	NumTalentsAtLevel.dbc
+	New in cataclysm (XXX which build?)
+	"""
+	fields = Skeleton(
+		IDField(),
+		FloatField("points"),
+	)
+
+
 class ObjectEffect(Structure):
 	"""
 	ObjectEffect.dbc
