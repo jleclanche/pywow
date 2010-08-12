@@ -76,6 +76,35 @@ class Range(object):
 		return self.__div__(value)
 
 
+class Condition(object):
+	"""
+	Condition for a spell conditional block
+	These conditions can be evaluated against
+	a paperdoll with the evaluate method.
+	Example: 
+		(s56810 |s25306|!((!a48165)|a66109))
+	FIXME For now, evaluate only supports
+	simple condition formats, such as "s12345"
+	"""
+	def __init__(self, condition):
+		self.condition = condition
+	
+	def evaluate(self, paperdoll):
+		cond = self.condition
+		if not (cond.startswith("a") or cond.startswith("s")):
+			return False
+		
+		d = paperdoll.get(cond[0]) or {}
+		id = cond[1:]
+		if not id.isdigit:
+			return False
+		
+		if int(id) in d:
+			return True
+		
+		return False
+
+
 class StringLookup(object):
 	"""
 	Lookup class for the parser
@@ -359,29 +388,30 @@ class SpellString(str):
 		"""
 		token = buffer.read(1)
 		if token == "$":
-			identifier = self.__parse_next(buffer)
+			condition = self.__parse_next(buffer)
 		else:
 			buffer.seek(-1, SEEK_CUR)
 			if token == "(":
 				xbuffer = self.__read_block(buffer, startchr="(", endchr=")")
 				xbuffer = StringIO(xbuffer)
-				identifier = self.__read_alphanum(xbuffer)
+				condition = self.__read_alphanum(xbuffer)
 			else:
-				identifier = self.__read_alphanum(buffer)
-		return identifier
+				condition = self.__read_alphanum(buffer)
+		return Condition(condition)
 	
 	def __parse_conditional(self, buffer):
 		"""
 		Parse the immediately available conditional block
 		"""
-		identifier = self.__parse_conditional_condition(buffer)
+		condition = self.__parse_conditional_condition(buffer)
 		
 		value_if = self.__read_block(buffer, startchr="[", endchr="]")
 		value_if = SpellString(value_if)
 		value_if = value_if.format(self.obj, proxy=self.proxy)
 		value_else = self.__read_block(buffer, startchr="[", endchr="]")
 		value_else = SpellString(value_else).format(self.obj, proxy=self.proxy)
-		return identifier, value_if, value_else
+		
+		return condition, value_if, value_else
 	
 	
 	def __parse_function_args(self, buffer):
@@ -471,6 +501,10 @@ class SpellString(str):
 		# Is it a conditional?
 		if token == "?":
 			identifier, value1, value2 = self.__parse_conditional(buffer)
+			
+			if identifier.evaluate(self.paperdoll):
+				return value1
+			
 			return value2
 		
 		if token == "<":
@@ -572,11 +606,12 @@ class SpellString(str):
 		
 		return self.__sdvcache[identifier]
 	
-	def format(self, obj, proxy, braced=False):
+	def format(self, obj, proxy, braced=False, paperdoll={}):
 		if "$" not in self:
 			return self
 		self.obj = obj
 		self.proxy = proxy
+		self.paperdoll = paperdoll
 		self.formatter = StringLookup(obj, proxy=proxy, braced=braced)
 		buffer = StringIO(self)
 		ret = []
