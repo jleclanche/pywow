@@ -29,6 +29,15 @@ class BitMask(object):
 	def __int__(self):
 		return self._bitmask
 	
+	def __and__(self, other):
+		return self._bitmask.__and__(other)
+	
+	def __xor__(self, other):
+		return self._bitmask.__xor__(other)
+	
+	def __or__(self, other):
+		return self._bitmask.__or__(other)
+	
 	def _get_values(self):
 		ret = []
 		for k, v in self._flags.items():
