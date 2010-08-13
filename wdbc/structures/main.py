@@ -3190,13 +3190,13 @@ class ItemDamageAmmo(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
@@ -3208,13 +3208,13 @@ class ItemDamageOneHand(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
@@ -3226,13 +3226,13 @@ class ItemDamageOneHandCaster(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
@@ -3244,13 +3244,13 @@ class ItemDamageRanged(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
@@ -3262,13 +3262,13 @@ class ItemDamageThrown(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
@@ -3280,13 +3280,13 @@ class ItemDamageTwoHand(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
@@ -3298,13 +3298,13 @@ class ItemDamageTwoHandCaster(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
@@ -3316,13 +3316,13 @@ class ItemDamageWand(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
-		FloatField(),
+		FloatField("poor"),
+		FloatField("common"),
+		FloatField("uncommon"),
+		FloatField("rare"),
+		FloatField("epic"),
+		FloatField("legendary"),
+		FloatField("artifact"),
 		IntegerField("ordering"),
 	)
 
