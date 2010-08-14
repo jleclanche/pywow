@@ -838,7 +838,7 @@ class QuestCache(Structure):
 		self.changed_10026(fields)
 		fields.insert_field(FloatField("honor_reward_multiplier"), before="provided_item")
 		fields.insert_field(IntegerField("arena_reward"), before="item_reward_1")
-		fields.insert_field(IntegerField("unknown_10522"), before="item_reward_1")
+		fields.insert_field(UnknownField(), before="item_reward_1")
 		fields.insert_fields([
 			ForeignKey("faction_reward_1", "Faction"),
 			ForeignKey("faction_reward_2", "Faction"),
@@ -899,9 +899,9 @@ class QuestCache(Structure):
 	def changed_12065(self, fields):
 		self.changed_11927(fields)
 		fields.insert_fields((
-			UnknownField(),
-			UnknownField(),
-		), before="unknown_10522")
+			ForeignKey("skill_reward", "SkillLine"),
+			IntegerField("skill_points_reward"),
+		), after="arena_reward")
 		fields.append_fields(
 			StringField("npcframe_accept_text"),
 			StringField("npcframe_handin_text"),
@@ -921,7 +921,6 @@ class QuestCache(Structure):
 		fields.insert_field(BitMaskField("flags_2"), after="flags")
 		fields.insert_field(UnknownField(), before="item_reward_1")
 		fields.insert_field(UnknownField(), after="required_item_amount_6")
-		#fields.delete_fields("arena_reward")
 
 
 class PageTextCache(Structure):
