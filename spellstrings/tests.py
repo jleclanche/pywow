@@ -52,7 +52,7 @@ _ = TESTS[12644] = TESTS[12266].copy()
 del _[29977], _[31687], _[58425]
 _[11213] = "Gives you a 3% chance of entering a Clearcasting state after any damage spell hits a target.  The Clearcasting state reduces the mana cost of your next damage spell by 100%."
 _[33127] = "Gives the Paladin a chance to deal additional Holy damage equal to 15% of normal weapon damage.  Only one Seal can be active on the Paladin at any one time.  Lasts 30 sec.\r\n\r\nUnleashing this Seal's energy will judge an enemy, instantly causing $s1 Holy damage, $s1 if the target is stunned or incapacitated."
-_[86479] = "Select a talent specialization in order to activate the bonus from mastery rating. Consult your talent overview pane for additional information."
+_[86479] = "Select a talent specialization in order to activate the bonus from mastery rating.  Consult your talent overview pane for additional information."
 
 def main():
 	from pywow.wdbc.environment import Environment
