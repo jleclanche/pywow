@@ -81,7 +81,7 @@ class Condition(object):
 	Condition for a spell conditional block
 	These conditions can be evaluated against
 	a paperdoll with the evaluate method.
-	Example: 
+	Example:
 		(s56810 |s25306|!((!a48165)|a66109))
 	FIXME For now, evaluate only supports
 	simple condition formats, such as "s12345"
@@ -89,8 +89,18 @@ class Condition(object):
 	def __init__(self, condition):
 		self.condition = condition
 	
+	def is_else(self):
+		# Check if the condition is True
+		# This is because Condition(True)
+		# is reserved for "else" clauses
+		return self.condition is True
+	
 	def evaluate(self, paperdoll):
+		if self.is_else():
+			return True
+		
 		cond = self.condition
+		
 		if not (cond.startswith("a") or cond.startswith("s")):
 			return False
 		
@@ -387,31 +397,48 @@ class SpellString(str):
 		(s56810 |s25306|!((!a48165)|a66109))
 		"""
 		token = buffer.read(1)
-		if token == "$":
-			condition = self.__parse_next(buffer)
-		else:
-			buffer.seek(-1, SEEK_CUR)
-			if token == "(":
-				xbuffer = self.__read_block(buffer, startchr="(", endchr=")")
-				xbuffer = StringIO(xbuffer)
-				condition = self.__read_alphanum(xbuffer)
-			else:
-				condition = self.__read_alphanum(buffer)
+		buffer.seek(-1, SEEK_CUR)
+		
+		if token == "[": # Conditions without anything are usually the last ones (else clauses)
+			condition = True # Use True as an else clause will always succeed
+		
+		elif token == "(": # conditions can be specified either with parentheses ...
+			xbuffer = self.__read_block(buffer, startchr="(", endchr=")")
+			xbuffer = StringIO(xbuffer)
+			condition = self.__read_alphanum(xbuffer)
+		
+		else: # ... or without.
+			condition = self.__read_alphanum(buffer)
+		
 		return Condition(condition)
+		
+		#if token == "$":
+			#condition = self.__parse_next(buffer)
+		#else:
+			#buffer.seek(-1, SEEK_CUR)
+			#if token == "(":
+				#xbuffer = self.__read_block(buffer, startchr="(", endchr=")")
+				#xbuffer = StringIO(xbuffer)
+				#condition = self.__read_alphanum(xbuffer)
+			#else:
+				#condition = self.__read_alphanum(buffer)
+		#return Condition(condition)
 	
 	def __parse_conditional(self, buffer):
 		"""
 		Parse the immediately available conditional block
 		"""
-		condition = self.__parse_conditional_condition(buffer)
+		ret = []
 		
-		value_if = self.__read_block(buffer, startchr="[", endchr="]")
-		value_if = SpellString(value_if)
-		value_if = value_if.format(self.obj, proxy=self.proxy)
-		value_else = self.__read_block(buffer, startchr="[", endchr="]")
-		value_else = SpellString(value_else).format(self.obj, proxy=self.proxy)
+		while True:
+			condition = self.__parse_conditional_condition(buffer)
+			value = self.__read_block(buffer, startchr="[", endchr="]")
+			value = SpellString(value).format(self.obj, proxy=self.proxy)
+			ret.append((condition, value))
+			if condition.is_else():
+				break
 		
-		return condition, value_if, value_else
+		return ret
 	
 	
 	def __parse_function_args(self, buffer):
@@ -500,12 +527,16 @@ class SpellString(str):
 		
 		# Is it a conditional?
 		if token == "?":
-			identifier, value1, value2 = self.__parse_conditional(buffer)
+			blocks = self.__parse_conditional(buffer)
 			
-			if identifier.evaluate(self.paperdoll):
-				return value1
+			# blocks is a list of (condition, value) tuples
+			# We evaluate the paperdoll against each of them
+			# and return when we get a hit
+			for condition, value in blocks:
+				if condition.evaluate(self.paperdoll):
+					return value
 			
-			return value2
+			return "" # This should never happen - an else should always be present, even if empty
 		
 		if token == "<":
 			buffer.seek(-1, SEEK_CUR)
