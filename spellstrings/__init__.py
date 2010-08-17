@@ -98,23 +98,24 @@ class Condition(object):
 	def is_else(self):
 		# Check if the condition is "empty"
 		# Such a case is reserved for else clauses
-		if self.condition == "$": return True # Work around spell 5171 (12759)
-		return not self.condition
+		return not self.condition.startswith("?")
 	
 	def evaluate(self, paperdoll):
+		self.identifiers = []
 		if self.is_else():
 			return True
 		
-		cond = self.condition
+		cond = self.condition[1:]
 		
 		if not (cond.startswith("a") or cond.startswith("s")):
 			return False
 		
-		d = paperdoll.get(cond[0]) or {}
-		id = cond[1:]
-		if not id.isdigit:
+		char, id = cond[0], cond[1:]
+		if not id.isdigit():
 			return False
 		
+		self.identifiers.append(cond)
+		d = paperdoll.get(char) or {}
 		if int(id) in d:
 			return True
 		
@@ -302,6 +303,11 @@ class SpellString(str):
 	We pass all sorts of formatting and
 	lookups to the StringLookup class
 	"""
+	
+	def __init__(self, arg):
+		self.conditions = [] # for get_condition_identifiers
+		super(SpellString, self).__init__()
+	
 	def __read_alpha(self, buffer):
 		"""
 		Parse a chain of alphabetic characters
@@ -500,16 +506,24 @@ class SpellString(str):
 		
 		# Is it a conditional?
 		if token == "?":
+			buffer.seek(-1, SEEK_CUR)
 			blocks = self.__parse_conditional(buffer)
+			
+			# Prepare the condition cache
+			# This shouldn't be done here, but anyway...
+			for condition, value in blocks:
+				condition.evaluate({})
+				self.conditions.extend(condition.identifiers)
 			
 			# blocks is a list of (condition, value) tuples
 			# We evaluate the paperdoll against each of them
 			# and return when we get a hit
+			
 			for condition, value in blocks:
 				if condition.evaluate(self.paperdoll):
 					return value
 			
-			return "" # This should never happen - an else should always be present, even if empty
+			return
 		
 		if token == "<":
 			buffer.seek(-1, SEEK_CUR)
@@ -609,6 +623,13 @@ class SpellString(str):
 			raise VariableNotFound(identifier)
 		
 		return self.__sdvcache[identifier]
+	
+	def get_condition_identifiers(self):
+		"""
+		Return all identifiers from every
+		Condition in the SpellString.
+		"""
+		return set(self.conditions)
 	
 	def format(self, obj, proxy, braced=False, paperdoll={}):
 		if "$" not in self:
