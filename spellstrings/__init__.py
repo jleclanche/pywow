@@ -455,7 +455,7 @@ class SpellString(str):
 	def __parse_operator(self, buffer):
 		num = self.__read_until(buffer, ";", break_space=True)
 		try:
-			num = int(num)
+			num = float(num)
 		except TypeError:
 			return None, None
 		
