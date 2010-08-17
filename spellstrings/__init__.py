@@ -81,19 +81,25 @@ class Condition(object):
 	Condition for a spell conditional block
 	These conditions can be evaluated against
 	a paperdoll with the evaluate method.
-	Example:
+	Examples:
+		s25306
+		!a66109
+		(s25306|!((!a48165)|a66109))
 		(s56810 |s25306|!((!a48165)|a66109))
 	FIXME For now, evaluate only supports
 	simple condition formats, such as "s12345"
 	"""
 	def __init__(self, condition):
-		self.condition = condition
+		self.condition = condition.strip()
+	
+	def __repr__(self):
+		return "%s(%r)" % (self.__class__.__name__, self.condition)
 	
 	def is_else(self):
-		# Check if the condition is True
-		# This is because Condition(True)
-		# is reserved for "else" clauses
-		return self.condition is True
+		# Check if the condition is "empty"
+		# Such a case is reserved for else clauses
+		if self.condition == "$": return True # Work around spell 5171 (12759)
+		return not self.condition
 	
 	def evaluate(self, paperdoll):
 		if self.is_else():
@@ -390,32 +396,6 @@ class SpellString(str):
 		return val1, val2
 	
 	
-	def __parse_conditional_condition(self, buffer):
-		"""
-		Parse the immediately available conditional condition
-		Example:
-		(s56810 |s25306|!((!a48165)|a66109))
-		"""
-		token = buffer.read(1)
-		buffer.seek(-1, SEEK_CUR)
-		
-		if token == "[": # Conditions without anything are usually the last ones (else clauses)
-			condition = True # Use True as an else clause will always succeed
-		
-		elif token == "(": # conditions can be specified either with parentheses ...
-			xbuffer = self.__read_block(buffer, startchr="(", endchr=")")
-			xbuffer = StringIO(xbuffer)
-			condition = self.__read_alphanum(xbuffer)
-		
-		else: # ... or without.
-			condition = self.__read_alphanum(buffer)
-			if not condition: # FIXME s5171 (build 12759)
-				if buffer.read(1) == "$":
-					condition = True
-				buffer.seek(-1, SEEK_CUR)
-		
-		return Condition(condition)
-	
 	def __parse_conditional(self, buffer):
 		"""
 		Parse the immediately available conditional block
@@ -423,7 +403,8 @@ class SpellString(str):
 		ret = []
 		
 		while True:
-			condition = self.__parse_conditional_condition(buffer)
+			condition = Condition(self.__read_until(buffer, "["))
+			buffer.seek(-1, SEEK_CUR)
 			value = self.__read_block(buffer, startchr="[", endchr="]")
 			value = SpellString(value).format(self.obj, proxy=self.proxy)
 			ret.append((condition, value))
