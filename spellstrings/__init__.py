@@ -409,20 +409,12 @@ class SpellString(str):
 		
 		else: # ... or without.
 			condition = self.__read_alphanum(buffer)
+			if not condition: # FIXME s5171 (build 12759)
+				if buffer.read(1) == "$":
+					condition = True
+				buffer.seek(-1, SEEK_CUR)
 		
 		return Condition(condition)
-		
-		#if token == "$":
-			#condition = self.__parse_next(buffer)
-		#else:
-			#buffer.seek(-1, SEEK_CUR)
-			#if token == "(":
-				#xbuffer = self.__read_block(buffer, startchr="(", endchr=")")
-				#xbuffer = StringIO(xbuffer)
-				#condition = self.__read_alphanum(xbuffer)
-			#else:
-				#condition = self.__read_alphanum(buffer)
-		#return Condition(condition)
 	
 	def __parse_conditional(self, buffer):
 		"""
