@@ -36,6 +36,21 @@ class PatchFile(object):
 		header = ("sizeBefore", "sizeAfter", "md5Before", "md5After", "fileSize")
 		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, getattr(self, k)) for k in header))
 	
+	def __bsdiffParseHeader(diff):
+		"""
+		The BSDIFF header is as follows:
+		 - 8 bytes magic "BSDIFF40"
+		 - 8 bytes control block size
+		 - 8 bytes diff block size
+		 - 8 bytes new file size
+		We read all this and make sure it's all valid.
+		"""
+		assert diff.read(8) == "BSDIFF40"
+		ctrlBlockSize, diffBlockSize, sizeAfter = unpack("QQQ", diff.read(24))
+		assert ctrlBlockSize > 0 and diffBlockSize > 0
+		assert sizeAfter == self.sizeAfter
+		return ctrlBlockSize, diffBlockSize, sizeAfter
+	
 	def rleUnpack(self):
 		"""
 		Read the RLE-packed data and
@@ -58,3 +73,8 @@ class PatchFile(object):
 			byte = data.read(1)
 		
 		return "".join(ret)
+	
+	def apply(self, orig):
+		diff = StringIO(self.rleUnpack())
+		ctrlBlockSize, diffBlockSize, sizeAfter = self.__bsdiffParseHeader(diff)
+		
