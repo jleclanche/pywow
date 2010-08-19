@@ -36,7 +36,7 @@ class PatchFile(object):
 		header = ("sizeBefore", "sizeAfter", "md5Before", "md5After", "fileSize")
 		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, getattr(self, k)) for k in header))
 	
-	def __bsdiffParseHeader(diff):
+	def __bsdiffParseHeader(self, diff):
 		"""
 		The BSDIFF header is as follows:
 		 - 8 bytes magic "BSDIFF40"
@@ -78,3 +78,41 @@ class PatchFile(object):
 		diff = StringIO(self.rleUnpack())
 		ctrlBlockSize, diffBlockSize, sizeAfter = self.__bsdiffParseHeader(diff)
 		
+		# Emulate C pointers
+		# Dirty until we can pythonize that
+		new = ["\0" for i in range(sizeAfter)]
+		old = [c for c in orig]
+		oldsize = len(orig)
+		oldpos, newpos = 0, 0
+		
+		ctrlBlock = StringIO(diff.read(ctrlBlockSize))
+		while newpos < sizeAfter:
+			# Read control block
+			ctrl = unpack("iii", ctrlBlock.read(12))
+			
+			assert newpos + ctrl[0] <= sizeAfter
+			
+			# Read diff block
+			diffBlock = diff.read(ctrl[0])
+			new[newpos:newpos + ctrl[0]] = [c for c in diffBlock]
+			
+			# Add old data to diff string
+			for i in range(ctrl[0]):
+				if (oldpos + i >= 0) and (oldpos + i < oldsize):
+					nb, ob = ord(new[newpos + i]), ord(old[oldpos+i])
+					new[newpos + i] = chr((ord(nb) + ord(ob)) % 255)
+			
+			# Adjust pointers
+			newpos += ctrl[0]
+			oldpos += ctrl[0]
+			
+			assert newpos + ctrl[1] <= sizeAfter
+			
+			# Read extra block
+			extraBlock = diff.read(ctrl[1])
+			new[newpos:newpos + ctrl[1]] = [c for c in extraBlock]
+			
+			newpos += ctrl[1]
+			oldpos += ctrl[2]
+		
+		return "".join(new)
