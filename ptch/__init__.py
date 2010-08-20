@@ -133,9 +133,9 @@ class PatchFile(object):
 			
 			# Add old data to diff string
 			for i in range(diffChunkSize):
-				# if (oldCursor + i >= 0) and (oldCursor + i < sizeBefore)
-				nb, ob = ord(new[cursor + i]), ord(old[oldCursor + i])
-				new[cursor + i] = chr((nb + ob) % 256)
+				if (oldCursor + i >= 0) and (oldCursor + i < sizeBefore):
+					nb, ob = ord(new[cursor + i]), ord(old[oldCursor + i])
+					new[cursor + i] = chr((nb + ob) % 256)
 			
 			# Update cursors
 			cursor += diffChunkSize
