@@ -16,17 +16,33 @@ class PatchFile(object):
 	def __init__(self, file):
 		# Parse the header
 		file.seek(0)
-		assert file.read(4) == "PTCH"
-		unk1 = file.read(4)
-		self.sizeBefore, self.sizeAfter = unpack("ii", file.read(8))
+		assert file.read(4) == "PTCH" # Magic
+		
+		##
+		# Sizes
+		# - patchSize: Size of the entire patch data, not including the 'PTCH' signature itself
+		# - sizeBefore: Size of the file before patching
+		# - sizeAfter: Size of the file after patching
+		self.patchSize, self.sizeBefore, self.sizeAfter = unpack("iii", file.read(12))
+		
+		##
+		# MD5 block
+		# - md5BlockSize: Size of the MD5 block, including the signature and size
+		# - md5Before: MD5 digest of the original (unpatched) file
+		# - md5After: MD5 digest of the patched file
 		assert file.read(4) == "MD5_"
-		assert unpack("i", file.read(4)) == (0x28, )
+		self.md5BlockSize, = unpack("i", file.read(4))
 		self.md5Before, self.md5After = unpack("16s16s", file.read(32))
 		self.md5Before, self.md5After = hexlify(self.md5Before), hexlify(self.md5After)
+		
+		##
+		# XFRM block
+		# - xfrmBlockSize: Size of the XFRM block + the packed data
+		# - unpackedSize: Unpacked size of the patch data
 		assert file.read(4) == "XFRM"
-		file.read(4)
-		assert file.read(4) == "BSD0"
-		self.fileSize, = unpack("i", file.read(4))
+		self.xfrmBlockSize, = unpack("i", file.read(4))
+		assert file.read(4) == "BSD0" # patch type?
+		self.unpackedSize, = unpack("i", file.read(4))
 		
 		self.compressedDiff = file.read()
 		
