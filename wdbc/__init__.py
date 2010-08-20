@@ -11,6 +11,16 @@ def getfilename(val):
 	"Returns 'item' from /home/adys/Item.dbc"
 	return os.path.splitext(os.path.basename(val))[0].lower()
 
+def generate_structure(db):
+	"""
+	Generates a DBStructure based on header data
+	"""
+	# TODO improve it, guess floats and shorter fields.
+	if db.header.field_count * 4 == db.header.reclen:
+		structure_string = "i" * db.header.field_count
+	else:
+		raise NotImplementedError
+	return GeneratedStructure(structure_string)
 
 ##
 # Header classes
@@ -30,6 +40,18 @@ class DBCHeader(object):
 	
 	def data(self):
 		return pack("<4s4i", self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize)
+
+class DB2Header(object):
+	def __repr__(self):
+		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
+	
+	def __len__(self):
+		return 32
+	
+	def load(self, file):
+		file.seek(0)
+		data = file.read(len(self))
+		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize, self.dbhash, self.build, unk1 = unpack("<4s7i", data)
 
 class WDBHeader(object):
 	"""
@@ -373,15 +395,6 @@ class DBCFile(DBFile):
 		if field_count != total_fields:
 			log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
 	
-	def __generate_structure(self):
-		"""Generates a structure based on header data"""
-		# TODO improve it, guess floats and shorter fields.
-		if self.header.field_count * 4 == self.header.reclen:
-			structure_string = "i" * self.header.field_count
-		else:
-			raise NotImplementedError
-		return GeneratedStructure(structure_string)
-	
 	def __check_padding(self, file, field):
 		"""
 		In 4.0.0 DBCs, fields are padded to their own size
@@ -398,7 +411,7 @@ class DBCFile(DBFile):
 		try:
 			self.structure = getstructure(name, self.build, parent=self)
 		except StructureNotFound:
-			self.structure = self.__generate_structure()
+			self.structure = generate_structure(self)
 		
 		# Generate the Localized Fields
 		fieldidx = []
@@ -508,6 +521,42 @@ class DBCFile(DBFile):
 			rows += 1
 		
 		log.info("%i rows total" % (rows))
+
+
+class DB2File(DBCFile):
+	"""
+	New DB format introduced in build 12803
+	"""
+	
+	def __init__(self, file, build, structure, environment):
+		super(DBCFile, self).__init__(file, build, structure, environment)
+		self.header = DB2Header()
+		self.header.load(file)
+		self.build = build or self.header.build
+		self.__load_structure(structure)
+	
+	def __load_structure(self, structure):
+		name = getfilename(self.file.name)
+		try:
+			self.structure = getstructure(name, self.build, parent=self)
+		except StructureNotFound:
+			self.structure = generate_structure(self)
+		
+		# Generate the Localized Fields
+		fieldidx = []
+		for i, field in enumerate(self.structure):
+			if isinstance(field, structures.LocalizedField):
+				fieldidx.append((i, field.name))
+		
+		if fieldidx:
+			from copy import copy
+			fields = structures.LocalizedStringField(build=self.build)
+			for i, name in reversed(fieldidx):
+				# Build a copy of the fields
+				toinsert = [copy(field).rename("%s_%s" % (name, field.name)) for field in fields]
+				self.structure[i:i+1] = toinsert
+		
+		log.info("Using %s build %i" % (self.structure, self.build))
 
 
 class WCFFile(DBCFile):
@@ -778,7 +827,15 @@ class UnknownDBCFile(DBCFile):
 def fopen(name, build=0, structure=None, environment={}):
 	file = open(name, "rb")
 	signature = file.read(4)
-	if signature == "WDBC":
+	if signature == "WDB2":
+		cls = DB2File
+		try:
+			_structure = structure or getstructure(getfilename(file.name))
+		except StructureNotFound:
+			pass
+		
+	
+	elif signature == "WDBC":
 		cls = DBCFile
 		try:
 			_structure = structure or getstructure(getfilename(file.name))
@@ -790,13 +847,17 @@ def fopen(name, build=0, structure=None, environment={}):
 				cls = ComplexDBCFile
 			elif getattr(_structure, "implicit_id", None):
 				cls = InferredDBCFile
+	
 	elif not signature:
 		raise IOError()
+	
 	elif name.endswith(".wcf"):
 		cls = WCFFile
 		structure = structure or getstructure(getfilename(file.name))
+	
 	else:
 		cls = WDBFile
+	
 	file = cls(file, build=build, structure=structure, environment=environment)
 	file.preload()
 	return file
