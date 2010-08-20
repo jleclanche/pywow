@@ -25,6 +25,7 @@ class StructureLoader():
 	
 	@classmethod
 	def getstructure(cls, name, build=0, parent=None):
+		name = name.replace("-", "_")
 		if name in cls.wowfiles:
 			return cls.wowfiles[name](build, parent)
 		raise StructureNotFound("Structure not found for file %r" % (name))
