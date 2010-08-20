@@ -12,6 +12,16 @@ from binascii import hexlify
 from cStringIO import StringIO
 
 
+def xsign(i):
+	"""
+	Helper to decode an int packed by BSDIFF.
+	Instead of true signedness, like 0xFFFFFFFFC,
+	BSDIFF uses a top-level switch, eg 0x80000004
+	"""
+	if i & 0x80000000:
+		return 0x80000000 - i
+	return i
+
 class PatchFile(object):
 	def __init__(self, file):
 		# Parse the header
@@ -125,7 +135,7 @@ class PatchFile(object):
 		cursor, oldCursor = 0, 0
 		while cursor < self.sizeAfter:
 			# Read control chunk
-			diffChunkSize, extraChunkSize, extraOffset = unpack("iii", ctrlBlock.read(12))
+			diffChunkSize, extraChunkSize, extraOffset = unpack("III", ctrlBlock.read(12))
 			assert cursor + diffChunkSize <= self.sizeAfter
 			
 			# Read diff block
@@ -147,7 +157,7 @@ class PatchFile(object):
 			
 			# Update cursors
 			cursor += extraChunkSize
-			oldCursor += extraOffset
+			oldCursor += xsign(extraOffset)
 		
 		ret = "".join(new)
 		
