@@ -16,7 +16,7 @@ class Environment(object):
 		self.__cache = {}
 		for f in os.listdir(self.path):
 			_f = f.lower()
-			if _f.endswith(".dbc") or _f.endswith(".wdb"):
+			if _f.endswith(".db2") or _f.endswith(".dbc") or _f.endswith(".wdb"):
 				self.files[stripfilename(f)] = self.path + f
 	
 	def __getitem__(self, item):
