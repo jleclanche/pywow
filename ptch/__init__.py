@@ -6,7 +6,7 @@ followed by a RLE-packed BSDIFF40.
 The original BSDIFF40 format is compressed with bzip2 instead of RLE.
 """
 
-#from hashlib import md5
+from hashlib import md5
 from struct import unpack
 from binascii import hexlify
 from cStringIO import StringIO
@@ -51,6 +51,23 @@ class PatchFile(object):
 		assert sizeAfter == self.sizeAfter
 		return ctrlBlockSize, diffBlockSize, sizeAfter
 	
+	
+	def bsdiffParse(self):
+		diff = StringIO(self.rleUnpack())
+		ctrlBlockSize, diffBlockSize, sizeAfter = self.__bsdiffParseHeader(diff)
+		
+		##
+		# The data part of the file is divded into three parts
+		# * The control block, which contains the control part every chunk
+		# * The diff block, which contains the diff chunks
+		# * And the extra block, which contains the extra chunks
+		ctrlBlock = StringIO(diff.read(ctrlBlockSize))
+		diffBlock = StringIO(diff.read(diffBlockSize))
+		extraBlock = StringIO(diff.read())
+		diff.close()
+		
+		return ctrlBlock, diffBlock, extraBlock
+	
 	def rleUnpack(self):
 		"""
 		Read the RLE-packed data and
@@ -74,45 +91,54 @@ class PatchFile(object):
 		
 		return "".join(ret)
 	
-	def apply(self, orig):
-		diff = StringIO(self.rleUnpack())
-		ctrlBlockSize, diffBlockSize, sizeAfter = self.__bsdiffParseHeader(diff)
+	def apply(self, old, validate=True):
+		"""
+		Apply the patch to the old argument. Returns the output.
+		If validate == True, will raise ValueError if the md5 of
+		input or output is wrong.
+		"""
+		if validate:
+			hash = md5(old).hexdigest()
+			if hash != self.md5Before:
+				raise ValueError("Input MD5 fail. Expected %s, got %s." % (self.md5Before, hash))
+		ctrlBlock, diffBlock, extraBlock = self.bsdiffParse()
 		
-		# Emulate C pointers
-		# Dirty until we can pythonize that
-		new = ["\0" for i in range(sizeAfter)]
-		old = [c for c in orig]
-		oldsize = len(orig)
-		oldpos, newpos = 0, 0
+		sizeBefore = len(old)
+		new = ["\0" for i in range(self.sizeAfter)]
 		
-		ctrlBlock = StringIO(diff.read(ctrlBlockSize))
-		while newpos < sizeAfter:
-			# Read control block
-			ctrl = unpack("iii", ctrlBlock.read(12))
-			
-			assert newpos + ctrl[0] <= sizeAfter
+		cursor, oldCursor = 0, 0
+		while cursor < self.sizeAfter:
+			# Read control chunk
+			diffChunkSize, extraChunkSize, extraOffset = unpack("iii", ctrlBlock.read(12))
+			assert cursor + diffChunkSize <= self.sizeAfter
 			
 			# Read diff block
-			diffBlock = diff.read(ctrl[0])
-			new[newpos:newpos + ctrl[0]] = [c for c in diffBlock]
+			new[cursor:cursor + diffChunkSize] = diffBlock.read(diffChunkSize)
 			
 			# Add old data to diff string
-			for i in range(ctrl[0]):
-				if (oldpos + i >= 0) and (oldpos + i < oldsize):
-					nb, ob = ord(new[newpos + i]), ord(old[oldpos+i])
-					new[newpos + i] = chr((ord(nb) + ord(ob)) % 255)
+			for i in range(diffChunkSize):
+				# if (oldCursor + i >= 0) and (oldCursor + i < sizeBefore)
+				nb, ob = ord(new[cursor + i]), ord(old[oldCursor + i])
+				new[cursor + i] = chr((nb + ob) % 256)
 			
-			# Adjust pointers
-			newpos += ctrl[0]
-			oldpos += ctrl[0]
+			# Update cursors
+			cursor += diffChunkSize
+			oldCursor += diffChunkSize
+			assert cursor + extraChunkSize <= self.sizeAfter
 			
-			assert newpos + ctrl[1] <= sizeAfter
+			# Read extra chunk
+			new[cursor:cursor + extraChunkSize] = extraBlock.read(extraChunkSize)
 			
-			# Read extra block
-			extraBlock = diff.read(ctrl[1])
-			new[newpos:newpos + ctrl[1]] = [c for c in extraBlock]
-			
-			newpos += ctrl[1]
-			oldpos += ctrl[2]
+			# Update cursors
+			cursor += extraChunkSize
+			oldCursor += extraOffset
 		
-		return "".join(new)
+		ret = "".join(new)
+		
+		if validate:
+			hash = md5(ret).hexdigest()
+			if hash != self.md5After:
+				# This likely means a parsing bug
+				raise ValueError("Output MD5 fail. Expected %s, got %s" % (self.md5Before, hash))
+		
+		return ret
