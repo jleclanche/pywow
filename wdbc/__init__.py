@@ -557,6 +557,18 @@ class DB2File(DBCFile):
 				self.structure[i:i+1] = toinsert
 		
 		log.info("Using %s build %i" % (self.structure, self.build))
+		self.__check_structure_integrity()
+	
+	def __check_structure_integrity(self):
+		reclen = self.header.reclen
+		struct_len = self.structure._reclen()
+		if struct_len != reclen:
+			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
+		
+		field_count = self.header.field_count
+		total_fields = len(self.structure)
+		if field_count != total_fields:
+			log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
 
 
 class WCFFile(DBCFile):
