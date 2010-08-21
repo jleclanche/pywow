@@ -74,7 +74,7 @@ class DynamicFields(DynamicFieldsBase):
 		self.append(self.master)
 		cols, amt = columns
 		for i in xrange(amt):
-			self.append([v[0](name="%s_%s_dyn%i" % (name, v[1], i+1), dynamic=i+1, group=self) for v in cols])
+			self.append([v[0](name="%s_%s_%i" % (name, v[1], i+1), dynamic=i+1, group=self) for v in cols])
 			
 	def get_fields(self):
 		yield self.master
