@@ -257,32 +257,6 @@ class ItemCache(Structure):
 		0x00000200: "caster_weapon",
 	}
 	
-	CLASSES = {
-		0x00000001: "warrior",
-		0x00000002: "paladin",
-		0x00000004: "hunter",
-		0x00000008: "rogue",
-		0x00000010: "priest",
-		0x00000020: "deathknight",
-		0x00000040: "shaman",
-		0x00000080: "mage",
-		0x00000100: "warlock",
-		0x00000400: "druid",
-	}
-	
-	RACES = {
-		0x00000001: "human",
-		0x00000002: "orc",
-		0x00000004: "dwarf",
-		0x00000008: "nightelf",
-		0x00000010: "undead",
-		0x00000020: "tauren",
-		0x00000040: "gnome",
-		0x00000080: "troll",
-		0x00000200: "bloodelf",
-		0x00000400: "draenei",
-	}
-	
 	fields = Skeleton(
 		IDField(),
 		RecLenField(),
@@ -298,8 +272,8 @@ class ItemCache(Structure):
 		MoneyField("buy_price"),
 		MoneyField("sell_price"),
 		IntegerField("slot"),
-		BitMaskField("class_mask", flags=CLASSES),
-		BitMaskField("race_mask", flags=RACES),
+		ForeignMask("class_mask", "ChrClasses"),
+		ForeignMask("race_mask", "ChrRaces"),
 		IntegerField("level"),
 		IntegerField("required_level"),
 		ForeignKey("required_skill", "SkillLine"),
@@ -3125,32 +3099,6 @@ class Item_sparse(Structure):
 		0x00000200: "caster_weapon",
 	}
 	
-	CLASSES = {
-		0x00000001: "warrior",
-		0x00000002: "paladin",
-		0x00000004: "hunter",
-		0x00000008: "rogue",
-		0x00000010: "priest",
-		0x00000020: "deathknight",
-		0x00000040: "shaman",
-		0x00000080: "mage",
-		0x00000100: "warlock",
-		0x00000400: "druid",
-	}
-	
-	RACES = {
-		0x00000001: "human",
-		0x00000002: "orc",
-		0x00000004: "dwarf",
-		0x00000008: "nightelf",
-		0x00000010: "undead",
-		0x00000020: "tauren",
-		0x00000040: "gnome",
-		0x00000080: "troll",
-		0x00000200: "bloodelf",
-		0x00000400: "draenei",
-	}
-	
 	fields = Skeleton(
 		IDField("_id"),
 		IntegerField("quality"),
@@ -3159,8 +3107,8 @@ class Item_sparse(Structure):
 		MoneyField("buy_price"),
 		MoneyField("sell_price"),
 		IntegerField("slot"),
-		BitMaskField("class_mask"),
-		BitMaskField("race_mask"),
+		ForeignMask("class_mask", "ChrClasses"),
+		ForeignMask("race_mask", "ChrRaces"),
 		IntegerField("level"),
 		IntegerField("required_level"),
 		ForeignKey("required_skill", "SkillLine"),
