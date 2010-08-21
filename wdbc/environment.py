@@ -14,10 +14,14 @@ class Environment(object):
 		
 		self.files = {}
 		self.__cache = {}
+		processed = []
 		for f in os.listdir(self.path):
 			_f = f.lower()
 			if _f.endswith(".db2") or _f.endswith(".dbc") or _f.endswith(".wdb"):
+				if _f.replace(".dbc", ".db2") in processed: # Give .db2 files priority over .dbc ones
+					continue
 				self.files[stripfilename(f)] = self.path + f
+				processed.append(_f)
 	
 	def __getitem__(self, item):
 		item = stripfilename(item)
