@@ -6676,6 +6676,13 @@ class TalentTab(Structure):
 		fields.append_fields(
 			BitMaskField("roles", flags=ROLES),
 		)
+	
+	def changed_12759(self, fields):
+		self.changed_12539(fields)
+		fields.append_fields(
+			ForeignKey("mastery_1", "Spell"),
+			ForeignKey("mastery_2", "Spell"),
+		)
 
 
 class TalentTreePrimarySpells(Structure):
