@@ -38,6 +38,9 @@ TESTS[11723] = {
 	71180: "Reduces the cast time of your next Frostbolt or Frostfire Bolt by $/1000S1 sec.  Lasts 10 sec.",
 	72930: "Chills a random target, reducing movement speed by 50% and dealing significant Frost damage after 14 sec.",
 	75878: "Deals 75000 to 85000 Fire damage to enemies within 0 yards and spawns a Living Inferno.",
+	
+	# Buff descriptions
+	-46458: "300 damage every 3 seconds.",
 }
 
 _ = TESTS[12266] = TESTS[11723].copy()
@@ -63,7 +66,7 @@ def main():
 	fail, success = 0, 0
 	for id, expected in sorted(TESTS[BUILD].items()):
 		print "Testing %i..." % (id),
-		if id not in f:
+		if abs(id) not in f:
 			print "PASS"
 			continue
 		
