@@ -67,8 +67,13 @@ def main():
 			print "PASS"
 			continue
 		
-		spell = f[id]
-		description = SpellString(spell.description_enus).format(spell, proxy=WDBCProxy)
+		spell = f[abs(id)]
+		if id < 0:
+			description = spell.buff_description_enus
+		else:
+			description = spell.description_enus
+		
+		description = SpellString(description).format(spell, proxy=WDBCProxy)
 		
 		if description != expected:
 			print "FAIL"
