@@ -466,6 +466,8 @@ class SpellString(str):
 			return None, None
 		
 		spell, identifier, effect = self.__parse_macro(buffer)
+		if not effect: # XXX should this be done in format_macro?
+			effect = "1"
 		var = self.formatter.format_macro(spell, identifier, effect)
 		
 		return num, var
