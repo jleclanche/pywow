@@ -4,7 +4,7 @@ import os, os.path
 from cStringIO import StringIO
 from struct import pack, unpack, error as StructError
 from .log import log
-from .structures import fields, GeneratedStructure, StructureNotFound, getstructure
+from .structures import fields, StructureNotFound, getstructure
 from .utils import getfilename, generate_structure
 
 ##
@@ -35,7 +35,7 @@ class DB2Header(object):
 	
 	def load(self, file):
 		file.seek(0)
-		data = file.read(len(self))
+		data = file.read(32)
 		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize, self.dbhash, self.build, unk1 = unpack("<4s7i", data)
 
 class WDBHeader(object):
@@ -51,9 +51,6 @@ class WDBHeader(object):
 	def __repr__(self):
 		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
 	
-	def __len__(self):
-		if not hasattr(self, "build"):
-			return 0
 		if self.build < 9438:
 			return 20
 		return 24
@@ -68,8 +65,6 @@ class WDBHeader(object):
 			self.version, = unpack("<i", file.read(4))
 	
 	def data(self):
-		if not hasattr(self, "build"):
-			return ""
 		ret = pack("<4si4sii", self.signature, self.build, self.locale, self.wdb4, self.wdb5)
 		if self.build >= 9438:
 			ret += pack("<i", self.version)
@@ -369,17 +364,6 @@ class DBCFile(DBFile):
 		self.build = build
 		self.__load_structure(structure)
 	
-	def __check_structure_integrity(self):
-		reclen = self.header.reclen
-		struct_len = self.structure._reclen()
-		if struct_len != reclen:
-			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
-		
-		field_count = self.header.field_count
-		total_fields = len(self.structure)
-		if field_count != total_fields:
-			log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
-	
 	def __check_padding(self, file, field):
 		"""
 		In 4.0.0 DBCs, fields are padded to their own size
@@ -414,7 +398,7 @@ class DBCFile(DBFile):
 		
 		log.info("Using %s build %i" % (self.structure, self.build))
 		
-		self.__check_structure_integrity()
+		self.check_integrity()
 	
 	def _parse_field(self, data, field, row=None):
 		if self.build in (11927, 12025): # TODO pywow.builddata
@@ -455,6 +439,17 @@ class DBCFile(DBFile):
 		f.seek(pos)
 		
 		return "".join(chars)
+	
+	def check_integrity(self):
+		reclen = self.header.reclen
+		struct_len = self.structure._reclen()
+		if struct_len != reclen:
+			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
+		
+		field_count = self.header.field_count
+		total_fields = len(self.structure)
+		if field_count != total_fields:
+			log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
 	
 	def data(self):
 		ret = []
@@ -542,18 +537,7 @@ class DB2File(DBCFile):
 				self.structure[i:i+1] = toinsert
 		
 		log.info("Using %s build %i" % (self.structure, self.build))
-		self.__check_structure_integrity()
-	
-	def __check_structure_integrity(self):
-		reclen = self.header.reclen
-		struct_len = self.structure._reclen()
-		if struct_len != reclen:
-			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
-		
-		field_count = self.header.field_count
-		total_fields = len(self.structure)
-		if field_count != total_fields:
-			log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
+		self.check_integrity()
 
 
 class WCFFile(DBCFile):
