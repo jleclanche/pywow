@@ -31,7 +31,10 @@ class DB2Header(object):
 		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
 	
 	def __len__(self):
-		return 32
+		if self.build < 12834:
+			return 32
+		#return 48
+		return (self.row_count * self.reclen + self.stringblocksize) # HACK
 	
 	def load(self, file):
 		file.seek(0)
@@ -485,7 +488,10 @@ class DBCFile(DBFile):
 	
 	def preload(self):
 		f = self.file
-		f.seek(len(self.header))
+		if isinstance(self, DB2File) and self.build > 12803:
+			f.seek(-len(self.header), 2) # HACK
+		else:
+			f.seek(len(self.header))
 		
 		rows = 0
 		field = self.structure[0]
