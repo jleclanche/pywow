@@ -51,7 +51,7 @@ class PatchFile(object):
 		# - unpackedSize: Unpacked size of the patch data
 		assert file.read(4) == "XFRM"
 		self.xfrmBlockSize, = unpack("i", file.read(4))
-		assert file.read(4) == "BSD0" # patch type?
+		assert file.read(4) in ("BSD0", "COPY") # patch type?
 		self.unpackedSize, = unpack("i", file.read(4))
 		
 		self.compressedDiff = file.read()
