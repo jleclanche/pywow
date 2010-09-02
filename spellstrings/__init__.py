@@ -209,8 +209,10 @@ class StringLookup(object):
 	
 	def format_function(self, identifier, args):
 		if identifier == "lte":
-			return "()"
-		return "%s(%s)" % (identifier, args)
+			return "(%s<=%s)" % (args[0], args[1])
+		if identifier == "cond":
+			return "if %s then %s else %s" % (args[0], args[1], args[2])
+		return "%s(%s)" % (identifier, ", ".join(args))
 	
 	def format_macro(self, spell, identifier, effect):
 		spell = self.get_spell(spell)
@@ -427,6 +429,37 @@ class SpellString(str):
 		block of function arguments,
 		returning a tuple of the arguments.
 		"""
+		args = []
+		token = buffer.read(1)
+		while token != "(": # FIXME don't duplicate code with __read_block
+			token = buffer.read(1)
+			assert token
+		count = 1
+		
+		def flusharg(arg, args):
+			arg = "".join(arg)
+			arg = SpellString(arg).format(self.obj, proxy=self.proxy)
+			args.append(arg)
+			return []
+		
+		_arg = []
+		while count:
+			token = buffer.read(1)
+			if token == "(":
+				count += 1
+			elif token == ")":
+				count -= 1
+			if not count or not token:
+				_arg = flusharg(_arg, args)
+				break
+			
+			if token == "," and count == 1:
+				_arg = flusharg(_arg, args)
+				continue
+			
+			_arg.append(token)
+		
+		return args
 	
 	def __parse_macro(self, buffer):
 		"""
