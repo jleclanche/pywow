@@ -41,7 +41,7 @@ PAPERDOLL_VALUES = {
 	"sps":  "SPELL_POWER_SHADOW",
 }
 
-FUNCTIONS = ["ceil", "cond", "eq", "floor", "gte", "gt", "lte", "max", "min"]
+FUNCTIONS = ["ceil", "cond", "eq", "floor", "gte", "gt", "lte", "lt", "max", "min"]
 
 class VariableNotFound(Exception):
 	"""
@@ -210,6 +210,10 @@ class StringLookup(object):
 	def format_function(self, identifier, args):
 		if identifier == "lte":
 			return "(%s<=%s)" % (args[0], args[1])
+		
+		if identifier == "lt":
+			return "(%s<%s)" % (args[0], args[1])
+		
 		if identifier == "cond":
 			return "if %s then %s else %s" % (args[0], args[1], args[2])
 		return "%s(%s)" % (identifier, ", ".join(args))
