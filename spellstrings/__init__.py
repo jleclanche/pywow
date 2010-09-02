@@ -208,6 +208,13 @@ class StringLookup(object):
 		return "%d days" % (duration.days)
 	
 	def format_function(self, identifier, args):
+		identifier = identifier.lower()
+		if identifier == "gte":
+			return "(%s=>%s)" % (args[0], args[1])
+		
+		if identifier == "gt":
+			return "(%s>%s)" % (args[0], args[1])
+		
 		if identifier == "lte":
 			return "(%s<=%s)" % (args[0], args[1])
 		
@@ -602,7 +609,7 @@ class SpellString(str):
 			buffer.seek(-1, SEEK_CUR)
 			identifier = self.__read_alpha(buffer)
 			
-			if identifier in FUNCTIONS:
+			if identifier.lower() in FUNCTIONS:
 				args = self.__parse_function_args(buffer)
 				return self.formatter.format_function(identifier, args)
 			
