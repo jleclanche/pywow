@@ -41,7 +41,7 @@ PAPERDOLL_VALUES = {
 	"sps":  "SPELL_POWER_SHADOW",
 }
 
-FUNCTIONS = ["ceil", "cond", "eq", "floor", "gte", "gt", "max", "min"]
+FUNCTIONS = ["ceil", "cond", "eq", "floor", "gte", "gt", "lte", "max", "min"]
 
 class VariableNotFound(Exception):
 	"""
