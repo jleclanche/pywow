@@ -209,6 +209,9 @@ class StringLookup(object):
 	
 	def format_function(self, identifier, args):
 		identifier = identifier.lower()
+		if identifier == "eq":
+			return "(%s==%s)" % (args[0], args[1])
+		
 		if identifier == "gte":
 			return "(%s=>%s)" % (args[0], args[1])
 		
