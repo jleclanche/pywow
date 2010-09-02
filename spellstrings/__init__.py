@@ -208,6 +208,8 @@ class StringLookup(object):
 		return "%d days" % (duration.days)
 	
 	def format_function(self, identifier, args):
+		if identifier == "lte":
+			return "()"
 		return "%s(%s)" % (identifier, args)
 	
 	def format_macro(self, spell, identifier, effect):
@@ -336,15 +338,14 @@ class SpellString(str):
 		"""
 		Parse a string from startchr until endchr
 		"""
-		ret = []
-		count = 0
 		token = buffer.read(1)
 		while token != startchr:
 			token = buffer.read(1)
 			if not token:
 				raise ValueError("read_block could not find beginning of block")
-		count += 1
 		
+		ret = []
+		count = 1
 		while count:
 			token = buffer.read(1)
 			if token == startchr:
@@ -426,7 +427,6 @@ class SpellString(str):
 		block of function arguments,
 		returning a tuple of the arguments.
 		"""
-		
 	
 	def __parse_macro(self, buffer):
 		"""
