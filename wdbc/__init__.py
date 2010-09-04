@@ -814,7 +814,7 @@ class UnknownDBCFile(DBCFile):
 def fopen(name, build=0, structure=None, environment={}):
 	file = open(name, "rb")
 	signature = file.read(4)
-	if signature == "WDB2":
+	if signature == "WDB2" or signature == "WCH2":
 		cls = DB2File
 		try:
 			_structure = structure or getstructure(getfilename(file.name))
