@@ -8,6 +8,8 @@ from .utils import getfilename
 
 from . import DBHeader
 
+SEEK_CUR = 1 # os.SEEK_CUR
+
 class DB2Header(DBHeader):
 	def __len__(self):
 		if self.build < 12834:
@@ -23,7 +25,7 @@ class DB2Header(DBHeader):
 	def get_block_size(self):
 		if self.build < 12834:
 			return 0
-		return self.unk2 and  self.unk2 - 2 * len(self) or 0
+		return self.unk2 * 6 - len(self) * 3 if self.unk2 else 0
 
 
 class DB2File(DBCFile):
@@ -61,3 +63,23 @@ class DB2File(DBCFile):
 		
 		log.info("Using %s build %i" % (self.structure, self.build))
 		self.check_integrity()
+	
+	def preload(self):
+		f = self.file
+		f.seek(len(self.header))
+		_ = f.read(self.header.get_block_size())
+		
+		rows = 0
+		field = self.structure[0]
+		row_header_size = field.size
+		reclen = self.header.reclen
+		while rows < self.header.row_count:
+			address = f.tell() # Get the address of the full row
+			id = self._parse_field(f, field)
+			
+			self._add_row(id, address, reclen)
+			
+			f.seek(reclen - row_header_size, SEEK_CUR) # minus length of id
+			rows += 1
+		
+		log.info("%i rows total" % (rows))
