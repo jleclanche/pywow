@@ -16,14 +16,14 @@ class DB2Header(DBHeader):
 	
 	def load(self, file):
 		file.seek(0)
-		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize, self.dbhash, self.build, self.unk1 = unpack("<4s7i", file.read(32))
+		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize, self.dbhash, self.build, self.timestamp = unpack("<4s7i", file.read(32))
 		if self.build >= 12834:
-			self.time, self.unk2, self.locale, self.unk3 = unpack("<4i", file.read(16))
+			self.unk1, self.unk2, self.locale, self.unk3 = unpack("<4i", file.read(16))
 	
 	def get_block_size(self):
 		if self.build < 12834:
 			return 0
-		return self.unk3 and  self.unk3 - 2 * len(self) or len(self)
+		return self.unk2 and  self.unk2 - 2 * len(self) or 0
 
 
 class DB2File(DBCFile):
