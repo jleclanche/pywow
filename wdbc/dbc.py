@@ -164,7 +164,7 @@ class DBCFile(DBFile):
 	def preload(self):
 		f = self.file
 		f.seek(len(self.header))
-		print f.read(self.header.get_block_size()) # XXX
+		f.seek(self.header.get_block_size(), SEEK_CUR)
 		
 		rows = 0
 		field = self.structure[0]
