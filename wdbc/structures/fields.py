@@ -25,11 +25,7 @@ class LocalizedField(Field):
 	Localized StringField.
 	Structure handled at wdbc.structures.LocalizedStringField
 	"""
-	
-	@property
-	def size(self):
-		print self.__dict__
-		print dir(self)
+	pass
 
 
 ##
