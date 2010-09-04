@@ -41,8 +41,6 @@ def fopen(name, build=0, structure=None, environment={}):
 			pass
 		else:
 			cls = DBCFile
-			if len(_structure.primary_keys) > 1:
-				cls = ComplexDBCFile
 			elif getattr(_structure, "implicit_id", None):
 				cls = InferredDBCFile
 	

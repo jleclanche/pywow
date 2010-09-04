@@ -232,32 +232,6 @@ class InferredDBCFile(DBCFile):
 		log.info("%i rows total" % (rows))
 
 
-class ComplexDBCFile(DBCFile):
-	"""
-	Only used in ItemSubClass.dbc for now
-	Two IDFields.
-	"""
-	
-	def preload(self):
-		f = self.file
-		f.seek(len(self.header))
-		
-		rows = 0
-		reclen = self.header.reclen
-		while rows < self.header.row_count:
-			address = f.tell() # Get the address of the full row
-			id = unpack("<ii", f.read(8)) # id is a tuple instead
-			
-			if id in self._addresses: # Something's wrong here
-				log.warning("Multiple instances of row %s found" % (".".join(id)))
-			self._addresses[id] = (address, reclen)
-			
-			f.seek(reclen - 8, SEEK_CUR) # minus 4 bytes for each id
-			rows += 1
-		
-		log.info("%i rows total" % (rows))
-
-
 class UnknownDBCFile(DBCFile):
 	"""
 	A DBC file with an unknown structure.
