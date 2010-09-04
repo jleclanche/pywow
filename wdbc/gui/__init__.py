@@ -60,10 +60,15 @@ class MainWindow(QMainWindow):
 		
 		self.verticalLayout.addWidget(self.maintable)
 		self.setCentralWidget(self.centralwidget)
+		
+		self.statusbar = QStatusBar()
+		self.setStatusBar(self.statusbar)
 	
 	def setFile(self, file, name):
 		self.setWindowTitle("%s - Sigrie Reader" % (name))
 		self.maintable.model.setFile(file)
+		msg = "%i rows - Using %s build %i" % (len(file), file.structure, file.build)
+		self.statusbar.showMessage(msg)
 
 
 class MainTable(QWidget):
