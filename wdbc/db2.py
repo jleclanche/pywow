@@ -3,7 +3,7 @@
 from struct import unpack
 from .dbc import DBCFile
 from .log import log
-from .structures import getstructure
+from .structures import getstructure, LocalizedStringField, LocalizedField
 from .utils import getfilename
 
 from . import DBHeader
@@ -48,12 +48,12 @@ class DB2File(DBCFile):
 		# Generate the Localized Fields
 		fieldidx = []
 		for i, field in enumerate(self.structure):
-			if isinstance(field, structures.LocalizedField):
+			if isinstance(field, LocalizedField):
 				fieldidx.append((i, field.name))
 		
 		if fieldidx:
 			from copy import copy
-			fields = structures.LocalizedStringField(build=self.build)
+			fields = LocalizedStringField(build=self.build)
 			for i, name in reversed(fieldidx):
 				# Build a copy of the fields
 				toinsert = [copy(field).rename("%s_%s" % (name, field.name)) for field in fields]
