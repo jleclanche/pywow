@@ -7,21 +7,16 @@ import signal
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from binascii import hexlify
 from pywow import wdbc
 
-
-from binascii import hexlify
 def main():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 	app = QApplication(sys.argv)
 	
 	name = sys.argv[1]
 	build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
-	try:
-		file = wdbc.fopen(name, build=build)
-	except Exception, e:
-		print "%s could not be read: %s" % (name, e)
-		exit(1)
+	file = wdbc.fopen(name, build=build)
 	
 	w = MainWindow()
 	w.setFile(file, name)
