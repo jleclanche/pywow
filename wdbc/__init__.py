@@ -5,7 +5,7 @@ from cStringIO import StringIO
 from struct import pack, unpack, error as StructError
 from .log import log
 from .structures import fields, StructureNotFound, getstructure
-from .utils import getfilename, generate_structure
+from .utils import getfilename, generate_structure, fopen, get, new
 
 
 class DBHeader(object):
@@ -330,63 +330,3 @@ class DBRow(list):
 	def id(self):
 		"Temporary hack to transition between _id and id"
 		return self._id
-
-
-def fopen(name, build=0, structure=None, environment={}):
-	file = open(name, "rb")
-	signature = file.read(4)
-	if signature == "WDB2" or signature == "WCH2":
-		cls = DB2File
-		try:
-			_structure = structure or getstructure(getfilename(file.name))
-		except StructureNotFound:
-			pass
-		
-	
-	elif signature == "WDBC":
-		cls = DBCFile
-		try:
-			_structure = structure or getstructure(getfilename(file.name))
-		except StructureNotFound:
-			pass
-		else:
-			cls = DBCFile
-			if len(_structure.primary_keys) > 1:
-				cls = ComplexDBCFile
-			elif getattr(_structure, "implicit_id", None):
-				cls = InferredDBCFile
-	
-	elif not signature:
-		raise IOError()
-	
-	elif name.endswith(".wcf"):
-		cls = WCFFile
-		structure = structure or getstructure(getfilename(file.name))
-	
-	else:
-		cls = WDBFile
-	
-	file = cls(file, build=build, structure=structure, environment=environment)
-	file.preload()
-	return file
-
-
-def new(name, build=0, structure=None, environment={}):
-	filename = getfilename(name)
-	if not structure:
-		structure = getstructure(filename, build=build)
-	
-	file = open(name, "wb")
-	
-	if structure.signature == "WDBC":
-		return DBCFile(file, build=build, structure=structure, environment=environment)
-	return WDBFile(file, build=build, structure=structure, environment=environment)
-
-
-__envcache = {}
-
-def get(name, build):
-	from .environment import Environment
-	if build not in __envcache:
-		__envcache[build] = Environment(build)
-	return __envcache[build][name]
