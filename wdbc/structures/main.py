@@ -83,6 +83,12 @@ class Structure(Structure):
 		Live 3.3.5a
 		"""
 		self.changed_12166(fields)
+	
+	def changed_12479(self, fields):
+		"""
+		Closed Beta 4.0.0
+		"""
+		self.changed_12232(fields)
 
 
 ##
