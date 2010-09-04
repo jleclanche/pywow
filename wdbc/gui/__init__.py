@@ -13,6 +13,7 @@ from pywow import wdbc
 
 arguments = OptionParser()
 arguments.add_option("-b", "--build", type="int", dest="build", default=0)
+arguments.add_option("--get", action="store_true", dest="get", help="get from the environment")
 
 
 def main():
@@ -20,7 +21,10 @@ def main():
 	app = QApplication(sys.argv)
 	args, name = arguments.parse_args(sys.argv[1:])
 	name = name[0]
-	file = wdbc.fopen(name, build=args.build)
+	if args.get:
+		file = wdbc.get(name, build=args.build)
+	else:
+		file = wdbc.fopen(name, build=args.build)
 	
 	w = MainWindow()
 	w.setFile(file, name)
