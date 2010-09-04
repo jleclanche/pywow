@@ -20,7 +20,7 @@ class Structure(Structure):
 	
 	def changed_11993(self, fields):
 		"""
-		PTR 3.0.5
+		PTR 3.3.5
 		"""
 		self.__get_build(11723)(fields)
 	
@@ -32,7 +32,7 @@ class Structure(Structure):
 	
 	def changed_12045(self, fields):
 		"""
-		PTR 3.0.5
+		PTR 3.3.5
 		"""
 		self.changed_11993(fields)
 	
@@ -50,13 +50,13 @@ class Structure(Structure):
 	
 	def changed_12124(self, fields):
 		"""
-		PTR 3.0.5
+		PTR 3.3.5
 		"""
 		self.changed_12045(fields)
 	
 	def changed_12148(self, fields):
 		"""
-		PTR 3.0.5
+		PTR 3.3.5
 		"""
 		self.changed_12124(fields)
 	
@@ -68,7 +68,7 @@ class Structure(Structure):
 	
 	def changed_12166(self, fields):
 		"""
-		PTR 3.0.5
+		PTR 3.3.5
 		"""
 		self.changed_12148(fields)
 	
@@ -77,6 +77,12 @@ class Structure(Structure):
 		Closed Beta 4.0.0
 		"""
 		self.changed_12164(fields)
+	
+	def changed_12340(self, fields):
+		"""
+		Live 3.3.5a
+		"""
+		self.changed_12166(fields)
 
 
 ##
