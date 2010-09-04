@@ -5,7 +5,7 @@ from .log import log
 from .structures import fields, getstructure
 from .utils import getfilename
 
-from . import DBHeader, DBFile, DBRow
+from . import DBHeader, DBFile
 
 SEEK_CUR = 1 # os.SEEK_CUR
 
@@ -91,7 +91,7 @@ class WDBFile(DBFile):
 		address, reclen = self._addresses[id]
 		self.file.seek(address)
 		data = self.file.read(reclen + self.row_header_size) # We also read id and reclen columns
-		row = DBRow(self, data=data, reclen=reclen)
+		row = self.parse_row(data, reclen) # assign to DBRow
 		self._values[id] = row
 	
 	def _parse_string(self, data):

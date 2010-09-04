@@ -130,6 +130,12 @@ class DBFile(object):
 	def items(self):
 		return [(k, self[k]) for k in self]
 	
+	def parse_row(self, data, reclen=0):
+		"""
+		Assign data to a DBRow instance
+		"""
+		return DBRow(self, data=data, reclen=reclen)
+	
 	def rows(self):
 		"""
 		Return a list of each row in the file

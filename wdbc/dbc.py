@@ -5,7 +5,7 @@ from .log import log
 from .structures import fields, StructureNotFound, getstructure, LocalizedStringField, LocalizedField
 from .utils import getfilename, generate_structure
 
-from . import DBHeader, DBFile, DBRow
+from . import DBHeader, DBFile
 
 SEEK_CUR = 1 # os.SEEK_CUR
 
@@ -87,7 +87,7 @@ class DBCFile(DBFile):
 		address, reclen = self._addresses[id]
 		self.file.seek(address)
 		data = self.file.read(reclen) # We also read id and reclen columns
-		row = DBRow(self, data=data)
+		row = self.parse_row(data) # assign to DBRow
 		self._values[id] = row
 	
 	def _parse_string(self, data):
