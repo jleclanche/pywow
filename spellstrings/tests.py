@@ -58,10 +58,9 @@ _[33127] = "Gives the Paladin a chance to deal additional Holy damage equal to 1
 _[86479] = "Select a talent specialization in order to activate the bonus from mastery rating.  Consult your talent overview pane for additional information."
 
 def main():
-	from pywow.wdbc.environment import Environment
 	from pywow.spellstrings import SpellString, WDBCProxy
 	
-	f = Environment(BUILD)["Spell.dbc"]
+	f = wdbc.get("Spell", BUILD)
 	
 	fail, success = 0, 0
 	for id, expected in sorted(TESTS[BUILD].items()):
