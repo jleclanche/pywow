@@ -20,7 +20,7 @@ def generate_structure(db):
 
 
 def fopen(name, build=0, structure=None, environment={}):
-	from .db2 import DB2Files
+	from .db2 import DB2File
 	from .dbc import DBCFile, InferredDBCFile
 	from .wdb import WDBFile
 	file = open(name, "rb")
@@ -41,7 +41,7 @@ def fopen(name, build=0, structure=None, environment={}):
 			pass
 		else:
 			cls = DBCFile
-			elif getattr(_structure, "implicit_id", None):
+			if getattr(_structure, "implicit_id", None):
 				cls = InferredDBCFile
 	
 	elif not signature:

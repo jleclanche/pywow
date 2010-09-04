@@ -5,7 +5,7 @@ from .log import log
 from .structures import fields, getstructure
 from .utils import getfilename
 
-from . import DBHeader, DBFile
+from . import DBHeader, DBFile, DBRow
 
 SEEK_CUR = 1 # os.SEEK_CUR
 
