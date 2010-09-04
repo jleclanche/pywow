@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import os, os.path
+import os
 from .. import wdbc
 
 stripfilename = wdbc.getfilename
 
+DEFAULT_CACHE_DIR = "/var/www/sigrie/caches/"
+
 class Environment(object):
-	def __init__(self, build, locale="enGB", base="/var/www/sigrie/caches/caches/"):
+	def __init__(self, build, locale="enGB", base=DEFAULT_CACHE_DIR):
 		self.build = build
 		self.path = "%s/%i/%s/" % (base, build, locale)
 		if not os.path.exists(self.path):
