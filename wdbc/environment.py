@@ -12,7 +12,7 @@ class Environment(object):
 		self.build = build
 		self.path = "%s/%i/%s/" % (base, build, locale)
 		if not os.path.exists(self.path):
-			raise ValueError(self.path)
+			raise ValueError("%r: No such file or directory" % (self.path))
 		
 		self.files = {}
 		self.__cache = {}
