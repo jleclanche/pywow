@@ -11,10 +11,14 @@ from .utils import getfilename, generate_structure
 # Header classes
 #
 
-class DBCHeader(object):
+class DBHeader(object):
+	"""
+	Base DBFile header class
+	"""
 	def __repr__(self):
 		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
-	
+
+class DBCHeader(DBHeader):
 	def __len__(self):
 		return 20
 	
@@ -26,10 +30,7 @@ class DBCHeader(object):
 	def data(self):
 		return pack("<4s4i", self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize)
 
-class DB2Header(object):
-	def __repr__(self):
-		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
-	
+class DB2Header(DBHeader):
 	def __len__(self):
 		if self.build < 12834:
 			return 32
@@ -46,7 +47,7 @@ class DB2Header(object):
 			return 0
 		return self.unk3 and  self.unk3 - 2 * len(self) or len(self)
 
-class WDBHeader(object):
+class WDBHeader(DBHeader):
 	"""
 	A WDB header, structure as follows:
 	- 4 byte string signature (reversed)
@@ -56,9 +57,6 @@ class WDBHeader(object):
 	- 4 byte integer unknown
 	As of build 9438, an additional 4 byte integer indicates the data version for that build.
 	"""
-	def __repr__(self):
-		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
-	
 	def __len__(self):
 		if self.build < 9438:
 			return 20
