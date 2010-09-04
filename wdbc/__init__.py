@@ -14,6 +14,9 @@ class DBHeader(object):
 	"""
 	def __repr__(self):
 		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
+	
+	def get_block_size(self):
+		return 0
 
 
 class DBFile(object):

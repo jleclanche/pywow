@@ -2,10 +2,10 @@
 
 from struct import pack, unpack
 from .log import log
-from .structures import fields, StructureNotFound, getstructure
+from .structures import fields, StructureNotFound, getstructure, LocalizedStringField, LocalizedField
 from .utils import getfilename, generate_structure
 
-from . import DBHeader, DBFile
+from . import DBHeader, DBFile, DBRow
 
 SEEK_CUR = 1 # os.SEEK_CUR
 
@@ -63,12 +63,12 @@ class DBCFile(DBFile):
 		# Generate the Localized Fields
 		fieldidx = []
 		for i, field in enumerate(self.structure):
-			if isinstance(field, structures.LocalizedField):
+			if isinstance(field, LocalizedField):
 				fieldidx.append((i, field.name))
 		
 		if fieldidx:
 			from copy import copy
-			fields = structures.LocalizedStringField(build=self.build)
+			fields = LocalizedStringField(build=self.build)
 			for i, name in reversed(fieldidx):
 				# Build a copy of the fields
 				toinsert = [copy(field).rename("%s_%s" % (name, field.name)) for field in fields]
@@ -164,8 +164,7 @@ class DBCFile(DBFile):
 	def preload(self):
 		f = self.file
 		f.seek(len(self.header))
-		if isinstance(self, DB2File):
-			print f.seek(self.header.get_block_size())
+		print f.read(self.header.get_block_size()) # XXX
 		
 		rows = 0
 		field = self.structure[0]

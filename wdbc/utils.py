@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-from .structures import GeneratedStructure
+from .structures import GeneratedStructure, StructureNotFound, getstructure
 
 def getfilename(val):
 	"Returns 'item' from /home/adys/Item.dbc"
