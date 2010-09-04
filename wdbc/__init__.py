@@ -142,6 +142,10 @@ class DBFile(object):
 		"""
 		return [self[id] for id in self]
 	
+	def update(self, other):
+		for k in other:
+			self[k] = other[k]
+	
 	def write(self, filename=""):
 		"""
 		Write the file data on disk. If filename is not given, use currently opened file.
