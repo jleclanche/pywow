@@ -8,15 +8,19 @@ import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from binascii import hexlify
+from optparse import OptionParser
 from pywow import wdbc
+
+arguments = OptionParser()
+arguments.add_option("-b", "--build", type="int", dest="build", default=0)
+
 
 def main():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 	app = QApplication(sys.argv)
-	
-	name = sys.argv[1]
-	build = len(sys.argv) > 2 and int(sys.argv[2]) or 0
-	file = wdbc.fopen(name, build=build)
+	args, name = arguments.parse_args(sys.argv[1:])
+	name = name[0]
+	file = wdbc.fopen(name, build=args.build)
 	
 	w = MainWindow()
 	w.setFile(file, name)
