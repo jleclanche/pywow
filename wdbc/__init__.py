@@ -33,13 +33,18 @@ class DB2Header(object):
 	def __len__(self):
 		if self.build < 12834:
 			return 32
-		#return 48
-		return (self.row_count * self.reclen + self.stringblocksize) # HACK
+		return 48
 	
 	def load(self, file):
 		file.seek(0)
-		data = file.read(32)
-		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize, self.dbhash, self.build, unk1 = unpack("<4s7i", data)
+		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize, self.dbhash, self.build, self.unk1 = unpack("<4s7i", file.read(32))
+		if self.build >= 12834:
+			self.time, self.unk2, self.locale, self.unk3 = unpack("<4i", file.read(16))
+	
+	def get_block_size(self):
+		if self.build < 12834:
+			return 0
+		return self.unk3 and  self.unk3 - 2 * len(self) or len(self)
 
 class WDBHeader(object):
 	"""
@@ -54,6 +59,7 @@ class WDBHeader(object):
 	def __repr__(self):
 		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
 	
+	def __len__(self):
 		if self.build < 9438:
 			return 20
 		return 24
@@ -488,10 +494,9 @@ class DBCFile(DBFile):
 	
 	def preload(self):
 		f = self.file
-		if isinstance(self, DB2File) and self.build > 12803:
-			f.seek(-len(self.header), 2) # HACK
-		else:
-			f.seek(len(self.header))
+		f.seek(len(self.header))
+		if isinstance(self, DB2File):
+			print f.seek(self.header.get_block_size())
 		
 		rows = 0
 		field = self.structure[0]
