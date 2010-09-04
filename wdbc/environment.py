@@ -1,11 +1,27 @@
 # -*- coding: utf-8 -*-
 
 import os
-from .. import wdbc
-
-stripfilename = wdbc.getfilename
+from .utils import getfilename, fopen
 
 DEFAULT_CACHE_DIR = "/var/www/sigrie/caches/"
+
+class BaseLookup(list):
+	"""
+	List class that will standardize the name
+	and return a list of matches on getitem.
+	"""
+	
+	def __contains__(self, item):
+		return getfilename(item) in [getfilename(k) for k in self]
+	
+	def __getitem__(self, item):
+		item = item.lower()
+		ret = set()
+		for key in self:
+			if getfilename(key) == getfilename(item):
+				ret.add(key)
+		print ret # FIXME
+		return ret
 
 class Environment(object):
 	def __init__(self, build, locale="enGB", base=DEFAULT_CACHE_DIR):
@@ -14,28 +30,38 @@ class Environment(object):
 		if not os.path.exists(self.path):
 			raise ValueError("%r: No such file or directory" % (self.path))
 		
-		self.files = {}
 		self.__cache = {}
-		processed = []
-		for f in os.listdir(self.path):
-			_f = f.lower()
-			if _f.endswith(".db2") or _f.endswith(".dbc") or _f.endswith(".wdb"):
-				if _f.replace(".dbc", ".db2") in processed: # Give .db2 files priority over .dbc ones
-					continue
-				self.files[stripfilename(f)] = self.path + f
-				processed.append(_f)
+		self.files = BaseLookup(os.listdir(self.path))
 	
 	def __getitem__(self, item):
-		item = stripfilename(item)
+		item = getfilename(item)
 		if item not in self.__cache:
-			self.__cache[item] = wdbc.fopen(self.files[item], build=self.build, environment=self)
+			self.__cache[item] = self.__open(self.files[item])
 		return self.__cache[item]
 	
 	def __contains__(self, item):
-		return stripfilename(item) in self.files
+		return getfilename(item) in self.files
 	
 	def __iter__(self):
 		return self.files.__iter__()
 	
 	def __len__(self):
 		return self.files.__len__()
+	
+	def __open(self, files):
+		files = list(files)
+		if len(files) == 1:
+			return fopen(self.path + files[0], build=self.build, environment=self)
+		
+		if len(files) == 2:
+			db2, adb = sorted(files, key=lambda x: x.endswith(".adb")) # sort the db2 file first, the adb file after
+			assert db2.endswith(".db2")
+			db2 = fopen(self.path + db2, build=self.build, environment=self)
+			
+			assert adb.endswith(".adb")
+			adb = fopen(self.path + adb, build=self.build, environment=self)
+			
+			db2.update(adb) # Merge the two files
+			return db2
+		
+		raise TypeError()
