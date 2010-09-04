@@ -20,7 +20,6 @@ class BaseLookup(list):
 		for key in self:
 			if getfilename(key) == getfilename(item):
 				ret.add(key)
-		print ret # FIXME
 		return ret
 
 class Environment(object):
