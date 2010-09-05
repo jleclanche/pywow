@@ -8,6 +8,7 @@ from .utils import getfilename, generate_structure
 from . import DBHeader, DBFile
 
 SEEK_CUR = 1 # os.SEEK_CUR
+SEEK_END = 2 # os.SEEK_END
 
 class DBCHeader(DBHeader):
 	def __len__(self):
@@ -79,7 +80,7 @@ class DBCFile(DBFile):
 		self.check_integrity()
 	
 	def _parse_field(self, data, field, row=None):
-		if self.build in (11927, 12025): # TODO pywow.builddata
+		if self.build in (11927, 12025):
 			self.__check_padding(data, field)
 		return super(DBCFile, self)._parse_field(data, field, row)
 	
