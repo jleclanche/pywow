@@ -101,8 +101,7 @@ class DBFile(object):
 		except StructError:
 			log.warning("Field %s could not be parsed properly" % (field))
 			ret = None
-		finally:
-			return ret
+		return ret
 	
 	def append(self, row):
 		"""
