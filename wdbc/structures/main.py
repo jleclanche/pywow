@@ -2702,7 +2702,7 @@ class GemProperties(Structure):
 	
 	def changed_11927(self, fields):
 		fields.append_fields(
-			UnknownField(),
+			IntegerField("required_item_level"),
 		)
 
 
