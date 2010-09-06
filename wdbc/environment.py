@@ -49,6 +49,9 @@ class Environment(object):
 	
 	def __open(self, files):
 		files = list(files)
+		if not files:
+			raise KeyError()
+		
 		if len(files) == 1:
 			return fopen(self.path + files[0], build=self.build, environment=self)
 		
@@ -63,4 +66,4 @@ class Environment(object):
 			db2.update(adb) # Merge the two files
 			return db2
 		
-		raise TypeError()
+		raise TypeError(files)
