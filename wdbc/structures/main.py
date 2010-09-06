@@ -1002,15 +1002,26 @@ class Achievement_Criteria(Structure):
 		IntegerField("value5"),
 		IntegerField("value6"),
 		LocalizedField("name"),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
 		DurationField("timer", unit="seconds"),
 		IntegerField("sort"),
 	)
 	
 	def changed_12479(self, fields):
 		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+		)
+	
+	def changed_12857(self, fields):
+		self.changed_12479(fields)
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
 			UnknownField(),
 			UnknownField(),
 		)
