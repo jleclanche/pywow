@@ -2325,6 +2325,12 @@ class DungeonEncounter(Structure):
 		LocalizedField("name"),
 		UnknownField(),
 	)
+	
+	def changed_12759(self, fields):
+		fields.insert_field(
+			UnknownField(),
+			after="name"
+		)
 
 class DungeonMap(Structure):
 	"""
