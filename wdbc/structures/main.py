@@ -78,17 +78,23 @@ class Structure(Structure):
 		"""
 		self.changed_12164(fields)
 	
+	def changed_12319(self, fields):
+		"""
+		Closed Beta 4.0.0
+		"""
+		self.changed_12232(fields)
+	
 	def changed_12340(self, fields):
 		"""
 		Live 3.3.5a
 		"""
 		self.changed_12166(fields)
 	
-	def changed_12479(self, fields):
+	def changed_12379(self, fields):
 		"""
 		Closed Beta 4.0.0
 		"""
-		self.changed_12232(fields)
+		self.changed_12319(fields)
 
 
 ##
@@ -1246,6 +1252,12 @@ class AreaPOI(Structure):
 	
 	def changed_12025(self, fields):
 		fields.delete_fields("z")
+	
+	def changed_12759(self, fields):
+		self.changed_12025(fields)
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class AreaTable(Structure):
@@ -1292,6 +1304,12 @@ class AreaTable(Structure):
 		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
+			UnknownField(),
+		)
+	
+	def changed_12857(self, fields):
+		self.changed_12319(fields)
+		fields.append_fields(
 			UnknownField(),
 		)
 
@@ -1454,6 +1472,12 @@ class BattlemasterList(Structure):
 		fields.append_fields(
 			IntegerField("min_level"),
 			IntegerField("max_level"),
+		)
+	
+	def changed_12942(self, fields):
+		self.changed_11573(fields)
+		fields.append_fields(
+			IntegerField("max_players_rated"),
 		)
 
 
@@ -4407,6 +4431,11 @@ class Movie(Structure):
 		FilePathField("path"),
 		UnknownField(),
 	)
+	
+	def changed_12644(self, fields): # XXX unknown build
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class MovieFileData(Structure):
@@ -4577,6 +4606,11 @@ class OverrideSpellData(Structure):
 		ForeignKey("spell_10", "Spell"),
 		UnknownField(),
 	)
+	
+	def changed_12644(self, fields): # XXX unknown build
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class Package(Structure):
@@ -4696,10 +4730,16 @@ class Phase(Structure):
 		IDField(),
 		ForeignKey("instance", "Map"),
 		ForeignKey("instance_2", "Map"),
-		UnknownField(),
+		UnknownField("unknown"),
 		StringField("name"),
-		UnknownField(), # 0 or 4
+		BitMaskField("flags"),
 	)
+	
+	def changed_12694(self, fields):
+		fields.delete_fields(
+			"instance", "instance_2",
+			"unknown",
+		)
 
 
 class PhaseXPhaseGroup(Structure):
@@ -6289,6 +6329,11 @@ class SpellPower(Structure):
 		IntegerField("power_per_second"),
 		ForeignKey("power_display", "PowerDisplay"),
 	)
+	
+	def changed_12759(self, fields):
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class SpellRadius(Structure):
@@ -6432,6 +6477,11 @@ class SpellShapeshiftForm(Structure):
 		ForeignKey("spell_7", "Spell"),
 		ForeignKey("spell_8", "Spell"),
 	)
+	
+	def changed_12857(self, fields):
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class SpellTargetRestrictions(Structure):
@@ -6600,6 +6650,14 @@ class SpellVisualKitModelAttach(Structure):
 		FloatField(),
 		FloatField(),
 	)
+	
+	def changed_12942(self, fields):
+		fields.append_fields(
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+		)
 
 
 class SpellVisualPrecastTransitions(Structure):
@@ -7295,7 +7353,9 @@ class WorldMapArea(Structure):
 	
 	def changed_12232(self, fields):
 		self.changed_10116(fields)
-		fields.append_fields(UnknownField())
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class WorldMapContinent(Structure):
