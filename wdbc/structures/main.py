@@ -2985,6 +2985,19 @@ class GuildColorBackground(Structure):
 	)
 
 
+class GuildColorBorder(Structure):
+	"""
+	GuildColorBorder.dbc
+	New in 4.0.1.12803
+	"""
+	fields = Skeleton(
+		IDField(),
+		ByteField(),
+		ByteField(),
+		ByteField(),
+	)
+
+
 class GuildColorEmblem(Structure):
 	"""
 	GuildColorEmblem.dbc
