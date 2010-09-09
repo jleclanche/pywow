@@ -28,7 +28,22 @@ class Model(object):
 		if not self.proxy:
 			raise RuntimeError("%s.proxy needs to be initialized with initProxy(proxy)" % (self.__class__.__name__))
 		self.id = id
-		self.row = self.proxy.get(id)
+		self.obj = self.proxy.get(id)
+	
+	def __getattr__(self, attr):
+		if attr != "obj" and hasattr(self.obj, attr):
+			return getattr(self.obj, attr)
+		
+		if attr != "proxy" and hasattr(self.proxy, attr):
+			func = getattr(self.proxy, attr)
+			return lambda: func(self.obj)
+		
+		return super(Model, self).__getattribute__(attr)
+	
+	def __repr__(self):
+		if hasattr(self, "name"):
+			return "<%s #%i: %s>" % (self.__class__.__name__, self.id, self.name)
+		return "<%s #%i>" % (self.__class__.__name__, self.id)
 
 class Tooltip(object):
 	def __init__(self, obj, renderer):
@@ -38,6 +53,7 @@ class Tooltip(object):
 	
 	def append(self, name, text, color=WHITE):
 		if text:
+			self.keys.append(name)
 			self.values.append(TooltipNode(name, text, color))
 
 class TooltipNode(object):
@@ -45,3 +61,6 @@ class TooltipNode(object):
 		self.name = name
 		self.text = text
 		self.color = color
+	
+	def __repr__(self):
+		return self.text
