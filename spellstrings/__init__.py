@@ -315,7 +315,7 @@ class StringLookup(object):
 		return identifier
 
 
-class SpellString(str):
+class SpellString(unicode):
 	"""
 	Parsing class
 	We pass all sorts of formatting and
