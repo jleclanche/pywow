@@ -2984,6 +2984,19 @@ class GuildColorBackground(Structure):
 		ByteField(),
 	)
 
+
+class GuildColorEmblem(Structure):
+	"""
+	GuildColorEmblem.dbc
+	New in 4.0.1.12759
+	"""
+	fields = Skeleton(
+		IDField(),
+		ByteField(),
+		ByteField(),
+		ByteField(),
+	)
+
 class HelmetGeosetVisData(Structure):
 	"""
 	HelmetGeosetVisData.dbc
