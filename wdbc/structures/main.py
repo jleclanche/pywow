@@ -4356,6 +4356,13 @@ class Map(Structure):
 		fields.append_fields(
 			ForeignKey("phasing_parent", "Map"),
 		)
+	
+	def changed_12942(self, fields):
+		self.changed_11927(fields)
+		fields.insert_field(
+			UnknownField(), # some sort of type field?
+			before="battleground",
+		)
 
 
 class MapDifficulty(Structure):
