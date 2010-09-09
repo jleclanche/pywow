@@ -2972,6 +2972,18 @@ class gtSpellScaling(GameTableDBC):
 	pass
 
 
+class GuildColorBackground(Structure):
+	"""
+	GuildColorBackground.dbc
+	New in 4.0.1.12759
+	"""
+	fields = Skeleton(
+		IDField(),
+		ByteField(),
+		ByteField(),
+		ByteField(),
+	)
+
 class HelmetGeosetVisData(Structure):
 	"""
 	HelmetGeosetVisData.dbc
