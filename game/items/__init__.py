@@ -5,35 +5,8 @@ Items
  - Item.dbc + itemcache.wdb (2.x->4.x)
  - Item-sparse.db2 (4.x)
 """
-from pywow.game import *
-
-# Globalstrings
-HEROIC = "Heroic"
-ITEM_BIND_ON_EQUIP = "Binds when equipped"
-ITEM_BIND_ON_PICKUP = "Binds when picked up"
-ITEM_BIND_ON_USE = "Binds when used"
-ITEM_BIND_QUEST = "Quest Item"
-ITEM_BIND_TO_ACCOUNT = "Binds to account"
-ITEM_CAN_BE_READ = "<This item can be read>"
-ITEM_CONJURED = "Conjured Item"
-ITEM_LEVEL = "Level %d" # The actual level of the item
-ITEM_LEVEL_AND_MIN = "Level %d (min %d)" # The level and minimum required level for an item
-ITEM_LEVEL_RANGE = "Requires level %d to %d" # Item is only useable in the range of levels specified.
-ITEM_LEVEL_RANGE_CURRENT = "Requires level %d to %d (%d)" # Item is only useable in the range of levels specified.
-ITEM_LIMIT_CATEGORY = "Unique: %s (%d)"
-ITEM_LIMIT_CATEGORY_MULTIPLE = "Unique Equipped: %s (%d)"
-ITEM_MILLABLE = "Millable" # Item is millable
-ITEM_MIN_LEVEL = "Requires Level %d"
-ITEM_MIN_SKILL = "Requires %s (%d)" # Required skill rank to use the item
-ITEM_READABLE = "<Right Click to Read>"
-ITEM_SIGNABLE = "<Right Click for Details>"
-ITEM_SPELL_TRIGGER_ONEQUIP = "Equip:"
-ITEM_SPELL_TRIGGER_ONPROC = "Chance on hit:"
-ITEM_SPELL_TRIGGER_ONUSE = "Use:"
-ITEM_STARTS_QUEST = "This Item Begins a Quest"
-ITEM_UNIQUE = "Unique"
-ITEM_UNIQUE_EQUIPPABLE = "Unique-Equipped"
-ITEM_UNIQUE_MULTIPLE = "Unique (%d)"
+from .. import *
+from ..globalstrings import *
 
 class Item(Model):
 	
@@ -78,7 +51,7 @@ class ItemTooltip(Tooltip):
 		# glyph
 		
 		if self.obj.isHeroic():
-			self.append("heroic", HEROIC, GREEN)
+			self.append("heroic", ITEM_HEROIC, GREEN)
 		
 		if self.obj.isChart():
 			self.append("chart", ITEM_SIGNABLE, GREEN)
