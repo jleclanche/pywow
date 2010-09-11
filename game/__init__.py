@@ -63,4 +63,7 @@ class TooltipNode(object):
 		self.color = color
 	
 	def __repr__(self):
+		return repr(self.text)
+	
+	def __str__(self):
 		return self.text

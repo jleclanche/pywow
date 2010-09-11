@@ -14,6 +14,7 @@ ITEM_BIND_ON_PICKUP = "Binds when picked up"
 ITEM_BIND_ON_USE = "Binds when used"
 ITEM_BIND_QUEST = "Quest Item"
 ITEM_BIND_TO_ACCOUNT = "Binds to account"
+ITEM_CAN_BE_READ = "<This item can be read>"
 ITEM_CONJURED = "Conjured Item"
 ITEM_LEVEL = "Level %d" # The actual level of the item
 ITEM_LEVEL_AND_MIN = "Level %d (min %d)" # The level and minimum required level for an item
@@ -24,6 +25,7 @@ ITEM_LIMIT_CATEGORY_MULTIPLE = "Unique Equipped: %s (%d)"
 ITEM_MILLABLE = "Millable" # Item is millable
 ITEM_MIN_LEVEL = "Requires Level %d"
 ITEM_MIN_SKILL = "Requires %s (%d)" # Required skill rank to use the item
+ITEM_READABLE = "<Right Click to Read>"
 ITEM_SIGNABLE = "<Right Click for Details>"
 ITEM_SPELL_TRIGGER_ONEQUIP = "Equip:"
 ITEM_SPELL_TRIGGER_ONPROC = "Chance on hit:"
@@ -65,7 +67,6 @@ class ItemTooltip(Tooltip):
 		self.renderer = renderer
 		self.keys = []
 		self.values = []
-		self.render()
 	
 	def render(self):
 		
@@ -167,7 +168,9 @@ class ItemTooltip(Tooltip):
 		
 		# sell price
 		
-		print self.values
+		ret = self.values
+		self.values = []
+		return ret
 
 
 class ItemProxy(object):
