@@ -32,6 +32,39 @@ class Item(Model):
 			3: ITEM_BIND_ON_USE,
 			4: ITEM_BIND_QUEST,
 		}.get(self.bind, "")
+	
+	def getSlotText(self):
+		return {
+			#INVTYPE_WEAPONMAINHAND_PET = "Main Attack"
+			 1: INVTYPE_HEAD,
+			 2: INVTYPE_NECK,
+			 3: INVTYPE_SHOULDER,
+			 4: INVTYPE_BODY,
+			 5: INVTYPE_CHEST,
+			 6: INVTYPE_WAIST,
+			 7: INVTYPE_LEGS,
+			 8: INVTYPE_FEET,
+			 9: INVTYPE_WRIST,
+			10: INVTYPE_HAND,
+			11: INVTYPE_FINGER,
+			12: INVTYPE_TRINKET,
+			13: INVTYPE_WEAPON,
+			14: INVTYPE_SHIELD,
+			15: INVTYPE_RANGED,
+			16: INVTYPE_CLOAK, # INVTYPE_BACK ?
+			17: INVTYPE_2HWEAPON,
+			18: INVTYPE_BAG,
+			19: INVTYPE_TABARD,
+			20: INVTYPE_ROBE,
+			21: INVTYPE_WEAPONMAINHAND,
+			22: INVTYPE_WEAPONOFFHAND,
+			23: INVTYPE_HOLDABLE,
+			24: INVTYPE_AMMO,
+			25: INVTYPE_THROWN,
+			26: INVTYPE_RANGEDRIGHT,
+			#27: INVTYPE_QUIVER,
+			28: INVTYPE_RELIC,
+		}.get(self.slot, "")
 
 
 class ItemTooltip(Tooltip):
@@ -81,8 +114,7 @@ class ItemTooltip(Tooltip):
 		
 		# subclass
 		
-		if self.obj.slot:
-			self.append("slot", str(self.obj.slot))
+		self.append("slot", self.obj.getSlotText())
 		
 		# damage
 		
@@ -96,8 +128,7 @@ class ItemTooltip(Tooltip):
 		
 		# sockets
 		
-		if self.obj.gem_properties:
-			self.append("gemProperties", self.obj.gem_properties.enchant.name_enus)
+		self.append("gemProperties", self.obj.getGemProperties())
 		
 		# random ench
 		
@@ -173,6 +204,11 @@ class ItemProxy(object):
 	
 	def isUniqueEquipped(self, row):
 		return row.flags.unique_equipped
+	
+	def getGemProperties(self, row):
+		if row.gem_properties and row.gem_properties.enchant:
+			return row.gem_properties.enchant.name_enus
+		return ""
 	
 	def getRequiredHoliday(self, row):
 		if row.required_holiday:
