@@ -22,7 +22,7 @@ class Item(Model):
 			7: GOLD,   # Heirloom
 		}.get(self.quality, WHITE)
 	
-	def getBinding(self):
+	def getBindingText(self):
 		if self.isAccountBound():
 			return ITEM_BIND_TO_ACCOUNT
 		
@@ -56,13 +56,13 @@ class ItemTooltip(Tooltip):
 		if self.obj.isChart():
 			self.append("chart", ITEM_SIGNABLE, GREEN)
 		
-		# zone
-		# instance
+		self.append("requiredZone", self.obj.getRequiredZone())
+		self.append("requiredInstance", self.obj.getRequiredInstance())
 		
 		if self.obj.isConjured():
 			self.append("conjured", ITEM_CONJURED)
 		
-		self.append("binding", self.obj.getBinding())
+		self.append("binding", self.obj.getBindingText())
 		
 		if self.obj.isUniqueEquipped():
 			self.append("unique", ITEM_UNIQUE_EQUIPPABLE)
@@ -103,12 +103,12 @@ class ItemTooltip(Tooltip):
 		
 		# duration
 		
-		if self.obj.required_holiday:
-			self.append("requiredHoliday", self.obj.required_holiday.name.name_enus)
+		self.append("requiredHoliday", self.obj.getRequiredHoliday())
 		
 		# race/class reqs
 		
 		self.append("durability", self.obj.durability)
+		
 		if self.obj.required_level:
 			self.append("requiredLevel", ITEM_MIN_LEVEL % (self.obj.required_level))
 		
@@ -117,7 +117,9 @@ class ItemTooltip(Tooltip):
 		
 		# (required arena rating)
 		
-		# required skill
+		requiredSkill, requiredSkillLevel = self.obj.getRequiredSkill()
+		if requiredSkill and requiredSkillLevel:
+			self.append("requiredSkill", ITEM_MIN_SKILL % (requiredSkill, requiredSkillLevel))
 		
 		# required spell
 		
@@ -171,3 +173,24 @@ class ItemProxy(object):
 	
 	def isUniqueEquipped(self, row):
 		return row.flags.unique_equipped
+	
+	def getRequiredHoliday(self, row):
+		if row.required_holiday:
+			return row.required_holiday.name.name_enus
+		return ""
+	
+	def getRequiredInstance(self, row):
+		if row._raw("required_instance") and row.required_instance:
+			return row.required_instance.name_enus
+		return ""
+	
+	def getRequiredSkill(self, row):
+		requiredSkillLevel = row.required_skill_level
+		if row.required_skill:
+			return row.required_skill.name_enus, requiredSkillLevel
+		return "", requiredSkillLevel
+	
+	def getRequiredZone(self, row):
+		if row.required_zone:
+			return row.required_zone.name_enus
+		return ""
