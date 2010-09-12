@@ -644,7 +644,8 @@ class SpellString(str):
 			value = self.formatter.format_macro(spell, identifier, effect)
 			self.formatter.last_value = value
 			return str(value)
-		
+		else:
+			return "$"
 		
 		if not token or token.isspace():
 			return token
