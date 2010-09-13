@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 Base logging for wdbc, all messages redirecting to stdout by default
 """
 
-import sys
 import logging
+import sys
 
 LOG_CONFIG = {
 	"stream": sys.stdout,
@@ -20,7 +19,7 @@ class LazyLogger(object):
 		if not cls.log:
 			logging.basicConfig(**LOG_CONFIG)
 			cls.log = logging.getLogger("wdbc")
-			cls.log.setLevel(logging.DEBUG)
+			cls.log.setLevel(logging.WARN)
 		return cls.log
 
 log = LazyLogger.get_logger()
