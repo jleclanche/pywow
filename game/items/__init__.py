@@ -138,7 +138,8 @@ class ItemTooltip(Tooltip):
 		
 		# race/class reqs
 		
-		self.append("durability", self.obj.durability)
+		if self.obj.durability:
+			self.append("durability", DURABILITY_TEMPLATE % (self.obj.getDurability()))
 		
 		if self.obj.required_level:
 			self.append("requiredLevel", ITEM_MIN_LEVEL % (self.obj.required_level))
@@ -152,9 +153,11 @@ class ItemTooltip(Tooltip):
 		if requiredSkill and requiredSkillLevel:
 			self.append("requiredSkill", ITEM_MIN_SKILL % (requiredSkill, requiredSkillLevel))
 		
-		# required spell
+		self.formatAppend("requiredSpell", ITEM_REQ_SKILL, self.obj.getRequiredSpell())
 		
-		# required faction
+		requiredFaction, requiredReputation = self.obj.getRequiredFaction()
+		if requiredFaction: # and requiredReputation?
+			self.append("requiredFaction", ITEM_REQ_REPUTATION % (requiredFaction, requiredReputation))
 		
 		# special stats
 		
@@ -205,10 +208,20 @@ class ItemProxy(object):
 	def isUniqueEquipped(self, row):
 		return row.flags.unique_equipped
 	
+	def getDurability(self, row):
+		# return min, max
+		return row.durability, row.durability
+	
 	def getGemProperties(self, row):
 		if row.gem_properties and row.gem_properties.enchant:
 			return row.gem_properties.enchant.name_enus
 		return ""
+	
+	def getRequiredFaction(self, row):
+		requiredReputation = globals().get("FACTION_STANDING_LABEL%i" % (row.required_reputation + 1), "")
+		if row.required_faction:
+			return row.required_faction.name_enus, requiredReputation
+		return "", requiredReputation
 	
 	def getRequiredHoliday(self, row):
 		if row.required_holiday:
@@ -225,6 +238,11 @@ class ItemProxy(object):
 		if row.required_skill:
 			return row.required_skill.name_enus, requiredSkillLevel
 		return "", requiredSkillLevel
+	
+	def getRequiredSpell(self, row):
+		if row.required_spell:
+			return row.required_spell.name_enus
+		return ""
 	
 	def getRequiredZone(self, row):
 		if row.required_zone:

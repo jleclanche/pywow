@@ -55,6 +55,10 @@ class Tooltip(object):
 		if text:
 			self.keys.append(name)
 			self.values.append(TooltipNode(name, text, color))
+	
+	def formatAppend(self, name, text, value, color=WHITE):
+		if value:
+			self.append(name, text % (value), color)
 
 class TooltipNode(object):
 	def __init__(self, name, text, color):
@@ -66,4 +70,4 @@ class TooltipNode(object):
 		return repr(self.text)
 	
 	def __str__(self):
-		return self.text
+		return str(self.text)
