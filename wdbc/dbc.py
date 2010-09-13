@@ -232,4 +232,4 @@ class UnknownDBCFile(DBCFile):
 	writable = False
 	def load_structure(self, filename=None, build=None):
 		self.structure = self._generate_structure()
-		log.info("Using generated structure for file %s, build %i" % (self.filename, self.build))
+		log.warn("Using generated structure for file %s, build %i" % (self.filename, self.build))
