@@ -151,8 +151,6 @@ class WDBFile(DBFile):
 			
 			f.seek(reclen, SEEK_CUR)
 			rows += 1
-		
-		log.info("%i rows total" % (rows))
 	
 	def update_dynfields(self):
 		"""Update all the dynfields in the file"""

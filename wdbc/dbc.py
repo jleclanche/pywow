@@ -178,8 +178,6 @@ class DBCFile(DBFile):
 			
 			f.seek(reclen - row_header_size, SEEK_CUR) # minus length of id
 			rows += 1
-		
-		log.info("%i rows total" % (rows))
 
 
 class WCFFile(DBCFile):
@@ -204,8 +202,6 @@ class WCFFile(DBCFile):
 			
 			f.seek(reclen - row_header_size, SEEK_CUR) # minus length of id
 			rows += 1
-		
-		log.info("%i rows total" % (rows))
 
 
 class InferredDBCFile(DBCFile):
@@ -227,8 +223,6 @@ class InferredDBCFile(DBCFile):
 			
 			f.seek(reclen, SEEK_CUR)
 			rows += 1
-		
-		log.info("%i rows total" % (rows))
 
 
 class UnknownDBCFile(DBCFile):

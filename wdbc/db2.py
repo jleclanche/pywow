@@ -85,5 +85,3 @@ class DB2File(DBCFile):
 			
 			f.seek(reclen - row_header_size, SEEK_CUR) # minus length of id
 			rows += 1
-		
-		log.info("%i rows total" % (rows))
