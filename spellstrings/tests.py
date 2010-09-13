@@ -1,8 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-BUILD = 12644
+BUILD = 12942
 TESTS = {}
+
+TESTS[10026] = {
+	63955: "Increases the damage done by Unholy Blight by $%.",
+}
 
 TESTS[11723] = {
 	 1010: "Curse the target with idiocy, reducing Intellect and Spirit by 6 every 3 seconds until each is reduced by a total of 90.  Only one Curse per Warlock can be active on any one target.",
@@ -52,13 +56,19 @@ _[61905] = "Summons a Magma Totem with 5000 health at the feet of the caster for
 _[78273] = "Imbue the Shaman's weapon with fire, increasing total spell damage by 7. Each hit causes $/78275m1 to 1 additional Fire damage. Lasts 30 minutes."
 
 _ = TESTS[12644] = TESTS[12266].copy()
-del _[29977], _[31687], _[58425]
+del _[2687], _[15349], _[29977], _[31687], _[58425]
 _[11213] = "Gives you a 3% chance of entering a Clearcasting state after any damage spell hits a target.  The Clearcasting state reduces the mana cost of your next damage spell by 100%."
 _[33127] = "Gives the Paladin a chance to deal additional Holy damage equal to 15% of normal weapon damage.  Only one Seal can be active on the Paladin at any one time.  Lasts 30 sec.\r\n\r\nUnleashing this Seal's energy will judge an enemy, instantly causing $s1 Holy damage, $s1 if the target is stunned or incapacitated."
 _[86479] = "Select a talent specialization in order to activate the bonus from mastery rating.  Consult your talent overview pane for additional information."
 
+_ = TESTS[12942] = TESTS[12644].copy()
+del _[33127], _[58644], _[64936]
+#_[-75207] = "" # Abyssal Seahorse TODO
+_[86479] = "Increases Mastery by 8.  Select a talent specialization in order to activate Mastery.  Consult your talent overview pane for additional information."
+
 def main():
 	from pywow.spellstrings import SpellString, WDBCProxy
+	from pywow import wdbc
 	
 	f = wdbc.get("Spell", BUILD)
 	
