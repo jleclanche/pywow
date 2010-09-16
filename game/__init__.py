@@ -18,17 +18,18 @@ class Model(object):
 	Base Model class for all the game models:
 	Items, Spells, Quests, Talents, ...
 	"""
-	proxy = None
 	
 	@classmethod
 	def initProxy(cls, proxy):
 		cls.proxy = proxy(cls)
 	
 	def __init__(self, id):
-		if not self.proxy:
+		if not hasattr(self, "proxy"):
 			raise RuntimeError("%s.proxy needs to be initialized with initProxy(proxy)" % (self.__class__.__name__))
 		self.id = id
 		self.obj = self.proxy.get(id)
+		#if not self.obj:
+			#self = None
 	
 	def __getattr__(self, attr):
 		if attr != "obj" and hasattr(self.obj, attr):

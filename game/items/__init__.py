@@ -161,7 +161,9 @@ class ItemTooltip(Tooltip):
 		
 		# special stats
 		
-		# spells
+		for spell, trigger, charges, cooldown, category, cooldownCategory in self.obj.getSpells():
+			if spell:
+				self.append("spells", "%s: %s (%i cooldown)" % (trigger, spell.getDescription(), charges))
 		
 		# charges
 		
@@ -188,7 +190,7 @@ class ItemProxy(object):
 	"""
 	def __init__(self, cls):
 		from pywow import wdbc
-		self.__file = wdbc.get("Item-sparse.db2", build=12803)
+		self.__file = wdbc.get("Item-sparse.db2", build=12942)
 	
 	def get(self, id):
 		return self.__file[id]
@@ -248,3 +250,20 @@ class ItemProxy(object):
 		if row.required_zone:
 			return row.required_zone.name_enus
 		return ""
+	
+	def getSpells(self, row):
+		from ..spells import Spell, SpellProxy
+		Spell.initProxy(SpellProxy)
+		spells = ("spell_%i", "spell_trigger_%i", "spell_charges_%i", "spell_cooldown_%i", "spell_category_%i", "spell_cooldown_category_%i")
+		ret = []
+		for i in range(1, 6):
+			r = []
+			for k in spells:
+				r.append(row._raw(k % (i)))
+			
+			r[0] = r[0] and Spell(r[0])
+			# Only return valid spells
+			if r[0]:
+				ret.append(r)
+		
+		return ret

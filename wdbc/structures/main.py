@@ -913,6 +913,21 @@ class QuestCache(Structure):
 		fields.insert_field(BitMaskField("flags_2"), after="flags")
 		fields.insert_field(UnknownField(), before="item_reward_1")
 		fields.insert_field(UnknownField(), after="required_item_amount_6")
+	
+	def changed_12857(self, fields):
+		"""
+		XXX Unknown build
+		"""
+		self.changed_12539(fields)
+		fields.append_fields(
+			UnknownField(),
+		)
+	
+	def changed_12942(self, fields):
+		self.changed_12857(fields)
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class PageTextCache(Structure):
@@ -4870,6 +4885,65 @@ class RandPropPoints(Structure):
 		IntegerField("uncommon_points_3"),
 		IntegerField("uncommon_points_4"),
 		IntegerField("uncommon_points_5"),
+	)
+
+
+class ResearchBranch(Structure):
+	"""
+	ResearchBranch.dbc
+	New in 4.0.0.12644
+	"""
+	fields = Skeleton(
+		IDField(),
+		LocalizedField("name"),
+		UnknownField(),
+		UnknownField(),
+		FilePathField("icon"),
+		ForeignKey("item", "Item"),
+	)
+
+
+class ResearchField(Structure):
+	"""
+	ResearchField.dbc
+	New in 4.0.0.12644
+	"""
+	fields = Skeleton(
+		IDField(),
+		LocalizedField(),
+		UnknownField(),
+	)
+
+
+class ResearchProject(Structure):
+	"""
+	ResearchProject.dbc
+	New in 4.0.0.12644
+	"""
+	fields = Skeleton(
+		IDField(),
+		LocalizedField("name"),
+		LocalizedField("description"),
+		UnknownField(),
+		ForeignKey("branch", "ResearchBranch"),
+		ForeignKey("spell", "Spell"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
+class ResearchSite(Structure):
+	"""
+	ResearchSite.dbc
+	New in 4.0.0.12644
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("instance", "Map"),
+		UnknownField(),
+		LocalizedField("name"),
+		UnknownField(),
 	)
 
 
