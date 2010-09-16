@@ -5024,7 +5024,7 @@ class ScalingStatValues(Structure):
 		IntegerField("plate"),
 	)
 
-	def changed_10026(self, fields):
+	def __changed_10026(self, fields):
 		"""
 		TODO 5 new fields
 		"""
@@ -5539,10 +5539,10 @@ class Spell(Structure):
 		BitMaskField("flags_1", flags=FLAGS_1),
 		BitMaskField("flags_2", flags=FLAGS_2),
 		BitMaskField("flags_3", flags=FLAGS_3),
-		BitMaskField("flags_4"),
+		BitMaskField("flags_4", flags=FLAGS_4),
 		BitMaskField("flags_5", flags=FLAGS_5),
 		BitMaskField("flags_6", flags=FLAGS_6),
-		BitMaskField("flags_7"),
+		BitMaskField("flags_7", flags=FLAGS_7),
 		ForeignMask("required_stances", "SpellShapeshiftForm"),
 		ForeignMask("excluded_stances", "SpellShapeshiftForm"),
 		BitMaskField("required_target", flags=REQUIRED_TARGET_FLAGS),
