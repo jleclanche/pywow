@@ -1457,19 +1457,15 @@ class BattlemasterList(Structure):
 	
 	def changed_9551(self, fields):
 		fields.insert_field(IntegerField("min_players"), before="level_band")
-		fields.append_fields(IntegerField("max_group_size"))
+		fields.append_fields(
+			IntegerField("max_group_size"),
+		)
 	
 	def changed_9658(self, fields):
-		"""
-		What's this field? 0 for all arenas
-		1- Alterac Valley = 1941
-		2- Warsong Gulch = 1942
-		3- Arathi Basin = 1943
-		7- Eye of the Storm = 2851
-		9- Strand of the Ancients = 3695
-		"""
 		self.changed_9551(fields)
-		fields.append_fields(IntegerField("unknown_9658"))
+		fields.append_fields(
+			IntegerField("world_state_holiday"), # Foreign key?
+		)
 	
 	def changed_10554(self, fields):
 		self.changed_9658(fields)
@@ -1483,7 +1479,6 @@ class BattlemasterList(Structure):
 	def changed_11573(self, fields):
 		self.changed_10554(fields)
 		fields.delete_fields("max_players")
-		fields.rename_field("max_group_size", "max_players")
 		fields.append_fields(
 			IntegerField("min_level"),
 			IntegerField("max_level"),
@@ -1493,6 +1488,12 @@ class BattlemasterList(Structure):
 		self.changed_11573(fields)
 		fields.append_fields(
 			IntegerField("max_players_rated"),
+		)
+	
+	def changed_12984(self, fields):
+		self.changed_12942(fields)
+		fields.append_fields(
+			IntegerField("max_players"),
 		)
 
 
@@ -4297,14 +4298,14 @@ class Lock(Structure):
 		GenericForeignKey("properties_6", get_relation=properties_relation),
 		GenericForeignKey("properties_7", get_relation=properties_relation),
 		GenericForeignKey("properties_8", get_relation=properties_relation),
-		IntegerField("required_skill_1"),
-		IntegerField("required_skill_2"),
-		IntegerField("required_skill_3"),
-		IntegerField("required_skill_4"),
-		IntegerField("required_skill_5"),
-		IntegerField("required_skill_6"),
-		IntegerField("required_skill_7"),
-		IntegerField("required_skill_8"),
+		IntegerField("required_skill_level_1"),
+		IntegerField("required_skill_level_2"),
+		IntegerField("required_skill_level_3"),
+		IntegerField("required_skill_level_4"),
+		IntegerField("required_skill_level_5"),
+		IntegerField("required_skill_level_6"),
+		IntegerField("required_skill_level_7"),
+		IntegerField("required_skill_level_8"),
 		IntegerField("action_1"),
 		IntegerField("action_2"),
 		IntegerField("action_3"),
@@ -6174,12 +6175,13 @@ class SpellFlyout(Structure):
 	"""
 	SpellFlyout.dbc
 	Added in 4.0.0.12479
+	Spell groups for actionbar button sharing
 	"""
 	fields = Skeleton(
 		IDField(),
 		UnknownField(),
 		UnknownField(),
-		UnknownField(),
+		BitMaskField("flags"),
 		UnknownField(),
 		StringField("name"),
 		StringField("description"),
@@ -6257,7 +6259,9 @@ class SpellItemEnchantment(Structure):
 	
 	def changed_11927(self, fields):
 		self.changed_9637(fields)
-		fields.append_fields(UnknownField())
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class SpellItemEnchantmentCondition(Structure):
@@ -7216,6 +7220,12 @@ class VehicleSeat(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
+	
+	def changed_12984(self, fields):
+		self.changed_12122(fields)
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class VehicleUIIndicator(Structure):
@@ -7509,7 +7519,15 @@ class WorldMapTransforms(Structure):
 		"""
 		XXX When was this added? 6080->9658
 		"""
-		fields.append_fields(UnknownField())
+		fields.append_fields(
+			UnknownField(),
+		)
+	
+	def changed_12984(self, fields):
+		self.changed_9658(fields)
+		fields.append_fields(
+			UnknownField(), # some boolean in Halls of Lightning
+		)
 
 
 class WorldSafeLocs(Structure):
