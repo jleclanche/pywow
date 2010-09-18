@@ -8,6 +8,20 @@ Items
 from .. import *
 from ..globalstrings import *
 
+TRIGGER_ONUSE     = 0
+TRIGGER_ONEQUIP   = 1
+TRIGGER_ONPROC    = 2
+TRIGGER_INVENTORY = 5
+TRIGGER_LEARNING  = 6
+
+def price(value):
+	if not value:
+		return 0, 0, 0
+	g = divmod(value, 10000)[0]
+	s = divmod(value, 100)[0] % 100
+	c = value % 100
+	return g, s, c
+
 class Item(Model):
 	
 	def getQualityColor(self):
@@ -65,6 +79,23 @@ class Item(Model):
 			#27: INVTYPE_QUIVER,
 			28: INVTYPE_RELIC,
 		}.get(self.slot, "")
+	
+	def getTriggerText(self, trigger):
+		"""
+		Return the trigger text for an item spell trigger
+		An empty string means no trigger text.
+		None means the trigger should be hidden.
+		"""
+		if trigger == TRIGGER_ONUSE:
+			return ITEM_SPELL_TRIGGER_ONUSE
+		if trigger == TRIGGER_ONEQUIP:
+			return ITEM_SPELL_TRIGGER_ONEQUIP
+		if trigger == TRIGGER_ONPROC:
+			return ITEM_SPELL_TRIGGER_ONPROC
+		if trigger == TRIGGER_INVENTORY:
+			return ""
+		if trigger == TRIGGER_LEARNING:
+			return ITEM_SPELL_TRIGGER_ONUSE
 
 
 class ItemTooltip(Tooltip):
@@ -75,6 +106,7 @@ class ItemTooltip(Tooltip):
 		self.values = []
 	
 	def render(self):
+		hideNote = False # for recipes, mounts, etc
 		
 		self.append("name", self.obj.name, self.obj.getQualityColor())
 		
@@ -110,7 +142,11 @@ class ItemTooltip(Tooltip):
 		if self.obj.starts_quest:
 			self.append("startsQuest", ITEM_STARTS_QUEST)
 		
-		# lockpicking
+		isLocked, lockType, lockSkillLevel = self.obj.getLockInfo()
+		if isLocked:
+			# XXX Skill(633).getName()
+			self.append("locked", LOCKED)
+			self.append("lock", ITEM_MIN_SKILL % ("Lockpicking", lockSkillLevel))
 		
 		# subclass
 		
@@ -126,7 +162,8 @@ class ItemTooltip(Tooltip):
 		
 		# enchant
 		
-		# sockets
+		for socket in self.obj.getSockets():
+			self.append("socket", "%i socket" % (socket))
 		
 		self.append("gemProperties", self.obj.getGemProperties())
 		
@@ -138,13 +175,14 @@ class ItemTooltip(Tooltip):
 		
 		# race/class reqs
 		
-		if self.obj.durability:
-			self.append("durability", DURABILITY_TEMPLATE % (self.obj.getDurability()))
+		minDurability, maxDurability = self.obj.getDurability()
+		if minDurability:
+			self.append("durability", DURABILITY_TEMPLATE % (minDurability, maxDurability))
 		
-		if self.obj.required_level:
+		if self.obj.required_level > 1:
 			self.append("requiredLevel", ITEM_MIN_LEVEL % (self.obj.required_level))
 		
-		if self.obj.slot:
+		if self.obj.showItemLevel():
 			self.append("level", ITEM_LEVEL % (self.obj.level))
 		
 		# (required arena rating)
@@ -163,21 +201,45 @@ class ItemTooltip(Tooltip):
 		
 		for spell, trigger, charges, cooldown, category, cooldownCategory in self.obj.getSpells():
 			if spell:
-				self.append("spells", "%s: %s (%i cooldown)" % (trigger, spell.getDescription(), charges))
+				triggerText = self.obj.getTriggerText(trigger)
+				if triggerText is None:
+					continue
+				
+				if trigger == TRIGGER_LEARNING:
+					hideNote = True
+					text = self.obj.note or "(null)"
+				else:
+					text = spell.getDescription()
+				
+				if not text:
+					continue
+				
+				if triggerText:
+					text = triggerText + " " + text
+				
+				self.append("spells", text, GREEN)
 		
 		# charges
 		
 		# itemset
 		
-		self.append("note", self.obj.note and '"%s"' % (self.obj.note))
+		if not hideNote:
+			self.append("note", self.obj.note and '"%s"' % (self.obj.note))
 		
 		# openable
 		
-		# page
+		if self.obj.isReadable():
+			self.append("page", ITEM_CAN_BE_READ, GREEN)
 		
 		# disenchanting
 		
-		# sell price
+		if self.obj.sell_price:
+			g, s, c = price(self.obj.sell_price)
+			text = SELL_PRICE + ":"
+			if g: text += " %i {gold}" % (g)
+			if s: text += " %i {silver}" % (s)
+			if c: text += " %i {copper}" % (c)
+			self.append("sellPrice", text)
 		
 		ret = self.values
 		self.values = []
@@ -191,9 +253,13 @@ class ItemProxy(object):
 	def __init__(self, cls):
 		from pywow import wdbc
 		self.__file = wdbc.get("Item-sparse.db2", build=12942)
+		self.__item = wdbc.get("Item.db2", build=12942)
 	
 	def get(self, id):
-		return self.__file[id]
+		ret = self.__file[id]
+		item = self.__item[id]
+		ret.category = item._raw("category")
+		return ret
 	
 	def isAccountBound(self, row):
 		return row.flags.account_bound
@@ -207,6 +273,9 @@ class ItemProxy(object):
 	def isHeroic(self, row):
 		return row.flags.heroic
 	
+	def isReadable(self, row):
+		return bool(row._raw("page"))
+	
 	def isUniqueEquipped(self, row):
 		return row.flags.unique_equipped
 	
@@ -218,6 +287,16 @@ class ItemProxy(object):
 		if row.gem_properties and row.gem_properties.enchant:
 			return row.gem_properties.enchant.name_enus
 		return ""
+	
+	def getLockInfo(self, row):
+		row = row.lock
+		if row:
+			for i in range(1, 9):
+				type = getattr(row, "type_%i" % (i))
+				if type:
+					level = getattr(row, "required_skill_level_%i" % (i))
+					return True, type, level
+		return False, 0, 0
 	
 	def getRequiredFaction(self, row):
 		requiredReputation = globals().get("FACTION_STANDING_LABEL%i" % (row.required_reputation + 1), "")
@@ -267,3 +346,15 @@ class ItemProxy(object):
 				ret.append(r)
 		
 		return ret
+	
+	def getSockets(self, row):
+		ret = []
+		for i in range(1, 4):
+			socket = getattr(row, "socket_%i" % (i))
+			print ">>>>>>", socket, bool(socket)
+			if socket:
+				ret.append(socket)
+		return ret
+	
+	def showItemLevel(self, row):
+		return row.category in (2, 4, 6)
