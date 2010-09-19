@@ -198,10 +198,10 @@ class DBRow(list):
 			if reclen:
 				real_reclen = reclen + self._parent.row_header_size
 				if data.tell() != real_reclen:
-					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self._id, real_reclen, data.tell(), real_reclen-data.tell()))
+					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self.id, real_reclen, data.tell(), real_reclen-data.tell()))
 	
 	def __int__(self):
-		return self._id
+		return self.id
 	
 	def __getattr__(self, attr):
 		if attr in self.structure:
@@ -259,7 +259,7 @@ class DBRow(list):
 					cache[tfield][id] = []
 				cache[tfield][id].append(row)
 		
-		return cache[tfield].get(self._id, None)
+		return cache[tfield].get(self.id, None)
 	
 	def __get_deep_relation(self, rel):
 		""" Parse a django-like multilevel relationship """
