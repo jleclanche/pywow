@@ -6,10 +6,10 @@ followed by a RLE-packed BSDIFF40.
 The original BSDIFF40 format is compressed with bzip2 instead of RLE.
 """
 
-from hashlib import md5
-from struct import unpack
 from binascii import hexlify
 from cStringIO import StringIO
+from hashlib import md5
+from struct import unpack
 
 
 def xsign(i):
@@ -21,6 +21,7 @@ def xsign(i):
 	if i & 0x80000000:
 		return 0x80000000 - i
 	return i
+
 
 class PatchFile(object):
 	def __init__(self, file):
