@@ -32,14 +32,14 @@ class Environment(object):
 		self.__cache = {}
 		self.files = BaseLookup(os.listdir(self.path))
 	
+	def __contains__(self, item):
+		return getfilename(item) in self.files
+	
 	def __getitem__(self, item):
 		item = getfilename(item)
 		if item not in self.__cache:
 			self.__cache[item] = self.__open(self.files[item])
 		return self.__cache[item]
-	
-	def __contains__(self, item):
-		return getfilename(item) in self.files
 	
 	def __iter__(self):
 		return self.files.__iter__()
@@ -67,3 +67,6 @@ class Environment(object):
 			return db2
 		
 		raise TypeError(files)
+
+def get_latest_build():
+	return sorted([k.isdigit() and int(k) or 0 for k in os.listdir(DEFAULT_CACHE_DIR)])[-1]
