@@ -75,7 +75,12 @@ def new(name, build=0, structure=None, environment={}):
 
 __envcache = {}
 def get(name, build):
-	from .environment import Environment
+	if build == -1:
+		from .environment import get_latest_build
+		build = get_latest_build()
+	
 	if build not in __envcache:
+		from .environment import Environment
 		__envcache[build] = Environment(build)
+	
 	return __envcache[build][name]
