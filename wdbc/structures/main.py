@@ -1665,8 +1665,8 @@ class CharBaseInfo(Structure):
 	"""
 	implicit_id = True
 	fields = Skeleton(
-		ForeignByte("race", "ChrRaces"), #, field=ByteField),
-		ForeignByte("class", "ChrClasses"), #, field=ByteField),
+		ForeignByte("race", "ChrRaces"),
+		ForeignByte("class", "ChrClasses"),
 	)
 	
 	def changed_11927(self, fields):
@@ -3842,8 +3842,7 @@ class ItemSubClass(Structure):
 	
 	def changed_11927(self, fields):
 		"""
-		Added a real id field and updated
-		to cataclysm-style locales.
+		Added a real id field
 		"""
 		fields.insert_field(IDField(), before="id_1")
 
@@ -5174,16 +5173,17 @@ class SkillRaceClassInfo(Structure):
 		ForeignMask("races", "ChrRaces"),
 		ForeignMask("classes", "ChrClasses"),
 		BitMaskField("flags"),
-		IntegerField("required_level"),
 		ForeignKey("skill_tier", "SkillTiers"),
+		IntegerField("required_level"),
 		ForeignKey("skill_cost", "SkillCostsData"),
 		UnknownField(),
 	)
 	
-	def changed_12025(self, fields):
-		fields.append_fields(
-			UnknownField(),
-		)
+	def changed_11927(self, fields):
+		"""
+		Added a real id field
+		"""
+		fields.insert_field(IDField(), before="skill")
 
 
 class SkillTiers(Structure):
