@@ -4891,7 +4891,7 @@ class RandPropPoints(Structure):
 class ResearchBranch(Structure):
 	"""
 	ResearchBranch.dbc
-	New in 4.0.0.12644
+	New in 4.0.0.12479
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -4906,7 +4906,7 @@ class ResearchBranch(Structure):
 class ResearchField(Structure):
 	"""
 	ResearchField.dbc
-	New in 4.0.0.12644
+	New in 4.0.0.12479
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -4918,7 +4918,7 @@ class ResearchField(Structure):
 class ResearchProject(Structure):
 	"""
 	ResearchProject.dbc
-	New in 4.0.0.12644
+	New in 4.0.0.12479
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -4936,7 +4936,7 @@ class ResearchProject(Structure):
 class ResearchSite(Structure):
 	"""
 	ResearchSite.dbc
-	New in 4.0.0.12644
+	New in 4.0.0.12479
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -5747,9 +5747,9 @@ class Spell(Structure):
 		), after="radius_effect_3")
 		fields.append_fields(
 			ForeignKey("spell_scaling", "SpellScaling"),
-			UnknownField("unknown_scaling_11927_effect_1"), # TODO
-			UnknownField("unknown_scaling_11927_effect_2"), # TODO
-			UnknownField("unknown_scaling_11927_effect_3"), # TODO
+			IntegerField("archeology_1"),
+			IntegerField("archeology_2"),
+			IntegerField("archeology_3"),
 		)
 	
 	def changed_12025(self, fields):
@@ -5804,7 +5804,6 @@ class Spell(Structure):
 			"class_flags_3_effect_1", "class_flags_3_effect_2", "class_flags_3_effect_3",
 			"chain_amplitude_effect_1", "chain_amplitude_effect_2", "chain_amplitude_effect_3",
 			"multiplier_effect_1", "multiplier_effect_2", "multiplier_effect_3",
-			"unknown_scaling_11927_effect_1", "unknown_scaling_11927_effect_2", "unknown_scaling_11927_effect_3", # TODO
 			
 			"recovery_category", "cooldown_start", "max_target_level",
 			"spell_class_set", "spell_class_flags_1", "spell_class_flags_2", "spell_class_flags_3",
@@ -5814,7 +5813,7 @@ class Spell(Structure):
 			"required_area_group", "power_percent", "power_display",
 		)
 		
-		fields.append_fields(
+		fields.insert_fields((
 			ForeignKey("aura_options", "SpellAuraOptions"),
 			ForeignKey("aura_restrictions", "SpellAuraRestrictions"),
 			ForeignKey("casting_requirements", "SpellCastingRequirements"),
@@ -5830,15 +5829,15 @@ class Spell(Structure):
 			ForeignKey("shapeshift", "SpellShapeshift"),
 			ForeignKey("target_restrictions", "SpellTargetRestrictions"),
 			ForeignKey("totems", "SpellTotems"),
-			UnknownField("unknown_scaling_1"),
-			UnknownField("unknown_scaling_2"),
-			UnknownField("unknown_scaling_3"),
-		)
+		), before="archeology_1")
 	
 	def changed_12479(self, fields):
 		self.changed_12232(fields)
 		fields.delete_fields(
-			"unknown_scaling_2", "unknown_scaling_3",
+			"archeology_1", "archeology_2", "archeology_3",
+		)
+		fields.append_fields(
+			ForeignKey("research_project", "ResearchProject")
 		)
 	
 	def changed_12694(self, fields):
