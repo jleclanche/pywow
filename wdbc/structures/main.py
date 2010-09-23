@@ -1212,7 +1212,7 @@ class AreaAssignment(Structure):
 class AreaGroup(Structure):
 	"""
 	AreaGroup.dbc
-	Added during 3.0.x
+	Added in 3.0.x
 	XXX What's this used for?
 	"""
 	fields = Skeleton(
@@ -1537,7 +1537,7 @@ class Baddons(BannedAddons):
 class CameraMode(Structure):
 	"""
 	CameraMode.dbc
-	Added in 4.0.0.12122
+	New in 4.0.0.12122
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -2786,15 +2786,11 @@ class GlyphProperties(Structure):
 	Glyph data
 	"""
 	
-	FLAGS = {
-		0x00000001: "minor",
-	}
-	
 	fields = Skeleton(
 		IDField(),
-		ForeignKey("spell", "spell"),
-		BitMaskField("flags", flags=FLAGS),
-		ForeignKey("icon", "spellicon"),
+		ForeignKey("spell", "Spell"),
+		IntegerField("type"),
+		ForeignKey("icon", "SpellIcon"),
 	)
 
 
@@ -4151,7 +4147,7 @@ class LiquidMaterial(Structure):
 	"""
 	LiquidMaterial.dbc
 	Unknown use. Lava/Water? Only 3 rows (1, 2, 3).
-	Added with WotLK
+	Added in WotLK
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -5153,6 +5149,17 @@ class SkillLineAbility(Structure):
 		)
 
 
+class SkillLineAbilitySortedSpell(Structure):
+	"""
+	SkillLineAbilitySortedSpell.dbc
+	New in 4.0.0.12644
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("spell", "Spell"),
+	)
+
+
 class SkillLineCategory(Structure):
 	"""
 	SkillLineCategory.dbc
@@ -5160,7 +5167,7 @@ class SkillLineCategory(Structure):
 	fields = Skeleton(
 		IDField(),
 		LocalizedField("name"),
-		IntegerField("sort")
+		IntegerField("sort"),
 	)
 
 
@@ -6030,7 +6037,7 @@ class SpellClassOptions(Structure):
 	
 	def changed_12604(self, fields):
 		fields.append_fields(
-			UnknownField(),
+			LocalizedField("description"), # Newbie help tooltip stuff.
 		)
 
 
@@ -6173,7 +6180,7 @@ class SpellEquippedItems(Structure):
 class SpellFlyout(Structure):
 	"""
 	SpellFlyout.dbc
-	Added in 4.0.0.12479
+	New in 4.0.0.12479
 	Spell groups for actionbar button sharing
 	"""
 	fields = Skeleton(
@@ -6190,7 +6197,7 @@ class SpellFlyout(Structure):
 class SpellFlyoutItem(Structure):
 	"""
 	SpellFlyoutItem.dbc
-	Added in 4.0.0.12479
+	New in 4.0.0.12479
 	"""
 	fields = Skeleton(
 		IDField(),
