@@ -70,6 +70,7 @@ def new(name, build=0, structure=None, environment={}):
 	
 	if structure.signature == "WDBC":
 		return DBCFile(file, build=build, structure=structure, environment=environment)
+	
 	return WDBFile(file, build=build, structure=structure, environment=environment)
 
 

@@ -143,6 +143,22 @@ class SpellProxy(object):
 		description = row.description_enus
 		return SpellString(description).format(self.get(row.id), proxy=WDBCProxy)
 	
+	def getEffects(self, row):
+		return row.spelleffect__spell
+	
+	def getGlyphInfo(self, row):
+		return row.class_options.spell_class_set
+	
+	def getGlyphLearned(self, row):
+		effects = self.getEffects(row)
+		if effects and effects[0]._raw("effect") == 74:
+			return effects[0].misc_value_1
+		return 0
+	
+	def getIcon(self, row):
+		icon = row.icon and row.icon.path or ""
+		return icon.lower().replace("\\", "/").split("/")[-1]
+	
 	def getLevel(self, row):
 		return row.levels and row.levels.level or 0
 	
