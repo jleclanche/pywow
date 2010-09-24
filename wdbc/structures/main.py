@@ -7500,6 +7500,11 @@ class WorldMapOverlay(Structure):
 		IntegerField("y2"),
 		IntegerField("x2"),
 	)
+	
+	def changed_13033(self, fields):
+		fields.delete_fields(
+			"area_5", "area_6",
+		)
 
 
 class WorldMapTransforms(Structure):
