@@ -98,7 +98,7 @@ class WDBFile(DBFile):
 		pos = data.tell()
 		index = data.read().index("\x00")
 		data.seek(pos)
-		return unicode(data.read(index + 1)[:-1], "utf-8")
+		return data.read(index + 1)[:-1].decode("ascii", "ignore")
 	
 	def eof(self):
 		return "\0" * self.row_header_size
