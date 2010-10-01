@@ -200,8 +200,10 @@ class DBRow(list):
 				if data.tell() != real_reclen:
 					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self.id, real_reclen, data.tell(), real_reclen-data.tell()))
 	
-	def __int__(self):
-		return self.id
+	def __dir__(self):
+		result = self.__dict__.keys()
+		result.extend(self.structure.column_names)
+		return result
 	
 	def __getattr__(self, attr):
 		if attr in self.structure:
@@ -216,11 +218,11 @@ class DBRow(list):
 		
 		return super(DBRow, self).__getattribute__(attr)
 	
+	def __int__(self):
+		return self.id
+	
 	def __setattr__(self, attr, value):
-		"""
-		Do not preserve the value in DBRow!
-		Use the save method to save.
-		"""
+		# Do not preserve the value in DBRow! Use the save method to save.
 		if self.initialized and attr in self.structure:
 			self._set_value(attr, value)
 		return super(DBRow, self).__setattr__(attr, value)
@@ -235,14 +237,11 @@ class DBRow(list):
 		except fields.UnresolvedRelation:
 			self._values[col.name] = value
 	
-	def __dir__(self):
-		result = self.__dict__.keys()
-		result.extend(self.structure.column_names)
-		return result
-	
 	
 	def __get_reverse_relation(self, table, field):
-		""" Return a list of rows matching the reverse relation """
+		"""
+		Return a list of rows matching the reverse relation
+		"""
 		if not hasattr(self._parent, "_reverse_relation_cache"):
 			self._parent._reverse_relation_cache = {}
 		cache = self._parent._reverse_relation_cache
@@ -262,7 +261,9 @@ class DBRow(list):
 		return cache[tfield].get(self.id, None)
 	
 	def __get_deep_relation(self, rel):
-		""" Parse a django-like multilevel relationship """
+		"""
+		Parse a django-like multilevel relationship
+		"""
 		rels = rel.split("__")
 		if "" in rels: # empty string
 			raise ValueError("Invalid relation string")
@@ -283,7 +284,8 @@ class DBRow(list):
 	
 	
 	def _set_value(self, name, value):
-		col = self.structure[self.structure.index(name)]
+		index = self.structure.index(name)
+		col = self.structure[index]
 		try:
 			self._values[name] = col.to_python(value, self)
 		except fields.UnresolvedRelation:
@@ -300,24 +302,30 @@ class DBRow(list):
 				return None # Key doesn't exist, or equals 0
 		return self._values[name]
 	
+	def _raw(self, name):
+		"""
+		Returns the raw value from field 'name'
+		"""
+		index = self.structure.index(name)
+		return self[index]
+	
 	def _save(self):
 		for name in self._values:
 			index = self.structure.index(name)
 			col = self.structure[index]
 			self[index] = col.from_python(self._values[name])
 	
-	def _raw(self, name):
-		""" Returns the raw value from field 'name' """
-		index = self.structure.index(name)
-		return self[index]
-	
 	def _field(self, name):
-		""" Returns the field 'name' """
+		"""
+		Returns the field 'name'
+		"""
 		index = self.structure.index(name)
 		return self.structure[index]
 	
 	def _default(self):
-		""" Change all fields to their default values """
+		"""
+		Change all fields to their default values
+		"""
 		del self[:]
 		self._values = {}
 		for col in self.structure:
@@ -327,8 +335,11 @@ class DBRow(list):
 			elif char == "f": self.append(0.0)
 			else: self.append(0)
 	
+	
 	def dict(self):
-		"Return a dict of the row as colname: value"
+		"""
+		Return a dict of the row as colname: value
+		"""
 		return dict(zip(self.structure.column_names, self))
 	
 	def update(self, other):
