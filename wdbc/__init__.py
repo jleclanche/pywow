@@ -290,6 +290,7 @@ class DBRow(list):
 			self._values[name] = col.to_python(value, self)
 		except fields.UnresolvedRelation:
 			self._values[name] = value
+		self[index] = value
 	
 	def _get_value(self, name):
 		if name not in self._values:
