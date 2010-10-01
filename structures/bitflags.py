@@ -38,6 +38,9 @@ class BitMask(object):
 	def __or__(self, other):
 		return self._bitmask.__or__(other)
 	
+	def __nonzero__(self):
+		return self._bitmask.__nonzero__()
+	
 	def _get_values(self):
 		ret = []
 		for k, v in self._flags.items():
