@@ -153,19 +153,31 @@ class WDBFile(DBFile):
 			rows += 1
 	
 	def update_dynfields(self):
-		"""Update all the dynfields in the file"""
+		"""
+		Update all the dynamic fields in the file
+		"""
+		# Build a list lookup for dynamic fields: [[master, [a, b], [a, b], ...], ...]
 		dyns = [k for k in self.structure.columns if isinstance(k, fields.DynamicFields)]
-		for k in self:
+		
+		for id in self:
+			# For each id in the file...
 			for group in dyns:
+				# ... and each group of dynamic fields...
+				
 				master_name = group[0].name
 				amount = 0 # Amount of active fields
+				
 				for columns in group[1:]:
-					values = [self[k]._raw(col.name) for col in columns]
+					# Iterate through each list of columns (excluding the master)
+					# First we get a list of each value
+					values = [self[id]._raw(col.name) for col in columns]
+					
+					# If the values are all none, we keep going
 					if set(values) == set([None]):
 						continue
-					elif None in values: # TODO log event
-						for col in columns:
-							if self[k]._raw(col.name) != None:
-								setattr(self[0], col.name, 0)
+					
+					# Otherwise this field is active
 					amount += 1
-				setattr(self[k], master_name, amount) # set master to correct field amount
+				
+				# finally, update the master to the current amount
+				setattr(self[id], master_name, amount)
