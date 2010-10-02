@@ -3006,6 +3006,14 @@ class gtRegenMPPerSpt(GameTableDBC):
 	pass
 
 
+class gtShieldBlockRegular(GameTableDBC):
+	"""
+	gtShieldBlockRegular.dbc
+	New in 4.0.0.12857
+	"""
+	pass
+
+
 class gtSpellScaling(GameTableDBC):
 	"""
 	gtSpellScaling.dbc
@@ -5319,10 +5327,10 @@ class SoundEntries(Structure):
 	
 	def changed_12122(self, fields):
 		fields.append_fields(
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
-			UnknownField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
+			FloatField(),
 		)
 
 
