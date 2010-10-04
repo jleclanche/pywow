@@ -6,6 +6,7 @@ Imported from globalstrings.lua
 AMMO_DAMAGE_TEMPLATE = "Adds %g damage per second"
 AMMO_SCHOOL_DAMAGE_TEMPLATE = "Adds %g %s damage per second"
 ARMOR_TEMPLATE = "%d Armor"
+CONTAINER_SLOTS = "%d Slot %s"
 DAMAGE_TEMPLATE = "%d - %d Damage"
 DAMAGE_TEMPLATE_WITH_SCHOOL = "%d - %d %s Damage"
 DPS_TEMPLATE = "(%.1f damage per second)"

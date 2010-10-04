@@ -149,7 +149,8 @@ class ItemTooltip(Tooltip):
 			self.append("locked", LOCKED)
 			self.append("lock", ITEM_MIN_SKILL % ("Lockpicking", lockSkillLevel))
 		
-		# subclass
+		subClassId, subClassName = self.obj.getSubClassInfo()
+		self.append("subclass", subClassName)
 		
 		self.append("slot", self.obj.getSlotText())
 		
@@ -276,8 +277,8 @@ class ItemProxy(object):
 	def get(self, id):
 		ret = self.__file[id]
 		item = self.__item[id]
-		ret.category = item._raw("category")
-		ret.subcategory = item._raw("subcategory")
+		ret.category = item.category
+		ret.subcategory = item.subcategory
 		return ret
 	
 	def isAccountBound(self, row):
@@ -301,7 +302,7 @@ class ItemProxy(object):
 	def getArmor(self, row):
 		#return row.armor # old
 		from . import levels
-		return levels.getArmor(row.level, row.category, row.subcategory, row.quality, row.slot)
+		return levels.getArmor(row.level, row.category.id, row.subcategory, row.quality, row.slot)
 	
 	def getBlock(self, row):
 		#return row.block # old
@@ -309,7 +310,7 @@ class ItemProxy(object):
 	
 	def getDamageInfo(self, row):
 		from . import levels
-		damageMin, damageMax = levels.getDamage(row.level, row.category, row.subcategory, row.quality, row.slot, row.flags, row.speed)
+		damageMin, damageMax = levels.getDamage(row.level, row.category.id, row.subcategory, row.quality, row.slot, row.flags, row.speed)
 		return damageMin, damageMax, row.speed
 	
 	def getDurability(self, row):
@@ -398,5 +399,15 @@ class ItemProxy(object):
 				ret.append((Stat(stat), amount))
 		return ret
 	
+	def getSubClassInfo(self, row):
+		category = row.category.itemsubclass__category
+		subcategory = None
+		for x in category:
+			if x.subcategory == row.subcategory:
+				subcategory = x
+		if subcategory:
+			return subcategory.id, subcategory.name_enus
+		return None, None
+	
 	def showItemLevel(self, row):
-		return row.category in (2, 4, 6)
+		return row.category.id in (2, 4, 6)
