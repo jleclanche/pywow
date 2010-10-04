@@ -3830,10 +3830,10 @@ class ItemSubClass(Structure):
 	"""
 	implicit_id = True
 	fields = Skeleton(
-		ForeignKey("id_1", "ItemClass"),
-		IntegerField("id_2"),
-		UnknownField(),
-		UnknownField(),
+		ForeignKey("category", "ItemClass"),
+		IntegerField("subcategory"),
+		IntegerField("offhand_sheathe"),
+		IntegerField("mainhand_sheathe"),
 		BitMaskField(),
 		UnknownField(),
 		UnknownField(),
@@ -3848,22 +3848,13 @@ class ItemSubClass(Structure):
 		"""
 		Added a real id field
 		"""
-		fields.insert_field(IDField(), before="id_1")
+		fields.insert_field(IDField(), before="category")
 
 
 class ItemSubClassMask(Structure):
 	"""
 	ItemSubClassMask.dbc
 	Used for Spell.dbc Subclass requirements
-	FIXME Structure is tricky here, we need to
-	handle a double fkey to a multi-id table...
-	Association( "subclass_association"
-		ForeignKey("id1", "ItemSubClass", column="id_1"),
-		ForeignMask("id2", "ItemSubClass", column="id_2"),
-	)
-	row.subclass_association == DBRowList([
-		
-	])
 	"""
 	implicit_id = True
 	fields = Skeleton(
