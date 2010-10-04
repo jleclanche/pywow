@@ -114,4 +114,3 @@ def getArmor(level, category, subcategory, quality, slot):
 	_slot = getattr(ArmorLocation[slot], types[subcategory])
 	
 	return int(floor(total * _quality * _slot + 0.5))
-

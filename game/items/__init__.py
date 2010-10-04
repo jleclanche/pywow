@@ -5,6 +5,7 @@ Items
  - Item.dbc + itemcache.wdb (2.x->4.x)
  - Item-sparse.db2 (4.x)
 """
+from __future__ import division
 from .. import *
 from ..globalstrings import *
 
@@ -152,13 +153,26 @@ class ItemTooltip(Tooltip):
 		
 		self.append("slot", self.obj.getSlotText())
 		
-		# damage
+		damageMin, damageMax, speed = self.obj.getDamageInfo()
+		if damageMax:
+			speed = speed / 1000
+			dps = (damageMin + damageMax) / (2 * speed)
+			self.append("damage", DAMAGE_TEMPLATE % (damageMin, damageMax))
+			self.append("speed", "%s %.2f" % (SPEED, speed), side=Tooltip.RIGHT)
+			self.append("dps", DPS_TEMPLATE % (dps))
 		
-		# armor
+		armor = self.obj.getArmor()
+		if armor:
+			self.append("armor", ARMOR_TEMPLATE % (armor))
 		
-		# block
+		block = self.obj.getBlock()
+		if block:
+			self.append("block", SHIELD_BLOCK_TEMPLATE % (block))
 		
-		# stats
+		for stat, amount in self.obj.getStats():
+			text = stat.getText(amount)
+			if not stat.isSpecial():
+				self.append("stat", stat.getText(amount))
 		
 		# enchant
 		
@@ -197,7 +211,10 @@ class ItemTooltip(Tooltip):
 		if requiredFaction: # and requiredReputation?
 			self.append("requiredFaction", ITEM_REQ_REPUTATION % (requiredFaction, requiredReputation))
 		
-		# special stats
+		for stat, amount in self.obj.getStats():
+			text = stat.getText(amount)
+			if stat.isSpecial():
+				self.append("specialStat", "%s %s" % (ITEM_SPELL_TRIGGER_ONEQUIP, text), color=GREEN)
 		
 		for spell, trigger, charges, cooldown, category, cooldownCategory in self.obj.getSpells():
 			if spell:
@@ -255,10 +272,12 @@ class ItemProxy(object):
 		self.__file = wdbc.get("Item-sparse.db2", build=12942)
 		self.__item = wdbc.get("Item.db2", build=12942)
 	
+	
 	def get(self, id):
 		ret = self.__file[id]
 		item = self.__item[id]
 		ret.category = item._raw("category")
+		ret.subcategory = item._raw("subcategory")
 		return ret
 	
 	def isAccountBound(self, row):
@@ -278,6 +297,20 @@ class ItemProxy(object):
 	
 	def isUniqueEquipped(self, row):
 		return row.flags.unique_equipped
+	
+	def getArmor(self, row):
+		#return row.armor # old
+		from . import levels
+		return levels.getArmor(row.level, row.category, row.subcategory, row.quality, row.slot)
+	
+	def getBlock(self, row):
+		#return row.block # old
+		return 0
+	
+	def getDamageInfo(self, row):
+		from . import levels
+		damageMin, damageMax = levels.getDamage(row.level, row.category, row.subcategory, row.quality, row.slot, row.flags, row.speed)
+		return damageMin, damageMax, row.speed
 	
 	def getDurability(self, row):
 		# return min, max
@@ -351,9 +384,18 @@ class ItemProxy(object):
 		ret = []
 		for i in range(1, 4):
 			socket = getattr(row, "socket_%i" % (i))
-			print ">>>>>>", socket, bool(socket)
 			if socket:
 				ret.append(socket)
+		return ret
+	
+	def getStats(self, row):
+		from ..stats import Stat
+		ret = []
+		for i in range(1, 10):
+			stat = getattr(row, "stats_id_%i" % (i))
+			amount = getattr(row, "stats_amount_%i" % (i))
+			if amount:
+				ret.append((Stat(stat), amount))
 		return ret
 	
 	def showItemLevel(self, row):
