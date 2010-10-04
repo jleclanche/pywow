@@ -47,25 +47,28 @@ class Model(object):
 		return "<%s #%i>" % (self.__class__.__name__, self.id)
 
 class Tooltip(object):
+	LEFT = 0
+	RIGHT = 1
 	def __init__(self, obj, renderer):
 		self.obj = obj
 		self.renderer = renderer
 		self.render()
 	
-	def append(self, name, text, color=WHITE):
+	def append(self, name, text, color=WHITE, side=LEFT):
 		if text:
 			self.keys.append(name)
-			self.values.append(TooltipNode(name, text, color))
+			self.values.append(TooltipNode(name, text, color, side))
 	
 	def formatAppend(self, name, text, value, color=WHITE):
 		if value:
 			self.append(name, text % (value), color)
 
 class TooltipNode(object):
-	def __init__(self, name, text, color):
+	def __init__(self, name, text, color, side):
 		self.name = name
 		self.text = text
 		self.color = color
+		self.side = side
 	
 	def __repr__(self):
 		return repr(self.text)
