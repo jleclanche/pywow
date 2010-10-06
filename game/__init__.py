@@ -5,13 +5,14 @@ Contains model logic for the game
 """
 
 # Colors
-GREY   = 0x9d9d9d
-WHITE  = 0xffffff
-GREEN  = 0x1eff00
 BLUE   = 0x0080ff
-PURPLE = 0xb048f8
-ORANGE = 0xff8000
+CYAN   = 0x66bbff
 GOLD   = 0xe5cc80
+GREEN  = 0x1eff00
+GREY   = 0x9d9d9d
+ORANGE = 0xff8000
+PURPLE = 0xb048f8
+WHITE  = 0xffffff
 
 class Model(object):
 	"""
