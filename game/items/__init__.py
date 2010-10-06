@@ -251,7 +251,7 @@ class ItemTooltip(Tooltip):
 		# itemset
 		
 		if not hideNote:
-			self.append("note", self.obj.note and '"%s"' % (self.obj.note))
+			self.append("note", self.obj.note and '"%s"' % (self.obj.note), YELLOW)
 		
 		# openable
 		

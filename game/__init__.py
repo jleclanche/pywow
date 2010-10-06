@@ -12,6 +12,7 @@ GREEN  = 0x1eff00
 GREY   = 0x9d9d9d
 ORANGE = 0xff8000
 PURPLE = 0xb048f8
+YELLOW = 0xffd100
 WHITE  = 0xffffff
 
 class Model(object):

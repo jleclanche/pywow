@@ -31,7 +31,7 @@ class GlyphTooltip(Tooltip):
 		
 		self.append("name", self.obj.getName())
 		self.append("type", self.obj.getTypeText())
-		self.append("description", self.obj.getDescription())
+		self.append("description", self.obj.getDescription(), YELLOW)
 		
 		ret = self.values
 		self.values = []
