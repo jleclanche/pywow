@@ -7,6 +7,7 @@ Items
 """
 from __future__ import division
 from .. import *
+from .. import durationstring
 from ..globalstrings import *
 
 TRIGGER_ONUSE     = 0
@@ -149,10 +150,15 @@ class ItemTooltip(Tooltip):
 			self.append("locked", LOCKED)
 			self.append("lock", ITEM_MIN_SKILL % ("Lockpicking", lockSkillLevel))
 		
+		slot = self.obj.getSlotText()
 		subClassId, subClassName = self.obj.getSubClassInfo()
-		self.append("subclass", subClassName)
-		
-		self.append("slot", self.obj.getSlotText())
+		if slot and self.showSubClass():
+			self.append("slot", slot)
+			self.append("subclass", subClassName, side=Tooltip.RIGHT)
+		elif slot:
+			self.append("slot", slot)
+		elif self.showSubClass():
+			self.append("subclass", subClassName)
 		
 		damageMin, damageMax, speed = self.obj.getDamageInfo()
 		if damageMax:
@@ -184,20 +190,23 @@ class ItemTooltip(Tooltip):
 		
 		# random ench
 		
-		# duration
+		duration = self.obj.getDuration()
+		if duration:
+			duration = durationstring.duration(duration, durationstring.SHORT)
+			self.append("duration", ITEM_DURATION % (duration))
 		
 		self.append("requiredHoliday", self.obj.getRequiredHoliday())
 		
 		# race/class reqs
 		
-		minDurability, maxDurability = self.obj.getDurability()
+		minDurability, maxDurability = self.obj.getDurabilityInfo()
 		if minDurability:
 			self.append("durability", DURABILITY_TEMPLATE % (minDurability, maxDurability))
 		
 		if self.obj.required_level > 1:
 			self.append("requiredLevel", ITEM_MIN_LEVEL % (self.obj.required_level))
 		
-		if self.obj.showItemLevel():
+		if self.showItemLevel():
 			self.append("level", ITEM_LEVEL % (self.obj.level))
 		
 		# (required arena rating)
@@ -262,6 +271,25 @@ class ItemTooltip(Tooltip):
 		ret = self.values
 		self.values = []
 		return ret
+	
+	def showItemLevel(self):
+		return self.obj.category.id in (2, 4, 6)
+	
+	def showSubClass(self):
+		category = self.obj.category.id
+		subcategory = self.obj.subcategory
+		slot = self.obj.slot
+		if category in (2, 4, 6):
+			if slot == 16: # cloak
+				return False
+			if category == 2 and subcategory == 14:
+				return False
+			if category == 4 and subcategory == 0:
+				return False
+			return True
+		if category == 15 and subcategory == 5:
+			return True
+		return False
 
 
 class ItemProxy(object):
@@ -300,8 +328,8 @@ class ItemProxy(object):
 		return row.flags.unique_equipped
 	
 	def getArmor(self, row):
-		#return row.armor # old
 		from . import levels
+		#return row.armor # old
 		return levels.getArmor(row.level, row.category.id, row.subcategory, row.quality, row.slot)
 	
 	def getBlock(self, row):
@@ -313,9 +341,12 @@ class ItemProxy(object):
 		damageMin, damageMax = levels.getDamage(row.level, row.category.id, row.subcategory, row.quality, row.slot, row.flags, row.speed)
 		return damageMin, damageMax, row.speed
 	
-	def getDurability(self, row):
+	def getDurabilityInfo(self, row):
 		# return min, max
 		return row.durability, row.durability
+	
+	def getDuration(self, row):
+		return row.duration
 	
 	def getGemProperties(self, row):
 		if row.gem_properties and row.gem_properties.enchant:
@@ -408,6 +439,3 @@ class ItemProxy(object):
 		if subcategory:
 			return subcategory.id, subcategory.name_enus
 		return None, None
-	
-	def showItemLevel(self, row):
-		return row.category.id in (2, 4, 6)
