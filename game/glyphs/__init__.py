@@ -14,11 +14,11 @@ class Glyph(Model):
 	PRIME = 2
 	SKILL_GLYPHS = 810
 	
-	@classMethod
+	@classmethod
 	def getAllSpells(cls):
 		from ..skills import Skill, SkillProxy
 		Skill.initProxy(SkillProxy)
-		return Skill(SKILL_GLYPHS).getSpells()
+		return Skill(cls.SKILL_GLYPHS).getSpells()
 	
 	@classmethod
 	def getAllForClass(cls, chrClass):
@@ -35,7 +35,7 @@ class Glyph(Model):
 			self.MINOR: MINOR_GLYPH,
 			self.MAJOR: MAJOR_GLYPH,
 			self.PRIME: PRIME_GLYPH,
-		}.get(self.obj.type, "")
+		}.get(self.getType(), "")
 
 class GlyphTooltip(Tooltip):
 	def tooltip(self):
@@ -74,3 +74,6 @@ class GlyphProxy(object):
 	
 	def getSpellIcon(self, row):
 		return self.spell.getIcon()
+	
+	def getType(self, row):
+		return row.type
