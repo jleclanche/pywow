@@ -152,8 +152,9 @@ class SpellProxy(object):
 	def getGlyphLearned(self, row):
 		effects = self.getEffects(row)
 		if effects and effects[0]._raw("effect") == 74:
-			return effects[0].misc_value_1
-		return 0
+			from ..glyphs import Glyph, GlyphProxy
+			Glyph.initProxy(GlyphProxy)
+			return Glyph(effects[0].misc_value_1)
 	
 	def getIcon(self, row):
 		icon = row.icon and row.icon.path or ""
