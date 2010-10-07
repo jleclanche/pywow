@@ -12,6 +12,23 @@ class Glyph(Model):
 	MAJOR = 0
 	MINOR = 1
 	PRIME = 2
+	SKILL_GLYPHS = 810
+	
+	@classMethod
+	def getAllSpells(cls):
+		from ..skills import Skill, SkillProxy
+		Skill.initProxy(SkillProxy)
+		return Skill(SKILL_GLYPHS).getSpells()
+	
+	@classmethod
+	def getAllForClass(cls, chrClass):
+		spells = cls.getAllSpells()
+		ret = []
+		for spell in spells:
+			glyph = spell.getGlyphLearned()
+			if glyph and glyph.getSpell().getGlyphInfo() == chrClass:
+				ret.append(spell)
+		return ret
 	
 	def getTypeText(self):
 		return {
@@ -21,13 +38,7 @@ class Glyph(Model):
 		}.get(self.obj.type, "")
 
 class GlyphTooltip(Tooltip):
-	def __init__(self, obj, renderer=None):
-		self.obj = obj
-		self.renderer = renderer
-		self.keys = []
-		self.values = []
-	
-	def render(self):
+	def tooltip(self):
 		
 		self.append("name", self.obj.getName())
 		self.append("type", self.obj.getTypeText())
@@ -53,11 +64,13 @@ class GlyphProxy(object):
 		return row
 	
 	def getDescription(self, row):
-		return "blah"
 		return self.spell.getDescription()
 	
 	def getName(self, row):
 		return self.spell.name_enus
+	
+	def getSpell(self, row):
+		return self.spell
 	
 	def getSpellIcon(self, row):
 		return self.spell.getIcon()
