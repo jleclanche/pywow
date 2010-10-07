@@ -101,13 +101,7 @@ class Item(Model):
 
 
 class ItemTooltip(Tooltip):
-	def __init__(self, obj, renderer=None):
-		self.obj = obj
-		self.renderer = renderer
-		self.keys = []
-		self.values = []
-	
-	def render(self):
+	def tooltip(self):
 		hideNote = False # for recipes, mounts, etc
 		
 		self.append("name", self.obj.name, self.obj.getQualityColor())
@@ -147,8 +141,8 @@ class ItemTooltip(Tooltip):
 		isLocked, lockType, lockSkillLevel = self.obj.getLockInfo()
 		if isLocked:
 			# XXX Skill(633).getName()
-			self.append("locked", LOCKED)
-			self.append("lock", ITEM_MIN_SKILL % ("Lockpicking", lockSkillLevel))
+			self.append("locked", LOCKED, RED)
+			self.append("lock", ITEM_MIN_SKILL % ("Lockpicking", lockSkillLevel), RED)
 		
 		slot = self.obj.getSlotText()
 		subClassId, subClassName = self.obj.getSubClassInfo()
