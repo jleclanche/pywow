@@ -12,6 +12,7 @@ GREEN  = 0x1eff00
 GREY   = 0x9d9d9d
 ORANGE = 0xff8000
 PURPLE = 0xb048f8
+RED    = 0xff2020
 YELLOW = 0xffd100
 WHITE  = 0xffffff
 
@@ -51,10 +52,10 @@ class Model(object):
 class Tooltip(object):
 	LEFT = 0
 	RIGHT = 1
-	def __init__(self, obj, renderer):
+	def __init__(self, obj):
 		self.obj = obj
-		self.renderer = renderer
-		self.render()
+		self.keys = []
+		self.values = []
 	
 	def append(self, name, text, color=WHITE, side=LEFT):
 		if text:
@@ -64,6 +65,9 @@ class Tooltip(object):
 	def formatAppend(self, name, text, value, color=WHITE):
 		if value:
 			self.append(name, text % (value), color)
+	
+	def render(self, renderer):
+		return renderer(self.tooltip())
 
 class TooltipNode(object):
 	def __init__(self, name, text, color, side):
@@ -76,4 +80,10 @@ class TooltipNode(object):
 		return repr(self.text)
 	
 	def __str__(self):
+		return str(self.text)
+	
+	def getColor(self):
+		return self.color
+	
+	def getText(self):
 		return str(self.text)
