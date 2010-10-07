@@ -140,9 +140,9 @@ class ItemTooltip(Tooltip):
 		
 		isLocked, lockType, lockSkillLevel = self.obj.getLockInfo()
 		if isLocked:
-			# XXX Skill(633).getName()
 			self.append("locked", LOCKED, RED)
-			self.append("lock", ITEM_MIN_SKILL % ("Lockpicking", lockSkillLevel), RED)
+			lockpicking = Skill(633)
+			self.append("lock", ITEM_MIN_SKILL % (lockpicking.getName(), lockSkillLevel), RED)
 		
 		slot = self.obj.getSlotText()
 		subClassId, subClassName = self.obj.getSubClassInfo()
@@ -178,7 +178,7 @@ class ItemTooltip(Tooltip):
 		# enchant
 		
 		for socket in self.obj.getSockets():
-			self.append("socket", "%i socket" % (socket))
+			self.append("socket", socket.getText(), color=GREY)
 		
 		self.append("gemProperties", self.obj.getGemProperties())
 		
@@ -407,11 +407,12 @@ class ItemProxy(object):
 		return ret
 	
 	def getSockets(self, row):
+		from .sockets import Socket
 		ret = []
 		for i in range(1, 4):
 			socket = getattr(row, "socket_%i" % (i))
 			if socket:
-				ret.append(socket)
+				ret.append(Socket(socket))
 		return ret
 	
 	def getStats(self, row):
