@@ -71,20 +71,30 @@ class Tooltip(object):
 		return renderer(self.tooltip())
 
 class TooltipNode(object):
-	def __init__(self, name, text, color, side):
+	def __init__(self, name, content, color, side):
 		self.name = name
-		self.text = text
-		self.color = color
-		self.side = side
+		if isinstance(content, Tooltip):
+			self.tooltip = content
+		else:
+			self.text = content
+			self.color = color
+			self.side = side
 	
 	def __repr__(self):
-		return repr(self.text)
+		return repr(self.getText())
 	
 	def __str__(self):
-		return str(self.text)
+		return self.getText()
 	
 	def getColor(self):
+		if self.isTooltip():
+			return 0
 		return self.color
 	
 	def getText(self):
+		if self.isTooltip():
+			return ""
 		return str(self.text)
+	
+	def isTooltip(self):
+		return hasattr(self, "tooltip")
