@@ -162,9 +162,12 @@ class ItemTooltip(Tooltip):
 			self.append("speed", "%s %.2f" % (SPEED, speed), side=Tooltip.RIGHT)
 			self.append("dps", DPS_TEMPLATE % (dps))
 		
-		armor = self.obj.getArmor()
+		armor, extraArmor = self.obj.getArmor()
 		if armor:
-			self.append("armor", ARMOR_TEMPLATE % (armor))
+			if extraArmor:
+				self.append("armor", ARMOR_TEMPLATE % (armor + extraArmor), color=GREEN)
+			else:
+				self.append("armor", ARMOR_TEMPLATE % (armor))
 		
 		block = self.obj.getBlock()
 		if block:
@@ -217,7 +220,7 @@ class ItemTooltip(Tooltip):
 		
 		for stat, amount in self.obj.getStats():
 			text = stat.getText(amount)
-			if stat.isSpecial():
+			if stat.isSpecial() and not stat.isExtraArmor():
 				self.append("specialStat", "%s %s" % (ITEM_SPELL_TRIGGER_ONEQUIP, text), color=GREEN)
 		
 		for spell, trigger, charges, cooldown, category, cooldownCategory, createdItem in self.obj.getSpells():
@@ -325,7 +328,7 @@ class ItemProxy(object):
 	def getArmor(self, row):
 		from . import levels
 		#return row.armor # old
-		return levels.getArmor(row.level, row.category.id, row.subcategory, row.quality, row.slot)
+		return levels.getArmor(row.level, row.category.id, row.subcategory, row.quality, row.slot), self.getExtraArmor(row)
 	
 	def getBlock(self, row):
 		#return row.block # old
