@@ -220,7 +220,7 @@ class ItemTooltip(Tooltip):
 			if stat.isSpecial():
 				self.append("specialStat", "%s %s" % (ITEM_SPELL_TRIGGER_ONEQUIP, text), color=GREEN)
 		
-		for spell, trigger, charges, cooldown, category, cooldownCategory in self.obj.getSpells():
+		for spell, trigger, charges, cooldown, category, cooldownCategory, createdItem in self.obj.getSpells():
 			if spell:
 				triggerText = self.obj.getTriggerText(trigger)
 				if triggerText is None:
@@ -399,9 +399,10 @@ class ItemProxy(object):
 			for k in spells:
 				r.append(row._raw(k % (i)))
 			
-			r[0] = r[0] and Spell(r[0])
-			# Only return valid spells
-			if r[0]:
+			spell = r[0]
+			if spell:
+				r[0] = spell = Spell(spell)
+				r.append(spell.getCreatedItem())
 				ret.append(r)
 		
 		return ret
