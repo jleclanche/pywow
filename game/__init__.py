@@ -96,5 +96,8 @@ class TooltipNode(object):
 			return ""
 		return str(self.text)
 	
+	def getTooltip(self):
+		return self.tooltip
+	
 	def isTooltip(self):
 		return hasattr(self, "tooltip")
