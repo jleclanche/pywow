@@ -138,10 +138,9 @@ class ItemTooltip(Tooltip):
 		if self.obj.starts_quest:
 			self.append("startsQuest", ITEM_STARTS_QUEST)
 		
-		isLocked, lockType, lockSkillLevel = self.obj.getLockInfo()
+		isLocked, lockType, lockSkillLevel, lockpicking = self.obj.getLockInfo()
 		if isLocked:
 			self.append("locked", LOCKED, RED)
-			lockpicking = Skill(633)
 			self.append("lock", ITEM_MIN_SKILL % (lockpicking.getName(), lockSkillLevel), RED)
 		
 		slot = self.obj.getSlotText()
@@ -271,9 +270,9 @@ class ItemTooltip(Tooltip):
 		if self.obj.sell_price:
 			g, s, c = price(self.obj.sell_price)
 			text = SELL_PRICE + ":"
-			if g: text += " %i {gold}" % (g)
-			if s: text += " %i {silver}" % (s)
-			if c: text += " %i {copper}" % (c)
+			if g: text += " %ig" % (g)
+			if s: text += " %is" % (s)
+			if c: text += " %ic" % (c)
 			self.append("sellPrice", text)
 		
 		ret = self.values
@@ -371,6 +370,9 @@ class ItemProxy(object):
 	def getLockInfo(self, row):
 		row = row.lock
 		if row:
+			from ..skills import Skill, SkillProxy
+			Skill.initProxy(SkillProxy)
+			lockpicking = Skill(633)
 			for i in range(1, 9):
 				type = getattr(row, "type_%i" % (i))
 				if type:
