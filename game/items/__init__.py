@@ -243,6 +243,16 @@ class ItemTooltip(Tooltip):
 				
 				if createdItem:
 					self.append("createdItem", ItemTooltip(createdItem))
+					reagents = spell.getReagents()
+					if reagents:
+						text = []
+						for item, amount in reagents:
+							if amount == 1:
+								text.append(item.name)
+							else:
+								text.append("%s (%d)" % (item.name, amount))
+						
+						self.append("reagents", "Requires %s" % (", ".join(text))) # FIXME globalstring
 		
 		# charges
 		
