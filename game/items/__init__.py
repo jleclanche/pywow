@@ -232,13 +232,14 @@ class ItemTooltip(Tooltip):
 				else:
 					text = spell.getDescription()
 				
-				if not text:
-					continue
+				if text:
+					if triggerText:
+						text = triggerText + " " + text
+					
+					self.append("spells", text, GREEN)
 				
-				if triggerText:
-					text = triggerText + " " + text
-				
-				self.append("spells", text, GREEN)
+				if createdItem:
+					self.append("createdItem", ItemTooltip(createdItem))
 		
 		# charges
 		
