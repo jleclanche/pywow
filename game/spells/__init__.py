@@ -138,6 +138,15 @@ class SpellProxy(object):
 	def getCooldown(self, row):
 		return row.cooldowns and row.cooldowns.cooldown or 0
 	
+	def getCreatedItem(self, row):
+		effects = self.getEffects(row)
+		if effects and effects[0]._raw("effect") in (24, 157):
+			id = effects[0].misc_value_1
+			if id:
+				from ..items import Item, ItemProxy
+				Item.initProxy(ItemProxy)
+				return Item(id)
+	
 	def getDescription(self, row):
 		from pywow.spellstrings import SpellString, WDBCProxy
 		description = row.description_enus
