@@ -191,6 +191,21 @@ class SpellProxy(object):
 	def getRank(self, row):
 		return row.rank_enus
 	
+	def getReagents(self, row):
+		from ..items import Item, ItemProxy
+		Item.initProxy(ItemProxy)
+		ret = []
+		fields = ("reagents__reagent_%i", "reagents__amount_%i")
+		
+		for i in range(1, 9):
+			reagent = getattr(row, fields[0] % (i))
+			amount = getattr(row, fields[1] % (i))
+			if reagent and amount:
+				reagent = Item(reagent.id)
+				ret.append((reagent, amount))
+		
+		return ret
+	
 	def getRuneCostInfo(self, row):
 		if row.rune_cost:
 			return row.rune_cost.blood, row.rune_cost.unholy, row.rune_cost.frost
