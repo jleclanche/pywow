@@ -343,6 +343,13 @@ class ItemProxy(object):
 	def getDuration(self, row):
 		return row.duration
 	
+	def getExtraArmor(self, row):
+		ret = 0
+		for stat, amount in self.getStats(row):
+			if stat.isExtraArmor():
+				ret += amount
+		return ret
+	
 	def getGemProperties(self, row):
 		if row.gem_properties and row.gem_properties.enchant:
 			return row.gem_properties.enchant.name_enus
