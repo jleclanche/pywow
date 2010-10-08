@@ -68,18 +68,26 @@ class Stat(object):
 		55: "NATURE_RESISTANCE",
 		56: "ARCANE_RESISTANCE",
 	}
+	
+	EXTRA_ARMOR = 50
+	
 	def __init__(self, id):
 		if id not in self.TABLE:
 			raise ValueError("Unknown stat: %r" % (id))
 		
 		self.id = id
 		
-		name = "ITEM_MOD_" + self.TABLE[id]
-		self.text = getattr(globalstrings, name)
-		self.name = getattr(globalstrings, name + "_SHORT")
+		if not self.isExtraArmor():
+			name = "ITEM_MOD_" + self.TABLE[id]
+			self.text = getattr(globalstrings, name)
+			self.name = getattr(globalstrings, name + "_SHORT")
 	
 	def getText(self, amount):
-		return self.text % (amount)
+		if not self.isExtraArmor():
+			return self.text % (amount)
 	
 	def isSpecial(self):
 		return self.id > 10
+	
+	def isExtraArmor(self):
+		return self.id == self.EXTRA_ARMOR
