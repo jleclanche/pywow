@@ -141,7 +141,7 @@ class SpellProxy(object):
 	def getCreatedItem(self, row):
 		effects = self.getEffects(row)
 		if effects and effects[0]._raw("effect") in (24, 157):
-			id = effects[0].misc_value_1
+			id = effects[0].type
 			if id:
 				from ..items import Item, ItemProxy
 				Item.initProxy(ItemProxy)
