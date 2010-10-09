@@ -16,6 +16,10 @@ class ItemSetTooltip(Tooltip):
 		
 		self.append("name", ITEM_SET_NAME % (self.obj.getName(), 0, 0), color=YELLOW)
 		
+		items = self.obj.getItems()
+		for item in items:
+			self.append("item", item.getName())
+		
 		ret = self.values
 		self.values = []
 		return ret
@@ -30,6 +34,18 @@ class ItemSetProxy(object):
 	
 	def get(self, id):
 		return self.__file[id]
+	
+	def getItems(self, row):
+		from ..items import Item, ItemProxy
+		Item.initProxy(ItemProxy)
+		ret = []
+		for i in range(1, 11):
+			id = row._raw("item_%i" % (i))
+			if id:
+				print id, Item(id)
+				ret.append(Item(id))
+		
+		return ret
 	
 	def getName(self, row):
 		return row.name_enus
