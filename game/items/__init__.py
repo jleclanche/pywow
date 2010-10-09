@@ -259,7 +259,10 @@ class ItemTooltip(Tooltip):
 		
 		# charges
 		
-		# itemset
+		itemSet = self.obj.getItemSet()
+		if itemSet:
+			from ..itemsets import ItemSetTooltip
+			self.append("itemSet", ItemSetTooltip(itemSet))
 		
 		if not hideNote:
 			self.append("note", self.obj.note and '"%s"' % (self.obj.note), YELLOW)
@@ -370,6 +373,13 @@ class ItemProxy(object):
 		if row.gem_properties and row.gem_properties.enchant:
 			return row.gem_properties.enchant.name_enus
 		return ""
+	
+	def getItemSet(self, row):
+		id = row._raw("itemset")
+		if id:
+			from ..itemsets import ItemSet, ItemSetProxy
+			ItemSet.initProxy(ItemSetProxy)
+			return ItemSet(id)
 	
 	def getLockInfo(self, row):
 		row = row.lock
