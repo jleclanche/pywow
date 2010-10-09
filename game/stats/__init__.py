@@ -16,6 +16,13 @@ from .. import globalstrings
 
 
 class Stat(object):
+	EXTRA_ARMOR       = 50
+	FIRE_RESISTANCE   = 51
+	FROST_RESISTANCE  = 52
+	SHADOW_RESISTANCE = 54
+	NATURE_RESISTANCE = 55
+	ARCANE_RESISTANCE = 56
+	
 	TABLE = {
 		1: "HEALTH",
 		3: "AGILITY",
@@ -69,7 +76,13 @@ class Stat(object):
 		56: "ARCANE_RESISTANCE",
 	}
 	
-	EXTRA_ARMOR = 50
+	RESISTANCES = {
+		FIRE_RESISTANCE  : globalstrings.DAMAGE_SCHOOL3,
+		FROST_RESISTANCE : globalstrings.DAMAGE_SCHOOL5,
+		SHADOW_RESISTANCE: globalstrings.DAMAGE_SCHOOL6,
+		NATURE_RESISTANCE: globalstrings.DAMAGE_SCHOOL4,
+		ARCANE_RESISTANCE: globalstrings.DAMAGE_SCHOOL7,
+	}
 	
 	def __init__(self, id):
 		if id not in self.TABLE:
@@ -77,17 +90,25 @@ class Stat(object):
 		
 		self.id = id
 		
-		if not self.isExtraArmor():
+		if not self.isResistance() and not self.isExtraArmor():
 			name = "ITEM_MOD_" + self.TABLE[id]
 			self.text = getattr(globalstrings, name)
 			self.name = getattr(globalstrings, name + "_SHORT")
 	
+	def getResistanceText(self):
+		return self.RESISTANCES.get(self.id, "")
+	
 	def getText(self, amount):
 		if not self.isExtraArmor():
+			if self.isResistance():
+				return globalstrings.ITEM_RESIST_SINGLE % (amount, self.getResistanceText())
 			return self.text % (amount)
-	
-	def isSpecial(self):
-		return self.id > 10
 	
 	def isExtraArmor(self):
 		return self.id == self.EXTRA_ARMOR
+	
+	def isResistance(self):
+		return self.id in self.RESISTANCES
+	
+	def isSpecial(self):
+		return self.id > 10 and not self.isResistance()
