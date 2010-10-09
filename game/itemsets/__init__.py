@@ -14,11 +14,13 @@ class ItemSet(Model):
 class ItemSetTooltip(Tooltip):
 	def tooltip(self):
 		
-		self.append("name", ITEM_SET_NAME % (self.obj.getName(), 0, 0), color=YELLOW)
-		
 		items = self.obj.getItems()
+		maxItems = len(items)
+		
+		self.append("name", ITEM_SET_NAME % (self.obj.getName(), 0, maxItems), color=YELLOW)
+		
 		for item in items:
-			self.append("item", item.getName())
+			self.append("item", item.getName(), color=GREY)
 		
 		ret = self.values
 		self.values = []
@@ -42,7 +44,6 @@ class ItemSetProxy(object):
 		for i in range(1, 11):
 			id = row._raw("item_%i" % (i))
 			if id:
-				print id, Item(id)
 				ret.append(Item(id))
 		
 		return ret
