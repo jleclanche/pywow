@@ -391,6 +391,9 @@ class ItemProxy(object):
 					return True, type, level
 		return False, 0, 0
 	
+	def getName(self, row):
+		return row.name
+	
 	def getRequiredFaction(self, row):
 		requiredReputation = globals().get("FACTION_STANDING_LABEL%i" % (row.required_reputation + 1), "")
 		if row.required_faction:
