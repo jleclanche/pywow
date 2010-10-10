@@ -19,6 +19,10 @@ class ItemSetTooltip(Tooltip):
 		
 		self.append("name", ITEM_SET_NAME % (self.obj.getName(), 0, maxItems), color=YELLOW)
 		
+		requiredSkill, requiredSkillLevel = self.obj.getRequiredSkillInfo()
+		if requiredSkill and requiredSkillLevel:
+			self.append("requiredSkill", ITEM_MIN_SKILL % (requiredSkill, requiredSkillLevel))
+		
 		for item in items:
 			self.append("item", "  %s" % (item.getName()), color=GREY)
 		
@@ -62,6 +66,12 @@ class ItemSetProxy(object):
 				ret.append(Item(id))
 		
 		return ret
+	
+	def getRequiredSkillInfo(self, row):
+		requiredSkillLevel = row.required_skill_level
+		if row.required_skill:
+			return row.required_skill.name_enus, requiredSkillLevel
+		return "", requiredSkillLevel
 	
 	def getName(self, row):
 		return row.name_enus
