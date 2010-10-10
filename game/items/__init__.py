@@ -201,7 +201,11 @@ class ItemTooltip(Tooltip):
 		
 		self.append("requiredHoliday", self.obj.getRequiredHoliday())
 		
-		# race/class reqs
+		# race reqs
+		
+		requiredClasses = self.obj.getRequiredClasses()
+		if requiredClasses:
+			self.append("requiredClasses", ITEM_CLASSES_ALLOWED % (", ".join(cls.getName() for cls in requiredClasses)))
 		
 		minDurability, maxDurability = self.obj.getDurabilityInfo()
 		if minDurability:
@@ -408,6 +412,10 @@ class ItemProxy(object):
 	
 	def getName(self, row):
 		return row.name
+	
+	def getRequiredClasses(self, row):
+		from ..classes import ChrClass
+		return ChrClass.getClassesFromMask(row.class_mask)
 	
 	def getRequiredFaction(self, row):
 		requiredReputation = globals().get("FACTION_STANDING_LABEL%i" % (row.required_reputation + 1), "")
