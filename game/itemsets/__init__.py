@@ -22,6 +22,9 @@ class ItemSetTooltip(Tooltip):
 		for item in items:
 			self.append("item", "  %s" % (item.getName()), color=GREY)
 		
+		for bonus, pieces in self.obj.getBonusInfo():
+			self.append("bonus", ITEM_SET_BONUS_GRAY % (pieces, bonus.getDescription()), color=GREY)
+		
 		ret = self.values
 		self.values = []
 		return ret
@@ -37,11 +40,25 @@ class ItemSetProxy(object):
 	def get(self, id):
 		return self.__file[id]
 	
+	def getBonusInfo(self, row):
+		from operator import itemgetter
+		from ..spells import Spell, SpellProxy
+		Spell.initProxy(SpellProxy)
+		ret = []
+		for i in range(1, 9):
+			spell = row._raw("bonus_%i" % (i))
+			pieces = getattr(row, "required_items_%i" % (i))
+			if spell:
+				ret.append((Spell(spell), pieces))
+		
+		ret.sort(key=itemgetter(1))
+		return ret
+	
 	def getItems(self, row):
 		from ..items import Item, ItemProxy
 		Item.initProxy(ItemProxy)
 		ret = []
-		for i in range(1, 11):
+		for i in range(1, 18):
 			id = row._raw("item_%i" % (i))
 			if id:
 				ret.append(Item(id))
