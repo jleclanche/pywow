@@ -148,12 +148,16 @@ class ItemTooltip(Tooltip):
 			self.append("lock", ITEM_MIN_SKILL % ("Lockpicking", lockSkillLevel), RED)
 		
 		slot = self.obj.getSlotText()
+		bagSlots = self.obj.getBagSlots()
 		subClassId, subClassName = self.obj.getSubClassInfo()
-		if slot and self.showSubClass():
-			self.append("slot", slot)
-			self.append("subclass", subClassName, side=Tooltip.RIGHT)
-		elif slot:
-			self.append("slot", slot)
+		if slot:
+			if bagSlots:
+				self.append("slot", CONTAINER_SLOTS % (bagSlots, slot))
+			elif self.showSubClass():
+				self.append("slot", slot)
+				self.append("subclass", subClassName, side=Tooltip.RIGHT)
+			else:
+				self.append("slot", slot)
 		elif self.showSubClass():
 			self.append("subclass", subClassName)
 		
@@ -359,6 +363,9 @@ class ItemProxy(object):
 		from . import levels
 		#return row.armor # old
 		return levels.getArmor(row.level, row.category.id, row.subcategory, row.quality, row.slot), self.getExtraArmor(row)
+	
+	def getBagSlots(self, row):
+		return row.bag_slots
 	
 	def getBlock(self, row):
 		#return row.block # old
