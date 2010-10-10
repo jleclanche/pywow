@@ -236,9 +236,15 @@ class ItemTooltip(Tooltip):
 				if triggerText is None:
 					continue
 				
+				glyph = spell.getGlyphLearned()
+				
 				if trigger == TRIGGER_LEARNING:
-					hideNote = True
-					text = self.obj.note or "(null)"
+					if glyph:
+						text = "%s\n\n%s" % (ITEM_GLYPH_ONUSE, glyph.getDescription())
+					
+					else:
+						hideNote = True
+						text = self.obj.note or "(null)"
 				else:
 					text = spell.getDescription()
 				
