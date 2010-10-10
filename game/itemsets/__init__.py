@@ -20,7 +20,7 @@ class ItemSetTooltip(Tooltip):
 		self.append("name", ITEM_SET_NAME % (self.obj.getName(), 0, maxItems), color=YELLOW)
 		
 		for item in items:
-			self.append("item", item.getName(), color=GREY)
+			self.append("item", "  %s" % (item.getName()), color=GREY)
 		
 		ret = self.values
 		self.values = []
