@@ -111,7 +111,9 @@ class ItemTooltip(Tooltip):
 		#if self.obj.quality and env.colorblind:
 		#	self.append("quality", self.obj.getQuality())
 		
-		# glyph
+		glyph = self.obj.getGlyph()
+		if glyph:
+			self.append("glyph", glyph.getTypeText(), color=CYAN)
 		
 		if self.obj.isHeroic():
 			self.append("heroic", ITEM_HEROIC, GREEN)
@@ -375,6 +377,12 @@ class ItemProxy(object):
 		if row.gem_properties and row.gem_properties.enchant:
 			return row.gem_properties.enchant.name_enus
 		return ""
+	
+	def getGlyph(self, row):
+		for spellInfo in self.getSpells(row):
+			glyph = spellInfo[0].getGlyphLearned()
+			if glyph:
+				return glyph
 	
 	def getItemSet(self, row):
 		id = row._raw("itemset")

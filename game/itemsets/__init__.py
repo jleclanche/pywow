@@ -45,8 +45,8 @@ class ItemSetProxy(object):
 		return self.__file[id]
 	
 	def getBonusInfo(self, row):
-		from operator import itemgetter
 		from ..spells import Spell
+		from operator import itemgetter
 		ret = []
 		for i in range(1, 9):
 			spell = row._raw("bonus_%i" % (i))
