@@ -5,10 +5,12 @@ Items
  - Item.dbc + itemcache.wdb (2.x->4.x)
  - Item-sparse.db2 (4.x)
 """
+
 from __future__ import division
 from .. import *
 from .. import durationstring
 from ..globalstrings import *
+
 
 TRIGGER_ONUSE     = 0
 TRIGGER_ONEQUIP   = 1
@@ -211,7 +213,7 @@ class ItemTooltip(Tooltip):
 		
 		# (required arena rating)
 		
-		requiredSkill, requiredSkillLevel = self.obj.getRequiredSkill()
+		requiredSkill, requiredSkillLevel = self.obj.getRequiredSkillInfo()
 		if requiredSkill and requiredSkillLevel:
 			self.append("requiredSkill", ITEM_MIN_SKILL % (requiredSkill, requiredSkillLevel))
 		
@@ -409,7 +411,7 @@ class ItemProxy(object):
 			return row.required_instance.name_enus
 		return ""
 	
-	def getRequiredSkill(self, row):
+	def getRequiredSkillInfo(self, row):
 		requiredSkillLevel = row.required_skill_level
 		if row.required_skill:
 			return row.required_skill.name_enus, requiredSkillLevel
