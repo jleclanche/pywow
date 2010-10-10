@@ -16,7 +16,9 @@ class ChrClass(Model):
 		for id, row in f.items():
 			if mask & (2**(id-1)):
 				ret.append(ChrClass(id))
-		return ret
+		
+		if len(ret) < len(f):
+			return ret
 
 class ChrClassProxy(object):
 	"""
