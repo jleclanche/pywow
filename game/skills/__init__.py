@@ -32,7 +32,8 @@ class SkillProxy(object):
 		return self.__file[id]
 	
 	def getSpells(self, row):
-		from ..spells import Spell, SpellProxy
-		Spell.initProxy(SpellProxy)
+		from ..spells import Spell
 		lookups = row.skilllineability__skill
 		return [Spell(k._raw("spell")) for k in lookups]
+
+Skill.initProxy(SkillProxy)

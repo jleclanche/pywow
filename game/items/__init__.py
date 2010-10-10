@@ -377,8 +377,7 @@ class ItemProxy(object):
 	def getItemSet(self, row):
 		id = row._raw("itemset")
 		if id:
-			from ..itemsets import ItemSet, ItemSetProxy
-			ItemSet.initProxy(ItemSetProxy)
+			from ..itemsets import ItemSet
 			return ItemSet(id)
 	
 	def getLockInfo(self, row):
@@ -427,8 +426,7 @@ class ItemProxy(object):
 		return ""
 	
 	def getSpells(self, row):
-		from ..spells import Spell, SpellProxy
-		Spell.initProxy(SpellProxy)
+		from ..spells import Spell
 		spells = ("spell_%i", "spell_trigger_%i", "spell_charges_%i", "spell_cooldown_%i", "spell_category_%i", "spell_cooldown_category_%i")
 		ret = []
 		for i in range(1, 6):
@@ -447,8 +445,7 @@ class ItemProxy(object):
 	def getSocketBonus(self, row):
 		id = row._raw("socket_bonus")
 		if id:
-			from ..enchants import Enchant, EnchantProxy
-			Enchant.initProxy(EnchantProxy)
+			from ..enchants import Enchant
 			return Enchant(id)
 	
 	def getSockets(self, row):
@@ -479,3 +476,5 @@ class ItemProxy(object):
 		if subcategory:
 			return subcategory.id, subcategory.name_enus
 		return None, None
+
+Item.initProxy(ItemProxy)

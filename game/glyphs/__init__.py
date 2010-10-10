@@ -16,8 +16,7 @@ class Glyph(Model):
 	
 	@classmethod
 	def getAllSpells(cls):
-		from ..skills import Skill, SkillProxy
-		Skill.initProxy(SkillProxy)
+		from ..skills import Skill
 		return Skill(cls.SKILL_GLYPHS).getSpells()
 	
 	@classmethod
@@ -57,8 +56,7 @@ class GlyphProxy(object):
 		self.__file = wdbc.get("GlyphProperties.dbc", build=-1)
 	
 	def get(self, id):
-		from ..spells import Spell, SpellProxy
-		Spell.initProxy(SpellProxy)
+		from ..spells import Spell
 		row = self.__file[id]
 		self.spell = Spell(row._raw("spell"))
 		return row
@@ -77,3 +75,5 @@ class GlyphProxy(object):
 	
 	def getType(self, row):
 		return row.type
+
+Glyph.initProxy(GlyphProxy)

@@ -23,3 +23,5 @@ class EnchantProxy(object):
 	
 	def getName(self, row):
 		return row.name_enus
+
+Enchant.initProxy(EnchantProxy)

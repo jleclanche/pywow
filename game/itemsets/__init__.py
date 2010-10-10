@@ -42,8 +42,7 @@ class ItemSetProxy(object):
 	
 	def getBonusInfo(self, row):
 		from operator import itemgetter
-		from ..spells import Spell, SpellProxy
-		Spell.initProxy(SpellProxy)
+		from ..spells import Spell
 		ret = []
 		for i in range(1, 9):
 			spell = row._raw("bonus_%i" % (i))
@@ -55,8 +54,7 @@ class ItemSetProxy(object):
 		return ret
 	
 	def getItems(self, row):
-		from ..items import Item, ItemProxy
-		Item.initProxy(ItemProxy)
+		from ..items import Item
 		ret = []
 		for i in range(1, 18):
 			id = row._raw("item_%i" % (i))
@@ -67,3 +65,5 @@ class ItemSetProxy(object):
 	
 	def getName(self, row):
 		return row.name_enus
+
+ItemSet.initProxy(ItemSetProxy)

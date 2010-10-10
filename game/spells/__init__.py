@@ -143,8 +143,7 @@ class SpellProxy(object):
 		if effects and effects[0]._raw("effect") in (24, 157):
 			id = effects[0].type
 			if id:
-				from ..items import Item, ItemProxy
-				Item.initProxy(ItemProxy)
+				from ..items import Item
 				return Item(id)
 	
 	def getDescription(self, row):
@@ -163,8 +162,7 @@ class SpellProxy(object):
 		if effects and effects[0]._raw("effect") == 74:
 			id = effects[0].misc_value_1
 			if id:
-				from ..glyphs import Glyph, GlyphProxy
-				Glyph.initProxy(GlyphProxy)
+				from ..glyphs import Glyph
 				return Glyph(id)
 	
 	def getIcon(self, row):
@@ -192,8 +190,7 @@ class SpellProxy(object):
 		return row.rank_enus
 	
 	def getReagents(self, row):
-		from ..items import Item, ItemProxy
-		Item.initProxy(ItemProxy)
+		from ..items import Item
 		ret = []
 		fields = ("reagents__reagent_%i", "reagents__amount_%i")
 		
@@ -210,3 +207,5 @@ class SpellProxy(object):
 		if row.rune_cost:
 			return row.rune_cost.blood, row.rune_cost.unholy, row.rune_cost.frost
 		return 0, 0, 0
+
+Spell.initProxy(SpellProxy)
