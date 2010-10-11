@@ -203,7 +203,9 @@ class ItemTooltip(Tooltip):
 			duration = durationstring.duration(duration, durationstring.SHORT)
 			self.append("duration", ITEM_DURATION % (duration))
 		
-		self.append("requiredHoliday", self.obj.getRequiredHoliday())
+		holiday = self.obj.getRequiredHoliday()
+		if holiday:
+			self.append("requiredHoliday", ITEM_REQ_SKILL % (self.obj.getRequiredHoliday()))
 		
 		# race reqs
 		
