@@ -26,6 +26,8 @@ class ItemSetTooltip(Tooltip):
 		for item in items:
 			self.append("item", "  %s" % (item.getName()), color=GREY)
 		
+		self.appendEmptyLine()
+		
 		for bonus, pieces in self.obj.getBonusInfo():
 			self.append("bonus", ITEM_SET_BONUS_GRAY % (pieces, bonus.getDescription()), color=GREY)
 		

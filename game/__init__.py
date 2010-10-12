@@ -46,9 +46,12 @@ class Model(object):
 		return super(Model, self).__getattribute__(attr)
 	
 	def __repr__(self):
-		if hasattr(self, "name"):
-			return "<%s #%i: %s>" % (self.__class__.__name__, self.id, self.name)
-		return "<%s #%i>" % (self.__class__.__name__, self.id)
+		return "%s(%i)" % (self.__class__.__name__, self.id)
+	
+	def __str__(self):
+		if hasattr(self, "getName"):
+			return self.getName()
+		return self.__repr__()
 
 class Tooltip(object):
 	LEFT = 0
@@ -62,6 +65,9 @@ class Tooltip(object):
 		if text:
 			self.keys.append(name)
 			self.values.append(TooltipNode(name, text, color, side))
+	
+	def appendEmptyLine(self):
+		self.values.append(TooltipNode("__separator", "", WHITE, 0))
 	
 	def formatAppend(self, name, text, value, color=WHITE):
 		if value:
@@ -98,6 +104,9 @@ class TooltipNode(object):
 	
 	def getTooltip(self):
 		return self.tooltip
+	
+	def isEmpty(self):
+		return self.name == "__separator"
 	
 	def isTooltip(self):
 		return hasattr(self, "tooltip")
