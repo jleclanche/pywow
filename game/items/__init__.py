@@ -84,6 +84,9 @@ class Item(Model):
 			28: INVTYPE_RELIC,
 		}.get(self.slot, "")
 	
+	def getTooltip(self):
+		return ItemTooltip(self)
+	
 	def getTriggerText(self, trigger):
 		"""
 		Return the trigger text for an item spell trigger
@@ -282,6 +285,7 @@ class ItemTooltip(Tooltip):
 		itemSet = self.obj.getItemSet()
 		if itemSet:
 			from ..itemsets import ItemSetTooltip
+			self.appendEmptyLine()
 			self.append("itemSet", ItemSetTooltip(itemSet))
 		
 		if not hideNote:
