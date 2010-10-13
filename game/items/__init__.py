@@ -311,7 +311,7 @@ class ItemTooltip(Tooltip):
 		return ret
 	
 	def showItemLevel(self):
-		return self.obj.category.id in (2, 4, 6)
+		return self.obj.category.id in (2, 4, 5, 6)
 	
 	def showSubClass(self):
 		category = self.obj.category.id
