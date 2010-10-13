@@ -219,5 +219,17 @@ class SpellProxy(object):
 		if row.rune_cost:
 			return row.rune_cost.blood, row.rune_cost.unholy, row.rune_cost.frost
 		return 0, 0, 0
+	
+	def isChanneled(self, row):
+		return row.flags_2.channeled or row.flags_2.channeled_2
+	
+	def isNextMelee(self, row):
+		return row.flags_1.next_melee or row.flags_1.next_melee_2,
+	
+	def isPassive(self, row):
+		return row.flags_1.next_melee
+	
+	def isTrade(self, row):
+		return row.flags_1.tradespell
 
 Spell.initProxy(SpellProxy)
