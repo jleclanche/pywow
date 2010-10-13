@@ -119,9 +119,21 @@ class Spell(Model):
 			return SPELL_RANGE % (rangeMax)
 		
 		return ""
+	
+	def getTooltip(self):
+		return SpellTooltip(self)
 
 class SpellTooltip(Tooltip):
-	pass
+	def tooltip(self):
+		self.append("name", self.obj.getName())
+		self.append("range", self.obj.getRangeText())
+		self.append("cost", self.obj.getPowerCostText())
+		self.append("description", self.obj.getDescription(), color=YELLOW)
+		self.append("cooldown", self.obj.getCooldownText())
+		
+		ret = self.values
+		self.values = []
+		return ret
 
 
 class SpellProxy(object):
