@@ -18,6 +18,27 @@ POWER_TYPE_RUNIC_POWER = 6
 POWER_TYPE_SOUL_SHARDS = 7
 
 class Spell(Model):
+	def getCastTimeText(self):
+		if self.isPassive():
+			return
+		
+		if self.isNextMelee():
+			return SPELL_ON_NEXT_SWING
+		
+		if self.isChanneled():
+			return SPELL_CAST_CHANNELED
+		
+		castTime = self.getCastTime()
+		if not castTime:
+			if self.isOnGlobalCooldown():
+				return SPELL_CAST_TIME_INSTANT
+			return SPELL_CAST_TIME_INSTANT_NO_MANA
+		
+		if castTime < 0:
+			return SPELL_CAST_TIME_INSTANT
+		
+		return SPELL_CAST_TIME % (durationstring.short(castTime))
+	
 	def getCooldownText(self):
 		cooldown = self.getCooldown()
 		if cooldown:
@@ -128,8 +149,9 @@ class SpellTooltip(Tooltip):
 		self.append("name", self.obj.getName())
 		self.append("range", self.obj.getRangeText())
 		self.append("cost", self.obj.getPowerCostText())
-		self.append("description", self.obj.getDescription(), color=YELLOW)
+		self.append("castTime", self.obj.getCastTimeText())
 		self.append("cooldown", self.obj.getCooldownText())
+		self.append("description", self.obj.getDescription(), color=YELLOW)
 		
 		ret = self.values
 		self.values = []
@@ -146,6 +168,11 @@ class SpellProxy(object):
 	
 	def get(self, id):
 		return self.__file[id]
+	
+	def getCastTime(self, row):
+		if row.cast_time:
+			return row.cast_time.cast_time
+		return 0
 	
 	def getCooldown(self, row):
 		return row.cooldowns and row.cooldowns.cooldown or 0
@@ -224,7 +251,10 @@ class SpellProxy(object):
 		return row.flags_2.channeled or row.flags_2.channeled_2
 	
 	def isNextMelee(self, row):
-		return row.flags_1.next_melee or row.flags_1.next_melee_2,
+		return row.flags_1.next_melee or row.flags_1.next_melee_2
+	
+	def isOnGlobalCooldown(self, row):
+		return row.categories and row.categories.recovery_category == 133
 	
 	def isPassive(self, row):
 		return row.flags_1.next_melee
