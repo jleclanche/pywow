@@ -161,7 +161,7 @@ class StringLookup(object):
 		return value + min(sides, 1)
 	
 	def __macro_s(self, spell, identifier, effect):
-		if spellDBC:
+		if spellDBC and spell.id in spellDBC:
 			spellScale = spellDBC[spell.id].spell_scaling
 			if spellScale:
 				chrclass = spellScale.class_index
