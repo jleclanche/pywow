@@ -157,7 +157,7 @@ class StringLookup(object):
 		return value + min(sides, 1)
 	
 	def __macro_s(self, spell, identifier, effect):
-		self.gtSpellScaling = wdbc.get("gtSpellScaling", build=spell._parent.build)
+		self.gtSpellScaling = wdbc.get("gtSpellScaling", build=-1)
 		gtScale = self.gtSpellScaling[(2*100) + 85].ratio
 		spellScale = spell.spell_scaling
 		if spellScale:
