@@ -322,7 +322,6 @@ SPELL_CAST_TIME = "%s cast" #!
 SPELL_CAST_CHANNELED = "Channeled"
 SPELL_CAST_TIME_INSTANT = "Instant cast"
 SPELL_CAST_TIME_INSTANT_NO_MANA = "Instant"
-SPELL_CAST_TIME_RANGED = "Attack speed +%.3g sec"
 SPELL_ON_NEXT_SWING = "Next melee"
 SPELL_RANGE = "%s yd range"
 SPELL_RANGE_DUAL = "%s: %s yd range"
