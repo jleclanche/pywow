@@ -85,6 +85,8 @@ class DBCFile(DBFile):
 		return super(DBCFile, self)._parse_field(data, field, row)
 	
 	def _parse_row(self, id):
+		if not id in self._addresses:
+			return
 		address, reclen = self._addresses[id]
 		self.file.seek(address)
 		data = self.file.read(reclen) # We also read id and reclen columns
