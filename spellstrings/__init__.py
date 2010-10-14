@@ -159,7 +159,8 @@ class StringLookup(object):
 	def __macro_s(self, spell, identifier, effect):
 		self.gtSpellScaling = wdbc.get("gtSpellScaling", build=-1)
 		gtScale = self.gtSpellScaling[(2*100) + 85].ratio
-		spellScale = spell.spell_scaling
+		_spell = wdbc.get("Spell", build=-1)[spell.id]
+		spellScale = _spell.spell_scaling
 		if spellScale:
 			meanScaling = getattr(spellScale, "coefficient_1_effect_%i" % (effect))
 			if meanScaling:
