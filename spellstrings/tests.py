@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-BUILD = 12942
+BUILD = 13117
 TESTS = {}
 
 TESTS[10026] = {
@@ -66,6 +66,11 @@ del _[33127], _[58644], _[64936]
 #_[-75207] = "" # Abyssal Seahorse TODO
 _[86479] = "Increases Mastery by 8.  Select a talent specialization in order to activate Mastery.  Consult your talent overview pane for additional information."
 
+
+_ = TESTS[13117] = TESTS[12942].copy()
+_[16190] = "Summons a Mana Tide Totem with 10% of the caster's health at the feet of the caster for 12 sec.  Party members within 23 yards of the totem have their Spirit increased by 350%."
+_[86479] = "Select a talent specialization in order to activate Mastery.  Consult your talent overview pane for additional information."
+
 def main():
 	from pywow.spellstrings import SpellString, WDBCProxy
 	from pywow import wdbc
@@ -91,7 +96,7 @@ def main():
 			print "FAIL"
 			print "Returned:", repr(description)
 			print "Expected:", repr(expected)
-			print "Original:", repr(spell.description_enus)
+			#print "Original:", repr(spell.description_enus)
 			fail += 1
 		else:
 			print "OK"
