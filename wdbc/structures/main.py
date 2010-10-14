@@ -1495,6 +1495,12 @@ class BattlemasterList(Structure):
 		fields.append_fields(
 			IntegerField("max_players"),
 		)
+	
+	def changed_13183(self, fields):
+		self.changed_12984(fields)
+		fields.append_fields(
+			UnknownField(),
+		)
 
 
 class BankBagSlotPrices(Structure):
