@@ -5,7 +5,7 @@ from __future__ import division
 from cStringIO import StringIO
 from datetime import timedelta
 from math import ceil, floor
-
+from pywow import wdbc
 
 SEEK_CUR = 1 # os.SEEK_CUR
 
@@ -42,6 +42,8 @@ PAPERDOLL_VALUES = {
 }
 
 FUNCTIONS = ["ceil", "cond", "eq", "floor", "gte", "gt", "lte", "lt", "max", "min"]
+
+SPELL_DURATION_UNTIL_CANCELLED = "until cancelled"
 
 class VariableNotFound(Exception):
 	"""
@@ -130,6 +132,7 @@ class StringLookup(object):
 	"""
 	def __init__(self, spell, proxy, braced=False):
 		self.spell = spell
+		self.gtSpellScaling = wdbc.get("gtSpellScaling", build=spell._parent.build)
 		self.last_value = 0
 		self.braced = braced # Whether or not we are inside braces
 		self.proxy = proxy
@@ -155,8 +158,17 @@ class StringLookup(object):
 		return value + min(sides, 1)
 	
 	def __macro_s(self, spell, identifier, effect):
+		gtScale = self.gtSpellScaling[(2*100) + 85].ratio
+		spellScale = spell.spell_scaling
+		if spellScale:
+			meanScaling = getattr(spellScale, "coefficient_1_effect_%i" % (effect))
+			if meanScaling:
+				mean = gtScale * meanScaling
+				return Range(mean, mean)
+		
 		min = self.__macro_m(spell, identifier, effect)
 		max = self.__macro_M(spell, identifier, effect)
+			
 		return Range(min, max)
 	
 	def __macro_t(self, spell, identifier, effect):
@@ -181,7 +193,7 @@ class StringLookup(object):
 		if duration <= timedelta(milliseconds=0):
 			if self.braced:
 				return "0"
-			return "until cancelled"
+			return SPELL_DURATION_UNTIL_CANCELLED
 		
 		if duration < timedelta(minutes=1):
 			if self.braced:
