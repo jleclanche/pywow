@@ -45,6 +45,10 @@ FUNCTIONS = ["ceil", "cond", "eq", "floor", "gte", "gt", "lte", "lt", "max", "mi
 
 SPELL_DURATION_UNTIL_CANCELLED = "until cancelled"
 
+# XXX get rid of these two calls like this
+gtSpellScaling = wdbc.get("gtSpellScaling", build=-1)
+spellDBC = wdbc.get("Spell", build=-1)
+
 class VariableNotFound(Exception):
 	"""
 	Raised when a description variable
@@ -157,13 +161,11 @@ class StringLookup(object):
 		return value + min(sides, 1)
 	
 	def __macro_s(self, spell, identifier, effect):
-		spelldbc = wdbc.get("Spell", build=-1)
-		if spelldbc:
-			spellScale = spelldbc[spell.id].spell_scaling
+		if spellDBC:
+			spellScale = spellDBC[spell.id].spell_scaling
 			chrclass = spellScale.class_index
 			if chrclass == -1:
 				chrclass = 0
-			gtSpellScaling = wdbc.get("gtSpellScaling", build=-1)
 			gtScale = gtSpellScaling[(chrclass*100) + 85].ratio
 			
 			if spellScale:
@@ -174,7 +176,7 @@ class StringLookup(object):
 		
 		min = self.__macro_m(spell, identifier, effect)
 		max = self.__macro_M(spell, identifier, effect)
-			
+		
 		return Range(min, max)
 	
 	def __macro_t(self, spell, identifier, effect):
