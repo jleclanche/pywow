@@ -26,7 +26,7 @@ class TalentTabProxy(object):
 	
 	def getClasses(self, row):
 		from ..classes import ChrClass
-		return ChrClass.getClassesFromMask(mask)
+		return ChrClass.getClassesFromMask(row.class_mask)
 	
 	def getDescription(self, row):
 		return row.description_enus
