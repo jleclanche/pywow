@@ -157,15 +157,20 @@ class StringLookup(object):
 		return value + min(sides, 1)
 	
 	def __macro_s(self, spell, identifier, effect):
-		self.gtSpellScaling = wdbc.get("gtSpellScaling", build=-1)
-		gtScale = self.gtSpellScaling[(2*100) + 85].ratio
-		_spell = wdbc.get("Spell", build=-1)[spell.id]
-		spellScale = _spell.spell_scaling
-		if spellScale:
-			meanScaling = getattr(spellScale, "coefficient_1_effect_%i" % (effect))
-			if meanScaling:
-				mean = gtScale * meanScaling
-				return Range(mean, mean)
+		spelldbc = wdbc.get("Spell", build=-1)
+		if spelldbc:
+			spellScale = spelldbc[spell.id].spell_scaling
+			chrclass = spellScale.class_index
+			if chrclass == -1:
+				chrclass = 0
+			gtSpellScaling = wdbc.get("gtSpellScaling", build=-1)
+			gtScale = gtSpellScaling[(chrclass*100) + 85].ratio
+			
+			if spellScale:
+				meanScaling = getattr(spellScale, "coefficient_1_effect_%i" % (effect))
+				if meanScaling:
+					mean = gtScale * meanScaling
+					return Range(mean, mean)
 		
 		min = self.__macro_m(spell, identifier, effect)
 		max = self.__macro_M(spell, identifier, effect)
