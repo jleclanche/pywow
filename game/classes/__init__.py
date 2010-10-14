@@ -31,6 +31,9 @@ class ChrClassProxy(object):
 	def get(self, id):
 		return self.__file[id]
 	
+	def getInternalName(self, row):
+		return row.internal_name
+	
 	def getName(self, row):
 		return row.name_male_enus
 
