@@ -34,10 +34,10 @@ class Spell(Model):
 				return SPELL_CAST_TIME_INSTANT
 			return SPELL_CAST_TIME_INSTANT_NO_MANA
 		
-		if castTime < 0:
+		if castTime < durationstring.timedelta(0):
 			return SPELL_CAST_TIME_INSTANT
 		
-		return SPELL_CAST_TIME % (durationstring.short(castTime))
+		return SPELL_CAST_TIME % (durationstring.duration(castTime, durationstring.SHORT))
 	
 	def getCooldownText(self):
 		cooldown = self.getCooldown()
@@ -151,7 +151,16 @@ class SpellTooltip(Tooltip):
 		self.append("cost", self.obj.getPowerCostText())
 		self.append("castTime", self.obj.getCastTimeText())
 		self.append("cooldown", self.obj.getCooldownText())
+		# required tools
+		# reagents
+		# required item subclasses
+		# required stances / level
 		self.append("description", self.obj.getDescription(), color=YELLOW)
+		
+		createdItem = self.obj.getCreatedItem()
+		if createdItem:
+			self.appendEmptyLine()
+			self.append("createdItem", createdItem.getTooltip())
 		
 		ret = self.values
 		self.values = []
@@ -242,6 +251,10 @@ class SpellProxy(object):
 		
 		return ret
 	
+	def getRequiredLevel(self, row):
+		if row.levels:
+			return row.levels.base_level
+	
 	def getRuneCostInfo(self, row):
 		if row.rune_cost:
 			return row.rune_cost.blood, row.rune_cost.unholy, row.rune_cost.frost
@@ -254,10 +267,10 @@ class SpellProxy(object):
 		return row.flags_1.next_melee or row.flags_1.next_melee_2
 	
 	def isOnGlobalCooldown(self, row):
-		return row.categories and row.categories.recovery_category == 133
+		return row.categories and row.categories._raw("recovery_category") == 133
 	
 	def isPassive(self, row):
-		return row.flags_1.next_melee
+		return row.flags_1.passive
 	
 	def isTrade(self, row):
 		return row.flags_1.tradespell
