@@ -5,7 +5,6 @@ Talent tabs
 """
 
 from .. import Model
-from .tabs import Tab
 
 class TalentTab(Model):
 	ROLE_TANK   = 0x2
