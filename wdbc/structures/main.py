@@ -6503,10 +6503,10 @@ class SpellScaling(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
-		IntegerField(),
+		DurationField("cast_scaling_min_value", unit="milliseconds"),
+		DurationField("cast_scaling_max_value", unit="milliseconds"),
+		IntegerField("cast_scaling_max_level"),
+		IntegerField("class_index"), # (index * 100) + charLevel => gtSpellScaling
 		FloatField("coefficient_1_effect_1"),
 		FloatField("coefficient_1_effect_2"),
 		FloatField("coefficient_1_effect_3"),
