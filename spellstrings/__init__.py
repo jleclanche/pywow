@@ -132,7 +132,6 @@ class StringLookup(object):
 	"""
 	def __init__(self, spell, proxy, braced=False):
 		self.spell = spell
-		self.gtSpellScaling = wdbc.get("gtSpellScaling", build=spell._parent.build)
 		self.last_value = 0
 		self.braced = braced # Whether or not we are inside braces
 		self.proxy = proxy
@@ -158,6 +157,7 @@ class StringLookup(object):
 		return value + min(sides, 1)
 	
 	def __macro_s(self, spell, identifier, effect):
+		self.gtSpellScaling = wdbc.get("gtSpellScaling", build=spell._parent.build)
 		gtScale = self.gtSpellScaling[(2*100) + 85].ratio
 		spellScale = spell.spell_scaling
 		if spellScale:
