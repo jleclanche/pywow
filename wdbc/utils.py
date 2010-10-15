@@ -21,7 +21,7 @@ def generate_structure(db):
 
 def fopen(name, build=0, structure=None, environment={}):
 	from .db2 import DB2File
-	from .dbc import DBCFile, InferredDBCFile
+	from .dbc import DBCFile, InferredDBCFile, WCFFile
 	from .wdb import WDBFile
 	file = open(name, "rb")
 	signature = file.read(4)
