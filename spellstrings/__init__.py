@@ -149,19 +149,8 @@ class StringLookup(object):
 	def get_spell(self, id):
 		return self.proxy.get_spell(self, id)
 	
-	def __macro_M(self, spell, identifier, effect):
-		value = self.get_effect(spell, "damage_base", effect)
-		sides = self.get_effect(spell, "die_sides", effect)
-		dice = 1
-		return value + (sides * dice)
-	
-	def __macro_m(self, spell, identifier, effect):
-		value = self.get_effect(spell, "damage_base", effect)
-		sides = self.get_effect(spell, "die_sides", effect)
-		return value + min(sides, 1)
-	
-	def __macro_s(self, spell, identifier, effect):
-		if spellDBC and spell.id in spellDBC:
+	def __get_scaling_info(self, spell, effect):
+		if spell.id in spellDBC:
 			spellScale = spellDBC[spell.id].spell_scaling
 			if spellScale:
 				chrclass = spellScale.class_index
@@ -171,9 +160,35 @@ class StringLookup(object):
 				
 				if spellScale:
 					meanScaling = getattr(spellScale, "coefficient_1_effect_%i" % (effect))
+					rangeScaling = getattr(spellScale, "coefficient_2_effect_%i" % (effect))
 					if meanScaling:
 						mean = gtScale * meanScaling
-						return Range(mean, mean)
+						min = mean * (1 - rangeScaling / 2)
+						min = mean * (1 + rangeScaling / 2)
+						min, max, mean
+		return 0, 0, 0
+	
+	def __macro_M(self, spell, identifier, effect):
+		_min, _max, mean = self.__get_scaling_info(spell, effect)
+		if _max:
+			return _max
+		value = self.get_effect(spell, "damage_base", effect)
+		sides = self.get_effect(spell, "die_sides", effect)
+		dice = 1
+		return value + (sides * dice)
+	
+	def __macro_m(self, spell, identifier, effect):
+		_min, _max, mean = self.__get_scaling_info(spell, effect)
+		if _min:
+			return _min
+		value = self.get_effect(spell, "damage_base", effect)
+		sides = self.get_effect(spell, "die_sides", effect)
+		return value + min(sides, 1)
+	
+	def __macro_s(self, spell, identifier, effect):
+		min, max, mean = self.__get_scaling_info(spell, effect)
+		if mean:
+			return mean
 		
 		min = self.__macro_m(spell, identifier, effect)
 		max = self.__macro_M(spell, identifier, effect)
@@ -182,6 +197,10 @@ class StringLookup(object):
 	
 	def __macro_t(self, spell, identifier, effect):
 		return self.get_effect(spell, "aura_interval", effect) / 1000
+	
+	def __macro_w(self, spell, identifier, effect):
+		# Like $s, but without the scaling
+		return self.__macro_s(spell, identifier, effect)
 	
 	
 	def format_boolean(self, identifier, values):
@@ -324,6 +343,9 @@ class StringLookup(object):
 		
 		if identifier == "v":
 			return self.get_value(spell, "max_target_level")
+		
+		if identifier == "w":
+			return self.__macro_w(spell, identifier, effect)
 		
 		if identifier == "x":
 			return self.get_effect(spell, "chain_targets", effect)
