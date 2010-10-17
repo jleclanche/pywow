@@ -155,7 +155,7 @@ class StringLookup(object):
 			if spellScale:
 				chrclass = spellScale.class_index
 				if chrclass == -1:
-					chrclass = 0
+					chrclass = 11
 				gtScale = gtSpellScaling[(chrclass*100) + 85].ratio
 				
 				if spellScale:
