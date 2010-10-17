@@ -164,8 +164,8 @@ class StringLookup(object):
 					if meanScaling:
 						mean = gtScale * meanScaling
 						min = mean * (1 - rangeScaling / 2)
-						min = mean * (1 + rangeScaling / 2)
-						min, max, mean
+						max = mean * (1 + rangeScaling / 2)
+						return min, max, int(mean)
 		return 0, 0, 0
 	
 	def __macro_M(self, spell, identifier, effect):
