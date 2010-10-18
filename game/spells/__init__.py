@@ -141,15 +141,31 @@ class Spell(Model):
 		
 		return ""
 	
+	def showCastTime(self):
+		return not self.isTrade()
+	
 	def getTooltip(self):
 		return SpellTooltip(self)
 
 class SpellTooltip(Tooltip):
 	def tooltip(self):
-		self.append("name", self.obj.getName())
+		name = self.obj.getName()
+		if self.obj.isTrade():
+			skill = self.obj.getPrimarySkill()
+			if skill:
+				name = "%s: %s" % (skill, name)
+			color = YELLOW
+		else:
+			color = WHITE
+		self.append("name", name, color=color)
+		
 		self.append("range", self.obj.getRangeText())
+		
 		self.append("cost", self.obj.getPowerCostText())
-		self.append("castTime", self.obj.getCastTimeText())
+		
+		if self.obj.showCastTime():
+			self.append("castTime", self.obj.getCastTimeText())
+		
 		self.append("cooldown", self.obj.getCooldownText())
 		# required tools
 		# reagents
@@ -259,6 +275,12 @@ class SpellProxy(object):
 		if row.rune_cost:
 			return row.rune_cost.blood, row.rune_cost.unholy, row.rune_cost.frost
 		return 0, 0, 0
+	
+	def getPrimarySkill(self, row):
+		# TODO getPrimarySkill.getName()
+		skills = row.skilllineability__spell
+		if skills:
+			return skills[0].skill.name_enus
 	
 	def isChanneled(self, row):
 		return row.flags_2.channeled or row.flags_2.channeled_2
