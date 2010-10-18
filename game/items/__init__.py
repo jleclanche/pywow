@@ -268,7 +268,9 @@ class ItemTooltip(Tooltip):
 					self.append("spells", text, GREEN)
 				
 				if createdItem:
+					self.appendEmptyLine()
 					self.append("createdItem", ItemTooltip(createdItem))
+					self.appendEmptyLine()
 					reagents = spell.getReagents()
 					if reagents:
 						text = []
