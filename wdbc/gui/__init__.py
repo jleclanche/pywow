@@ -13,21 +13,21 @@ from pywow import wdbc
 class WDBCClient(QApplication):
 	def __init__(self, argv):
 		QApplication.__init__(self, argv)
+		self.mainWindow = MainWindow()
 		
 		arguments = OptionParser()
 		arguments.add_option("-b", "--build", type="int", dest="build", default=0)
 		arguments.add_option("--get", action="store_true", dest="get", help="get from the environment")
 		
 		args, files = arguments.parse_args(argv[1:])
-		name = files[0] # XXX
 		
-		if args.get:
-			file = wdbc.get(name, args.build)
-		else:
-			file = wdbc.fopen(name, args.build)
-		
-		self.mainWindow = MainWindow()
-		self.mainWindow.setFile(file)
+		for name in files:
+			if args.get:
+				file = wdbc.get(name, args.build)
+			else:
+				file = wdbc.fopen(name, args.build)
+			
+			self.mainWindow.setFile(file)
 
 class MainWindow(QMainWindow):
 	def __init__(self, *args):
