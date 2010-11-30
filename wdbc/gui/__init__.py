@@ -35,8 +35,13 @@ class MainWindow(QMainWindow):
 		self.resize(1332, 886)
 		self.setMinimumSize(640, 480)
 		
+		def openFile():
+			filename, filters = QFileDialog.getOpenFileName(self, "Open file", "/var/www/sigrie/caches", "DBC/Cache files (*.dbc *.wdb *.db2 *.dba *.wcf)")
+			file = wdbc.fopen(filename)
+			self.setFile(file)
+		
 		fileMenu = self.menuBar().addMenu("&File")
-		fileMenu.addAction("Open", self, SLOT("open()"), "Ctrl+O")
+		fileMenu.addAction("Open", openFile, "Ctrl+O")
 		fileMenu.addAction("Exit", self, SLOT("close()"), "Ctrl+Q")
 		
 		centralWidget = QWidget(self)
