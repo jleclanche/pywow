@@ -912,7 +912,7 @@ class QuestCache(Structure):
 		self.changed_12232(fields)
 		fields.insert_field(BitMaskField("flags_2"), after="flags")
 		fields.insert_field(UnknownField(), before="item_reward_1")
-		fields.insert_field(UnknownField(), after="required_item_amount_6")
+		fields.insert_field(ForeignKey("required_learned_spell", "Spell"), after="required_item_amount_6")
 	
 	def changed_12857(self, fields):
 		"""
