@@ -848,7 +848,7 @@ class QuestCache(Structure):
 			IntegerField("reputation_override_4"),
 			IntegerField("reputation_override_5"),
 		], before="instance")
-		fields.insert_field(StringField("quick_summary"), before="required_kill_1")
+		fields.insert_field(StringField("complete_summary"), before="required_kill_1")
 	
 	def changed_10554(self, fields):
 		self.changed_10522(fields)
