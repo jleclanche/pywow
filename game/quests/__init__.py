@@ -31,7 +31,16 @@ class QuestProxy(object):
 	def get(self, id):
 		return self.__file[id]
 	
+	def getCompleteSummary(self, row):
+		return row.complete_summary
+	
+	def getDescription(self, row):
+		return row.description.replace("$B", "\n")
+	
 	def getName(self, row):
 		return row.name
+	
+	def getSummary(self, row):
+		return row.summary
 
 Quest.initProxy(QuestProxy)
