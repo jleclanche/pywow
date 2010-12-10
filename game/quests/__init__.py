@@ -15,6 +15,10 @@ class QuestTooltip(Tooltip):
 	def tooltip(self):
 		
 		self.append("name", self.obj.getName(), color=YELLOW)
+		self.appendEmptyLine()
+		
+		self.append("objective", self.obj.getObjective())
+		self.appendEmptyLine()
 		
 		ret = self.values
 		self.values = []
@@ -39,6 +43,9 @@ class QuestProxy(object):
 	
 	def getName(self, row):
 		return row.name
+	
+	def getObjective(self, row):
+		return row.objective
 	
 	def getSummary(self, row):
 		return row.summary
