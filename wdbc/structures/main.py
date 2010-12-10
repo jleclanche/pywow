@@ -2261,7 +2261,7 @@ class CurrencyTypes(Structure):
 	
 	def changed_12479(self, fields):
 		self.changed_12232(fields)
-		fields.delete_fields("unknown_12479")
+		fields.delete_fields("ordering")
 
 
 class DanceMoves(Structure):
