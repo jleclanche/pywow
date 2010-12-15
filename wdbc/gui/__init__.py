@@ -40,8 +40,16 @@ class MainWindow(QMainWindow):
 			file = wdbc.fopen(filename)
 			self.setFile(file)
 		
+		def reopen():
+			current = self.file.build
+			build, ok = QInputDialog.getInt(self, "Reopen as build...", "Build number", value=current, minValue=-1)
+			if ok and build != current:
+				file = wdbc.fopen(self.file.file.name, build)
+				self.setFile(file)
+		
 		fileMenu = self.menuBar().addMenu("&File")
 		fileMenu.addAction("Open", openFile, "Ctrl+O")
+		fileMenu.addAction("Reopen as build...", reopen, "Ctrl+B")
 		fileMenu.addAction("Exit", self, SLOT("close()"), "Ctrl+Q")
 		
 		centralWidget = QWidget(self)
@@ -52,6 +60,7 @@ class MainWindow(QMainWindow):
 		verticalLayout.addWidget(self.maintable)
 	
 	def setFile(self, file):
+		self.file = file
 		self.setWindowTitle("%s - Sigrie Reader" % (file.file.name))
 		self.maintable.setFile(file)
 		msg = "%i rows - Using %s build %i" % (len(file), file.structure, file.build)
