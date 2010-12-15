@@ -105,10 +105,16 @@ class TableModel(QAbstractTableModel):
 		
 		cell = self.table_data[index.row()][index.column()]
 		field = self.structure[index.column()]
+		
 		if isinstance(field, wdbc.structures.HashField) or isinstance(field, wdbc.structures.DataField):
 			cell = hexlify(cell)
+		
+		elif isinstance(field, wdbc.structures.BitMaskField):
+			cell = "0x%x" % (cell)
+		
 		if isinstance(cell, str) and len(cell) > 200:
 			cell = cell[:200] + "..."
+		
 		return cell
 	
 	def headerData(self, col, orientation, role):
