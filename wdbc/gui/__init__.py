@@ -76,6 +76,7 @@ class MainTable(QWidget):
 		table.setModel(TableModel(self))
 		table.verticalHeader().setVisible(True)
 		table.setSortingEnabled(True)
+		table.verticalHeader().setDefaultSectionSize(25)
 		
 		# layout
 		layout = QVBoxLayout()
