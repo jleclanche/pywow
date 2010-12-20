@@ -57,7 +57,11 @@ class MainWindow(QMainWindow):
 		
 		verticalLayout = QVBoxLayout(centralWidget)
 		self.maintable = MainTable(centralWidget)
-		verticalLayout.addWidget(self.maintable)
+		tabWidget = QTabWidget()
+		#tabWidget.setDocumentMode(True)
+		#tabWidget.setMovable(True)
+		tabWidget.addTab(self.maintable, "Untitled")
+		verticalLayout.addWidget(tabWidget)
 	
 	def setFile(self, file):
 		self.file = file
