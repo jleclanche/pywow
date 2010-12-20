@@ -114,7 +114,8 @@ class TableModel(QAbstractTableModel):
 			cell = hexlify(cell)
 		
 		elif isinstance(field, wdbc.structures.BitMaskField):
-			cell = "0x%x" % (cell)
+			if cell is not None:
+				cell = "0x%x" % (cell)
 		
 		if isinstance(cell, str) and len(cell) > 200:
 			cell = cell[:200] + "..."
