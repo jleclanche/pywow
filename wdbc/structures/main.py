@@ -4448,6 +4448,22 @@ class Material(Structure):
 		)
 
 
+class MountCapability(Structure):
+	"""
+	MountCapability.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(), # capability id?
+		IntegerField("skill_level"),
+		UnknownField(),
+		UnknownField(),
+		ForeignKey("required_spell", "Spell"),
+		ForeignKey("spell", "Spell"),
+		ForeignKey("instance", "Map"),
+	)
+
+
 class Movie(Structure):
 	"""
 	Movie.dbc
@@ -7273,10 +7289,12 @@ class VehicleSeat(Structure):
 class VehicleUIIndicator(Structure):
 	"""
 	VehicleUIIndicator.dbc
+	On-screen indicator textures for multi-pessenger mounds
+	ID is shared with VehicleUIIndSeat.dbc
 	"""
 	fields = Skeleton(
 		IDField(), # id seems shared between VehicleUIInd*
-		UnknownField(),
+		StringField("image"),
 	)
 
 
