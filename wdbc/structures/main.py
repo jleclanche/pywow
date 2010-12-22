@@ -3775,10 +3775,10 @@ class ItemReforge(Structure):
 	"""
 	fields = Skeleton(
 		IDField(),
-		UnknownField(),
-		FloatField(),
-		IntegerField(),
-		UnknownField(),
+		IntegerField("source_stat"),
+		FloatField("source_multiplier"),
+		IntegerField("target_stat"),
+		FloatField("target_multiplier"),
 	)
 
 
