@@ -1600,6 +1600,17 @@ class CameraShakes(Structure):
 	)
 
 
+class CastableRaidBuffs(Structure):
+	"""
+	CastableRaidBuffs.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("spell", "Spell"),
+		ForeignKey("casted_spell", "Spell"),
+	)
+
+
 class Cfg_Categories(Structure):
 	"""
 	Cfg_Categories.dbc
