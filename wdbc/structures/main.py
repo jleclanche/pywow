@@ -3346,8 +3346,8 @@ class Item_sparse(Structure):
 		ForeignKey("unique_category", "ItemLimitCategory"),
 		ForeignKey("required_holiday", "Holidays"),
 		FloatField("scaling_factor"),
-		UnknownField("unknown_archaeology_1"),
-		UnknownField("unknown_archaeology_2"),
+		IntegerField("keystone_1"),
+		IntegerField("keystone_2"),
 	)
 
 
@@ -4900,7 +4900,7 @@ class ResearchBranch(Structure):
 		UnknownField(),
 		UnknownField(),
 		FilePathField("icon"),
-		ForeignKey("item", "Item"),
+		ForeignKey("keystone", "Item"),
 	)
 
 
