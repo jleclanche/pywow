@@ -5184,26 +5184,26 @@ class SkillLineAbility(Structure):
 		IntegerField("acquire_method"), # acquireMethod learnOnGetSkill ?!
 		IntegerField("turns_grey"),
 		IntegerField("turns_yellow"),
-		IntegerField("character_points"), # XXX Character points ?! [2]
-		IntegerField("unknown_12379"),
+		IntegerField("character_points_1"),
+		IntegerField("character_points_2"),
 		#UnknownField(), Deleted somewhere between 4125 and 9551
 	)
 	
 	def changed_11927(self, fields):
 		fields.append_fields(
-			UnknownField("unknown_11927"),
+			UnknownField(),
 		)
 	
 	def changed_12266(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(
-			UnknownField("unknown_12266"),
+			UnknownField(),
 		)
 	
 	def changed_12379(self, fields):
 		self.changed_12266(fields)
 		fields.delete_fields(
-			"character_points", "unknown_12379",
+			"character_points_1", "character_points_2",
 		)
 
 
