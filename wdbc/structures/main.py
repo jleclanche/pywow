@@ -1275,6 +1275,17 @@ class AreaPOI(Structure):
 		)
 
 
+class AreaPOISortedWorldState(Structure):
+	"""
+	AreaPOISortedWorldState.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		UnknownField(),
+		UnknownField(),
+	)
+
+
 class AreaTable(Structure):
 	"""
 	AreaTable.dbc
@@ -4908,10 +4919,12 @@ class ResearchField(Structure):
 	"""
 	ResearchField.dbc
 	New in 4.0.0.12479
+	Holds the fields for different research projects
+	Only one row, for Archeology
 	"""
 	fields = Skeleton(
 		IDField(),
-		LocalizedField(),
+		LocalizedField("name"),
 		UnknownField(),
 	)
 
