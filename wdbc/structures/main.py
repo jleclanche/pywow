@@ -5870,6 +5870,24 @@ class Spell(Structure):
 		fields.insert_field(BitMaskField("flags_10"), after="flags_9")
 
 
+class SpellActivationOverlay(Structure):
+	"""
+	SpellActivationOverlay.dbc
+	"""
+	fields = Skeleton(
+		IDField(),
+		ForeignKey("spell", "Spell"),
+		UnknownField(),
+		UnknownField(),
+		UnknownField(),
+		FloatField(),
+		BitMaskField("flags_1"),
+		BitMaskField("flags_2"),
+		BitMaskField("flags_3"),
+		UnknownField(),
+	)
+
+
 class SpellAuraNames(Structure):
 	"""
 	SpellAuraNames.dbc
