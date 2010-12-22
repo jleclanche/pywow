@@ -3088,6 +3088,19 @@ class GuildColorEmblem(Structure):
 		ByteField(),
 	)
 
+
+class GuildPerkSpells(Structure):
+	"""
+	GuildPerkSpells.dbc
+	Ties guild levels to guild perks
+	"""
+	fields = Skeleton(
+		IDField(),
+		IntegerField("level"),
+		ForeignKey("spell", "Spell")
+	)
+
+
 class HelmetGeosetVisData(Structure):
 	"""
 	HelmetGeosetVisData.dbc
