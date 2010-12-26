@@ -1292,7 +1292,11 @@ class AreaTable(Structure):
 	Contains all zone and subzone data.
 	"""
 	
-	TERRITORY_FLAGS = { # Sanctuary = 2+4, contested = 0
+	TERRITORY_FLAGS = {
+		# Faction safety flags
+		# 0x2 is safe for horde, 0x2 & 0x4 is safe for
+		# both horde and alliance (aka sanctuary)
+		# no flags (0x0) is contested
 		0x02: "Horde",
 		0x04: "Alliance",
 	}
@@ -1301,23 +1305,23 @@ class AreaTable(Structure):
 		IDField(),
 		ForeignKey("instance", "map"),
 		ForeignKey("parent_area", "areatable"),
-		IntegerField(), # Fkey but to what?
+		IntegerField("explore_flags"),
 		BitMaskField("flags"),
-		IntegerField(),
-		IntegerField(), # 11 or 0
+		UnknownField(),
+		UnknownField(), # 89, 11 or 0
 		ForeignKey("sound_ambience", "SoundAmbience"),
 		ForeignKey("music", "ZoneMusic"),
 		ForeignKey("intro_music", "ZoneIntroMusicTable"),
 		IntegerField("level"),
 		LocalizedField("name"),
 		BitMaskField("territory_flags", flags=TERRITORY_FLAGS),
-		IntegerField(), # 81 61 41 1...
-		IntegerField(), # 0
-		IntegerField(), # 0
-		IntegerField(), # 21 for naxxramas (3456)
+		UnknownField(), # 81 61 41 1...
+		UnknownField(), # 0
+		UnknownField(), # 0
+		UnknownField(), # 21 for naxxramas (3456)
 		FloatField(), # 1000, -500, -5000
 		FloatField(),
-		IntegerField(), # 0
+		UnknownField(), # 0
 	)
 	
 	def changed_12266(self, fields):
@@ -1419,8 +1423,8 @@ class AuctionHouse(Structure):
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("faction", "Faction"),
-		IntegerField("auction_fee"),
 		IntegerField("deposit_fee"),
+		IntegerField("auction_cut"),
 		LocalizedField("name"),
 	)
 
@@ -1934,8 +1938,8 @@ class ChrClasses(Structure):
 		LocalizedField("name_female"),
 		LocalizedField("name_neutral"),
 		StringField("internal_name"),
-		IntegerField(),
-		IntegerField(),
+		IntegerField("spell_family"),
+		UnknownField(),
 		ForeignKey("cinematic", "CinematicSequences"), # Only for Death Knight
 		IntegerField("required_expansion"),
 	)
@@ -4978,12 +4982,12 @@ class ResearchProject(Structure):
 		IDField(),
 		LocalizedField("name"),
 		LocalizedField("description"),
-		UnknownField(),
+		IntegerField("quality"), # 0 = common, 1 = rare
 		ForeignKey("branch", "ResearchBranch"),
 		ForeignKey("spell", "Spell"),
-		UnknownField(),
-		UnknownField(),
-		UnknownField(),
+		IntegerField("sockets"),
+		FilePathField("icon"),
+		IntegerField("required_fragments"),
 	)
 
 
