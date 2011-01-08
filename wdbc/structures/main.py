@@ -2776,6 +2776,7 @@ class GameTips(Structure):
 			UnknownField(),
 		)
 
+
 class GemProperties(Structure):
 	"""
 	GemProperties.dbc
@@ -4982,7 +4983,7 @@ class ResearchProject(Structure):
 		IDField(),
 		LocalizedField("name"),
 		LocalizedField("description"),
-		IntegerField("quality"), # 0 = common, 1 = rare
+		IntegerField("rarity"), # 0 = common, 1 = rare
 		ForeignKey("branch", "ResearchBranch"),
 		ForeignKey("spell", "Spell"),
 		IntegerField("sockets"),
