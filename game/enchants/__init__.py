@@ -4,7 +4,7 @@ Enchants
  - SpellItemEnchantment.dbc
 """
 
-from .. import *
+from .. import Model
 
 
 class Enchant(Model):
