@@ -37,8 +37,9 @@ class MainWindow(QMainWindow):
 		
 		def openFile():
 			filename, filters = QFileDialog.getOpenFileName(self, "Open file", "/var/www/sigrie/caches", "DBC/Cache files (*.dbc *.wdb *.db2 *.dba *.wcf)")
-			file = wdbc.fopen(filename)
-			self.setFile(file)
+			if filename:
+				file = wdbc.fopen(filename)
+				self.setFile(file)
 		
 		def reopen():
 			current = self.file.build
@@ -90,6 +91,17 @@ class MainTable(QWidget):
 	def setFile(self, file):
 		return self.table.model().setFile(file)
 
+def price(value):
+	"""
+	Helper for MoneyField
+	TODO use pywow.game.items.price
+	"""
+	if not value:
+		return 0, 0, 0
+	g = divmod(value, 10000)[0]
+	s = divmod(value, 100)[0] % 100
+	c = value % 100
+	return g, s, c
 
 class TableModel(QAbstractTableModel):
 	def __init__(self, *args):
@@ -116,6 +128,16 @@ class TableModel(QAbstractTableModel):
 		elif isinstance(field, wdbc.structures.BitMaskField):
 			if cell is not None:
 				cell = "0x%x" % (cell)
+		
+		elif isinstance(field, wdbc.structures.MoneyField):
+			gold, silver, copper = price(int(cell))
+			
+			gold = gold and "%ig" % (gold)
+			silver = silver and "%is" % (silver)
+			copper = copper and "%ic" % (copper)
+			
+			cell = " ".join(x for x in [gold, silver, copper] if x) or "0c"
+		
 		
 		if isinstance(cell, str) and len(cell) > 200:
 			cell = cell[:200] + "..."
