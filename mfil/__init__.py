@@ -10,6 +10,7 @@ Version 1:
 Version 2:
  - Dictionary
  - Nested keys
+ - Multiple identical keys
 """
 
 SEEK_CUR = 1
@@ -110,7 +111,12 @@ class MFIL2(MFIL, dict):
 			
 			elif key.startswith("\t"):
 				key = key[1:]
-				self[k1][k2][key] = value
+				if key in self[k1][k2]:
+					if not isinstance(self[k1][k2][key], list):
+						self[k1][k2][key] = [self[k1][k2][key]]
+					self[k1][k2][key].append(value)
+				else:
+					self[k1][k2][key] = value
 			
 			else:
 				if key not in self:
