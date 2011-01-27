@@ -20,7 +20,7 @@ class MFILError(Exception):
 	"""
 	pass
 
-class MFIL(dict):
+class MFIL(object):
 	"""
 	Dictionary class for Blizzard Manifest Files
 	"""
@@ -60,7 +60,7 @@ class MFIL(dict):
 			ret.append(c)
 		return "".join(ret)
 
-class MFIL2(MFIL):
+class MFIL2(MFIL, dict):
 	"""
 	MFIL version 2
 	Keys that start with a tab are child keys of the others
