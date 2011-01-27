@@ -14,6 +14,12 @@ Version 2:
 
 SEEK_CUR = 1
 
+class MFILError(Exception):
+	"""
+	Generic MFIL exception
+	"""
+	pass
+
 class MFIL(dict):
 	"""
 	Dictionary class for Blizzard Manifest Files
@@ -22,25 +28,13 @@ class MFIL(dict):
 	def __init__(self, file):
 		file.seek(0)
 		self.file = file
-		while True:
-			key, value = self.parseKey(), self.parseValue()
-			
-			if not key:
-				break
-			
-			if key == "version":
-				self.version = value
-			
-			elif key.startswith("\t"):
-				key = key[1:]
-				self[k1][k2][key] = value
-				#{transport: {default: {k:v, k:v}}}
-			
-			else:
-				if key not in self:
-					self[key] = {}
-				self[key][value] = {}
-				k1, k2 = key, value
+		key, value = self.parseKey(), self.parseValue()
+		if key == "version":
+			self.version = value
+		else:
+			raise MFILError("Unknown MFIL version")
+		
+		self.parse()
 	
 	def parseKey(self):
 		ret = []
@@ -69,3 +63,37 @@ class MFIL(dict):
 			
 			ret.append(c)
 		return "".join(ret)
+
+class MFIL2(MFIL):
+	"""
+	MFIL version 2
+	Keys that start with a tab are child keys of the others
+	The class should look like MFIL({
+		parentKey: {
+			parentValue: {
+				key: value,
+				key2, value2,
+			}, ...
+		}, ...
+	})
+	"""
+	
+	def parse(self):
+		while True:
+			key, value = self.parseKey(), self.parseValue()
+			
+			if not key:
+				break
+			
+			if key == "version":
+				self.version = value
+			
+			elif key.startswith("\t"):
+				key = key[1:]
+				self[k1][k2][key] = value
+			
+			else:
+				if key not in self:
+					self[key] = {}
+				self[key][value] = {}
+				k1, k2 = key, value
