@@ -85,9 +85,6 @@ class MFIL2(MFIL):
 			if not key:
 				break
 			
-			if key == "version":
-				self.version = value
-			
 			elif key.startswith("\t"):
 				key = key[1:]
 				self[k1][k2][key] = value
