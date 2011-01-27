@@ -38,10 +38,14 @@ class MFIL(dict):
 	
 	def parseKey(self):
 		ret = []
-		while True:
-			c = self.file.read(1)
+		self.nextLine = self.file.readline()
+		for c in self.nextLine:
+			if c == "=":
+				self.nextLine = self.nextLine[len(ret)+1:]
+				break
 			
-			if not c or c == "=":
+			elif c == "\r" or c == "\n":
+				self.nextLine = ""
 				break
 			
 			ret.append(c)
@@ -49,17 +53,9 @@ class MFIL(dict):
 	
 	def parseValue(self):
 		ret = []
-		while True:
-			c = self.file.read(1)
-			
-			if not c or c == "\n":
+		for c in self.nextLine:
+			if c == "\r" or c == "\n":
 				break
-			
-			if c == "\r":
-				if self.file.read(1) == "\n":
-					break
-				else:
-					self.file.seek(-1, SEEK_CUR)
 			
 			ret.append(c)
 		return "".join(ret)
