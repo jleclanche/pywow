@@ -60,6 +60,33 @@ class MFIL(object):
 			ret.append(c)
 		return "".join(ret)
 
+class MFIL1(MFIL, list):
+	"""
+	MFIL version 1
+	Key/value pairs, followed by a list of values
+	(usually a file manifest)
+	The class should look like MFIL([
+		{key: value, ...},
+		value2
+		value3,
+		...
+	])
+	"""
+	
+	def parse(self):
+		self.append({})
+		while True:
+			key, value = self.parseKey(), self.parseValue()
+			
+			if not key:
+				break
+			
+			elif not value:
+				self.append(key)
+			
+			else:
+				self[0][key] = value
+
 class MFIL2(MFIL, dict):
 	"""
 	MFIL version 2
