@@ -27,6 +27,8 @@ class MFIL(object):
 	"""
 	
 	def __init__(self, file):
+		if isinstance(file, str):
+			file = open(file, "r")
 		file.seek(0)
 		self.file = file
 		key, value = self.parseKey(), self.parseValue()
@@ -36,6 +38,7 @@ class MFIL(object):
 			raise MFILError("Unknown MFIL version")
 		
 		self.parse()
+		file.close()
 	
 	def parseKey(self):
 		ret = []
