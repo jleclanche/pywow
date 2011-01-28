@@ -26,6 +26,8 @@ def xsign(i):
 class PatchFile(object):
 	def __init__(self, file):
 		# Parse the header
+		if isinstance(file, str):
+			file = open(file, "rb")
 		file.seek(0)
 		assert file.read(4) == "PTCH" # Magic
 		
