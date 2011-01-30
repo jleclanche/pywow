@@ -219,13 +219,19 @@ class GameObjectCache(Structure):
 			get_structure = lambda row: GAME_OBJECT_TYPES[row.type]
 		),
 		FloatField("scale"),
-		ForeignKey("quest_item_1", "Item"),
-		ForeignKey("quest_item_2", "Item"),
-		ForeignKey("quest_item_3", "Item"),
-		ForeignKey("quest_item_4", "Item"),
 	)
+	
+	def changed_9637(self, fields):
+		fields.append_fields(
+			ForeignKey("quest_item_1", "Item"),
+			ForeignKey("quest_item_2", "Item"),
+			ForeignKey("quest_item_3", "Item"),
+			ForeignKey("quest_item_4", "Item"),
+		)
+	
 
 	def changed_10314(self, fields):
+		self.changed_9637(fields)
 		fields.append_fields(
 			ForeignKey("quest_item_5", "Item"),
 			ForeignKey("quest_item_6", "Item"),
