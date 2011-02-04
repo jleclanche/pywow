@@ -2274,7 +2274,7 @@ class CurrencyTypes(Structure):
 	def changed_11927(self, fields):
 		fields.delete_fields("item")
 		fields.append_fields(
-			StringField("name"),
+			LocalizedField("name"),
 			StringField("icon"),
 			UnknownField("unknown_12479"),
 			UnknownField(),
@@ -2289,7 +2289,9 @@ class CurrencyTypes(Structure):
 	
 	def changed_12232(self, fields):
 		self.changed_12025(fields)
-		fields.append_fields(UnknownField())
+		fields.append_fields(
+			LocalizedField("description"),
+		)
 	
 	def changed_12479(self, fields):
 		self.changed_12232(fields)
