@@ -31,9 +31,7 @@ class ItemSetTooltip(Tooltip):
 		for bonus, pieces in self.obj.getBonusInfo():
 			self.append("bonus", ITEM_SET_BONUS_GRAY % (pieces, bonus.getDescription()), color=GREY)
 		
-		ret = self.values
-		self.values = []
-		return ret
+		return self.flush()
 
 class ItemSetProxy(object):
 	"""

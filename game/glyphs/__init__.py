@@ -43,9 +43,7 @@ class GlyphTooltip(Tooltip):
 		self.append("type", self.obj.getTypeText())
 		self.append("description", self.obj.getDescription(), YELLOW)
 		
-		ret = self.values
-		self.values = []
-		return ret
+		return self.flush()
 
 class GlyphProxy(object):
 	"""

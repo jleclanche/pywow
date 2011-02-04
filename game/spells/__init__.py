@@ -178,9 +178,7 @@ class SpellTooltip(Tooltip):
 			self.appendEmptyLine()
 			self.append("createdItem", createdItem.getTooltip())
 		
-		ret = self.values
-		self.values = []
-		return ret
+		return self.flush()
 
 
 class SpellProxy(object):

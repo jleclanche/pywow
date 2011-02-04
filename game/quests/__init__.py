@@ -20,9 +20,7 @@ class QuestTooltip(Tooltip):
 		self.append("objective", self.obj.getObjective())
 		self.appendEmptyLine()
 		
-		ret = self.values
-		self.values = []
-		return ret
+		return self.flush()
 
 class QuestProxy(object):
 	"""

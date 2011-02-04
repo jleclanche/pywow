@@ -69,6 +69,11 @@ class Tooltip(object):
 	def appendEmptyLine(self):
 		self.values.append(TooltipNode("__separator", "", WHITE, 0))
 	
+	def flush(self):
+		ret = self.values
+		self.values = []
+		return ret
+	
 	def formatAppend(self, name, text, value, color=WHITE):
 		if value:
 			self.append(name, text % (value), color)

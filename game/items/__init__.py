@@ -308,9 +308,7 @@ class ItemTooltip(Tooltip):
 			if c: text += " %ic" % (c)
 			self.append("sellPrice", text)
 		
-		ret = self.values
-		self.values = []
-		return ret
+		return self.flush()
 	
 	def showItemLevel(self):
 		return self.obj.category.id in (2, 4, 5, 6)

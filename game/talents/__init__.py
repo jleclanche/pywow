@@ -15,9 +15,7 @@ class TalentTooltip(Tooltip):
 	def tooltip(self):
 		self.appendEmptyLine()
 		
-		ret = self.values
-		self.values = []
-		return ret
+		return self.flush()
 
 
 class TalentProxy(object):
