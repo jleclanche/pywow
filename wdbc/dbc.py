@@ -15,7 +15,6 @@ class DBCHeader(DBHeader):
 		return 20
 	
 	def load(self, file):
-		file.seek(0)
 		data = file.read(len(self))
 		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize = unpack("<4s4i", data)
 	

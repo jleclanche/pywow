@@ -17,7 +17,6 @@ class DB2Header(DBHeader):
 		return 48
 	
 	def load(self, file):
-		file.seek(0)
 		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize, self.dbhash, self.build, self.timestamp = unpack("<4s7i", file.read(32))
 		if self.build >= 12834:
 			if self.signature == "WCH2" and self.build < 12942:

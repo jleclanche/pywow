@@ -25,7 +25,6 @@ class WDBHeader(DBHeader):
 		return 24
 	
 	def load(self, file):
-		file.seek(0)
 		self.signature = file.read(4)
 		self.build, = unpack("<i", file.read(4))
 		self.locale = file.read(4)
