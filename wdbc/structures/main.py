@@ -726,7 +726,7 @@ class QuestCache(Structure):
 	fields = Skeleton(
 		IDField(),
 		RecLenField(),
-		ForeignKey("self", "QuestCache"),
+		ForeignKey("id_2", "QuestCache"),
 		IntegerField("tag"),
 		IntegerField("level"),
 		IntegerField("category"), # GFK QuestInfo/AreaTable
