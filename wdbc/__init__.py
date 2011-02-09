@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os, os.path
+import os
 from cStringIO import StringIO
 from struct import pack, unpack, error as StructError
 from .log import log
