@@ -49,13 +49,14 @@ class DBFile(object):
 		if not isinstance(item, int):
 			raise TypeError("DBFile indices must be integers, not %s" % type(item))
 		
+		if value and type(value) in (list, dict):
+			value = DBRow(self, columns=value)
+		
 		if isinstance(value, DBRow):
 			self._values[item] = value
 			self._addresses[item] = -1
 			#self[key].pk = item
-		
-		else:
-			# XXX technically we should allow DBRow, but this is untested and will need resetting parent
+		else: # FIXME technically we should allow DBRow, but this is untested and will need resetting parent
 			raise TypeError("Unsupported type for DBFile.__setitem__: %s" % type(value))
 	
 	def __delitem__(self, item):
@@ -136,9 +137,6 @@ class DBFile(object):
 		Return a list of each row in the file
 		"""
 		return [self[id] for id in self]
-	
-	def setRow(self, key, **values):
-		self.__setitem__(key, DBRow(self, columns=values))
 	
 	def update(self, other):
 		for k in other:
