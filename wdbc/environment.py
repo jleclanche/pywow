@@ -72,4 +72,4 @@ class Environment(object):
 		raise TypeError(files)
 
 def get_latest_build():
-	return sorted([k.isdigit() and int(k) or 0 for k in os.listdir(DEFAULT_CACHE_DIR)])[-1]
+	return sorted(k.isdigit() and int(k) or 0 for k in os.listdir(DEFAULT_CACHE_DIR))[-1]
