@@ -20,12 +20,10 @@ def generate_structure(db):
 
 
 def fopen(name, build=0, structure=None, environment={}):
-	from .db2 import DB2File
-	from .dbc import DBCFile, InferredDBCFile, WCFFile
-	from .wdb import WDBFile
 	file = open(name, "rb")
 	signature = file.read(4)
 	if signature == "WDB2" or signature == "WCH2":
+		from .db2 import DB2File
 		cls = DB2File
 		try:
 			_structure = structure or getstructure(getfilename(file.name))
@@ -34,6 +32,7 @@ def fopen(name, build=0, structure=None, environment={}):
 		
 	
 	elif signature == "WDBC":
+		from .dbc import DBCFile, InferredDBCFile
 		cls = DBCFile
 		try:
 			_structure = structure or getstructure(getfilename(file.name))
@@ -48,10 +47,12 @@ def fopen(name, build=0, structure=None, environment={}):
 		raise IOError()
 	
 	elif name.endswith(".wcf"):
+		from .dbc import WCFFile
 		cls = WCFFile
 		structure = structure or getstructure(getfilename(file.name))
 	
 	else:
+		from .wdb import WDBFile
 		cls = WDBFile
 	
 	file = cls(file, build=build, structure=structure, environment=environment)
