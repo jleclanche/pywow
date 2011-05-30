@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import os
 from cStringIO import StringIO
+from os.path import getsize
 from struct import pack, unpack, error as StructError
 from .log import log
-from .structures import fields, StructureNotFound, getstructure
-from .utils import getfilename, generate_structure, fopen, get, new
+from .structures import fields
 
 
 class DBHeader(object):
@@ -153,7 +152,7 @@ class DBFile(object):
 		f = open(_filename, "wb") # Don't open before calling data() as uncached rows would be empty
 		f.write(data)
 		f.close()
-		log.info("Written %i bytes at %s" % (os.path.getsize(f.name), f.name))
+		log.info("Written %i bytes at %s" % (getsize(f.name), f.name))
 		
 		if not filename: # Reopen self.file, we modified it
 			# XXX do we need to wipe self._values here?
