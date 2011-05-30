@@ -46,7 +46,7 @@ class DBFile(object):
 	
 	def __setitem__(self, item, value):
 		if not isinstance(item, int):
-			raise TypeError("DBFile indices must be integers, not %s" % type(item))
+			raise TypeError("DBFile indices must be integers, not %s" % (type(item)))
 		
 		if value and type(value) in (list, dict):
 			value = DBRow(self, columns=value)
@@ -56,7 +56,7 @@ class DBFile(object):
 			self._addresses[item] = -1
 			#self[key].pk = item
 		else: # FIXME technically we should allow DBRow, but this is untested and will need resetting parent
-			raise TypeError("Unsupported type for DBFile.__setitem__: %s" % type(value))
+			raise TypeError("Unsupported type for DBFile.__setitem__: %s" % (type(value)))
 	
 	def __delitem__(self, item):
 		if item in self._values:
@@ -82,7 +82,6 @@ class DBFile(object):
 			return None # The column doesn't exist in this row, we set it to None
 		
 		ret = None
-		
 		try:
 			if isinstance(field, fields.StringField):
 				ret = self._parse_string(data)
@@ -100,6 +99,7 @@ class DBFile(object):
 		except StructError:
 			log.warning("Field %s could not be parsed properly" % (field))
 			ret = None
+		
 		return ret
 	
 	def append(self, row):
@@ -294,12 +294,14 @@ class DBRow(list):
 	def _get_value(self, name):
 		if name not in self._values:
 			raw_value = self[self.structure.index(name)]
+			
 			try:
 				self._set_value(name, raw_value)
 			except fields.UnresolvedRelation, e:
 				return fields.UnresolvedObjectRef(e.reference)
 			except fields.RelationError:
 				return None # Key doesn't exist, or equals 0
+		
 		return self._values[name]
 	
 	def _raw(self, name):
@@ -330,10 +332,14 @@ class DBRow(list):
 		self._values = {}
 		for col in self.structure:
 			char = col.char
-			if col.dyn: self.append(None)
-			elif char == "s": self.append("")
-			elif char == "f": self.append(0.0)
-			else: self.append(0)
+			if col.dyn:
+				self.append(None)
+			elif char == "s":
+				self.append("")
+			elif char == "f":
+				self.append(0.0)
+			else:
+				self.append(0)
 	
 	
 	def dict(self):
