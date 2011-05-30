@@ -3,10 +3,9 @@
 from struct import unpack
 from .dbc import DBCFile
 from .log import log
+from .main import DBHeader
 from .structures import getstructure, LocalizedStringField, LocalizedField
 from .utils import getfilename
-
-from . import DBHeader
 
 SEEK_CUR = 1 # os.SEEK_CUR
 

@@ -2,10 +2,10 @@
 
 from struct import pack, unpack, error as StructError
 from .log import log
+from .main import DBHeader, DBFile
 from .structures import fields, getstructure
 from .utils import getfilename
 
-from . import DBHeader, DBFile
 
 SEEK_CUR = 1 # os.SEEK_CUR
 

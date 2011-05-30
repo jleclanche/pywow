@@ -2,10 +2,9 @@
 
 from struct import pack, unpack
 from .log import log
+from .main import DBHeader, DBFile
 from .structures import fields, StructureNotFound, getstructure, LocalizedStringField, LocalizedField
 from .utils import getfilename, generate_structure
-
-from . import DBHeader, DBFile
 
 SEEK_CUR = 1 # os.SEEK_CUR
 SEEK_END = 2 # os.SEEK_END
