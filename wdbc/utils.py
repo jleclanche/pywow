@@ -1,41 +1,52 @@
 # -*- coding: utf-8 -*-
+"""
+Utilitary functions
+"""
 
 import os.path
-from .structures import GeneratedStructure, StructureNotFound, getstructure
+
 
 def getfilename(val):
-	"Returns 'item' from /home/adys/Item.dbc"
+	"""
+	Returns "item" from /home/adys/Item.dbc
+	"""
 	return os.path.splitext(os.path.basename(val))[0].lower()
 
 def generate_structure(db):
 	"""
 	Generates a DBStructure based on header data
+	TODO improve it, guess floats and shorter fields.
 	"""
-	# TODO improve it, guess floats and shorter fields.
+	from .structures import GeneratedStructure
+	
 	if db.header.field_count * 4 == db.header.reclen:
 		structure_string = "i" * db.header.field_count
 	else:
 		raise NotImplementedError
+	
 	return GeneratedStructure(structure_string)
 
 
 def fopen(name, build=0, structure=None, environment={}):
+	from .structures import StructureNotFound, getstructure
+	
 	file = open(name, "rb")
+	filename = getfilename(name)
 	signature = file.read(4)
+	
 	if signature == "WDB2" or signature == "WCH2":
 		from .db2 import DB2File
 		cls = DB2File
 		try:
-			_structure = structure or getstructure(getfilename(file.name))
+			_structure = structure or getstructure(filename)
 		except StructureNotFound:
 			pass
-		
 	
 	elif signature == "WDBC":
 		from .dbc import DBCFile, InferredDBCFile
 		cls = DBCFile
 		try:
-			_structure = structure or getstructure(getfilename(file.name))
+			_structure = structure or getstructure(filename)
 		except StructureNotFound:
 			pass
 		else:
@@ -49,7 +60,7 @@ def fopen(name, build=0, structure=None, environment={}):
 	elif name.endswith(".wcf"):
 		from .dbc import WCFFile
 		cls = WCFFile
-		structure = structure or getstructure(getfilename(file.name))
+		structure = structure or getstructure(filename)
 	
 	else:
 		from .wdb import WDBFile
@@ -57,21 +68,22 @@ def fopen(name, build=0, structure=None, environment={}):
 	
 	file = cls(file, build=build, structure=structure, environment=environment)
 	file.preload()
+	
 	return file
 
 
 def new(name, build=0, structure=None, environment={}):
-	from .dbc import DBCFile
-	from .wdb import WDBFile
-	filename = getfilename(name)
-	if not structure:
-		structure = getstructure(filename, build=build)
-	
+	from .structures import getstructure
 	file = open(name, "wb")
 	
+	if not structure:
+		structure = getstructure(getfilename(name), build=build)
+	
 	if structure.signature == "WDBC":
+		from .dbc import DBCFile
 		return DBCFile(file, build=build, structure=structure, environment=environment)
 	
+	from .wdb import WDBFile
 	return WDBFile(file, build=build, structure=structure, environment=environment)
 
 
