@@ -138,6 +138,9 @@ class DBFile(object):
 		self.__setitem__(key, DBRow(self, columns=values))
 	
 	def update(self, other):
+		"""
+		Update file from iterable other
+		"""
 		for k in other:
 			self[k] = other[k]
 	
