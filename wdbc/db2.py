@@ -24,11 +24,6 @@ class DB2Header(DBHeader):
 				log.warning("Old adb file, working around stringblock bug")
 				self.stringblocksize += 1
 			self.lookup_start, self.lookup_end, self.locale, self.unk3 = unpack("<4i", file.read(16))
-	
-	def get_block_size(self):
-		if self.build < 12834:
-			return 0
-		return self.lookup_end * 6 - len(self) * 3 if self.lookup_end else 0
 
 
 class DB2File(DBCFile):
@@ -70,7 +65,14 @@ class DB2File(DBCFile):
 	def preload(self):
 		f = self.file
 		f.seek(len(self.header))
-		_ = f.read(self.header.get_block_size())
+		
+		if self.build >= 12834:
+			if self.header.lookup_start != self.header.lookup_end:
+				size = (self.header.lookup_end - self.header.lookup_start + 1) * 6
+				if size < 0:
+					log.error("lookup size < 0: %i. This file is corrupt. Expect breakage!" % (size))
+				else:
+					lookups = f.read(size)
 		
 		rows = 0
 		field = self.structure[0]
