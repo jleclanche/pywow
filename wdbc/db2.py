@@ -11,14 +11,14 @@ SEEK_CUR = 1 # os.SEEK_CUR
 
 class DB2Header(DBHeader):
 	def __len__(self):
-		if self.build < 12834:
+		if self.build <= 12880:
 			return 32
 		return 48
 	
 	def load(self, file):
 		file.seek(0)
 		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize, self.dbhash, self.build, self.timestamp = unpack("<4s7i", file.read(32))
-		if self.build >= 12834:
+		if self.build > 12880:
 			if self.signature == "WCH2" and self.build < 12942:
 				# Work around a bug in cataclysm beta which doesn't take in account the first \0
 				log.warning("Old adb file, working around stringblock bug")
@@ -66,7 +66,7 @@ class DB2File(DBCFile):
 		f = self.file
 		f.seek(len(self.header))
 		
-		if self.build >= 12834:
+		if self.build > 12880:
 			if self.header.lookup_start != self.header.lookup_end:
 				size = (self.header.lookup_end - self.header.lookup_start + 1) * 6
 				if size < 0:
