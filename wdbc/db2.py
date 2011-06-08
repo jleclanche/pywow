@@ -23,12 +23,12 @@ class DB2Header(DBHeader):
 				# Work around a bug in cataclysm beta which doesn't take in account the first \0
 				log.warning("Old adb file, working around stringblock bug")
 				self.stringblocksize += 1
-			self.unk1, self.unk2, self.locale, self.unk3 = unpack("<4i", file.read(16))
+			self.lookup_start, self.lookup_end, self.locale, self.unk3 = unpack("<4i", file.read(16))
 	
 	def get_block_size(self):
 		if self.build < 12834:
 			return 0
-		return self.unk2 * 6 - len(self) * 3 if self.unk2 else 0
+		return self.lookup_end * 6 - len(self) * 3 if self.lookup_end else 0
 
 
 class DB2File(DBCFile):
