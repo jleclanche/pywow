@@ -128,9 +128,9 @@ class DBFile(object):
 		"""
 		return DBRow(self, data=data, reclen=reclen)
 	
-	def rows(self):
+	def values(self):
 		"""
-		Return a list of each row in the file
+		Return a list of the file's values
 		"""
 		return [self[id] for id in self]
 	
