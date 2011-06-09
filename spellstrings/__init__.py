@@ -769,7 +769,7 @@ class WDBCProxy(object):
 		
 		try:
 			return getattr(spell, value)
-		except AttributeError, e:
+		except AttributeError:
 			return 0
 	
 	effect_lookup_old = {
@@ -784,7 +784,7 @@ class WDBCProxy(object):
 		field = field % (ordering)
 		try:
 			return getattr(spell, field)
-		except AttributeError, e:
+		except AttributeError:
 			return 0
 	
 	
@@ -809,7 +809,7 @@ class WDBCProxy(object):
 		
 		try:
 			return getattr(spell, value)
-		except AttributeError, e:
+		except AttributeError:
 			return 0
 	
 	@classmethod
