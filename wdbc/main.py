@@ -300,7 +300,7 @@ class DBRow(list):
 			
 			try:
 				self._set_value(name, raw_value)
-			except fields.UnresolvedRelation, e:
+			except fields.UnresolvedRelation as e:
 				return fields.UnresolvedObjectRef(e.reference)
 			except fields.RelationError:
 				return None # Key doesn't exist, or equals 0
