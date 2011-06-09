@@ -29,7 +29,7 @@ def main():
 			f.save(SIGRIE_ICONS_PATH + name)
 			f = ImageOps.grayscale(f)
 			f.save(SIGRIE_ICONS_GREYSCALE_PATH + name)
-		except Exception, e:
+		except Exception as e:
 			print "WARNING:", e, "(press any key to continue)"
 			raw_input()
 	

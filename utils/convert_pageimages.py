@@ -20,7 +20,7 @@ def main():
 			try:
 				f = BLP("pageimages/%s/%s" % (dir, G))
 				f.save("%s/%s.png" % (fullpath, G.replace(".blp", "")))
-			except Exception, e:
+			except Exception as e:
 				print "WARNING:", e, "(press any key to continue)"
 				raw_input()
 

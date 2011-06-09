@@ -169,9 +169,8 @@ def main():
 		for map in os.listdir(BASE_DIR):
 			try:
 				Map(map).build()
-			except ValueError, e:
+			except ValueError as e:
 				print "WARNING:", e
-				pass
 
 if __name__ == "__main__":
 	main()
