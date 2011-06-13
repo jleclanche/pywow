@@ -27,7 +27,7 @@ class MFIL(object):
 	"""
 	
 	def __init__(self, file):
-		if isinstance(file, str):
+		if isinstance(file, basestring):
 			file = open(file, "r")
 		self.file = file
 		key, value = self.parseKey(), self.parseValue()
