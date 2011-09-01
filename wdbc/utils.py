@@ -59,7 +59,7 @@ def fopen(f, build=0, structure=None, environment={}):
 	elif not signature:
 		raise IOError()
 
-	elif name.endswith(".wcf"):
+	elif f.name.endswith(".wcf"):
 		from .dbc import WCFFile
 		cls = WCFFile
 		structure = structure or getstructure(filename)

@@ -10,86 +10,86 @@ class Structure(Structure):
 	as PTR/Beta/Live builds running concurrently
 	The changed builds can still be overwritten
 	"""
-	
+
 	def __get_build(self, build):
 		builds = [k for k in self.get_builds() if k <= build]
 		if builds:
 			return getattr(self, "changed_%i" % (builds[-1]))
-		
+
 		return lambda fields: None
-	
+
 	def changed_11993(self, fields):
 		"""
 		PTR 3.3.5
 		"""
 		self.__get_build(11723)(fields)
-	
+
 	def changed_12025(self, fields):
 		"""
 		F&F 4.0.0
 		"""
 		self.__get_build(11927)(fields)
-	
+
 	def changed_12045(self, fields):
 		"""
 		PTR 3.3.5
 		"""
 		self.changed_11993(fields)
-	
+
 	def changed_12065(self, fields):
 		"""
 		F&F 4.0.0
 		"""
 		self.changed_12025(fields)
-	
+
 	def changed_12122(self, fields):
 		"""
 		F&F 4.0.0
 		"""
 		self.changed_12065(fields)
-	
+
 	def changed_12124(self, fields):
 		"""
 		PTR 3.3.5
 		"""
 		self.changed_12045(fields)
-	
+
 	def changed_12148(self, fields):
 		"""
 		PTR 3.3.5
 		"""
 		self.changed_12124(fields)
-	
+
 	def changed_12164(self, fields):
 		"""
 		F&F 4.0.0
 		"""
 		self.changed_12122(fields)
-	
+
 	def changed_12166(self, fields):
 		"""
 		PTR 3.3.5
 		"""
 		self.changed_12148(fields)
-	
+
 	def changed_12232(self, fields):
 		"""
 		Closed Beta 4.0.0
 		"""
 		self.changed_12164(fields)
-	
+
 	def changed_12319(self, fields):
 		"""
 		Closed Beta 4.0.0
 		"""
 		self.changed_12232(fields)
-	
+
 	def changed_12340(self, fields):
 		"""
 		Live 3.3.5a
 		"""
 		self.changed_12166(fields)
-	
+
 	def changed_12379(self, fields):
 		"""
 		Closed Beta 4.0.0
@@ -127,7 +127,7 @@ class CreatureCache(Structure):
 		ByteField("unknown_flag"),
 		ByteField("leader"),
 	)
-	
+
 	def changed_7799(self, fields):
 		"""
 		Added cursor stringfield, overrides mouseover cursor
@@ -140,11 +140,11 @@ class CreatureCache(Structure):
 			ForeignKey("model_4", "CreatureDisplayInfo"),
 		), after="model_1")
 		fields.delete_fields("unknown_flag")
-	
+
 	def changed_8885(self, fields):
 		self.changed_7799(fields)
 		fields.delete_fields("unknown_8885")
-	
+
 	def changed_9614(self, fields):
 		self.changed_8885(fields)
 		fields.insert_field(ForeignKey("vehicle_spells", "CreatureSpellData"), after="tamed_spells")
@@ -162,11 +162,23 @@ class CreatureCache(Structure):
 			ForeignKey("quest_item_5", "Item"),
 			ForeignKey("quest_item_6", "Item"),
 		), after="quest_item_4")
-	
+
 	def changed_12065(self, fields):
 		self.changed_10026(fields)
 		fields.append_fields(
 			UnknownField(),
+		)
+
+	def changed_14545(self, fields):
+		"""
+		XXX unknown build
+		"""
+		self.changed_12065(fields)
+		fields.insert_fields((
+			UnknownField(),
+		), before="title")
+		fields.append_fields(
+			UnknownField()
 		)
 
 
@@ -176,7 +188,7 @@ class GameObjectCache(Structure):
 	World object data
 	"""
 	signature = "BOGW"
-	
+
 	fields = Skeleton(
 		IDField(),
 		RecLenField(),
@@ -220,7 +232,7 @@ class GameObjectCache(Structure):
 		),
 		FloatField("scale"),
 	)
-	
+
 	def changed_9637(self, fields):
 		fields.append_fields(
 			ForeignKey("quest_item_1", "Item"),
@@ -228,7 +240,7 @@ class GameObjectCache(Structure):
 			ForeignKey("quest_item_3", "Item"),
 			ForeignKey("quest_item_4", "Item"),
 		)
-	
+
 
 	def changed_10314(self, fields):
 		self.changed_9637(fields)
@@ -236,7 +248,7 @@ class GameObjectCache(Structure):
 			ForeignKey("quest_item_5", "Item"),
 			ForeignKey("quest_item_6", "Item"),
 		)
-	
+
 	def changed_11927(self, fields):
 		self.changed_10314(fields)
 		fields.append_fields(
@@ -250,7 +262,7 @@ class ItemCache(Structure):
 	Item data, cached on in-game item query
 	"""
 	signature = "BDIW"
-	
+
 	FLAGS = {
 		0x00000002: "conjured",
 		0x00000004: "openable",
@@ -272,7 +284,7 @@ class ItemCache(Structure):
 		0x20000000: "millable",
 		0x80000000: "bop_tradeable"
 	}
-	
+
 	FLAGS_2 = {
 		0x00000001: "horde",
 		0x00000002: "alliance",
@@ -280,7 +292,7 @@ class ItemCache(Structure):
 		0x00000100: "need_roll_disabled",
 		0x00000200: "caster_weapon",
 	}
-	
+
 	fields = Skeleton(
 		IDField(),
 		RecLenField(),
@@ -416,28 +428,28 @@ class ItemCache(Structure):
 		ForeignKey("gem_properties", "GemProperties"),
 		IntegerField("extended_cost"),
 	)
-	
+
 	def changed_5875(self, fields):
 		"""
 		- New IntegerField for required disenchant level
 		  UNKNOWN BUILD
 		"""
 		fields.append_fields(IntegerField("disenchanting"))
-	
+
 	def changed_6022(self, fields):
 		"""
 		- New unknown IntegerField before name field
 		"""
 		self.changed_5875(fields)
 		fields.insert_field(IntegerField("sound_override_subclassid"), after="subcategory")
-	
+
 	def changed_6213(self, fields):
 		"""
 		- New unknown IntegerField
 		"""
 		self.changed_6022(fields)
 		fields.insert_field(ForeignKey("random_suffix", "ItemRandomSuffix"), after="random_enchantment")
-	
+
 	def changed_6577(self, fields):
 		"""
 		- New float budget modifier
@@ -446,7 +458,7 @@ class ItemCache(Structure):
 		"""
 		self.changed_6213(fields)
 		fields.append_fields(FloatField("budget_modifier"))
-	
+
 	def changed_7382(self, fields):
 		"""
 		- New ItemCondExtCosts fkey before disenchant field
@@ -454,7 +466,7 @@ class ItemCache(Structure):
 		"""
 		self.changed_6577(fields)
 		fields.insert_field(IntegerField("extended_cost_cond"), after="extended_cost")
-	
+
 	def changed_7994(self, fields):
 		"""
 		- Removed extendedcost and extendedcostcond fields
@@ -462,7 +474,7 @@ class ItemCache(Structure):
 		"""
 		self.changed_7382(fields)
 		fields.delete_fields("extended_cost", "extended_cost_cond")
-	
+
 	def changed_8268(self, fields):
 		"""
 		- Added duration field at the end, replacing the old server overwrite model
@@ -470,14 +482,14 @@ class ItemCache(Structure):
 		"""
 		self.changed_7994(fields)
 		fields.append_fields(DurationField("duration", unit="seconds"))
-	
+
 	def changed_8391(self, fields):
 		"""
 		- New uniquecategory field at the end, fkey of new ItemLimitCategory.dbc file
 		"""
 		self.changed_8268(fields)
 		fields.append_fields(ForeignKey("unique_category", "ItemLimitCategory"))
-	
+
 	def changed_8471(self, fields):
 		"""
 		- Made the 20 stats column dynamic
@@ -504,13 +516,13 @@ class ItemCache(Structure):
 		), before="damage_min")
 		fields.insert_field(ForeignKey("scaling_stats", "ScalingStatDistribution"), before="damage_min")
 		fields.insert_field(BitMaskField("scaling_flags"), before="damage_min")
-	
+
 	def changed_8478(self, fields):
 		self.changed_8268(fields)
-	
+
 	def changed_8770(self, fields):
 		self.changed_8471(fields)
-	
+
 	def changed_9614(self, fields):
 		"""
 		- Deleted unused damage_min, damage_max and damage_type 3-5 fields
@@ -525,11 +537,11 @@ class ItemCache(Structure):
 		fields.append_fields(
 			ForeignKey("required_holiday", "Holidays"),
 		)
-	
+
 	def changed_10026(self, fields):
 		self.changed_9614(fields)
 		fields.insert_field(BitMaskField("flags_2", flags=self.FLAGS_2), before="buy_price")
-	
+
 	def changed_11927(self, fields):
 		"""
 		- Added two unknown fields for each stats
@@ -560,14 +572,14 @@ class ItemCache(Structure):
 			"ammo",
 		)
 		fields.append_fields(FloatField("scaling_factor"))
-	
+
 	def changed_12065(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
 		)
-	
+
 	def changed_12539(self, fields):
 		"""
 		XXX Unknown build (12319-12539)
@@ -703,7 +715,7 @@ class QuestCache(Structure):
 	Quest data, cached on in-game quest query
 	"""
 	signature = "TSQW"
-	
+
 	FLAGS = {
 		0x00000001: "objective_stay_alive",
 		0x00000002: "party_accept",
@@ -719,7 +731,7 @@ class QuestCache(Structure):
 		0x00002000: "flags_pvp",
 		0x00008000: "weekly",
 	}
-	
+
 	get_kill_relation = lambda x, value: value == abs(value) and "creaturecache" or "gameobjectcache"
 	get_kill_value = lambda x, value: abs(value)
 
@@ -793,10 +805,10 @@ class QuestCache(Structure):
 		StringField("objective_text_3"),
 		StringField("objective_text_4"),
 	)
-	
+
 	def changed_8125(self, fields):
 		fields.insert_field(ForeignKey("title_reward", "CharTitles"), before="item_reward_1")
-	
+
 	def changed_8770(self, fields):
 		self.changed_8125(fields)
 		fields.insert_fields((
@@ -809,21 +821,21 @@ class QuestCache(Structure):
 			ForeignKey("required_item_4", "Item"),
 			IntegerField("required_item_amount_4"),
 		), before="objective_text_1")
-	
+
 	def changed_9355(self, fields):
 		self.changed_8770(fields)
 		fields.insert_fields((
 			ForeignKey("required_item_5", "Item"),
 			IntegerField("required_item_amount_5"),
 		), before="objective_text_1")
-	
+
 	def changed_10026(self, fields):
 		self.changed_9355(fields)
 		fields.insert_fields((
 			ForeignKey("required_item_6", "Item"),
 			IntegerField("required_item_amount_6"),
 		), before="objective_text_1")
-	
+
 	##
 	# QuestFactionReward.dbc has two rows.
 	# Row 1 is for positive gains, row 2 is for
@@ -831,7 +843,7 @@ class QuestCache(Structure):
 	# positive, row 2 is linked; otherwise row 1.
 	get_reputation_reward_row = lambda x, row, value: 2 if value < 0 else 1
 	get_reputation_reward_column = lambda x, row, value: "reputation_gain_%i" % (abs(value))
-	
+
 	def changed_10522(self, fields):
 		self.changed_10026(fields)
 		fields.insert_field(FloatField("honor_reward_multiplier"), before="provided_item")
@@ -855,7 +867,7 @@ class QuestCache(Structure):
 			IntegerField("reputation_override_5"),
 		], before="instance")
 		fields.insert_field(StringField("complete_summary"), before="required_kill_1")
-	
+
 	def changed_10554(self, fields):
 		self.changed_10522(fields)
 		fields.insert_field(IntegerField("required_level"), before="category")
@@ -865,14 +877,14 @@ class QuestCache(Structure):
 				get_column = lambda row, value: "experience_%i" % (value) if value else None,
 			),
 		before="money_reward")
-	
+
 	def changed_10772(self, fields):
 		self.changed_10554(fields)
 		fields.insert_field(IntegerField("quest_item_amount_1"), before="required_kill_2") # XXX thats not it ...
 		fields.insert_field(IntegerField("quest_item_amount_2"), before="required_kill_3")
 		fields.insert_field(IntegerField("quest_item_amount_3"), before="required_kill_4")
 		fields.insert_field(IntegerField("quest_item_amount_4"), before="required_item_1")
-	
+
 	def changed_11927(self, fields):
 		self.changed_10772(fields)
 		fields.append_fields(
@@ -893,7 +905,7 @@ class QuestCache(Structure):
 			ForeignKey("required_currency_4", "CurrencyTypes"),
 			IntegerField("required_currency_amount_4"),
 		)
-	
+
 	def changed_12065(self, fields):
 		self.changed_11927(fields)
 		fields.insert_fields((
@@ -904,13 +916,13 @@ class QuestCache(Structure):
 			StringField("npcframe_accept_text"),
 			StringField("npcframe_handin_text"),
 		)
-	
+
 	def changed_12232(self, fields):
 		self.changed_12065(fields)
 		fields.insert_field(UnknownField(), before="item_reward_1")
 		fields.insert_field(StringField("npcframe_accept_text_2"), after="npcframe_accept_text")
 		fields.append_fields(StringField("npcframe_handin_text_2")) # insert after npcframe_handin_text
-	
+
 	def changed_12539(self, fields):
 		"""
 		XXX Unknown build (12232-12539)
@@ -919,7 +931,7 @@ class QuestCache(Structure):
 		fields.insert_field(BitMaskField("flags_2"), after="flags")
 		fields.insert_field(UnknownField(), before="item_reward_1")
 		fields.insert_field(ForeignKey("required_learned_spell", "Spell"), after="required_item_amount_6")
-	
+
 	def changed_12857(self, fields):
 		"""
 		XXX Unknown build
@@ -928,7 +940,7 @@ class QuestCache(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
+
 	def changed_12942(self, fields):
 		self.changed_12857(fields)
 		fields.append_fields(
@@ -972,7 +984,7 @@ class Achievement(Structure):
 	Achievement.dbc
 	Achievement data
 	"""
-	
+
 	FLAGS = {
 		0x00000001: "statistic",
 		0x00000002: "hidden",
@@ -981,7 +993,7 @@ class Achievement(Structure):
 		0x00000100: "serverfirst",
 		0x00000200: "serverfirst_raid",
 	}
-	
+
 	fields = Skeleton(
 		IDField(),
 		IntegerField("faction"),
@@ -1035,13 +1047,13 @@ class Achievement_Criteria(Structure):
 		DurationField("timer", unit="seconds"),
 		IntegerField("sort"),
 	)
-	
+
 	def changed_12479(self, fields):
 		fields.append_fields(
 			UnknownField(),
 			UnknownField(),
 		)
-	
+
 	def changed_12857(self, fields):
 		self.changed_12479(fields)
 		fields.append_fields(
@@ -1068,7 +1080,7 @@ class AnimationData(Structure):
 		ForeignKey("animation_before", "AnimationData"),
 		ForeignKey("real_animation", "AnimationData"),
 	)
-	
+
 	def changed_7468(self, fields):
 		"""
 		Unknown build
@@ -1239,13 +1251,13 @@ class AreaPOI(Structure):
 	Points of Interest (POI) on the minimap and battlemap.
 	Includes text, icons, positioning and other misc things.
 	"""
-	
+
 	FLAGS = {
 		0x004: "zone",
 		0x080: "battleground",
 		0x200: "show_in_battlemap",
 	}
-	
+
 	fields = Skeleton(
 		IDField(),
 		UnknownField(),
@@ -1270,10 +1282,10 @@ class AreaPOI(Structure):
 		IntegerField("world_state"),
 		UnknownField(),
 	)
-	
+
 	def changed_12025(self, fields):
 		fields.delete_fields("z")
-	
+
 	def changed_12759(self, fields):
 		self.changed_12025(fields)
 		fields.append_fields(
@@ -1297,7 +1309,7 @@ class AreaTable(Structure):
 	AreaTable.dbc
 	Contains all zone and subzone data.
 	"""
-	
+
 	TERRITORY_FLAGS = {
 		# Faction safety flags
 		# 0x2 is safe for horde, 0x2 & 0x4 is safe for
@@ -1306,7 +1318,7 @@ class AreaTable(Structure):
 		0x02: "Horde",
 		0x04: "Alliance",
 	}
-	
+
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("instance", "map"),
@@ -1329,12 +1341,12 @@ class AreaTable(Structure):
 		FloatField(),
 		UnknownField(), # 0
 	)
-	
+
 	def changed_12266(self, fields):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
+
 	def changed_12319(self, fields):
 		self.changed_12266(fields)
 		fields.append_fields(
@@ -1342,7 +1354,7 @@ class AreaTable(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
-	
+
 	def changed_12857(self, fields):
 		self.changed_12319(fields)
 		fields.append_fields(
@@ -1475,19 +1487,19 @@ class BattlemasterList(Structure):
 		BooleanField("join_as_group"),
 		LocalizedField("name")
 	)
-	
+
 	def changed_9551(self, fields):
 		fields.insert_field(IntegerField("min_players"), before="level_band")
 		fields.append_fields(
 			IntegerField("max_group_size"),
 		)
-	
+
 	def changed_9658(self, fields):
 		self.changed_9551(fields)
 		fields.append_fields(
 			IntegerField("world_state_holiday"), # Foreign key?
 		)
-	
+
 	def changed_10554(self, fields):
 		self.changed_9658(fields)
 		fields.delete_fields(
@@ -1496,7 +1508,7 @@ class BattlemasterList(Structure):
 			"min_level",
 			"max_level",
 		)
-	
+
 	def changed_11573(self, fields):
 		self.changed_10554(fields)
 		fields.delete_fields("max_players")
@@ -1504,19 +1516,19 @@ class BattlemasterList(Structure):
 			IntegerField("min_level"),
 			IntegerField("max_level"),
 		)
-	
+
 	def changed_12942(self, fields):
 		self.changed_11573(fields)
 		fields.append_fields(
 			IntegerField("max_players_rated"),
 		)
-	
+
 	def changed_12984(self, fields):
 		self.changed_12942(fields)
 		fields.append_fields(
 			IntegerField("max_players"),
 		)
-	
+
 	def changed_13183(self, fields):
 		self.changed_12984(fields)
 		fields.append_fields(
@@ -1569,7 +1581,7 @@ class CameraMode(Structure):
 	fields = Skeleton(
 		IDField(),
 	)
-	
+
 	def changed_12232(self, fields):
 		fields.append_fields(
 			StringField("name"),
@@ -1646,7 +1658,7 @@ class Cfg_Configs(Structure):
 		BooleanField(),
 		BooleanField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -1688,7 +1700,7 @@ class CharacterFacialHairStyles(Structure):
 		IntegerField("geoset_4"), # unsigned? row 188
 		IntegerField("geoset_5"), # unsigned? row 188
 	)
-	
+
 	def changed_11927(self, fields):
 		"""
 		Added a real id field
@@ -1706,7 +1718,7 @@ class CharBaseInfo(Structure):
 		ForeignByte("race", "ChrRaces"),
 		ForeignByte("class", "ChrClasses"),
 	)
-	
+
 	def changed_11927(self, fields):
 		"""
 		Added a real id field
@@ -1813,7 +1825,7 @@ class CharStartOutfit(Structure):
 		IntegerField("inventory_type_11"),
 		IntegerField("inventory_type_12"),
 	)
-	
+
 	def changed_9901(self, fields):
 		"""
 		Doubled all the items
@@ -1834,7 +1846,7 @@ class CharStartOutfit(Structure):
 			ForeignKey("item_23", "Item"),
 			ForeignKey("item_24", "Item"),
 		], before="display_1")
-		
+
 		fields.insert_fields([
 			ForeignKey("display_13", "ItemDisplayInfo"),
 			ForeignKey("display_14", "ItemDisplayInfo"),
@@ -1849,7 +1861,7 @@ class CharStartOutfit(Structure):
 			ForeignKey("display_23", "ItemDisplayInfo"),
 			ForeignKey("display_24", "ItemDisplayInfo"),
 		], before="inventory_type_1")
-		
+
 		fields.append_fields(
 			IntegerField("inventory_type_13"),
 			IntegerField("inventory_type_14"),
@@ -1864,7 +1876,7 @@ class CharStartOutfit(Structure):
 			IntegerField("inventory_type_23"),
 			IntegerField("inventory_type_24"),
 		)
-	
+
 	def changed_12025(self, fields):
 		self.changed_9901(fields)
 		fields.append_fields(
@@ -1885,7 +1897,7 @@ class CharTitles(Structure):
 		LocalizedField("title_female"),
 		IntegerField("ordering"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(UnknownField())
 
@@ -1949,7 +1961,7 @@ class ChrClasses(Structure):
 		ForeignKey("cinematic", "CinematicSequences"), # Only for Death Knight
 		IntegerField("required_expansion"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.delete_fields("unknown_attr")
 		fields.append_fields(
@@ -1987,20 +1999,20 @@ class ChrRaces(Structure):
 		StringField("feature_3"), # horns
 		IntegerField("expansion"),
 	)
-	
+
 	def changed_10048(self, fields):
 		fields.delete_fields("scale")
-	
+
 	def changed_10433(self, fields):
 		self.changed_10048(fields)
 		fields.insert_field(UnknownField(), before="name_male") # Faction?
-	
+
 	def changed_11927(self, fields):
 		self.changed_10433(fields)
 		fields.append_fields(
 			UnknownField(), # only set to 1 for worgen
 		)
-	
+
 	def changed_12604(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(
@@ -2066,7 +2078,7 @@ class CreatureDisplayInfo(Structure):
 		IntegerField(),
 		IntegerField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.insert_field(StringField("icon"), after="texture_3")
 
@@ -2210,7 +2222,7 @@ class CreatureSoundData(Structure):
 		IntegerField(),
 		IntegerField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -2270,7 +2282,7 @@ class CurrencyTypes(Structure):
 		ForeignKey("category", "CurrencyCategory"),
 		IntegerField("ordering"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.delete_fields("item")
 		fields.append_fields(
@@ -2282,17 +2294,17 @@ class CurrencyTypes(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
-	
+
 	def changed_12025(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(UnknownField())
-	
+
 	def changed_12232(self, fields):
 		self.changed_12025(fields)
 		fields.append_fields(
 			LocalizedField("description"),
 		)
-	
+
 	def changed_12479(self, fields):
 		self.changed_12232(fields)
 		fields.delete_fields("ordering")
@@ -2353,12 +2365,12 @@ class DestructibleModelData(Structure):
 		UnknownField(),
 		UnknownField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(
 			UnknownField()
 		)
-	
+
 	def changed_12319(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(
@@ -2405,7 +2417,7 @@ class DungeonEncounter(Structure):
 		LocalizedField("name"),
 		UnknownField(),
 	)
-	
+
 	def changed_12759(self, fields):
 		fields.insert_field(
 			UnknownField(),
@@ -2496,14 +2508,14 @@ class Emotes(Structure):
 	Emotes.dbc
 	Slash-command emotes
 	"""
-	
+
 	FLAGS = {
 		0x008: "talk",
 		0x010: "question",
 		0x020: "exclamation",
 		0x100: "laugh",
 	}
-	
+
 	fields = Skeleton(
 		IDField(),
 		StringField("name"),
@@ -2627,7 +2639,7 @@ class Faction(Structure):
 		fields.insert_field(FloatField(), before="name")
 		fields.insert_field(UnknownField(), before="name")
 		fields.insert_field(UnknownField(), before="name")
-	
+
 	def changed_11927(self, fields):
 		self.changed_10522(fields)
 		fields.append_fields(
@@ -2760,7 +2772,7 @@ class GameTables(Structure):
 		IntegerField(), # 1-100
 		IntegerField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		"""
 		Added a real id field
@@ -2777,7 +2789,7 @@ class GameTips(Structure):
 		IDField(),
 		LocalizedField("description"),
 	)
-	
+
 	def changed_12479(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -2797,7 +2809,7 @@ class GemProperties(Structure):
 		BooleanField("unique_equipped"),
 		IntegerField("color"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(
 			IntegerField("required_item_level"),
@@ -2826,7 +2838,7 @@ class GlyphProperties(Structure):
 	GlyphProperties.dbc
 	Glyph data
 	"""
-	
+
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("spell", "Spell"),
@@ -2942,14 +2954,14 @@ class GroundEffectTexture(Structure):
 
 class GameTableDBC(Structure):
 	"""
-	Base structure for all 
+	Base structure for all
 	gt* DBCs (Game Table)
 	"""
 	implicit_id = True
 	fields = Skeleton(
 		FloatField("ratio"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.insert_field(
 			IDField(),
@@ -3233,7 +3245,7 @@ class Item(Structure):
 
 
 class Item_sparse(Structure):
-	
+
 	FLAGS = {
 		0x00000002: "conjured",
 		0x00000004: "openable",
@@ -3255,7 +3267,7 @@ class Item_sparse(Structure):
 		0x20000000: "millable",
 		0x80000000: "bop_tradeable"
 	}
-	
+
 	FLAGS_2 = {
 		0x00000001: "horde",
 		0x00000002: "alliance",
@@ -3263,7 +3275,7 @@ class Item_sparse(Structure):
 		0x00000100: "need_roll_disabled",
 		0x00000200: "caster_weapon",
 	}
-	
+
 	fields = Skeleton(
 		IDField("_id"),
 		IntegerField("quality"),
@@ -3471,7 +3483,7 @@ class ItemClass(Structure):
 		BooleanField("is_weapon"),
 		LocalizedField("name"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.insert_field(IntegerField("id_1"), after="_id")
 
@@ -3686,7 +3698,7 @@ class ItemExtendedCost(Structure):
 		IntegerField("item_amount_4"),
 		IntegerField("item_amount_5"),
 	)
-	
+
 	def changed_9551(self, fields):
 		"""
 		XXX Unknown build!
@@ -3695,11 +3707,11 @@ class ItemExtendedCost(Structure):
 			IntegerField("required_personal_rating"),
 			UnknownField(), # maybe pvprankreq?
 		)
-	
+
 	def changed_10026(self, fields):
 		self.changed_9551(fields)
 		fields.insert_field(IntegerField("bracket"), before="item_1")
-	
+
 	def changed_11927(self, fields):
 		self.changed_10026(fields)
 		fields.append_fields(
@@ -3897,7 +3909,7 @@ class ItemSubClass(Structure):
 		LocalizedField("name"),
 		LocalizedField("category_name"),
 	)
-	
+
 	def changed_11927(self, fields):
 		"""
 		Added a real id field
@@ -3916,7 +3928,7 @@ class ItemSubClassMask(Structure):
 		BitMaskField("id2_mask"),
 		LocalizedField("name"),
 	)
-	
+
 	def changed_11927(self, fields):
 		"""
 		Added a real id field
@@ -3983,7 +3995,7 @@ class LFGDungeons(Structure):
 	"""
 	LFGDungeons.dbc
 	"""
-	
+
 	fields = Skeleton(
 		IDField(),
 		LocalizedField("name"),
@@ -4002,12 +4014,12 @@ class LFGDungeons(Structure):
 		UnknownField(),
 		IntegerField("type"),
 	)
-	
+
 	def changed_11573(self, fields):
 		fields.append_fields(
 			LocalizedField("description")
 		)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(UnknownField()) # ???
 
@@ -4016,7 +4028,7 @@ class LFGDungeonExpansion(Structure):
 	"""
 	LFGDungeonExpansion.dbc
 	"""
-	
+
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("lfg_1", "LFGDungeons"),
@@ -4033,7 +4045,7 @@ class LFGDungeonGroup(Structure):
 	"""
 	LFGDungeonGroup.dbc
 	"""
-	
+
 	fields = Skeleton(
 		IDField(),
 		LocalizedField("name"),
@@ -4178,7 +4190,7 @@ class LightParams(Structure):
 		FloatField("deep_water_alpha"),
 		FloatField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(
 			UnknownField(), # XXX
@@ -4261,14 +4273,14 @@ class LiquidType(Structure):
 		UnknownField(),
 	)
 	# *  (1: "*sLiquidWater", 2: "*sLiquidMagma", 3: "*sLiquidProcWater%s" where %s is an appendix that is currently always "")
-	
+
 	def changed_11927(self, fields):
 		fields.insert_fields((
 			UnknownField(),
 			UnknownField(),
 			UnknownField(),
 		), before="name")
-	
+
 	def changed_12065(self, fields):
 		pass # Revert 11927 changes
 
@@ -4309,7 +4321,7 @@ class LoadingScreens(Structure):
 		StringField("name"),
 		FilePathField("path"),
 	)
-	
+
 	def changed_10676(self, fields):
 		fields.append_fields(
 			BooleanField("continent"),
@@ -4327,7 +4339,7 @@ class Lock(Structure):
 		3: "Lock", # FIXME
 	}
 	properties_relation = lambda x, value: PROPERTY_TYPES[value]
-	
+
 	fields = Skeleton(
 		IDField(),
 		IntegerField("type_1"),
@@ -4369,7 +4381,7 @@ class LockType(Structure):
 	"""
 	LockType.dbc
 	"""
-	
+
 	fields = Skeleton(
 		IDField(),
 		LocalizedField("name"),
@@ -4438,13 +4450,13 @@ class Map(Structure):
 	def changed_10522(self, fields):
 		self.changed_10083(fields)
 		fields.insert_field(UnknownField(), before="battleground")
-	
+
 	def changed_11927(self, fields):
 		self.changed_10522(fields)
 		fields.append_fields(
 			ForeignKey("phasing_parent", "Map"),
 		)
-	
+
 	def changed_12942(self, fields):
 		self.changed_11927(fields)
 		fields.insert_field(
@@ -4477,7 +4489,7 @@ class Material(Structure):
 		ForeignKey("page_material", "PageTextMaterial"),
 		UnknownField(),
 	)
-	
+
 	def changed_9901(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -4511,7 +4523,7 @@ class Movie(Structure):
 		FilePathField("path"),
 		UnknownField(),
 	)
-	
+
 	def changed_12644(self, fields): # XXX unknown build
 		fields.append_fields(
 			UnknownField(),
@@ -4686,7 +4698,7 @@ class OverrideSpellData(Structure):
 		ForeignKey("spell_10", "Spell"),
 		UnknownField(),
 	)
-	
+
 	def changed_12644(self, fields): # XXX unknown build
 		fields.append_fields(
 			UnknownField(),
@@ -4731,7 +4743,7 @@ class PaperDollItemFrame(Structure):
 		FilePathField("path"),
 		IntegerField("slot"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.insert_field(UnknownField(), before="slot")
 
@@ -4747,7 +4759,7 @@ class ParticleColor(Structure):
 	To have models that support this, you need to give the particles
 	an ID at 0x2A in the emitters. This Id should be 0, 11, 12 or 13,
 	depending on which color / behaviour you want.
-	
+
 	"""
 	fields = Skeleton(
 		IDField(),
@@ -4814,7 +4826,7 @@ class Phase(Structure):
 		StringField("name"),
 		BitMaskField("flags"),
 	)
-	
+
 	def changed_12694(self, fields):
 		fields.delete_fields(
 			"instance", "instance_2",
@@ -5054,7 +5066,7 @@ class ScalingStatDistribution(Structure):
 		IntegerField("modifier_10"),
 		IntegerField("max_level"),
 	)
-	
+
 	def changed_12232(self, fields):
 		fields.insert_field(IntegerField("min_level"), before="max_level")
 
@@ -5201,18 +5213,18 @@ class SkillLineAbility(Structure):
 		IntegerField("character_points_2"),
 		#UnknownField(), Deleted somewhere between 4125 and 9551
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
+
 	def changed_12266(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(
 			UnknownField(),
 		)
-	
+
 	def changed_12379(self, fields):
 		self.changed_12266(fields)
 		fields.delete_fields(
@@ -5256,7 +5268,7 @@ class SkillRaceClassInfo(Structure):
 		ForeignKey("skill_cost", "SkillCostsData"),
 		UnknownField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		"""
 		Added a real id field
@@ -5387,7 +5399,7 @@ class SoundEntries(Structure):
 		IntegerField("eax_definition"),
 		UnknownField(),
 	)
-	
+
 	def changed_12122(self, fields):
 		fields.append_fields(
 			FloatField(),
@@ -5553,7 +5565,7 @@ class Spell(Structure):
 	Spell.dbc
 	Contains all spell data.
 	"""
-	
+
 	FLAGS_1 = {
 		0x00000004: "next_melee",
 		0x00000020: "tradespell",
@@ -5562,38 +5574,38 @@ class Spell(Structure):
 		0x08000000: "usable_while_sitting",
 		0x10000000: "not_usable_in_combat",
 	}
-	
+
 	FLAGS_2 = {
 		0x00000004: "channeled",
 		0x00000040: "channeled_2",
 		0x01000000: "fishing",
 	}
-	
+
 	FLAGS_3 = {
 		0x00002000: "permanent_enchant",
 		0x00080000: "hide_shapeshifts",
 	}
-	
+
 	FLAGS_4 = {
-		
+
 	}
-	
+
 	FLAGS_5 = {
 		0x00000040: "cannot_be_stolen",
 		0x00000200: "popup_on_activate",
 		0x04000000: "usable_only_while_flying",
 	}
-	
+
 	FLAGS_6 = {
 		0x00000002: "no_reagents_during_preparation",
 		0x00020000: "usable_while_feared",
 		0x00040000: "usable_while_confused",
 	}
-	
+
 	FLAGS_7 = {
 		0x00000040: "popup_on_proc",
 	}
-	
+
 	FLAGS_8 = {
 		0x00000004: "paladin_aura",
 		0x00000020: "shaman_totem",
@@ -5601,15 +5613,15 @@ class Spell(Structure):
 		0x00000200: "alliance_only",
 		0x10000000: "ui_collapse",
 	}
-	
+
 	FLAGS_9 = {
-		
+
 	}
-	
+
 	REQUIRED_TARGET_FLAGS = {
 		0x00000040: "targeted_aoe",
 	}
-	
+
 	fields = Skeleton(
 		IDField(),
 		ForeignKey("category", "SpellCategory"),
@@ -5766,7 +5778,7 @@ class Spell(Structure):
 		IntegerField("defense_type"),
 		IntegerField("prevention_type"),
 		IntegerField("stance_bar_order"),
-		FloatField("chain_amplitude_effect_1"), # added when? 
+		FloatField("chain_amplitude_effect_1"), # added when?
 		FloatField("chain_amplitude_effect_2"),
 		FloatField("chain_amplitude_effect_3"),
 		ForeignKey("required_faction", "Faction"),
@@ -5779,7 +5791,7 @@ class Spell(Structure):
 		ForeignKey("rune_cost", "SpellRuneCost"),
 		ForeignKey("missile", "SpellMissile"),
 	)
-	
+
 	def changed_9614(self, fields): # between 9614 and 9637
 		fields.append_fields(ForeignKey("power_display", "PowerDisplay"))
 
@@ -5800,7 +5812,7 @@ class Spell(Structure):
 		fields.append_fields(
 			ForeignKey("spell_difficulty", "SpellDifficulty"),
 		)
-	
+
 	def changed_11573(self, fields):
 		self.changed_10522(fields)
 		fields.delete_fields(
@@ -5811,7 +5823,7 @@ class Spell(Structure):
 			"dice_per_level_effect_2",
 			"dice_per_level_effect_3",
 		)
-	
+
 	def changed_11927(self, fields):
 		self.changed_11573(fields)
 		fields.insert_field(BitMaskField("flags_9", flags=self.FLAGS_9), after="flags_8")
@@ -5829,11 +5841,11 @@ class Spell(Structure):
 			IntegerField("archeology_2"),
 			IntegerField("archeology_3"),
 		)
-	
+
 	def changed_12025(self, fields):
 		self.changed_11927(fields)
 		fields.insert_field(FloatField(), before="spell_scaling")
-	
+
 	def changed_12232(self, fields):
 		self.changed_12025(fields)
 		fields.delete_fields(
@@ -5858,7 +5870,7 @@ class Spell(Structure):
 			"required_reagent_amount_1", "required_reagent_amount_2", "required_reagent_amount_3", "required_reagent_amount_4",
 			"required_reagent_amount_5", "required_reagent_amount_6", "required_reagent_amount_7", "required_reagent_amount_8",
 			"required_item_category", "required_item_subclasses", "required_item_slots",
-			
+
 			"effect_1", "effect_2", "effect_3",
 			"radius_max_effect_1", "radius_max_effect_2", "radius_max_effect_3",
 			"die_sides_effect_1", "die_sides_effect_2", "die_sides_effect_3",
@@ -5882,7 +5894,7 @@ class Spell(Structure):
 			"class_flags_3_effect_1", "class_flags_3_effect_2", "class_flags_3_effect_3",
 			"chain_amplitude_effect_1", "chain_amplitude_effect_2", "chain_amplitude_effect_3",
 			"multiplier_effect_1", "multiplier_effect_2", "multiplier_effect_3",
-			
+
 			"recovery_category", "cooldown_start", "max_target_level",
 			"spell_class_set", "spell_class_flags_1", "spell_class_flags_2", "spell_class_flags_3",
 			"max_targets", "defense_type", "prevention_type", "stance_bar_order",
@@ -5890,7 +5902,7 @@ class Spell(Structure):
 			"required_tool_category_1", "required_tool_category_2",
 			"required_area_group", "power_percent", "power_display",
 		)
-		
+
 		fields.insert_fields((
 			ForeignKey("aura_options", "SpellAuraOptions"),
 			ForeignKey("aura_restrictions", "SpellAuraRestrictions"),
@@ -5908,7 +5920,7 @@ class Spell(Structure):
 			ForeignKey("target_restrictions", "SpellTargetRestrictions"),
 			ForeignKey("totems", "SpellTotems"),
 		), before="archeology_1")
-	
+
 	def changed_12479(self, fields):
 		self.changed_12232(fields)
 		fields.delete_fields(
@@ -5917,7 +5929,7 @@ class Spell(Structure):
 		fields.append_fields(
 			ForeignKey("research_project", "ResearchProject")
 		)
-	
+
 	def changed_12694(self, fields):
 		self.changed_12479(fields)
 		fields.insert_field(BitMaskField("flags_10"), after="flags_9")
@@ -6056,7 +6068,7 @@ class SpellChainEffects(Structure):
 		UnknownField(),
 		FilePathField("texture"),
 	)
-	
+
 	def changed_9637(self, fields):
 		"""
 		FIXME This happened somewhere between 4125 and 9637
@@ -6102,7 +6114,7 @@ class SpellChainEffects(Structure):
 			UnsignedSmallIntegerField(),
 			SmallIntegerField(),
 		)
-	
+
 	def changed_10026(self, fields):
 		self.changed_9637(fields)
 		fields.append_fields(
@@ -6123,7 +6135,7 @@ class SpellClassOptions(Structure):
 		BitMaskField("spell_class_flags_3"),
 		IntegerField("spell_class_set"),
 	)
-	
+
 	def changed_12604(self, fields):
 		fields.append_fields(
 			LocalizedField("description"), # Newbie help tooltip stuff.
@@ -6346,12 +6358,12 @@ class SpellItemEnchantment(Structure):
 		ForeignKey("required_skill", "SkillLine"), # added 3.x
 		IntegerField("required_skill_level"), # added 3.x
 	)
-	
+
 	def changed_9637(self, fields):
 		fields.append_fields(
 			IntegerField("required_level"),
 		)
-	
+
 	def changed_11927(self, fields):
 		self.changed_9637(fields)
 		fields.append_fields(
@@ -6502,7 +6514,7 @@ class SpellPower(Structure):
 		IntegerField("power_per_second"),
 		ForeignKey("power_display", "PowerDisplay"),
 	)
-	
+
 	def changed_12759(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -6601,7 +6613,7 @@ class SpellScaling(Structure):
 		FloatField("coefficient_3_effect_2"),
 		FloatField("coefficient_3_effect_3"),
 	)
-	
+
 	def changed_12232(self, fields):
 		fields.append_fields(
 			FloatField(),
@@ -6650,7 +6662,7 @@ class SpellShapeshiftForm(Structure):
 		ForeignKey("spell_7", "Spell"),
 		ForeignKey("spell_8", "Spell"),
 	)
-	
+
 	def changed_12857(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -6785,10 +6797,10 @@ class SpellVisualKit(Structure):
 		FloatField(),
 		BitMaskField(),
 	)
-	
+
 	def changed_9637(self, fields):
 		fields.delete_fields("caster_animation_3")
-	
+
 	def changed_11927(self, fields):
 		self.changed_9637(fields)
 		fields.append_fields(
@@ -6823,7 +6835,7 @@ class SpellVisualKitModelAttach(Structure):
 		FloatField(),
 		FloatField(),
 	)
-	
+
 	def changed_12942(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -6934,7 +6946,7 @@ class Talent(Structure):
 		BitMaskField("unknown_pet_1"),
 		BitMaskField("unknown_pet_2"),
 	)
-	
+
 	def changed_12479(self, fields):
 		fields.delete_fields(
 			"rank_6", "rank_7", "rank_8", "rank_9",
@@ -6956,16 +6968,16 @@ class TalentTab(Structure):
 		IntegerField("page"),
 		StringField("internal_name"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.delete_fields("unk_unused")
-	
+
 	def changed_12479(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(
 			LocalizedField("description"),
 		)
-	
+
 	def changed_12539(self, fields):
 		self.changed_12479(fields)
 		ROLES = {
@@ -6976,7 +6988,7 @@ class TalentTab(Structure):
 		fields.append_fields(
 			BitMaskField("roles", flags=ROLES),
 		)
-	
+
 	def changed_12759(self, fields):
 		self.changed_12539(fields)
 		fields.append_fields(
@@ -7041,7 +7053,7 @@ class TaxiPathNode(Structure):
 		FloatField("y"),
 		FloatField("z"),
 		UnknownField(),
-		DurationField("delay", unit="seconds"), # Delay before moving to next point (used on boats / trams / zepplins) 
+		DurationField("delay", unit="seconds"), # Delay before moving to next point (used on boats / trams / zepplins)
 		IntegerField("arrival_event"),
 		IntegerField("departure_event"),
 	)
@@ -7069,7 +7081,7 @@ class TerrainType(Structure):
 		UnknownField(),
 		UnknownField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -7299,7 +7311,7 @@ class VehicleSeat(Structure):
 		FloatField(),
 		FloatField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -7309,13 +7321,13 @@ class VehicleSeat(Structure):
 			UnknownField(),
 			UnknownField(),
 		)
-	
+
 	def changed_12122(self, fields):
 		self.changed_11927(fields)
 		fields.append_fields(
 			UnknownField(),
 		)
-	
+
 	def changed_12984(self, fields):
 		self.changed_12122(fields)
 		fields.append_fields(
@@ -7453,7 +7465,7 @@ class Weather(Structure):
 		FloatField(),
 		FilePathField("texture"),
 	)
-	
+
 	def changed_10522(self, fields):
 		fields.insert_field(FloatField(), before="texture")
 
@@ -7476,7 +7488,7 @@ class WMOAreaTable(Structure):
 		ForeignKey("zone", "AreaTable"),
 		LocalizedField("name"),
 	)
-	
+
 	def changed_12319(self, fields):
 		fields.append_fields(
 			UnknownField(),
@@ -7501,7 +7513,7 @@ class WorldChunkSounds(Structure):
 		UnknownField(),
 		UnknownField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		"""
 		FIXME Is this a glitch in the rebuilder?
@@ -7526,12 +7538,12 @@ class WorldMapArea(Structure):
 		ForeignKey("virtual_map", "Map"),
 		ForeignKey("dungeon_map", "DungeonMap"),
 	)
-	
+
 	def changed_10116(self, fields):
 		fields.append_fields(
 			ForeignKey("parent_area", "WorldMapArea"), # Not for all?!
 		)
-	
+
 	def changed_12232(self, fields):
 		self.changed_10116(fields)
 		fields.append_fields(
@@ -7558,7 +7570,7 @@ class WorldMapContinent(Structure):
 		FloatField(),
 		FloatField(),
 	)
-	
+
 	def changed_9901(self, fields):
 		"""
 		XXX Unknown build!
@@ -7591,7 +7603,7 @@ class WorldMapOverlay(Structure):
 		IntegerField("y2"),
 		IntegerField("x2"),
 	)
-	
+
 	def changed_13033(self, fields):
 		fields.delete_fields(
 			"area_5", "area_6",
@@ -7616,7 +7628,7 @@ class WorldMapTransforms(Structure):
 		FloatField("target_x"),
 		FloatField("target_y"),
 	)
-	
+
 	def changed_9658(self, fields):
 		"""
 		XXX When was this added? 6080->9658
@@ -7624,7 +7636,7 @@ class WorldMapTransforms(Structure):
 		fields.append_fields(
 			UnknownField(),
 		)
-	
+
 	def changed_12984(self, fields):
 		self.changed_9658(fields)
 		fields.append_fields(
@@ -7668,7 +7680,7 @@ class WorldStateUI(Structure):
 		IntegerField("variable_3"),
 		UnknownField(),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.insert_fields((
 			UnknownField(),
@@ -7691,7 +7703,7 @@ class WorldStateZoneSounds(Structure):
 		ForeignKey("sound_ambience", "SoundAmbience"),
 		ForeignKey("preferences", "SoundProviderPreferences"),
 	)
-	
+
 	def changed_11927(self, fields):
 		fields.insert_field(UnknownField(), before="value")
 
