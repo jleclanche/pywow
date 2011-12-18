@@ -252,8 +252,24 @@ class GameObjectCache(Structure):
 	def changed_11927(self, fields):
 		self.changed_10314(fields)
 		fields.append_fields(
-			UnknownField(),
+			UnknownField(), # some kind of level? 65 for cataclysm/wlk herbs and deposits
 		)
+
+	def changed_14545(self, fields):
+		"""
+		XXX unknown build
+		"""
+		self.changed_11927(fields)
+		fields.insert_fields((
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			UnknownField(),
+			FloatField(),
+		), before="quest_item_1")
 
 
 class ItemCache(Structure):
