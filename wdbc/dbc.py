@@ -1,26 +1,15 @@
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple
 from struct import pack, unpack
 from .log import log
 from .main import DBHeader, DBFile
 from .structures import fields, StructureNotFound, getstructure, LocalizedStringField, LocalizedField
 from .utils import getfilename, generate_structure
 
+
 SEEK_CUR = 1 # os.SEEK_CUR
 SEEK_END = 2 # os.SEEK_END
-
-class DBCHeader(DBHeader):
-	def __len__(self):
-		return 20
-	
-	def load(self, file):
-		file.seek(0)
-		data = file.read(len(self))
-		self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize = unpack("<4s4i", data)
-	
-	def data(self):
-		return pack("<4s4i", self.signature, self.row_count, self.field_count, self.reclen, self.stringblocksize)
-
 
 class DBCFile(DBFile):
 	"""
@@ -32,16 +21,21 @@ class DBCFile(DBFile):
 	- EOF is 1 NULL byte, followed by the stringblock if there is one.
 	- The stringblock is a non-repetitive block of null-terminated strings.
 	"""
-	
+
 	def __init__(self, file, build, structure, environment):
 		super(DBCFile, self).__init__(file, build, structure, environment)
-		self.header = DBCHeader()
-		self.header.load(file)
-		if not build:
-			build = 0
+		self.header = self._parse_header()
 		self.build = build
 		self.__load_structure(structure)
-	
+
+	def _parse_header(self):
+		DBCHeader = namedtuple("DBCHeader", ["signature", "row_count", "field_count", "reclen", "stringblocksize"])
+		data = self.file.read(20)
+		return DBCHeader(*unpack("<4s4i", data))
+
+	def _header_data(self):
+		return pack("<4s4i", *self.header)
+
 	def __check_padding(self, file, field):
 		"""
 		In 4.0.0 DBCs, fields are padded to their own size
@@ -52,20 +46,20 @@ class DBCFile(DBFile):
 		seek = (address % field.size)
 		seek = seek and -(seek - field.size)
 		file.seek(seek, SEEK_CUR)
-	
+
 	def __load_structure(self, structure):
 		name = getfilename(self.file.name)
 		try:
 			self.structure = getstructure(name, self.build, parent=self)
 		except StructureNotFound:
 			self.structure = generate_structure(self)
-		
+
 		# Generate the Localized Fields
 		fieldidx = []
 		for i, field in enumerate(self.structure):
 			if isinstance(field, LocalizedField):
 				fieldidx.append((i, field.name))
-		
+
 		if fieldidx:
 			from copy import copy
 			fields = LocalizedStringField(build=self.build)
@@ -73,33 +67,33 @@ class DBCFile(DBFile):
 				# Build a copy of the fields
 				toinsert = [copy(field).rename("%s_%s" % (name, field.name)) for field in fields]
 				self.structure[i:i+1] = toinsert
-		
+
 		log.info("Using %s build %i" % (self.structure, self.build))
-		
+
 		self.check_integrity()
-	
+
 	def _parse_field(self, data, field, row=None):
 		if self.build in (11927, 12025):
 			self.__check_padding(data, field)
 		return super(DBCFile, self)._parse_field(data, field, row)
-	
+
 	def _parse_row(self, id):
 		address, reclen = self._addresses[id]
 		self.file.seek(address)
 		data = self.file.read(reclen) # We also read id and reclen columns
 		row = self.parse_row(data) # assign to DBRow
 		self._values[id] = row
-	
+
 	def _parse_string(self, data):
 		address, = unpack("<I", data.read(4))
 		if not address:
 			return ""
-		
+
 		f = self.file
 		pos = f.tell()
 		f.seek(-self.header.stringblocksize, SEEK_END) # Go to the stringblock
 		f.seek(address, SEEK_CUR) # seek to the address in the stringblock
-		
+
 		# Read until \0
 		chars = []
 		while True:
@@ -113,22 +107,22 @@ class DBCFile(DBFile):
 				log.warning("Unfinished string, this file may be corrupted.")
 				break
 			chars.append(char)
-		
+
 		f.seek(pos)
-		
+
 		return "".join(chars)
-	
+
 	def check_integrity(self):
 		reclen = self.header.reclen
 		struct_len = self.structure._reclen()
 		if struct_len != reclen:
 			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
-		
+
 		field_count = self.header.field_count
 		total_fields = len(self.structure)
 		if field_count != total_fields:
 			log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
-	
+
 	def data(self):
 		ret = []
 		self.__stringblock = []
@@ -150,21 +144,21 @@ class DBCFile(DBFile):
 						self.__stringblock.append(value)
 						address += len(value) + 1
 					value = pack("<I", _value)
-				
+
 				else:
 					value = pack("<%s" % (field.char), value)
-				
+
 				_data.append(value)
 			ret.append("".join(_data))
 		return "".join(ret)
-	
+
 	def eof(self):
 		return "\0" + ("\0".join(self.__stringblock)) + "\0"
-	
+
 	def preload(self):
 		f = self.file
 		f.seek(len(self.header))
-		
+
 		rows = 0
 		field = self.structure[0]
 		row_header_size = field.size
@@ -172,9 +166,9 @@ class DBCFile(DBFile):
 		while rows < self.header.row_count:
 			address = f.tell() # Get the address of the full row
 			id = self._parse_field(f, field)
-			
+
 			self._add_row(id, address, reclen)
-			
+
 			f.seek(reclen - row_header_size, SEEK_CUR) # minus length of id
 			rows += 1
 
@@ -196,9 +190,9 @@ class WCFFile(DBCFile):
 			id = self._parse_field(f, field)
 			if id is None:
 				break
-			
+
 			self._add_row(id, address, reclen)
-			
+
 			f.seek(reclen - row_header_size, SEEK_CUR) # minus length of id
 			rows += 1
 
@@ -207,19 +201,19 @@ class InferredDBCFile(DBCFile):
 	"""
 	DBCFile with implicit ordering. These files have no IDField.
 	"""
-	
+
 	def preload(self):
 		f = self.file
 		f.seek(len(self.header))
-		
+
 		rows = 0
 		reclen = self.header.reclen
 		while rows < self.header.row_count:
 			address = f.tell() # Get the address of the full row
 			id = rows + 1
-			
+
 			self._addresses[id] = (address, reclen)
-			
+
 			f.seek(reclen, SEEK_CUR)
 			rows += 1
 
