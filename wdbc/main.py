@@ -19,86 +19,88 @@ class DBFile(object):
 	"""
 	Base class for WDB and DBC files
 	"""
-	
+
 	def __init__(self, file, build, structure, environment):
+		if isinstance(file, basestring):
+			file = open(file, "r")
 		self.file = file
 		self._addresses = {}
 		self._values = {}
 		self.environment = environment
-		
+
 		self.__row_dynfields = 0 # Dynamic fields index, used when parsing a row
-	
+
 	def __repr__(self):
 		return "%s(file=%r, build=%r)" % (self.__class__.__name__, self.file, self.build)
-	
+
 	def __contains__(self, id):
 		return id in self._addresses
-	
+
 	def __getitem__(self, item):
 		if isinstance(item, slice):
 			keys = sorted(self._addresses.keys())[item]
 			return [self[k] for k in keys]
-		
+
 		if item not in self._values:
 			self._parse_row(item)
-		
+
 		return self._values[item]
-	
+
 	def __setitem__(self, item, value):
 		if not isinstance(item, int):
 			raise TypeError("DBFile indices must be integers, not %s" % (type(item)))
-		
+
 		if isinstance(value, DBRow):
 			self._values[item] = value
 			self._addresses[item] = -1
 		else:
 			# FIXME technically we should allow DBRow, but this is untested and will need resetting parent
 			raise TypeError("Unsupported type for DBFile.__setitem__: %s" % (type(value)))
-	
+
 	def __delitem__(self, item):
 		if item in self._values:
 			del self._values[item]
 		del self._addresses[item]
-	
+
 	def __iter__(self):
 		return self._addresses.__iter__()
-	
+
 	def __len__(self):
 		return len(self._addresses)
-	
+
 	def _add_row(self, id, address, reclen):
 		if id in self._addresses: # Something's wrong here
 			log.warning("Multiple instances of row %r found" % (id))
 		self._addresses[id] = (address, reclen)
-	
+
 	def _parse_field(self, data, field, row=None):
 		"""
 		Parse a single field in stream.
 		"""
 		if field.dyn > self.__row_dynfields:
 			return None # The column doesn't exist in this row, we set it to None
-		
+
 		ret = None
 		try:
 			if isinstance(field, fields.StringField):
 				ret = self._parse_string(data)
-			
+
 			elif isinstance(field, fields.DataField): # wowcache.wdb
 				length = getattr(row, field.master)
 				ret = data.read(length)
-			
+
 			elif isinstance(field, fields.DynamicMaster):
 				ret, = unpack("<I", data.read(4))
 				self.__row_dynfields = ret
-			
+
 			else:
 				ret, = unpack("<%s" % (field.char), data.read(field.size))
 		except StructError:
 			log.warning("Field %s could not be parsed properly" % (field))
 			ret = None
-		
+
 		return ret
-	
+
 	def append(self, row):
 		"""
 		Append a row at the end of the file.
@@ -108,55 +110,55 @@ class DBFile(object):
 		if "_id" not in row:
 			row["_id"] = i
 		self[i] = row
-	
+
 	def clear(self):
 		"""
 		Delete every row in the file
 		"""
 		for k in self.keys(): # Use key, otherwise we get RuntimeError: dictionary changed size during iteration
 			del self[k]
-	
+
 	def keys(self):
 		return self._addresses.keys()
-	
+
 	def items(self):
 		return [(k, self[k]) for k in self]
-	
+
 	def parse_row(self, data, reclen=0):
 		"""
 		Assign data to a DBRow instance
 		"""
 		return DBRow(self, data=data, reclen=reclen)
-	
+
 	def values(self):
 		"""
 		Return a list of the file's values
 		"""
 		return [self[id] for id in self]
-	
+
 	def setRow(self, key, **values):
 		self.__setitem__(key, DBRow(self, columns=values))
-	
+
 	def update(self, other):
 		"""
 		Update file from iterable other
 		"""
 		for k in other:
 			self[k] = other[k]
-	
+
 	def write(self, filename=""):
 		"""
 		Write the file data on disk. If filename is not given, use currently opened file.
 		"""
 		_filename = filename or self.file.name
-		
+
 		data = self.header.data() + self.data() + self.eof()
-		
+
 		f = open(_filename, "wb") # Don't open before calling data() as uncached rows would be empty
 		f.write(data)
 		f.close()
 		log.info("Written %i bytes at %s" % (getsize(f.name), f.name))
-		
+
 		if not filename: # Reopen self.file, we modified it
 			# XXX do we need to wipe self._values here?
 			self.file.close()
@@ -169,18 +171,18 @@ class DBRow(list):
 	Names of the variables of that class should not be used in field names of structures
 	"""
 	initialized = False
-	
+
 	def __init__(self, parent, data=None, columns=None, reclen=0):
-		self._parent = parent 
+		self._parent = parent
 		self._values = {} # Columns values storage
 		self.structure = parent.structure
-		
+
 		self.initialized = True # needed for __setattr__
-		
+
 		if columns:
 			if type(columns) == list:
 				self.extend(columns)
-			
+
 			elif type(columns) == dict:
 				self._default()
 				_cols = [k.name for k in self.structure]
@@ -189,46 +191,46 @@ class DBRow(list):
 						self[_cols.index(k)] = columns[k]
 					except ValueError:
 						log.warning("Column %r not found" % (k))
-		
+
 		elif data:
 			dynfields = 0
 			data = StringIO(data)
 			for field in self.structure:
 				_data = parent._parse_field(data, field, self)
 				self.append(_data)
-			
+
 			if reclen:
 				real_reclen = reclen + self._parent.row_header_size
 				if data.tell() != real_reclen:
 					log.warning("Reclen not respected for row %r. Expected %i, read %i. (%+i)" % (self.id, real_reclen, data.tell(), real_reclen-data.tell()))
-	
+
 	def __dir__(self):
 		result = self.__dict__.keys()
 		result.extend(self.structure.column_names)
 		return result
-	
+
 	def __getattr__(self, attr):
 		if attr in self.structure:
 			return self._get_value(attr)
-		
+
 		if attr in self.structure._abstractions: # Union abstractions etc
 			field, func = self.structure._abstractions[attr]
 			return func(field, self)
-		
+
 		if "__" in attr:
 			return self.__get_deep_relation(attr)
-		
+
 		return super(DBRow, self).__getattribute__(attr)
-	
+
 	def __int__(self):
 		return self.id
-	
+
 	def __setattr__(self, attr, value):
 		# Do not preserve the value in DBRow! Use the save method to save.
 		if self.initialized and attr in self.structure:
 			self._set_value(attr, value)
 		return super(DBRow, self).__setattr__(attr, value)
-	
+
 	def __setitem__(self, index, value):
 		if not isinstance(index, int):
 			raise TypeError("Expected int instance, got %s instead (%r)" % (type(index), index))
@@ -238,8 +240,8 @@ class DBRow(list):
 			self._values[col.name] = col.to_python(value, row=self)
 		except fields.UnresolvedRelation:
 			self._values[col.name] = value
-	
-	
+
+
 	def __get_reverse_relation(self, table, field):
 		"""
 		Return a list of rows matching the reverse relation
@@ -247,7 +249,7 @@ class DBRow(list):
 		if not hasattr(self._parent, "_reverse_relation_cache"):
 			self._parent._reverse_relation_cache = {}
 		cache = self._parent._reverse_relation_cache
-		
+
 		tfield = table + "__" + field
 		if tfield not in cache:
 			cache[tfield] = {}
@@ -259,9 +261,9 @@ class DBRow(list):
 				if id not in cache[tfield]:
 					cache[tfield][id] = []
 				cache[tfield][id].append(row)
-		
+
 		return cache[tfield].get(self.id, None)
-	
+
 	def __get_deep_relation(self, rel):
 		"""
 		Parse a django-like multilevel relationship
@@ -269,22 +271,22 @@ class DBRow(list):
 		rels = rel.split("__")
 		if "" in rels: # empty string
 			raise ValueError("Invalid relation string")
-		
+
 		first = rels[0]
 		if not hasattr(self, first):
 			if first in self._parent.environment:
 				remainder = rel[len(first + "__"):]
 				return self.__get_reverse_relation(first, remainder)
 			raise ValueError("Invalid relation string")
-		
+
 		ret = self
 		rels = rels[::-1]
 		while rels:
 			ret = getattr(ret, rels.pop())
-		
+
 		return ret
-	
-	
+
+
 	def _set_value(self, name, value):
 		index = self.structure.index(name)
 		col = self.structure[index]
@@ -293,40 +295,40 @@ class DBRow(list):
 		except fields.UnresolvedRelation:
 			self._values[name] = value
 		self[index] = value
-	
+
 	def _get_value(self, name):
 		if name not in self._values:
 			raw_value = self[self.structure.index(name)]
-			
+
 			try:
 				self._set_value(name, raw_value)
 			except fields.UnresolvedRelation as e:
 				return fields.UnresolvedObjectRef(e.reference)
 			except fields.RelationError:
 				return None # Key doesn't exist, or equals 0
-		
+
 		return self._values[name]
-	
+
 	def _raw(self, name):
 		"""
 		Returns the raw value from field 'name'
 		"""
 		index = self.structure.index(name)
 		return self[index]
-	
+
 	def _save(self):
 		for name in self._values:
 			index = self.structure.index(name)
 			col = self.structure[index]
 			self[index] = col.from_python(self._values[name])
-	
+
 	def _field(self, name):
 		"""
 		Returns the field 'name'
 		"""
 		index = self.structure.index(name)
 		return self.structure[index]
-	
+
 	def _default(self):
 		"""
 		Change all fields to their default values
@@ -343,18 +345,18 @@ class DBRow(list):
 				self.append(0.0)
 			else:
 				self.append(0)
-	
-	
+
+
 	def dict(self):
 		"""
 		Return a dict of the row as colname: value
 		"""
 		return dict(zip(self.structure.column_names, self))
-	
+
 	def update(self, other):
 		for k in other:
 			self[k] = other[k]
-	
+
 	@property
 	def id(self):
 		"Temporary hack to transition between _id and id"
