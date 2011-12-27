@@ -9,38 +9,6 @@ from .utils import getfilename
 
 SEEK_CUR = 1 # os.SEEK_CUR
 
-class WDBHeader(DBHeader):
-	"""
-	A WDB header, structure as follows:
-	- 4 byte string signature (reversed)
-	- 4 byte integer build
-	- 4 byte string locale (reversed)
-	- 4 byte integer unknown - maybe related to dynamic fields?
-	- 4 byte integer unknown
-	As of build 9438, an additional 4 byte integer indicates the data version for that build.
-	"""
-	def __len__(self):
-		if self.build < 9438:
-			return 20
-		return 24
-	
-	def load(self, file):
-		file.seek(0)
-		self.signature = file.read(4)
-		self.build, = unpack("<i", file.read(4))
-		self.locale = file.read(4)
-		self.wdb4, self.wdb5 = unpack("<ii", file.read(8))
-		if self.build >= 9438:
-			self.version, = unpack("<i", file.read(4))
-	
-	def data(self):
-		ret = pack("<4si4sii", self.signature, self.build, self.locale, self.wdb4, self.wdb5)
-		if self.build >= 9438:
-			ret += pack("<i", self.version)
-		
-		return ret
-
-
 class WDBFile(DBFile):
 	"""
 	A WDB file.
@@ -49,7 +17,7 @@ class WDBFile(DBFile):
 	  size in bytes of the following row (not counting the id and reclen itself).
 	- EOF is 8 NULL bytes (corresponding to id and reclen of 0).
 	"""
-	
+
 	MAGIC = {
 		"BDIW": "itemcache",
 		"BDNW": "itemnamecache",
@@ -61,11 +29,10 @@ class WDBFile(DBFile):
 		"XTIW": "itemtextcache",
 		"XTPW": "pagetextcache",
 	}
-	
+
 	def __init__(self, file, build, structure, environment):
 		super(WDBFile, self).__init__(file, build, structure, environment)
-		
-		self.header = WDBHeader()
+
 		if "w" in self.file.mode: # open for writing
 			self.header.signature = structure.signature
 			self.header.build = build
@@ -74,11 +41,31 @@ class WDBFile(DBFile):
 			if not build:
 				build = self.header.build
 		self.build = build
-		
+
 		self.__load_structure(structure)
-		
+
 		self.row_header_size = self.structure[0].size + 4
-	
+
+	def _readHeader(self):
+		data = self.file.read(20)
+		self.headerStructure = "<4s4i"
+		signature, build, locale, wdb4, wdb5 = unpack(self.headerStructure, data)
+		if build < 9438:
+			# Old style headers, 20 bytes
+			WDBHeader = namedtuple("WDBHeader", ["signature", "build", "locale", "wdb4", "wdb5"])
+			return WDBHeader(signature, build, locale, wdb4, wdb5)
+		else:
+			WDBHeader = namedtuple("WDBHeader", ["signature", "build", "locale", "wdb4", "wdb5", "version"])
+			version, = unpack("<i", self.file.read(4))
+			self.headerStructure = "<4s5i"
+			return WDBHeader(signature, build, locale, wdb4, wdb5, version)
+
+	def headerData(self):
+		return pack(self.headerStructure, *self.header)
+
+	def headerData(self):
+		return pack("<4s4i", *self.header)
+
 	def __load_structure(self, structure):
 		if self.header.signature in self.MAGIC:
 			name = self.MAGIC[self.header.signature]
@@ -86,23 +73,23 @@ class WDBFile(DBFile):
 			name = getfilename(self.file.name)
 		self.structure = getstructure(name, self.build, parent=self)
 		log.info("Using %s build %i" % (self.structure, self.build))
-	
+
 	def _parse_row(self, id):
 		address, reclen = self._addresses[id]
 		self.file.seek(address)
 		data = self.file.read(reclen + self.row_header_size) # We also read id and reclen columns
 		row = self.parse_row(data, reclen) # assign to DBRow
 		self._values[id] = row
-	
+
 	def _parse_string(self, data):
 		pos = data.tell()
 		index = data.read().index("\x00")
 		data.seek(pos)
 		return data.read(index + 1)[:-1].decode("ascii", "ignore")
-	
+
 	def eof(self):
 		return "\0" * self.row_header_size
-	
+
 	def data(self):
 		ret = []
 		for row in self:
@@ -110,7 +97,7 @@ class WDBFile(DBFile):
 			row._save()
 			_data = []
 			reclen = None
-			
+
 			for field, value in zip(self.structure, row):
 				if value is None:
 					continue
@@ -123,17 +110,17 @@ class WDBFile(DBFile):
 					_data.append(pack("<I", value))
 				else:
 					_data.append(pack("<%s" % (field.char), value))
-			
+
 			length = len("".join(_data[2:]))
 			_data[reclen] = pack("<I", length)
 			ret.append("".join(_data))
-		
+
 		return "".join(ret)
-	
+
 	def preload(self):
 		f = self.file
 		f.seek(len(self.header))
-		
+
 		rows = 0
 		structure_string = "<%si" % (self.structure[0].char)
 		while True:
@@ -143,41 +130,41 @@ class WDBFile(DBFile):
 			except StructError:
 				log.warning("Breaking early, possible corruption")
 				break
-			
+
 			if reclen == 0: # EOF
 				break
-			
+
 			self._add_row(id, address, reclen)
-			
+
 			f.seek(reclen, SEEK_CUR)
 			rows += 1
-	
+
 	def update_dynfields(self):
 		"""
 		Update all the dynamic fields in the file
 		"""
 		# Build a list lookup for dynamic fields: [[master, [a, b], [a, b], ...], ...]
 		dyns = [k for k in self.structure.columns if isinstance(k, fields.DynamicFields)]
-		
+
 		for id in self:
 			# For each id in the file...
 			for group in dyns:
 				# ... and each group of dynamic fields...
-				
+
 				master_name = group[0].name
 				amount = 0 # Amount of active fields
-				
+
 				for columns in group[1:]:
 					# Iterate through each list of columns (excluding the master)
 					# First we get a list of each value
 					values = [self[id]._raw(col.name) for col in columns]
-					
+
 					# If the values are all none, we keep going
 					if set(values) == set([None]):
 						continue
-					
+
 					# Otherwise this field is active
 					amount += 1
-				
+
 				# finally, update the master to the current amount
 				setattr(self[id], master_name, amount)
