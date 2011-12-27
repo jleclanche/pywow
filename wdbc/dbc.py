@@ -24,19 +24,32 @@ class DBCFile(DBFile):
 
 	def __init__(self, file, build, structure, environment):
 		super(DBCFile, self).__init__(file, build, structure, environment)
-		self.header = self._parse_header()
-		self.build = build
-		self.__load_structure(structure)
+		self.headerStructure = "<4s4i"
+		self.header = self._readHeader()
+		self._loadStructure(structure)
+		if self.supportsSeeking():
+			self._readAddresses()
 
-	def _parse_header(self):
+	def _readHeader(self):
 		DBCHeader = namedtuple("DBCHeader", ["signature", "row_count", "field_count", "reclen", "stringblocksize"])
 		data = self.file.read(20)
-		return DBCHeader(*unpack("<4s4i", data))
+		return DBCHeader(*unpack(self.headerStructure, data))
 
-	def _header_data(self):
-		return pack("<4s4i", *self.header)
+	def _readAddresses(self):
+		rows = 0
+		field = self.structure[0]
+		row_header_size = field.size
+		reclen = self.header.reclen
+		while rows < self.header.row_count:
+			address = self.file.tell() # Get the address of the full row
+			id = self._parse_field(self.file, field)
 
-	def __check_padding(self, file, field):
+			self._add_row(id, address, reclen)
+
+			self.file.seek(reclen - row_header_size, SEEK_CUR) # minus length of id
+			rows += 1
+
+	def _checkPadding(self, file, field):
 		"""
 		In 4.0.0 DBCs, fields are padded to their own size
 		within the file. Example:
@@ -47,7 +60,7 @@ class DBCFile(DBFile):
 		seek = seek and -(seek - field.size)
 		file.seek(seek, SEEK_CUR)
 
-	def __load_structure(self, structure):
+	def _loadStructure(self, structure):
 		name = getfilename(self.file.name)
 		try:
 			self.structure = getstructure(name, self.build, parent=self)
@@ -74,7 +87,7 @@ class DBCFile(DBFile):
 
 	def _parse_field(self, data, field, row=None):
 		if self.build in (11927, 12025):
-			self.__check_padding(data, field)
+			self._checkPadding(data, field)
 		return super(DBCFile, self)._parse_field(data, field, row)
 
 	def _parse_row(self, id):
@@ -154,23 +167,6 @@ class DBCFile(DBFile):
 
 	def eof(self):
 		return "\0" + ("\0".join(self.__stringblock)) + "\0"
-
-	def preload(self):
-		f = self.file
-		f.seek(len(self.header))
-
-		rows = 0
-		field = self.structure[0]
-		row_header_size = field.size
-		reclen = self.header.reclen
-		while rows < self.header.row_count:
-			address = f.tell() # Get the address of the full row
-			id = self._parse_field(f, field)
-
-			self._add_row(id, address, reclen)
-
-			f.seek(reclen - row_header_size, SEEK_CUR) # minus length of id
-			rows += 1
 
 
 class WCFFile(DBCFile):
