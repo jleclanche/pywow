@@ -38,7 +38,7 @@ class Environment(object):
 	def __getitem__(self, item):
 		#item = getfilename(item)
 		if item not in self._cache:
-			self._cache[item] = self._open(item)
+			self._cache[item] = self._open("DBFilesClient/%s" % (item))
 		return self._cache[item]
 
 	def _open(self, file):
