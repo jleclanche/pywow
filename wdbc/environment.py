@@ -1,75 +1,94 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
+import mpq
+from .dbc import DBCFile
 from .utils import getfilename, fopen
 
-DEFAULT_CACHE_DIR = "/var/www/sigrie/caches"
 
-class BaseLookup(list):
-	"""
-	List class that will standardize the name
-	and return a list of matches on getitem.
-	"""
-	
-	def __contains__(self, item):
-		return getfilename(item) in [getfilename(k) for k in self]
-	
-	def __getitem__(self, item):
-		item = item.lower()
-		ret = set()
-		for key in self:
-			if getfilename(key) == getfilename(item):
-				ret.add(key)
-		return ret
+def defaultBase():
+	# Try $MPQ_BASE_DIR, otherwise use ~/mpq/WoW/12911.direct/Data
+	return os.environ.get("MPQ_BASE_DIR", os.path.join(os.path.expanduser("~"), "mpq", "WoW", "12911.direct"))
+
+
+def readBuild(base):
+	with open(os.path.join(base, "build"), "rb") as f:
+		build = f.read().strip()
+	return int(build)
 
 class Environment(object):
-	def __init__(self, build, locale="enGB", base=DEFAULT_CACHE_DIR):
+	def __init__(self, build, locale="enUS", base=defaultBase()):
+		baseBuild = readBuild(base)
+		self.base = os.path.join(base, "Data")
 		self.build = build
-		self.path = os.path.join(base, str(build), locale)
-		if not os.path.exists(self.path):
-			raise ValueError("%r: No such file or directory" % (self.path))
-		
-		self.__cache = {}
-		self.files = BaseLookup(os.listdir(self.path))
-	
+		self.locale = locale
+		self.path = os.path.join(self.base, locale, "locale-%s.MPQ" % (locale))
+
+		self.mpq = mpq.MPQFile(self.path)
+		if build != readBuild(base):
+			for patch in self.patchList():
+				self.mpq.patch(patch)
+
+		self._cache = {}
+
 	def __contains__(self, item):
 		return getfilename(item) in self.files
-	
-	def __getitem__(self, item):
-		item = getfilename(item)
-		if item not in self.__cache:
-			self.__cache[item] = self.__open(self.files[item])
-		return self.__cache[item]
-	
-	def __iter__(self):
-		return self.files.__iter__()
-	
-	def __len__(self):
-		return self.files.__len__()
-	
-	def __file(self, file):
-		return os.path.join(self.path, file)
-	
-	def __open(self, files):
-		files = list(files)
-		if not files:
-			raise KeyError()
-		
-		if len(files) == 1:
-			return fopen(self.__file(files[0]), build=self.build, environment=self)
-		
-		if len(files) == 2:
-			db2, adb = sorted(files, key=lambda x: x.endswith(".adb")) # sort the db2 file first, the adb file after
-			assert db2.endswith(".db2")
-			db2 = fopen(self.__file(db2), build=self.build, environment=self)
-			
-			assert adb.endswith(".adb")
-			adb = fopen(self.__file(adb), build=self.build, environment=self)
-			
-			db2.update(adb) # Merge the two files
-			return db2
-		
-		raise TypeError(files)
 
-def get_latest_build():
-	return sorted(k.isdigit() and int(k) or 0 for k in os.listdir(DEFAULT_CACHE_DIR))[-1]
+	def __getitem__(self, item):
+		#item = getfilename(item)
+		if item not in self._cache:
+			self._cache[item] = self._open(item)
+		return self._cache[item]
+
+	def _open(self, file):
+		from .structures import getstructure
+		handle = self.mpq.open(file)
+		structure = getstructure(getfilename(file))
+		return DBCFile(handle, build=self.build, structure=structure, environment=self)
+
+	def highestBuild(self):
+		build = 0
+		base = os.path.join(self.base, "Data")
+		sre = re.compile(r"^wow-update-(\d+).MPQ$")
+		for f in os.listdir(base):
+			match = sre.match(os.path.basename(f))
+			if match:
+				fileBuild, = match.groups()
+				if int(fileBuild) >= build:
+					build = fileBuild
+
+		base = os.path.join(base, locale)
+		sre = re.compile(r"^wow-update-%s-(\d+).MPQ$" % (locale))
+		for f in os.listdir(base):
+			match = sre.match(os.path.basename(f))
+			if match:
+				fileBuild, = match.groups()
+				if int(fileBuild) >= build:
+					build = fileBuild
+
+		return build
+
+	def patchList(self):
+		ret = []
+		base = self.base
+
+		# Old-style wow-updates
+		sre = re.compile(r"^wow-update-(\d+).MPQ$")
+		for f in os.listdir(base):
+			match = sre.match(os.path.basename(f))
+			if match:
+				fileBuild, = match.groups()
+				if int(fileBuild) <= self.build:
+					ret.append(f)
+
+		sre = re.compile(r"^wow-update-%s-(\d+).MPQ$" % (self.locale))
+		base = os.path.join(base, self.locale)
+		for f in os.listdir(base):
+			match = sre.match(os.path.basename(f))
+			if match:
+				fileBuild, = match.groups()
+				if int(fileBuild) <= self.build:
+					ret.append(f)
+
+		return ret
