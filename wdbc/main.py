@@ -24,11 +24,12 @@ class DBFile(object):
 		if isinstance(file, basestring):
 			file = open(file, "r")
 		self.file = file
+		self.build = build
 		self._addresses = {}
 		self._values = {}
 		self.environment = environment
 
-		self.__row_dynfields = 0 # Dynamic fields index, used when parsing a row
+		self._rowDynamicFields = 0 # Dynamic fields index, used when parsing a row
 
 	def __repr__(self):
 		return "%s(file=%r, build=%r)" % (self.__class__.__name__, self.file, self.build)
@@ -77,7 +78,7 @@ class DBFile(object):
 		"""
 		Parse a single field in stream.
 		"""
-		if field.dyn > self.__row_dynfields:
+		if field.dyn > self._rowDynamicFields:
 			return None # The column doesn't exist in this row, we set it to None
 
 		ret = None
@@ -91,7 +92,7 @@ class DBFile(object):
 
 			elif isinstance(field, fields.DynamicMaster):
 				ret, = unpack("<I", data.read(4))
-				self.__row_dynfields = ret
+				self._rowDynamicFields = ret
 
 			else:
 				ret, = unpack("<%s" % (field.char), data.read(field.size))
@@ -100,6 +101,9 @@ class DBFile(object):
 			ret = None
 
 		return ret
+
+	def supportsSeeking(self):
+		return hasattr(self.file, "seek")
 
 	def append(self, row):
 		"""
