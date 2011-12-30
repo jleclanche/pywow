@@ -14,9 +14,9 @@ class Talent(Model):
 class TalentTooltip(Tooltip):
 	def tooltip(self):
 		self.appendEmptyLine()
-		
-		return self.flush()
 
+		return self.flush()
+Talent.Tooltip = TalentTooltip
 
 class TalentProxy(object):
 	"""
@@ -25,10 +25,10 @@ class TalentProxy(object):
 	def __init__(self, cls):
 		from pywow import wdbc
 		self.__file = wdbc.get("Talent.dbc", build=-1)
-	
+
 	def get(self, id):
 		return self.__file[id]
-	
+
 	def getName(self, row):
 		return "pass"
 
