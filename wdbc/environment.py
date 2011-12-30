@@ -47,24 +47,28 @@ class Environment(object):
 		structure = getstructure(getfilename(file))
 		return DBCFile(handle, build=self.build, structure=structure, environment=self)
 
-	def highestBuild(self):
+	@classmethod
+	def highestBuild(cls):
 		build = 0
-		base = os.path.join(self.base, "Data")
+		base = os.path.join(defaultBase(), "Data")
 		sre = re.compile(r"^wow-update-(\d+).MPQ$")
 		for f in os.listdir(base):
 			match = sre.match(os.path.basename(f))
 			if match:
 				fileBuild, = match.groups()
-				if int(fileBuild) >= build:
+				fileBuild = int(fileBuild)
+				if fileBuild >= build:
 					build = fileBuild
 
+		locale = "enUS"
 		base = os.path.join(base, locale)
 		sre = re.compile(r"^wow-update-%s-(\d+).MPQ$" % (locale))
 		for f in os.listdir(base):
 			match = sre.match(os.path.basename(f))
 			if match:
 				fileBuild, = match.groups()
-				if int(fileBuild) >= build:
+				fileBuild = int(fileBuild)
+				if fileBuild >= build:
 					build = fileBuild
 
 		return build
