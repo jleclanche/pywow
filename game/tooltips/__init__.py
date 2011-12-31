@@ -54,3 +54,24 @@ def TerminalRenderer(tooltip):
 		ret.append(text)
 
 	return "\n".join(ret)
+
+def HtmlRenderer(tooltip):
+	"""
+	A renderer that implements all tooltip features
+	in html.
+	"""
+	ret = []
+	USE_STYLE = True
+
+	tpl = '<div style="%s">%s</div>'
+
+	for idx, node in enumerate(tooltip):
+		style = ["color: #%06x;" % (node.getColor())]
+		if idx == 0:
+			# First line is always larger; we can't control that so we make it bold
+			style.append("font-size: 110%;")
+
+		text = tpl % (" ".join(style), node.getText())
+		ret.append(text)
+
+	return "\n".join(ret)
