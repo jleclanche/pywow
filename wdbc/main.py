@@ -222,7 +222,7 @@ class DBRow(list):
 			return func(field, self)
 
 		if "__" in attr:
-			return self.__get_deep_relation(attr)
+			return self._get_deep_relation(attr)
 
 		return super(DBRow, self).__getattribute__(attr)
 
@@ -246,7 +246,7 @@ class DBRow(list):
 			self._values[col.name] = value
 
 
-	def __get_reverse_relation(self, table, field):
+	def _get_reverse_relation(self, table, field):
 		"""
 		Return a list of rows matching the reverse relation
 		"""
@@ -268,7 +268,7 @@ class DBRow(list):
 
 		return cache[tfield].get(self.id, None)
 
-	def __get_deep_relation(self, rel):
+	def _get_deep_relation(self, rel):
 		"""
 		Parse a django-like multilevel relationship
 		"""
@@ -280,7 +280,7 @@ class DBRow(list):
 		if not hasattr(self, first):
 			if first in self._parent.environment:
 				remainder = rel[len(first + "__"):]
-				return self.__get_reverse_relation(first, remainder)
+				return self._get_reverse_relation(first, remainder)
 			raise ValueError("Invalid relation string")
 
 		ret = self
@@ -289,7 +289,6 @@ class DBRow(list):
 			ret = getattr(ret, rels.pop())
 
 		return ret
-
 
 	def _set_value(self, name, value):
 		index = self.structure.index(name)
