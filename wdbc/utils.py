@@ -98,4 +98,4 @@ def get(name, build):
 	if build not in __envcache:
 		__envcache[build] = Environment(build)
 
-	return __envcache[build][name]
+	return __envcache[build].dbFile(name)
