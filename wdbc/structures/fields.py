@@ -35,7 +35,7 @@ class LocalizedField(Field):
 class DynamicFieldsBase(list):
 	def get_fields(self):
 		return self
-	
+
 	def delete_field(self, name):
 		"""
 		Delete a field, by name or by instance
@@ -63,7 +63,7 @@ class DynamicFields(DynamicFieldsBase):
 	Used in itemcache.wdb
 	DynamicFields("name", [((Field, "x"), (Field, "y"), ...), 10])
 	"""
-	
+
 	def __init__(self, name, columns):
 		self.name = name
 		self.master = DynamicMaster(name, group=self)
@@ -71,7 +71,7 @@ class DynamicFields(DynamicFieldsBase):
 		cols, amt = columns
 		for i in xrange(amt):
 			self.append([v[0](name="%s_%s_%i" % (name, v[1], i+1), dynamic=i+1, group=self) for v in cols])
-			
+
 	def get_fields(self):
 		yield self.master
 		for v in self[1:]:
@@ -82,24 +82,24 @@ class SubRow(object):
 	"""
 	Used in Unions as a fake DBRow
 	"""
-	
+
 	def __init__(self, field, row, structure):
 		self.__field = field
 		self.__row = row
 		self._structure = structure(row._parent.build, row._parent)
-	
+
 	def __dir__(self):
 		result = self.__dict__.keys()
 		result.extend(self._structure.column_names)
 		return result
-	
+
 	def __getattr__(self, name):
 		if name in self._structure:
 			index = self._structure.index(name)
 			value = self._raw(name)
 			return self._structure[index].to_python(value, self.__row)
 		return super(SubRow, self).__getattribute__(name)
-	
+
 	def _raw(self, name):
 		index = self._structure.index(name)
 		real_name = self.__field.column_names[index]
@@ -113,7 +113,7 @@ class Union(DynamicFieldsBase):
 	Required get_structure(x, row) callable argument that
 	returns the structure corresponding to a specific row.
 	"""
-	
+
 	def __init__(self, name, fields, get_structure):
 		DynamicFieldsBase.__init__(self, fields)
 		self.name = name
@@ -121,14 +121,14 @@ class Union(DynamicFieldsBase):
 			raise StructureError("%s._get_structure must be a callable type" % (self.__class__.__name__))
 		self._get_structure = get_structure
 		self.column_names = [k.name for k in fields]
-	
+
 	def __build_list(self, field, row):
 		"Builds a fake DBRow to allow deep attribute seeking"
 		return SubRow(field, row, self._get_structure(row))
-	
+
 	def get_abstraction(self):
 		return self.name, self.__build_list
-	
+
 	def get_structure(self, row):
 		return self._get_structure(row)
 
@@ -137,13 +137,13 @@ class MultiField(DynamicFieldsBase):
 	"""
 	Expands a list of fields to a specific amount
 	"""
-	
+
 	def __init__(self, name, fields, amount):
 		super(DynamicFieldsBase, self).__init__(fields)
-	
+
 	def __build_list(self):
 		pass
-	
+
 	def get_abstraction(self):
 		return self.name, self.__build_list
 
@@ -174,37 +174,37 @@ class ForeignKeyBase(IntegerField):
 		pk = value.structure.primary_keys[0] # TODO: what about multiple primary keys ?
 		index = value.structure.index(pk.name)
 		return value[index]
-	
+
 	def to_python(self, value, row):
 		if isinstance(value, int):
 			self.raw_value = value
-			f = self.get_relation_table(value)
-			relation_key = self.get_relation_key(value, row)
+			f = self.relationTable(value)
+			relation_key = self.relationKey(value, row)
 			try:
 				value = f[relation_key]
 			except KeyError:
 				raise RelationError("Key %r does not exist in %s" % (relation_key, f.structure.name))
 			return self.get_final_value(value, row)
 		return value
-	
-	def get_relation_table(self, value):
+
+	def relationTable(self, value):
 		"""
 		Return the forward relation "table" (file) in the Environment
 		"""
 		env = self.parent.parent.environment
-		rel = self.get_relation(value)
+		rel = self.relation(value)
 		try:
 			return env[rel]
 		except KeyError:
 			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (rel), value)
-	
+
 	def get_final_value(self, value, row):
 		return value
-	
-	def get_relation(self, value):
+
+	def relation(self, value):
 		raise NotImplementedError("Subclasses must implement this method")
-	
-	def get_relation_key(self, value, row):
+
+	def relationKey(self, value, row):
 		raise NotImplementedError("Subclasses must implement this method")
 
 class ForeignKey(ForeignKeyBase):
@@ -214,12 +214,12 @@ class ForeignKey(ForeignKeyBase):
 	"""
 	def __init__(self, name, relation):
 		IntegerField.__init__(self, name)
-		self.relation = relation
-		
-	def get_relation(self, value):
-		return self.relation.lower()
-	
-	def get_relation_key(self, value, row):
+		self._relation = relation
+
+	def relation(self, value):
+		return self._relation
+
+	def relationKey(self, value, row):
 		return value
 
 class ForeignMask(BitMaskField):
@@ -229,27 +229,27 @@ class ForeignMask(BitMaskField):
 	"""
 	def __init__(self, name, relation, **kwargs):
 		super(ForeignMask, self).__init__(name=name, **kwargs)
-		self.relation = relation
+		self._relation = relation
 		self.flags = {}
-	
+
 	def __init_flags(self):
 		env = self.parent.parent.environment
 		try:
-			f = env[self.relation]
+			f = env[self._relation]
 		except KeyError:
-			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (self.relation), value)
-		
+			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (self._relation), value)
+
 		for k in f:
 			self.flags[2 ** (k-1)] = f[k]
-	
+
 	def from_python(self, value):
 		assert isinstance(value, BitFlags)
 		return int(value)
-	
+
 	def to_python(self, value, row):
 		if isinstance(value, BitFlags):
 			return value
-		
+
 		if not self.flags:
 			self.__init_flags()
 		return BitMask(value, self.flags)
@@ -266,13 +266,13 @@ class GenericForeignKey(ForeignKeyBase):
 		IntegerField.__init__(self, name)
 		if not callable(get_relation):
 			raise FieldError("%s._get_relation must be a callable type" % (self.__class__.__name__))
-		self._get_relation = get_relation
+		self._get_relation = relation
 		self._get_value = get_value
-	
-	def get_relation(self, value):
+
+	def relation(self, value):
 		return self._get_relation(self, value)
-	
-	def get_relation_key(self, value, row):
+
+	def relationKey(self, value, row):
 		return self._get_value(self, value)
 
 
@@ -284,21 +284,21 @@ class ForeignCell(ForeignKeyBase):
 	"""
 	def __init__(self, name, relation, get_column, get_row):
 		IntegerField.__init__(self, name)
-		self.relation = relation
+		self._relation = relation
 		self.get_column = get_column
 		self.get_row = get_row
-	
+
 	def get_final_value(self, value, row):
 		column = self.get_column(row, self.raw_value)
 		if column:
 			return getattr(value, column)
 		return self.raw_value
-	
-	def get_relation_key(self, value, row):
+
+	def relationKey(self, value, row):
 		return self.get_row(row, self.raw_value)
-		
-	def get_relation(self, value):
-		return self.relation.lower()
+
+	def relation(self, value):
+		return self._relation
 
 ##
 # Misc. types
