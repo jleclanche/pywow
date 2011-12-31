@@ -266,7 +266,7 @@ class GenericForeignKey(ForeignKeyBase):
 		IntegerField.__init__(self, name)
 		if not callable(get_relation):
 			raise FieldError("%s._get_relation must be a callable type" % (self.__class__.__name__))
-		self._get_relation = relation
+		self._get_relation = get_relation
 		self._get_value = get_value
 
 	def relation(self, value):
