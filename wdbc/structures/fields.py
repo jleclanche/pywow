@@ -191,12 +191,12 @@ class ForeignKeyBase(IntegerField):
 		"""
 		Return the forward relation "table" (file) in the Environment
 		"""
-		env = self.parent.parent.environment
-		rel = self.relation(value)
+		environment = self.parent.parent.environment
+		relation = self.relation(value)
 		try:
-			return env[rel]
+			return environment.dbFile(relation)
 		except KeyError:
-			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (rel), value)
+			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (relation), value)
 
 	def get_final_value(self, value, row):
 		return value

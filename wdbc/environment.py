@@ -36,10 +36,7 @@ class Environment(object):
 		return getfilename(item) in self.files
 
 	def __getitem__(self, item):
-		#item = getfilename(item)
-		if item not in self._cache:
-			self._cache[item] = self._open("DBFilesClient/%s" % (item))
-		return self._cache[item]
+		return self.dbFile(item)
 
 	def _open(self, file):
 		from .structures import getstructure
@@ -72,6 +69,11 @@ class Environment(object):
 					build = fileBuild
 
 		return build
+
+	def dbFile(self, name):
+		if item not in self._cache:
+			self._cache[item] = self._open("DBFilesClient/%s" % (item))
+		return self._cache[item]
 
 	def patchList(self):
 		ret = []
