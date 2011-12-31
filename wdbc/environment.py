@@ -71,9 +71,24 @@ class Environment(object):
 		return build
 
 	def dbFile(self, name):
-		if item not in self._cache:
-			self._cache[item] = self._open("DBFilesClient/%s" % (item))
-		return self._cache[item]
+		# In order to avoid duplicates, we need to standardize the filename
+		name = name.lower()
+		base, ext = os.path.splitext(name)
+		if ext:
+			# Check against valid extensions
+			if ext not in (".dbc", ".wdb", ".db2", ".dba"):
+				raise ValueError("%r is not a known DBFile format" % (ext))
+		else:
+			# No extension, we need to guess it
+			if name.endswith("cache"):
+				name += ".wdb"
+			else:
+				name += ".dbc"
+
+		if name not in self._cache:
+			self._cache[name] = self._open("DBFilesClient/%s" % (name))
+
+		return self._cache[name]
 
 	def patchList(self):
 		ret = []
