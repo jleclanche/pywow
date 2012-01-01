@@ -92,24 +92,30 @@ class Environment(object):
 
 	def patchList(self):
 		ret = []
+		builds = []
 		base = self.base
 
-		# Old-style wow-updates
+		# Old-style wow-updates (oldest) first
 		sre = re.compile(r"^wow-update-(\d+).MPQ$")
-		for f in os.listdir(base):
+		for f in sorted(os.listdir(base)):
 			match = sre.match(os.path.basename(f))
 			if match:
-				fileBuild, = match.groups()
-				if int(fileBuild) <= self.build:
+				fileBuild = int(match.groups()[0])
+				if fileBuild <= self.build:
+					builds.append(fileBuild)
 					ret.append(os.path.join(base, f))
 
+		# Special cases:
+		# wow-update*-13623 has both old-style and new-style patches.
+		# The new style ones are corrupt. We'll just assume that if
+		# we have both old-style and new-style, old-style takes priority.
 		sre = re.compile(r"^wow-update-%s-(\d+).MPQ$" % (self.locale))
 		base = os.path.join(base, self.locale)
-		for f in os.listdir(base):
+		for f in sorted(os.listdir(base)):
 			match = sre.match(os.path.basename(f))
 			if match:
-				fileBuild, = match.groups()
-				if int(fileBuild) <= self.build:
+				fileBuild = int(match.groups()[0])
+				if fileBuild <= self.build and fileBuild not in builds:
 					ret.append(os.path.join(base, f))
 
 		return ret
