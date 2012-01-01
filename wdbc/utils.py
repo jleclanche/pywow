@@ -68,10 +68,8 @@ def fopen(f, build=0, structure=None, environment={}):
 		from .wdb import WDBFile
 		cls = WDBFile
 
-	f = cls(f, build=build, structure=structure, environment=environment)
-	f.preload()
-
-	return f
+	f.seek(0)
+	return cls(f, build=build, structure=structure, environment=environment)
 
 
 def new(name, build=0, structure=None, environment={}):
