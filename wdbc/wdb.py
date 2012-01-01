@@ -33,13 +33,9 @@ class WDBFile(DBFile):
 	def __init__(self, file, build, structure, environment):
 		super(WDBFile, self).__init__(file, build, structure, environment)
 
-		if "w" in self.file.mode: # open for writing
-			self.header.signature = structure.signature
-			self.header.build = build
-		else:
-			self.header.load(file)
-			if not build:
-				build = self.header.build
+		self.header.load(file)
+		if not build:
+			build = self.header.build
 		self.build = build
 
 		self.__load_structure(structure)
