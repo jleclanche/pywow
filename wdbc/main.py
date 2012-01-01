@@ -255,7 +255,7 @@ class DBRow(list):
 		if tfield not in cache:
 			cache[tfield] = {}
 			# First time lookup, let's build the cache
-			table = self._parent.environment[table]
+			table = self._parent.environment.dbFile(table)
 			for row in table:
 				row = table[row]
 				id = row._raw(field)
