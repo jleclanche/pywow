@@ -101,7 +101,7 @@ class Environment(object):
 			if match:
 				fileBuild, = match.groups()
 				if int(fileBuild) <= self.build:
-					ret.append(f)
+					ret.append(os.path.join(base, f))
 
 		sre = re.compile(r"^wow-update-%s-(\d+).MPQ$" % (self.locale))
 		base = os.path.join(base, self.locale)
@@ -110,6 +110,6 @@ class Environment(object):
 			if match:
 				fileBuild, = match.groups()
 				if int(fileBuild) <= self.build:
-					ret.append(f)
+					ret.append(os.path.join(base, f))
 
 		return ret
