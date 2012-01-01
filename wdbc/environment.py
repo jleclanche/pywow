@@ -32,12 +32,6 @@ class Environment(object):
 
 		self._cache = {}
 
-	def __contains__(self, item):
-		return getfilename(item) in self.files
-
-	def __getitem__(self, item):
-		return self.dbFile(item)
-
 	def _open(self, file):
 		from .structures import getstructure
 		handle = self.mpq.open(file)
@@ -70,7 +64,7 @@ class Environment(object):
 
 		return build
 
-	def dbFile(self, name):
+	def _dbFileName(self, name):
 		# In order to avoid duplicates, we need to standardize the filename
 		name = name.lower()
 		base, ext = os.path.splitext(name)
@@ -85,6 +79,16 @@ class Environment(object):
 			else:
 				name += ".dbc"
 
+		return name
+
+	def hasDbFile(self, name):
+		name = self._dbFileName(name)
+		if name in self._cache:
+			return True
+		return "DBFilesClient/%s" % (name) in self.mpq
+
+	def dbFile(self, name):
+		name = self._dbFileName(name)
 		if name not in self._cache:
 			self._cache[name] = self._open("DBFilesClient/%s" % (name))
 

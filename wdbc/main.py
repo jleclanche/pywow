@@ -275,9 +275,10 @@ class DBRow(list):
 
 		first = rels[0]
 		if not hasattr(self, first):
-			if first in self._parent.environment:
+			if self._parent.environment.hasDbFile(first):
 				remainder = rel[len(first + "__"):]
 				return self._get_reverse_relation(first, remainder)
+
 			raise ValueError("Invalid relation string")
 
 		ret = self
