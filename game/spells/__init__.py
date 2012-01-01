@@ -243,7 +243,9 @@ class SpellProxy(object):
 		return 0, 0, 0, 0, 0, ""
 
 	def getRangeInfo(self, row):
-		return int(row.range.range_min), int(row.range.range_min_friendly), int(row.range.range_max), int(row.range.range_max_friendly), row.range.flags
+		if row.range:
+			return int(row.range.range_min), int(row.range.range_min_friendly), int(row.range.range_max), int(row.range.range_max_friendly), row.range.flags
+		return None, None, None, None, None
 
 	def getRank(self, row):
 		return row.rank_enus
