@@ -180,11 +180,16 @@ class ForeignKeyBase(IntegerField):
 		if isinstance(value, int):
 			self.raw_value = value
 			f = self.relationTable(value)
-			relation_key = self.relationKey(value, row)
+			key = self.relationKey(value, row)
 			try:
-				value = f[relation_key]
+				value = f[key]
 			except KeyError:
-				raise UnresolvedKey("Key %r does not exist in %s" % (relation_key, f.structure.name()))
+				# If the key is 0 and is not in the target table, we assume it's meant to be empty
+				if key == 0:
+					value = None
+				else:
+					raise UnresolvedKey("Key %r does not exist in %s" % (key, f.structure.name()))
+
 			return self.get_final_value(value, row)
 		return value
 
