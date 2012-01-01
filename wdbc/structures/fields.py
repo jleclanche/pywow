@@ -159,10 +159,11 @@ class UnresolvedObjectRef(int):
 class RelationError(Exception):
 	pass
 
-class UnresolvedRelation(RelationError):
-	def __init__(self, message, reference):
-		self.reference = reference
-		super(UnresolvedRelation, self).__init__(message)
+class UnresolvedTable(RelationError):
+	pass
+
+class UnresolvedKey(RelationError):
+	pass
 
 class ForeignKeyBase(IntegerField):
 	"""
@@ -183,7 +184,7 @@ class ForeignKeyBase(IntegerField):
 			try:
 				value = f[relation_key]
 			except KeyError:
-				raise RelationError("Key %r does not exist in %s" % (relation_key, f.structure.name()))
+				raise UnresolvedKey("Key %r does not exist in %s" % (relation_key, f.structure.name()))
 			return self.get_final_value(value, row)
 		return value
 
@@ -196,7 +197,7 @@ class ForeignKeyBase(IntegerField):
 		try:
 			return environment.dbFile(relation)
 		except KeyError:
-			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (relation), value)
+			raise UnresolvedTable("Table %r does not exist in the current environment" % (relation), value)
 
 	def get_final_value(self, value, row):
 		return value
@@ -237,7 +238,7 @@ class ForeignMask(BitMaskField):
 		try:
 			f = env[self._relation]
 		except KeyError:
-			raise UnresolvedRelation("Relation %r does not exist in the current environment" % (self._relation), value)
+			raise UnresolvedTable("Relation %r does not exist in the current environment" % (self._relation), value)
 
 		for k in f:
 			self.flags[2 ** (k-1)] = f[k]
