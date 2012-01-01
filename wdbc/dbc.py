@@ -129,12 +129,12 @@ class DBCFile(DBFile):
 		reclen = self.header.reclen
 		struct_len = self.structure._reclen()
 		if struct_len != reclen:
-			log.warning("File structure does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (reclen, struct_len, reclen-struct_len))
+			log.warning("%r does not respect DBC reclen. Expected %i, reading %i. (%+i)" % (self.structure, reclen, struct_len, reclen-struct_len))
 
 		field_count = self.header.field_count
 		total_fields = len(self.structure)
 		if field_count != total_fields:
-			log.warning("File structure does not respect DBC field count. Expected %i, got %i instead." % (field_count, total_fields))
+			log.warning("%r does not respect DBC field count. Expected %i, got %i instead." % (self.structure, field_count, total_fields))
 
 	def data(self):
 		ret = []
