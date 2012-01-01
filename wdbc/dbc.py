@@ -3,7 +3,7 @@
 from collections import namedtuple
 from struct import pack, unpack
 from .log import log
-from .main import DBHeader, DBFile
+from .main import DBFile
 from .structures import fields, StructureNotFound, getstructure, LocalizedStringField, LocalizedField
 from .utils import getfilename, generate_structure
 

@@ -7,14 +7,6 @@ from .log import log
 from .structures import fields
 
 
-class DBHeader(object):
-	"""
-	Base DBFile header class
-	"""
-	def __repr__(self):
-		return "%s(%s)" % (self.__class__.__name__, ", ".join("%s=%r" % (k, self.__dict__[k]) for k in self.__dict__))
-
-
 class DBFile(object):
 	"""
 	Base class for WDB and DBC files
