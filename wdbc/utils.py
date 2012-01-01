@@ -34,6 +34,7 @@ def fopen(f, build=0, structure=None, environment={}):
 		# open() the file only if passing a path
 		f = open(f, "rb")
 	filename = getfilename(f.name)
+	f.seek(0)
 	signature = f.read(4)
 
 	if signature == "WDB2" or signature == "WCH2":
