@@ -240,10 +240,7 @@ class DBRow(list):
 			raise TypeError("Expected int instance, got %s instead (%r)" % (type(index), index))
 		list.__setitem__(self, index, value)
 		col = self.structure[index]
-		try:
-			self._values[col.name] = col.to_python(value, row=self)
-		except fields.UnresolvedRelation:
-			self._values[col.name] = value
+		self._values[col.name] = col.to_python(value, row=self)
 
 
 	def _get_reverse_relation(self, table, field):
