@@ -104,8 +104,10 @@ class DBCFile(DBFile):
 
 		f = self.file
 		pos = f.tell()
-		f.seek(-self.header.stringblocksize, SEEK_END) # Go to the stringblock
-		f.seek(address, SEEK_CUR) # seek to the address in the stringblock
+
+		# NOTE: Avoid seeking with SEEK_END because of a bug in stormlib 8.04
+		# f.seek(-self.header.stringblocksize + address)
+		f.seek(f.size() - self.header.stringblocksize + address)
 
 		# Read until \0
 		chars = []
@@ -138,7 +140,7 @@ class DBCFile(DBFile):
 
 	def data(self):
 		ret = []
-		self.__stringblock = []
+		self._stringBlock = []
 		address_lookup = {}
 		address = 1
 		for row in self:
@@ -154,7 +156,7 @@ class DBCFile(DBFile):
 					else:
 						_value = address
 						address_lookup[value] = address
-						self.__stringblock.append(value)
+						self._stringBlock.append(value)
 						address += len(value) + 1
 					value = pack("<I", _value)
 
@@ -166,7 +168,7 @@ class DBCFile(DBFile):
 		return "".join(ret)
 
 	def eof(self):
-		return "\0" + ("\0".join(self.__stringblock)) + "\0"
+		return "\0" + ("\0".join(self._stringBlock)) + "\0"
 
 
 class WCFFile(DBCFile):
