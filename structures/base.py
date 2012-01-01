@@ -14,7 +14,6 @@ class Structure(list):
 	"""
 	signature = "WDBC"
 
-	@property
 	@classmethod
 	def name(cls): # ItemCache.name == "itemcache"
 		return cls.__name__.lower()
