@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple
 from struct import pack, unpack, error as StructError
 from .log import log
-from .main import DBHeader, DBFile
+from .main import DBFile
 from .structures import fields, getstructure
 from .utils import getfilename
 
@@ -33,12 +34,13 @@ class WDBFile(DBFile):
 	def __init__(self, file, build, structure, environment):
 		super(WDBFile, self).__init__(file, build, structure, environment)
 
-		self.header.load(file)
+		self.header = self._readHeader()
+
 		if not build:
 			build = self.header.build
 		self.build = build
 
-		self.__load_structure(structure)
+		self._loadStructure(structure)
 
 		self.row_header_size = self.structure[0].size + 4
 
@@ -62,7 +64,7 @@ class WDBFile(DBFile):
 	def headerData(self):
 		return pack("<4s4i", *self.header)
 
-	def __load_structure(self, structure):
+	def _loadStructure(self, structure):
 		if self.header.signature in self.MAGIC:
 			name = self.MAGIC[self.header.signature]
 		else: # allow for custom structures
