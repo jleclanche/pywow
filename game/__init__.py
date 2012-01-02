@@ -13,6 +13,9 @@ class Model(object):
 	Items, Spells, Quests, Talents, ...
 	"""
 
+	class DoesNotExist(Exception):
+		pass
+
 	@classmethod
 	def initProxy(cls, proxy):
 		cls.proxy = proxy(cls)
@@ -21,9 +24,10 @@ class Model(object):
 		if not hasattr(self, "proxy"):
 			raise RuntimeError("%s.proxy needs to be initialized with initProxy(proxy)" % (self.__class__.__name__))
 		self.id = id
-		self.obj = self.proxy.get(id)
-		#if not self.obj:
-			#self = None
+		try:
+			self.obj = self.proxy.get(id)
+		except KeyError:
+			raise self.DoesNotExist(id)
 
 	def __getattr__(self, attr):
 		if attr != "obj" and hasattr(self.obj, attr):
