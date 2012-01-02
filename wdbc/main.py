@@ -63,7 +63,7 @@ class DBFile(object):
 
 	def _add_row(self, id, address, reclen):
 		if id in self._addresses: # Something's wrong here
-			log.warning("Multiple instances of row %r found" % (id))
+			log.warning("Multiple instances of row %r found in %s" % (id, self.file.name))
 		self._addresses[id] = (address, reclen)
 
 	def _parse_field(self, data, field, row=None):
