@@ -5950,6 +5950,13 @@ class Spell(Structure):
 		self.changed_12479(fields)
 		fields.insert_field(BitMaskField("flags_10"), after="flags_9")
 
+	def changed_14333(self, fields):
+		"""
+		XXX UNKNOWN BUILD
+		"""
+		self.changed_12694(fields)
+		fields.insert_field(BitMaskField("flags_11"), after="flags_10")
+
 
 class SpellActivationOverlay(Structure):
 	"""
