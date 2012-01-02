@@ -333,8 +333,8 @@ class ItemProxy(object):
 	"""
 	def __init__(self, cls):
 		from pywow import wdbc
-		self.__file = wdbc.get("Item-sparse.db2", build=12942)
-		self.__item = wdbc.get("Item.db2", build=12942)
+		self.__file = wdbc.get("Item-sparse.db2", build=-1)
+		self.__item = wdbc.get("Item.db2", build=-1)
 
 
 	def get(self, id):
