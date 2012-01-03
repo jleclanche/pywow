@@ -87,7 +87,9 @@ class Environment(object):
 				raise ValueError("%r is not a known DBFile format" % (ext))
 		else:
 			# No extension, we need to guess it
-			if name.endswith("cache"):
+			if name in ("item", "item-sparse"):
+				name += ".db2"
+			elif name.endswith("cache"):
 				name += ".wdb"
 			else:
 				name += ".dbc"
