@@ -4,8 +4,6 @@ from collections import namedtuple
 from struct import unpack
 from .dbc import DBCFile
 from .log import log
-from .structures import getstructure, LocalizedStringField, LocalizedField
-from .utils import getfilename
 
 
 SEEK_CUR = 1 # os.SEEK_CUR
