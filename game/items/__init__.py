@@ -139,7 +139,7 @@ class ItemTooltip(Tooltip):
 		elif self.obj.unique_category:
 			pass
 
-		if self.obj.starts_quest:
+		if self.obj.startsQuest():
 			self.append("startsQuest", ITEM_STARTS_QUEST)
 
 		isLocked, lockType, lockSkillLevel = self.obj.getLockInfo()
@@ -510,5 +510,8 @@ class ItemProxy(object):
 		if subcategory:
 			return subcategory.id, subcategory.name_enus
 		return None, None
+
+	def startsQuest(self, row):
+		return bool(row.starts_quest)
 
 Item.initProxy(ItemProxy)
