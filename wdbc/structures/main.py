@@ -3426,6 +3426,17 @@ class Item_sparse(Structure):
 		IntegerField("keystone_2"),
 	)
 
+	def changed_14946(self, fields):
+		"""
+		XXX some build between 14545 and 14946
+		"""
+		fields.insert_fields((
+			BitMaskField("flags_3"),
+			BitMaskField("flags_4"),
+			BitMaskField("flags_5"),
+		), after="flags_2")
+		fields.delete_fields("material")
+
 
 class ItemArmorQuality(Structure):
 	"""
