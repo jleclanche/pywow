@@ -5217,6 +5217,12 @@ class SkillLine(Structure):
 		BooleanField("tradeskill"),
 	)
 
+	def changed_13914(self, fields):
+		"""
+		XXX between 13623 and 13914
+		"""
+		fields.delete_fields("cost")
+
 
 class SkillLineAbility(Structure):
 	"""
