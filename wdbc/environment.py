@@ -41,7 +41,7 @@ class Environment(object):
 		if name in ("item", "item-sparse"):
 			cls = DB2File
 		else:
-			CLS = DBCFile
+			cls = DBCFile
 		return cls(handle, build=self.build, structure=structure, environment=self)
 
 	@classmethod
