@@ -3,6 +3,7 @@
 import os
 import re
 import mpq
+from .db2 import DB2File
 from .dbc import DBCFile
 from .utils import getfilename, fopen
 
@@ -35,8 +36,13 @@ class Environment(object):
 	def _open(self, file):
 		from .structures import getstructure
 		handle = self.mpq.open(file)
-		structure = getstructure(getfilename(file))
-		return DBCFile(handle, build=self.build, structure=structure, environment=self)
+		name = getfilename(file)
+		structure = getstructure(name)
+		if name in ("item", "item-sparse"):
+			cls = DB2File
+		else:
+			CLS = DBCFile
+		return cls(handle, build=self.build, structure=structure, environment=self)
 
 	@classmethod
 	def patchFiles(cls, locale="enUS"):
