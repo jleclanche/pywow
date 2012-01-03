@@ -22,18 +22,11 @@ class DBCFile(DBFile):
 	- The stringblock is a non-repetitive block of null-terminated strings.
 	"""
 
-	def __init__(self, file, build, structure, environment):
-		super(DBCFile, self).__init__(file, build, structure, environment)
-		self.headerStructure = "<4s4i"
-		self.header = self._readHeader()
-		self._loadStructure(structure)
-		if self.supportsSeeking():
-			self._readAddresses()
-
 	def _readHeader(self):
-		DBCHeader = namedtuple("DBCHeader", ["signature", "row_count", "field_count", "reclen", "stringblocksize"])
+		self.headerStructure = "<4s4i"
 		data = self.file.read(20)
-		return DBCHeader(*unpack(self.headerStructure, data))
+		DBCHeader = namedtuple("DBCHeader", ["signature", "row_count", "field_count", "reclen", "stringblocksize"])
+		self.header = DBCHeader(*unpack(self.headerStructure, data))
 
 	def _readAddresses(self):
 		rows = 0
@@ -60,7 +53,7 @@ class DBCFile(DBFile):
 		seek = seek and -(seek - field.size)
 		file.seek(seek, SEEK_CUR)
 
-	def _loadStructure(self, structure):
+	def setStructure(self, structure):
 		name = getfilename(self.file.name)
 		try:
 			self.structure = getstructure(name, self.build, parent=self)
@@ -111,7 +104,7 @@ class DBCFile(DBFile):
 		#address = self.header.stringblocksize + address
 		size = self.size()
 		if address > size:
-			log.warning("File says there is a string at address %i. File is only %i bytes! Corruption?" % (address, size))
+			#log.warning("File says there is a string at address %i. File is only %i bytes! Corruption?" % (address, size))
 			return ""
 
 		stringAddress = (self.size() - self.header.stringblocksize + address)
@@ -177,6 +170,9 @@ class DBCFile(DBFile):
 				_data.append(value)
 			ret.append("".join(_data))
 		return "".join(ret)
+
+	def headerData(self):
+		return pack(self.headerStructure, *self.header)
 
 	def eof(self):
 		return "\0" + ("\0".join(self._stringBlock)) + "\0"

@@ -202,7 +202,7 @@ class ForeignKeyBase(IntegerField):
 		try:
 			return environment.dbFile(relation)
 		except KeyError:
-			raise UnresolvedTable("Table %r does not exist in the current environment" % (relation), value)
+			raise UnresolvedTable("Table %r does not exist in the current environment" % (relation))
 
 	def get_final_value(self, value, row):
 		return value

@@ -31,38 +31,27 @@ class WDBFile(DBFile):
 		"XTPW": "pagetextcache",
 	}
 
-	def __init__(self, file, build, structure, environment):
-		super(WDBFile, self).__init__(file, build, structure, environment)
+	def _readHeader(self):
+		self.headerStructure = "<4s4i"
+		data = self.file.read(20)
+		fields = ["signature", "build", "locale", "wdb4", "wdb5"]
+		signature, build, locale, wdb4, wdb5 = unpack(self.headerStructure, data)
 
-		self.header = self._readHeader()
-
-		if not build:
-			build = self.header.build
-		self.build = build
-
-		self._loadStructure(structure)
+		if build < 9438:
+			# Old style headers, 20 bytes
+			WDBHeader = namedtuple("WDBHeader", fields)
+			self.header = WDBHeader(signature, build, locale, wdb4, wdb5)
+		else:
+			fields.append("version")
+			WDBHeader = namedtuple("WDBHeader", fields)
+			version, = unpack("<i", self.file.read(4))
+			self.headerStructure = "<4s5i"
+			self.header = WDBHeader(signature, build, locale, wdb4, wdb5, version)
 
 		self.row_header_size = self.structure[0].size + 4
 
-	def _readHeader(self):
-		data = self.file.read(20)
-		self.headerStructure = "<4s4i"
-		signature, build, locale, wdb4, wdb5 = unpack(self.headerStructure, data)
-		if build < 9438:
-			# Old style headers, 20 bytes
-			WDBHeader = namedtuple("WDBHeader", ["signature", "build", "locale", "wdb4", "wdb5"])
-			return WDBHeader(signature, build, locale, wdb4, wdb5)
-		else:
-			WDBHeader = namedtuple("WDBHeader", ["signature", "build", "locale", "wdb4", "wdb5", "version"])
-			version, = unpack("<i", self.file.read(4))
-			self.headerStructure = "<4s5i"
-			return WDBHeader(signature, build, locale, wdb4, wdb5, version)
-
-	def headerData(self):
-		return pack(self.headerStructure, *self.header)
-
-	def headerData(self):
-		return pack("<4s4i", *self.header)
+	def _readAddresses(self):
+		log.warning("Address precache is not implemented for WDB files")
 
 	def _loadStructure(self, structure):
 		if self.header.signature in self.MAGIC:

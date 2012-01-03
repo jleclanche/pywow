@@ -5,6 +5,7 @@ import re
 import mpq
 from .db2 import DB2File
 from .dbc import DBCFile
+from .main import DBFile
 from .utils import getfilename, fopen
 
 
@@ -42,7 +43,7 @@ class Environment(object):
 			cls = DB2File
 		else:
 			cls = DBCFile
-		return cls(handle, build=self.build, structure=structure, environment=self)
+		return cls.open(handle, build=self.build, structure=structure, environment=self)
 
 	@classmethod
 	def patchFiles(cls, locale="enUS"):
@@ -102,6 +103,8 @@ class Environment(object):
 	def dbFile(self, name):
 		name = self._dbFileName(name)
 		if name not in self._cache:
+			if name.endswith(".wdb"):
+				raise NotImplementedError("Cache files are not supported in environments")
 			self._cache[name] = self._open("DBFilesClient/%s" % (name))
 
 		return self._cache[name]

@@ -13,7 +13,7 @@ LOG_CONFIG = {
 
 class LazyLogger(object):
 	log = None
-	
+
 	@classmethod
 	def get_logger(cls):
 		if not cls.log:

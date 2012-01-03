@@ -14,8 +14,8 @@ class DB2File(DBCFile):
 	"""
 
 	def _readHeader(self):
-		data = self.file.read(32)
 		self.headerStructure = "<4s7i"
+		data = self.file.read(32)
 		fields = ["signature", "row_count", "field_count", "reclen", "stringblocksize", "dbhash", "build", "timestamp"]
 		signature, row_count, field_count, reclen, stringblocksize, dbhash, build, timestamp = unpack(self.headerStructure, data)
 
@@ -23,7 +23,7 @@ class DB2File(DBCFile):
 		if build <= 12880:
 			# Old style headers, 32 bytes
 			DB2Header = namedtuple("DB2Header", fields)
-			header = DB2Header(signature, row_count, field_count, reclen, stringblocksize, dbhash, build, timestamp)
+			self.header = DB2Header(signature, row_count, field_count, reclen, stringblocksize, dbhash, build, timestamp)
 		else:
 			self.headerStructure = "<4s11i"
 			fields += ["lookup_start", "lookup_end", "locale", "unk"]
@@ -34,7 +34,7 @@ class DB2File(DBCFile):
 				# Work around a bug in cataclysm beta which doesn't take in account the first \0
 				log.warning("Old adb file, working around stringblock bug")
 				stringblocksize += 1
-			header = DB2Header(signature, row_count, field_count, reclen, stringblocksize, dbhash, build, timestamp, lookup_start, lookup_end, locale, unk)
+			self.header = DB2Header(signature, row_count, field_count, reclen, stringblocksize, dbhash, build, timestamp, lookup_start, lookup_end, locale, unk)
 
 			# Skip the index block... we'll have to use it some day..
 			if lookup_start != lookup_end:
@@ -43,5 +43,3 @@ class DB2File(DBCFile):
 					log.error("lookup size < 0: %i. This file is corrupt. Expect breakage!" % (size))
 				else:
 					self.file.seek(size, SEEK_CUR)
-
-		return header

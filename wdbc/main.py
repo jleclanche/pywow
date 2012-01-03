@@ -11,16 +11,25 @@ class DBFile(object):
 	Base class for WDB and DBC files
 	"""
 
-	def __init__(self, file, build, structure, environment):
+	@classmethod
+	def open(cls, file, build, structure, environment):
 		if isinstance(file, basestring):
 			file = open(file, "r")
-		self.file = file
-		self.build = build
+
+		instance = cls(file, build, environment)
+		instance._readHeader()
+		instance.setStructure(structure)
+		instance._rowDynamicFields = 0 # Dynamic fields index, used when parsing a row
+		instance._readAddresses()
+
+		return instance
+
+	def __init__(self, file=None, build=None, environment=None):
 		self._addresses = {}
 		self._values = {}
+		self.file = file
+		self.build = build
 		self.environment = environment
-
-		self._rowDynamicFields = 0 # Dynamic fields index, used when parsing a row
 
 	def __repr__(self):
 		return "%s(file=%r, build=%r)" % (self.__class__.__name__, self.file, self.build)

@@ -70,7 +70,7 @@ def fopen(f, build=0, structure=None, environment={}):
 		cls = WDBFile
 
 	f.seek(0)
-	return cls(f, build=build, structure=structure, environment=environment)
+	return cls.open(f, build=build, structure=structure, environment=environment)
 
 
 def new(name, build=0, structure=None, environment={}):
