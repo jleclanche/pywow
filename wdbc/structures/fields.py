@@ -241,7 +241,7 @@ class ForeignMask(BitMaskField):
 	def __init_flags(self):
 		env = self.parent.parent.environment
 		try:
-			f = env[self._relation]
+			f = env.dbFile(self._relation)
 		except KeyError:
 			raise UnresolvedTable("Relation %r does not exist in the current environment" % (self._relation), value)
 
