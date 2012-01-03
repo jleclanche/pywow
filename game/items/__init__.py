@@ -512,6 +512,6 @@ class ItemProxy(object):
 		return None, None
 
 	def startsQuest(self, row):
-		return bool(row.starts_quest)
+		return bool(row._raw("starts_quest"))
 
 Item.initProxy(ItemProxy)
