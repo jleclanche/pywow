@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from cStringIO import StringIO
-from os.path import getsize
 from struct import pack, unpack, error as StructError
 from .log import log
 from .structures import fields
@@ -135,6 +134,14 @@ class DBFile(object):
 	def setRow(self, key, **values):
 		self.__setitem__(key, DBRow(self, columns=values))
 
+	def size(self):
+		if hasattr(self.file, "size"):
+			return self.file.size()
+		elif isinstance(self.file, file):
+			from os.path import getsize
+			return getsize(self.file.name)
+		raise NotImplementedError
+
 	def update(self, other):
 		"""
 		Update file from iterable other
@@ -153,7 +160,7 @@ class DBFile(object):
 		f = open(_filename, "wb") # Don't open before calling data() as uncached rows would be empty
 		f.write(data)
 		f.close()
-		log.info("Written %i bytes at %s" % (getsize(f.name), f.name))
+		log.info("Written %i bytes at %s" % (len(data), f.name))
 
 		if not filename: # Reopen self.file, we modified it
 			# XXX do we need to wipe self._values here?
