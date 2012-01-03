@@ -107,7 +107,15 @@ class DBCFile(DBFile):
 
 		# NOTE: Avoid seeking with SEEK_END because of a bug in stormlib 8.04
 		# f.seek(-self.header.stringblocksize + address)
-		f.seek(f.size() - self.header.stringblocksize + address)
+		# address of the string within the string block
+		#address = self.header.stringblocksize + address
+		size = self.size()
+		if address > size:
+			log.warning("File says there is a string at address %i. File is only %i bytes! Corruption?" % (address, size))
+			return ""
+
+		stringAddress = (self.size() - self.header.stringblocksize + address)
+		f.seek(stringAddress)
 
 		# Read until \0
 		chars = []
@@ -115,13 +123,16 @@ class DBCFile(DBFile):
 			char = f.read(1)
 			if char == "\0":
 				break
+
 			if not char:
+				# We reached EOF before the string was finished.
+				log.warning("Unfinished string, premature EOF. File is corrupt.")
 				if not chars:
-					#log.warning("No string found at 0x%08x (%i), some values may be corrupt. Fix your structures!" % (address, address - self.header.stringblocksize))
+					log.warning("No string found at 0x%08x (%i). Corruption?" % (address, address - self.header.stringblocksize))
 					return ""
-				log.warning("Unfinished string, this file may be corrupted.")
 				break
-			chars.append(char)
+			else:
+				chars.append(char)
 
 		f.seek(pos)
 
