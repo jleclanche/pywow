@@ -14,7 +14,7 @@ def PlainTextRenderer(tooltip):
 	"""
 	ret = []
 	for node in tooltip:
-		ret.append(node.getText())
+		ret.append(node.text())
 
 	return "\n".join(ret)
 
@@ -45,8 +45,8 @@ def TerminalRenderer(tooltip):
 			# First line is always larger; we can't control that so we make it bold
 			attributes.append("bold")
 
-		text = node.getText()
-		color, attribute = colorMatch[node.getColor()]
+		text = node.text()
+		color, attribute = colorMatch[node.color()]
 		if attribute:
 			attributes.append(attribute)
 
@@ -63,15 +63,24 @@ def HtmlRenderer(tooltip):
 	ret = []
 	USE_STYLE = True
 
-	tpl = '<div style="%s">%s</div>'
+	lineTpl = '<div style="%s">%s</div>'
+	sideTpl = '<span style="%s">%s</span>'
 
-	for idx, node in enumerate(tooltip):
-		style = ["color: #%06x;" % (node.getColor())]
+	for idx, line in enumerate(tooltip):
+		lineHtml = []
+		lineStyle = []
 		if idx == 0:
-			# First line is always larger; we can't control that so we make it bold
-			style.append("font-size: 110%;")
+			lineStyle.append("font-size: 110%;")
 
-		text = tpl % (" ".join(style), node.getText())
+		for side in line:
+			style = ["color: #%06x;" % (side.color())]
+
+			if side.side() == side.RIGHT:
+				style.append("float: right;")
+
+			lineHtml.append(sideTpl % (" ".join(style), side.text()))
+
+		text = lineTpl % (" ".join(lineStyle), " ".join(lineHtml))
 		ret.append(text)
 
 	return "\n".join(ret)

@@ -2,6 +2,9 @@
 Colors used in tooltips
 """
 
+LEFT = 0
+RIGHT = 1
+
 BLUE     = 0x0080ff
 CYAN     = 0x66bbff
 DARKCYAN = 0x88aaff

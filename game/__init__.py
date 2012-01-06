@@ -52,20 +52,22 @@ class Model(object):
 		return self.Tooltip(self).render(renderer)
 
 class Tooltip(object):
-	LEFT = 0
-	RIGHT = 1
 	def __init__(self, obj):
 		self.obj = obj
-		self.keys = []
 		self.values = []
 
 	def append(self, name, text, color=WHITE, side=LEFT):
 		if text:
-			self.keys.append(name)
-			self.values.append(TooltipNode(name, text, color, side))
+			node = TooltipNode(name, text, color, side)
+			if side == RIGHT:
+				previousLine = self.values[-1]
+				if len(previousLine) < 2:
+					previousLine.append(node)
+			else:
+				self.values.append([node])
 
 	def appendEmptyLine(self):
-		self.values.append(TooltipNode("__separator", "", WHITE, 0))
+		self.values.append([TooltipNode("__separator", "", WHITE, 0)])
 
 	def flush(self):
 		ret = self.values
@@ -80,14 +82,17 @@ class Tooltip(object):
 		return renderer(self.tooltip())
 
 class TooltipNode(object):
+	LEFT = LEFT
+	RIGHT = RIGHT
+
 	def __init__(self, name, content, color, side):
 		self.name = name
 		if isinstance(content, Tooltip):
-			self.tooltip = content
+			self._tooltip = content
 		else:
-			self.text = content
-			self.color = color
-			self.side = side
+			self._text = content
+			self._color = color
+			self._side = side
 
 	def __repr__(self):
 		return repr(self.getText())
@@ -95,21 +100,26 @@ class TooltipNode(object):
 	def __str__(self):
 		return self.getText()
 
-	def getColor(self):
+	def color(self):
 		if self.isTooltip():
 			return 0
-		return self.color
-
-	def getText(self):
-		if self.isTooltip():
-			return ""
-		return str(self.text)
-
-	def getTooltip(self):
-		return self.tooltip
+		return self._color
 
 	def isEmpty(self):
 		return self.name == "__separator"
 
 	def isTooltip(self):
-		return hasattr(self, "tooltip")
+		return hasattr(self, "_tooltip")
+
+	def side(self):
+		if self.isTooltip():
+			return self.LEFT
+		return self._side
+
+	def text(self):
+		if self.isTooltip():
+			return ""
+		return str(self._text)
+
+	def tooltip(self):
+		return self._tooltip
