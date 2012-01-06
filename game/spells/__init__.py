@@ -187,7 +187,7 @@ class SpellProxy(object):
 
 	def get(self, id):
 		from pywow import wdbc
-		f = wdbc.get("Spell.dbc", build=self.build)
+		f = wdbc.get("Spell.dbc", build=self.build, locale=self.locale)
 		return f[id]
 
 	def getCastTime(self, row):
