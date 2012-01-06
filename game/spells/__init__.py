@@ -183,11 +183,12 @@ class SpellProxy(object):
 	WDBC proxy for spells
 	"""
 	def __init__(self, cls):
-		from pywow import wdbc
-		self.__file = wdbc.get("Spell.dbc", build=-1)
+		pass
 
 	def get(self, id):
-		return self.__file[id]
+		from pywow import wdbc
+		f = wdbc.get("Spell.dbc", build=self.build)
+		return f[id]
 
 	def getCastTime(self, row):
 		if row.cast_time:

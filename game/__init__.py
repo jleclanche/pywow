@@ -24,7 +24,7 @@ class Model(object):
 		if not hasattr(self, "proxy"):
 			raise RuntimeError("%s.proxy needs to be initialized with initProxy(proxy)" % (self.__class__.__name__))
 		self.id = id
-		self.build = build
+		self.proxy.build = build
 		try:
 			self.obj = self.proxy.get(id)
 		except KeyError:
