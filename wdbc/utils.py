@@ -89,12 +89,15 @@ def new(name, build=0, structure=None, environment={}):
 
 
 __envcache = {}
-def get(name, build):
+def get(name, build, locale="enUS"):
 	from .environment import Environment
 	if build == -1:
 		build = Environment.highestBuild()
 
 	if build not in __envcache:
-		__envcache[build] = Environment(build)
+		__envcache[build] = {}
 
-	return __envcache[build].dbFile(name)
+	if locale not in __envcache[build]:
+		__envcache[build][locale] = Environment(build, locale)
+
+	return __envcache[build][locale].dbFile(name)
