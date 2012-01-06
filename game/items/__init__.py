@@ -155,7 +155,7 @@ class ItemTooltip(Tooltip):
 				self.append("slot", CONTAINER_SLOTS % (bagSlots, slot))
 			elif self.showSubClass():
 				self.append("slot", slot)
-				self.append("subclass", subClassName, side=Tooltip.RIGHT)
+				self.append("subclass", subClassName, side=RIGHT)
 			else:
 				self.append("slot", slot)
 		elif self.showSubClass():
@@ -166,7 +166,7 @@ class ItemTooltip(Tooltip):
 			speed = speed / 1000
 			dps = (damageMin + damageMax) / (2 * speed)
 			self.append("damage", DAMAGE_TEMPLATE % (damageMin, damageMax))
-			self.append("speed", "%s %.2f" % (SPEED, speed), side=Tooltip.RIGHT)
+			self.append("speed", "%s %.2f" % (SPEED, speed), side=RIGHT)
 			self.append("dps", DPS_TEMPLATE % (dps))
 
 		armor, extraArmor = self.obj.getArmor()
