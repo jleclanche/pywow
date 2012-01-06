@@ -20,10 +20,11 @@ class Model(object):
 	def initProxy(cls, proxy):
 		cls.proxy = proxy(cls)
 
-	def __init__(self, id):
+	def __init__(self, id, build=-1):
 		if not hasattr(self, "proxy"):
 			raise RuntimeError("%s.proxy needs to be initialized with initProxy(proxy)" % (self.__class__.__name__))
 		self.id = id
+		self.build = build
 		try:
 			self.obj = self.proxy.get(id)
 		except KeyError:
