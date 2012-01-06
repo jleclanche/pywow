@@ -9,19 +9,35 @@ from .main import DBFile
 from .utils import getfilename, fopen
 
 
-def defaultBase():
-	# Try $MPQ_BASE_DIR, otherwise use ~/mpq/WoW/12911.direct/Data
-	return os.environ.get("MPQ_BASE_DIR", os.path.join(os.path.expanduser("~"), "mpq", "WoW", "12911.direct"))
+def basesToBuild(base):
+	sre = re.compile(r"^(\d+).direct$")
+	ret = {}
+	for f in os.listdir(base):
+		# Here we parse each <build>.direct/
+		match = sre.match(os.path.basename(f))
+		if match:
+			ret[int(match.groups()[0])] = os.path.join(base, f)
 
+	return ret
+
+def defaultBase():
+	# Try $MPQ_BASE_DIR, otherwise use ~/mpq/WoW
+	return os.environ.get("MPQ_BASE_DIR", os.path.join(os.path.expanduser("~"), "mpq", "WoW"))
+
+def highestBase():
+	bases = basesToBuild(defaultBase())
+	return os.path.join(bases[sorted(bases.keys())[-1]], "Data")
 
 def readBuild(base):
-	with open(os.path.join(base, "build"), "rb") as f:
-		build = f.read().strip()
-	return int(build)
+	"""
+	Returns the build part of a base (eg 12699 from '12699.direct')
+	"""
+	return int(re.match(r"^(\d+).direct$", os.path.basename(base)).groups()[0])
+
 
 class Environment(object):
 	def __init__(self, build, locale="enUS", base=defaultBase()):
-		baseBuild = readBuild(base)
+		base = self.baseForBuild(base, build)
 		self.base = os.path.join(base, "Data")
 		self.build = build
 		self.locale = locale
@@ -34,21 +50,29 @@ class Environment(object):
 
 		self._cache = {}
 
-	def _open(self, file):
-		from .structures import getstructure
-		handle = self.mpq.open(file)
-		name = getfilename(file)
-		structure = getstructure(name)
-		if name in ("item", "item-sparse"):
-			cls = DB2File
-		else:
-			cls = DBCFile
-		return cls.open(handle, build=self.build, structure=structure, environment=self)
+	def __repr__(self):
+		return "Environment(build=%r, locale=%r, base=%r)" % (self.build, self.locale, self.base)
 
 	@classmethod
-	def patchFiles(cls, locale="enUS"):
+	def baseForBuild(cls, base, build):
+		highestMatch = 0
+		bases = basesToBuild(base)
+		for baseBuild in bases:
+			# We want the highest possible match:
+			# - filter out anything higher than the requested build
+			# - filter out anything lower than our highest match
+			if baseBuild <= build and baseBuild > highestMatch:
+				highestMatch = baseBuild
+
+		return bases[highestMatch]
+
+	@classmethod
+	def patchFiles(cls, base, locale="enUS"):
+		"""
+		Returns a dict of build: patch MPQs.
+		base argument must be a Data/-base
+		"""
 		files = {}
-		base = os.path.join(defaultBase(), "Data")
 
 		# Old-style wow-updates (oldest) first
 		sre = re.compile(r"^wow-update-(\d+).MPQ$")
@@ -75,7 +99,18 @@ class Environment(object):
 
 	@classmethod
 	def highestBuild(cls):
-		return sorted(cls.patchFiles().keys())[-1]
+		return sorted(cls.patchFiles(highestBase()).keys())[-1]
+
+	def _open(self, file):
+		from .structures import getstructure
+		handle = self.mpq.open(file)
+		name = getfilename(file)
+		structure = getstructure(name)
+		if name in ("item", "item-sparse"):
+			cls = DB2File
+		else:
+			cls = DBCFile
+		return cls.open(handle, build=self.build, structure=structure, environment=self)
 
 	def _dbFileName(self, name):
 		# In order to avoid duplicates, we need to standardize the filename
@@ -112,7 +147,7 @@ class Environment(object):
 		return self._cache[name]
 
 	def patchList(self):
-		patches = self.patchFiles()
+		patches = self.patchFiles(base=self.base, locale=self.locale)
 		builds = sorted(patches.keys())
 		ret = []
 		for build in builds:
