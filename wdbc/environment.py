@@ -35,6 +35,9 @@ def readBuild(base):
 	return int(re.match(r"^(\d+).direct$", os.path.basename(base)).groups()[0])
 
 
+class BuildNotFound(Exception):
+	pass
+
 class Environment(object):
 	def __init__(self, build, locale="enUS", base=defaultBase()):
 		base = self.baseForBuild(base, build)
@@ -63,6 +66,9 @@ class Environment(object):
 			# - filter out anything lower than our highest match
 			if baseBuild <= build and baseBuild > highestMatch:
 				highestMatch = baseBuild
+
+		if not highestMatch:
+			raise BuildNotFound(build)
 
 		return bases[highestMatch]
 
