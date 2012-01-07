@@ -6560,6 +6560,16 @@ class SpellPower(Structure):
 			UnknownField(),
 		)
 
+	def changed_14946(self, fields):
+		"""
+		XXX unknown build
+		between 14545 and 14946
+		"""
+		self.changed_12759(fields)
+		fields.append_fields(
+			FloatField(), # Some percentage.. 5156 == 100
+		)
+
 
 class SpellRadius(Structure):
 	"""
