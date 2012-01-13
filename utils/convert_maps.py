@@ -6,7 +6,7 @@ import sys
 from PIL import Image
 from pilgrim.codecs import BLP
 from pywow import wdbc
-from pywow.wdbc.environment import highestBuild
+from pywow.environment import highestBuild
 
 BASE_DIR = "maps/"
 BUILD = highestBuild()

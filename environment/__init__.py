@@ -3,10 +3,6 @@
 import os
 import re
 import mpq
-from .db2 import DB2File
-from .dbc import DBCFile
-from .main import DBFile
-from .utils import getfilename, fopen
 
 
 def basesToBuild(base):
@@ -107,17 +103,6 @@ class Environment(object):
 	def highestBuild(cls):
 		return sorted(cls.patchFiles(highestBase()).keys())[-1]
 
-	def _open(self, file):
-		from .structures import getstructure
-		handle = self.mpq.open(file)
-		name = getfilename(file)
-		structure = getstructure(name)
-		if name in ("item", "item-sparse"):
-			cls = DB2File
-		else:
-			cls = DBCFile
-		return cls.open(handle, build=self.build, structure=structure, environment=self)
-
 	def _dbFileName(self, name):
 		# In order to avoid duplicates, we need to standardize the filename
 		name = name.lower()
@@ -137,6 +122,20 @@ class Environment(object):
 
 		return name
 
+	def _dbFileOpen(self, file):
+		from ..wdbc.db2 import DB2File
+		from ..wdbc.dbc import DBCFile
+		from ..wdbc.structures import getstructure
+		from ..wdbc.utils import getfilename
+		handle = self.mpq.open(file)
+		name = getfilename(file)
+		structure = getstructure(name)
+		if name in ("item", "item-sparse"):
+			cls = DB2File
+		else:
+			cls = DBCFile
+		return cls.open(handle, build=self.build, structure=structure, environment=self)
+
 	def hasDbFile(self, name):
 		name = self._dbFileName(name)
 		if name in self._cache:
@@ -148,7 +147,7 @@ class Environment(object):
 		if name not in self._cache:
 			if name.endswith(".wdb"):
 				raise NotImplementedError("Cache files are not supported in environments")
-			self._cache[name] = self._open("DBFilesClient/%s" % (name))
+			self._cache[name] = self._dbFileOpen("DBFilesClient/%s" % (name))
 
 		return self._cache[name]
 
