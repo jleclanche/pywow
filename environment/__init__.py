@@ -127,7 +127,7 @@ class Environment(object):
 		from ..wdbc.dbc import DBCFile
 		from ..wdbc.structures import getstructure
 		from ..wdbc.utils import getfilename
-		handle = self.mpq.open(file)
+		handle = self.open(file)
 		name = getfilename(file)
 		structure = getstructure(name)
 		if name in ("item", "item-sparse"):
@@ -150,6 +150,9 @@ class Environment(object):
 			self._cache[name] = self._dbFileOpen("DBFilesClient/%s" % (name))
 
 		return self._cache[name]
+
+	def open(self, file):
+		return self.mpq.open(file)
 
 	def patchList(self):
 		patches = self.patchFiles(base=self.base, locale=self.locale)
