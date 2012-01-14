@@ -101,13 +101,12 @@ class DBCFile(DBFile):
 		# NOTE: Avoid seeking with SEEK_END because of a bug in stormlib 8.04
 		# f.seek(-self.header.stringblocksize + address)
 		# address of the string within the string block
-		#address = self.header.stringblocksize + address
 		size = self.size()
 		if address > size:
 			#log.warning("File says there is a string at address %i. File is only %i bytes! Corruption?" % (address, size))
 			return ""
 
-		stringAddress = (self.size() - self.header.stringblocksize + address)
+		stringAddress = (size - self.header.stringblocksize + address)
 		f.seek(stringAddress)
 
 		# Read until \0
