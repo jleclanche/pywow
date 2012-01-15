@@ -180,13 +180,26 @@ class Environment(object):
 	def patchList(self):
 		patches = self.base.patchFiles()
 		builds = sorted(patches.keys())
-		ret = []
 
 		# Raise BuildNotFound if we can't patch up to the desired build
 		# We should raise it in __init__ instead, but it would involve duplicate code
 		if self.build not in builds:
 			raise BuildNotFound(self.build)
 
+		ret = []
+		chainPath = os.path.join(self.base.path(), "__chain__")
+		if os.path.exists(chainPath):
+			with open(chainPath, "r") as f:
+				for line in f:
+					line = [int(x) for x in line.strip().split() if x.isdigit()]
+					if line and line[0] == self.build:
+						for build in line[1:]:
+							for f in patches[build]:
+								ret.append(f)
+
+						return ret
+
+		# fallback algorithm
 		for build in builds:
 			if build > self.build:
 				# We only want the patches that correspond to the environment's build
