@@ -54,7 +54,7 @@ class Base(object):
 
 		return os.path.join(self.rawPath, self._path)
 
-	def patchFiles(self, locale="enUS"):
+	def patchFiles(self):
 		"""
 		Returns a dict of build: patch MPQs.
 		"""
@@ -106,7 +106,7 @@ def highestBase():
 	return base
 
 def highestBuild():
-	return sorted(highestBase().patchFiles().keys())[-1]
+	return sorted(highestBase().patchFiles("enUS").keys())[-1]
 
 class Environment(object):
 	def __init__(self, build, locale="enUS", base=Base.default()):
@@ -178,7 +178,7 @@ class Environment(object):
 		return self.mpq.open(file)
 
 	def patchList(self):
-		patches = self.base.patchFiles()
+		patches = self.base.patchFiles(self.locale)
 		builds = sorted(patches.keys())
 
 		# Raise BuildNotFound if we can't patch up to the desired build
