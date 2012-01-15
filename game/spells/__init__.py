@@ -178,12 +178,10 @@ class SpellTooltip(Tooltip):
 		return self.flush()
 Spell.Tooltip = SpellTooltip
 
-class SpellProxy(object):
+class SpellProxy(WDBCProxy):
 	"""
 	WDBC proxy for spells
 	"""
-	def __init__(self, cls):
-		pass
 
 	def get(self, id):
 		from pywow import wdbc

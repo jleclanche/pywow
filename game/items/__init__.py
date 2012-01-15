@@ -327,19 +327,17 @@ class ItemTooltip(Tooltip):
 		return False
 Item.Tooltip = ItemTooltip
 
-class ItemProxy(object):
+class ItemProxy(WDBCProxy):
 	"""
 	WDBC proxy for items
 	"""
-	def __init__(self, cls):
-		from pywow import wdbc
-		self.__file = wdbc.get("Item-sparse.db2", build=-1)
-		self.__item = wdbc.get("Item.db2", build=-1)
-
 
 	def get(self, id):
-		ret = self.__file[id]
-		item = self.__item[id]
+		from pywow import wdbc
+		itemSparse = wdbc.get("Item-sparse.db2", build=self.build, locale=self.locale)
+		item = wdbc.get("Item.db2", build=self.build, locale=self.locale)
+		ret = itemSparse[id]
+		item = item[id]
 		ret.category = item.category
 		ret.subcategory = item.subcategory
 		return ret

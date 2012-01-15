@@ -124,3 +124,10 @@ class TooltipNode(object):
 
 	def tooltip(self):
 		return self._tooltip
+
+class WDBCProxy(object):
+	"""
+	Base WDBC Proxy to use with models
+	"""
+	def __init__(self, cls):
+		pass
