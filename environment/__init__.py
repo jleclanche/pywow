@@ -9,6 +9,9 @@ import mpq
 class BuildNotFound(Exception):
 	pass
 
+class LocaleNotFound(Exception):
+	pass
+
 class Base(object):
 	def __init__(self, rawPath, build=None):
 		self.rawPath = rawPath
@@ -44,6 +47,13 @@ class Base(object):
 
 	def dataPath(self):
 		return os.path.join(self.path(), "Data")
+
+	def hasLocale(self, locale):
+		valid = ("enUS", "esMX", "enGB", "esES", "frFR", "deDE", "ruRU", "koKR", "zhTW", "enTW", "ptBR", "ptPT", "zhCN", "enCN", "itIT")
+		if locale in valid:
+			if os.path.exists(self.localePath(locale)):
+				return True
+		return False
 
 	def localePath(self, locale):
 		return os.path.join(self.dataPath(), locale)
@@ -113,6 +123,10 @@ class Environment(object):
 		base.setBuild(build)
 		self.base = base
 		self.build = build
+
+		if not self.base.hasLocale(locale):
+			raise LocaleNotFound(locale)
+
 		self.locale = locale
 		self.path = os.path.join(self.base.localePath(locale), "locale-%s.MPQ" % (locale))
 
