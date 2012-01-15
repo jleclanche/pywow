@@ -90,9 +90,9 @@ def new(name, build=0, structure=None, environment={}):
 
 __envcache = {}
 def get(name, build, locale="enUS"):
-	from ..environment import Environment
+	from ..environment import Environment, highestBuild
 	if build == -1:
-		build = Environment.highestBuild()
+		build = highestBuild()
 
 	if build not in __envcache:
 		__envcache[build] = {}

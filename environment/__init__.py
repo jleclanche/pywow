@@ -105,6 +105,8 @@ def highestBase():
 	base.setBuild(sorted(bases.keys())[-1])
 	return base
 
+def highestBuild():
+	return sorted(highestBase().patchFiles().keys())[-1]
 
 class Environment(object):
 	def __init__(self, build, locale="enUS", base=defaultBase()):
@@ -123,9 +125,6 @@ class Environment(object):
 
 	def __repr__(self):
 		return "Environment(build=%r, locale=%r, base=%r)" % (self.build, self.locale, self.base)
-
-	def highestBuild():
-		return sorted(highestBase().patchFiles().keys())[-1]
 
 	def _dbFileName(self, name):
 		# In order to avoid duplicates, we need to standardize the filename
