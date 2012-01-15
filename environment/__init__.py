@@ -37,11 +37,11 @@ class Base(object):
 
 		return ret
 
-	def dataDir(self):
+	def dataPath(self):
 		return os.path.join(self.path(), "Data")
 
-	def localeDir(self, locale):
-		return os.path.join(self.dataDir(), locale)
+	def localePath(self, locale):
+		return os.path.join(self.dataPath(), locale)
 
 	def path(self):
 		if not hasattr(self, "_path"):
@@ -56,7 +56,7 @@ class Base(object):
 		files = {}
 
 		# Old-style wow-updates (oldest) first
-		path = self.dataDir()
+		path = self.dataPath()
 		sre = re.compile(r"^wow-update-(\d+).MPQ$")
 		for f in os.listdir(path):
 			match = sre.match(os.path.basename(f))
@@ -68,7 +68,7 @@ class Base(object):
 		# wow-update*-13623 has both old-style and new-style patches.
 		# The new style ones are corrupt. We'll just assume that if
 		# we have both old-style and new-style, old-style takes priority.
-		path = self.localeDir(locale)
+		path = self.localePath(locale)
 		sre = re.compile(r"^wow-update-%s-(\d+).MPQ$" % (locale))
 		for f in os.listdir(path):
 			match = sre.match(os.path.basename(f))
@@ -114,7 +114,7 @@ class Environment(object):
 		self.base = base
 		self.build = build
 		self.locale = locale
-		self.path = os.path.join(self.base.localeDir(locale), "locale-%s.MPQ" % (locale))
+		self.path = os.path.join(self.base.localePath(locale), "locale-%s.MPQ" % (locale))
 
 		self.mpq = mpq.MPQFile(self.path)
 		if build != base.build():
