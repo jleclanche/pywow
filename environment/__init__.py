@@ -20,6 +20,11 @@ class Base(object):
 			return "Base(%r)" % (self.path())
 		return "Base(%r)" % (self.rawPath)
 
+	@classmethod
+	def default(cls):
+		# Try $MPQ_BASE_DIR, otherwise use ~/mpq/WoW
+		return cls(os.environ.get("MPQ_BASE_DIR", os.path.join(os.path.expanduser("~"), "mpq", "WoW")))
+
 	def build(self):
 		return int(re.match(r"^(\d+).direct$", os.path.basename(self.path())).groups()[0])
 
@@ -94,13 +99,8 @@ class Base(object):
 
 		self._path = bases[highestMatch]
 
-
-def defaultBase():
-	# Try $MPQ_BASE_DIR, otherwise use ~/mpq/WoW
-	return Base(os.environ.get("MPQ_BASE_DIR", os.path.join(os.path.expanduser("~"), "mpq", "WoW")))
-
 def highestBase():
-	base = defaultBase()
+	base = Base.default()
 	bases = base.builds()
 	base.setBuild(sorted(bases.keys())[-1])
 	return base
@@ -109,7 +109,7 @@ def highestBuild():
 	return sorted(highestBase().patchFiles().keys())[-1]
 
 class Environment(object):
-	def __init__(self, build, locale="enUS", base=defaultBase()):
+	def __init__(self, build, locale="enUS", base=Base.default()):
 		base.setBuild(build)
 		self.base = base
 		self.build = build
