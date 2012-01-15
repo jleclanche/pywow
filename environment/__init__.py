@@ -181,6 +181,12 @@ class Environment(object):
 		patches = self.base.patchFiles()
 		builds = sorted(patches.keys())
 		ret = []
+
+		# Raise BuildNotFound if we can't patch up to the desired build
+		# We should raise it in __init__ instead, but it would involve duplicate code
+		if self.build not in builds:
+			raise BuildNotFound(self.build)
+
 		for build in builds:
 			if build > self.build:
 				# We only want the patches that correspond to the environment's build
