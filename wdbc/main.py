@@ -230,7 +230,7 @@ class DBRow(list):
 			return func(field, self)
 
 		if "__" in attr:
-			return self._get_deep_relation(attr)
+			return self._query(attr)
 
 		return super(DBRow, self).__getattribute__(attr)
 
@@ -273,7 +273,13 @@ class DBRow(list):
 
 		return cache[tfield].get(self.id, None)
 
-	def _get_deep_relation(self, rel):
+	def _matches(self, **kwargs):
+		for k, v in kwargs.items():
+			if not self._query(k, v):
+				return False
+		return True
+
+	def _query(self, rel, value=None):
 		"""
 		Parse a django-like multilevel relationship
 		"""
@@ -284,6 +290,7 @@ class DBRow(list):
 		first = rels[0]
 		if not hasattr(self, first):
 			if self._parent.environment.hasDbFile(first):
+				# Handle reverse relations, eg spell__item for item table
 				remainder = rel[len(first + "__"):]
 				return self._get_reverse_relation(first, remainder)
 
@@ -291,8 +298,27 @@ class DBRow(list):
 
 		ret = self
 		rels = rels[::-1]
+
+		special = {
+			"contains": lambda x, y: x in y,
+			"exact": lambda x, y: x == y,
+			"icontains": lambda x, y: x.lower() in y.lower(),
+			"iexact": lambda x, y: x.lower() == y.lower(),
+			"gt": lambda x, y: x > y,
+			"gte": lambda x, y: x >= y,
+			"lt": lambda x, y: x < y,
+			"lte": lambda x, y: x <= y,
+		}
+
 		while rels:
-			ret = getattr(ret, rels.pop())
+			if rels[-1] in special:
+				if len(rels) != 1:
+					# icontains always needs to be the last piece of the relation string
+					raise ValueError("Invalid relation string")
+
+				return special[rels[-1]](value, ret)
+			else:
+				ret = getattr(ret, rels.pop())
 
 		return ret
 
