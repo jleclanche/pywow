@@ -48,18 +48,17 @@ class WDBFile(DBFile):
 			self.headerStructure = "<4s5i"
 			self.header = WDBHeader(signature, build, locale, wdb4, wdb5, version)
 
-		self.row_header_size = self.structure[0].size + 4
-
 	def _readAddresses(self):
 		log.warning("Address precache is not implemented for WDB files")
 
-	def _loadStructure(self, structure):
+	def setStructure(self, structure):
 		if self.header.signature in self.MAGIC:
 			name = self.MAGIC[self.header.signature]
 		else: # allow for custom structures
 			name = getfilename(self.file.name)
 		self.structure = getstructure(name, self.build, parent=self)
 		log.info("Using %s build %i" % (self.structure, self.build))
+		self.row_header_size = self.structure[0].size + 4
 
 	def _parse_row(self, id):
 		address, reclen = self._addresses[id]
