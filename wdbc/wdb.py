@@ -49,7 +49,16 @@ class WDBFile(DBFile):
 			self.header = WDBHeader(signature, build, locale, wdb4, wdb5, version)
 
 	def _readAddresses(self):
-		log.warning("Address precache is not implemented for WDB files")
+		while True:
+			address = self.file.tell() # Get the address of the full row
+			id = self._parse_field(self.file, self.structure[0])
+			if not id:
+				# We reached EOF
+				break
+
+			reclen = self._parse_field(self.file, self.structure[1])
+			self._add_row(id, address, reclen)
+			self.file.seek(reclen, SEEK_CUR)
 
 	def setStructure(self, structure):
 		if self.header.signature in self.MAGIC:
