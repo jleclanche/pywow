@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Database fields
 """
@@ -23,16 +22,16 @@ class Field(object):
 		self.dyn = dynamic
 		self.group = group
 		self.primary_key = primary_key
-	
+
 	def __repr__(self):
 		return "<%s: %s>" % (self.__class__.__name__, self.name)
-	
+
 	def from_python(self, value):
 		return value
-	
+
 	def to_python(self, value, row):
 		return value
-	
+
 	def rename(self, name):
 		"""
 		Renames Field to name
@@ -111,11 +110,11 @@ class BitMaskField(UnsignedIntegerField):
 	def __init__(self, name="", flags={}, **kwargs):
 		UnsignedIntegerField.__init__(self, name, **kwargs)
 		self.flags = flags
-	
+
 	def from_python(self, value):
 		assert isinstance(value, BitFlags)
 		return int(value)
-	
+
 	def to_python(self, value, row):
 		if isinstance(value, BitFlags):
 			return value
@@ -138,9 +137,9 @@ class DurationField(IntegerField):
 		if unit not in self.units:
 			raise FieldError("%r is not a valid duration unit (choices are: %s)" % (unit, ", ".join(self.units.keys())))
 		self.unit = unit
-	
+
 	def timedelta(self, value):
 		return timedelta(microseconds=value * self.units[self.unit])
-	
+
 	def to_python(self, value, row):
 		return self.timedelta(value)
