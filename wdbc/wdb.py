@@ -61,6 +61,9 @@ class WDBFile(DBFile):
 			self.headerStructure = "<4s5i"
 			self.header = WDBHeader(signature, build, locale, wdb4, wdb5, version)
 
+		if not self.build:
+			self.build = build
+
 	def _readAddresses(self):
 		while True:
 			address = self.file.tell() # Get the address of the full row
