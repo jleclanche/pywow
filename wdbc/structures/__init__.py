@@ -1,16 +1,19 @@
-# -*- coding: utf-8 -*-
+"""
+Base logic for pywow structures
+"""
 
-from pywow.structures import Structure, Skeleton
+from structures import Structure, Skeleton
 from .fields import *
 from .main import *
 from .generated import GeneratedStructure
+
 
 class StructureNotFound(Exception):
 	pass
 
 class StructureLoader():
 	wowfiles = None
-	
+
 	@classmethod
 	def setup(cls):
 		if cls.wowfiles is None:
@@ -22,7 +25,7 @@ class StructureLoader():
 				except TypeError:
 					continue
 				cls.wowfiles[name.lower()] = globals()[name]
-	
+
 	@classmethod
 	def getstructure(cls, name, build=0, parent=None):
 		name = name.replace("-", "_")
@@ -49,7 +52,7 @@ class LocalizedStringField(Structure):
 		StringField("esmx"),
 		BitMaskField("locflags")
 	)
-	
+
 	def changed_5595(self, fields):
 		fields.insert_fields((
 			StringField("ruru"),
@@ -61,7 +64,7 @@ class LocalizedStringField(Structure):
 			StringField("unk6"),
 			StringField("unk7"),
 		), before="locflags")
-	
+
 	def changed_11927(self, fields):
 		self.changed_5595(fields)
 		fields.delete_fields(
@@ -72,9 +75,9 @@ class LocalizedStringField(Structure):
 			"unk5", "unk6", "unk7",
 			"locflags",
 		)
-	
+
 	def changed_11993(self, fields):
 		self.changed_5595(fields)
-	
+
 	def changed_12025(self, fields):
 		self.changed_11927(fields)

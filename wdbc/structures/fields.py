@@ -1,6 +1,9 @@
-# -*- coding: utf-8 -*-
+"""
+pywow wdb/dbc field types
+"""
 
-from pywow.structures.fields import *
+from structures.fields import *
+
 
 ##
 # Core custom types for WDB/DBC files
