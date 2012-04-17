@@ -94,7 +94,11 @@ class WDBFile(DBFile):
 
 	def _parse_string(self, data):
 		pos = data.tell()
-		index = data.read().index("\x00")
+		try:
+			index = data.read().index("\x00")
+		except ValueError, e:
+			log.warning("Error parsing string: %s" % (e))
+			return ""
 		data.seek(pos)
 		return data.read(index + 1)[:-1].decode("ascii", "ignore")
 
