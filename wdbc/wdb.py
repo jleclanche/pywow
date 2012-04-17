@@ -1,4 +1,17 @@
-# -*- coding: utf-8 -*-
+"""
+WDBFile logic
+
+Known wdb files and their signatures:
+	creaturecache.wdb (BOMW)
+	gameobjectcache.wdb (BOGW)
+	itemcache.wdb (BDIW)
+	itemnamecache.wdb (BDNW)
+	itemtextcache.wdb (XTIW)
+	npccache.wdb (CPNW)
+	pagetextcache.wdb (XTPW)
+	questcache.wdb (TSQW)
+	wowcache.wdb (NDRW)
+"""
 
 from collections import namedtuple
 from struct import pack, unpack, error as StructError
