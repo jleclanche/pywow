@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from cStringIO import StringIO
 from struct import pack, unpack, error as StructError
 from .log import log
@@ -14,7 +12,7 @@ class DBFile(object):
 	@classmethod
 	def open(cls, file, build, structure, environment):
 		if isinstance(file, basestring):
-			file = open(file, "r")
+			file = open(file, "rb")
 
 		instance = cls(file, build, environment)
 		instance._readHeader()
