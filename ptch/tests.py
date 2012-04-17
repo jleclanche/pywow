@@ -1,13 +1,12 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from pywow.ptch import PatchFile
 
 def main():
 	f = open("Achievement.dbc.ptch", "rb")
 	ptch = PatchFile(f)
-	print ptch
-	
+	print(ptch)
+
 	out = open("Achievement.dbc.test", "wb")
 	out.write(ptch.rleUnpack())
 	out.close()
