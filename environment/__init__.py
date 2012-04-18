@@ -163,7 +163,15 @@ def highestBase():
 	return base
 
 def highestBuild():
-	return sorted(highestBase().patchFiles("enUS").keys())[-1]
+	ret = 0
+	base = Base.default()
+	for build in base.builds():
+		base.setBuild(build)
+		i = sorted(base.patchFiles("enUS").keys())[-1]
+		if i > ret:
+			ret = i
+
+	return ret
 
 class Environment(object):
 	def __init__(self, build, locale="enUS", base=Base.default()):
