@@ -106,9 +106,24 @@ class Base(object):
 
 		return os.path.join(self.rawPath, self._path)
 
+	def mfilFiles(self):
+		"""
+		Returns a dict of mfil paths for build numbers in {build: path} format
+		"""
+		files = {}
+		path = self.path()
+		sre = re.compile(r"^wow-(\d+)-\w+.mfil")
+		for f in os.listdir(path):
+			match = sre.match(f)
+			if match:
+				fileBuild = int(match.groups()[0])
+				files[fileBuild] = os.path.join(path, f)
+
+		return files
+
 	def patchFiles(self, locale):
 		"""
-		Returns a dict of build: patch MPQs.
+		Returns a dict of patch MPQs in {build: path} format
 
 		Cannot be accessed if the Base build is not set.
 		"""
