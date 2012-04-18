@@ -13,6 +13,18 @@ class LocaleNotFound(Exception):
 	pass
 
 class Base(object):
+	"""
+	A Base is a helper class that points to a base directory for an environment.
+	In its raw state (without a build), the base only has a raw path (Base.rawPath).
+	The raw path points to the directory that contains all the possible build bases.
+
+	The base's build can be set with Base.setBuild(build). Once that build is set,
+	base.path() will become accessible. That path points to <rawPath>/<build>.
+
+	Base.dataPath() is a helper that points to <path>/Data.
+	Base.localePath() is a helper that points to <dataPath>/<locale>.
+	"""
+
 	def __init__(self, rawPath, build=None):
 		self.rawPath = rawPath
 		if build is not None:
@@ -25,10 +37,18 @@ class Base(object):
 
 	@classmethod
 	def default(cls):
-		# Try $MPQ_BASE_DIR, otherwise use ~/mpq/WoW
+		"""
+		Returns a Base instance with the default path.
+		Looks for $MPQ_BASE_DIR environment variable first. Uses $HOME/mpq/WoW otherwise.
+		"""
 		return cls(os.environ.get("MPQ_BASE_DIR", os.path.join(os.path.expanduser("~"), "mpq", "WoW")))
 
 	def build(self):
+		"""
+		Returns the base's build.
+
+		Cannot be accessed if the Base build is not set.
+		"""
 		return int(re.match(r"^(\d+).direct$", os.path.basename(self.path())).groups()[0])
 
 	def builds(self):
@@ -46,9 +66,20 @@ class Base(object):
 		return ret
 
 	def dataPath(self):
+		"""
+		Points to the directory where the data files are stored
+		<path>/Data
+
+		Cannot be accessed if the Base build is not set.
+		"""
 		return os.path.join(self.path(), "Data")
 
 	def hasLocale(self, locale):
+		"""
+		Returns True if \a locale is offered by the base.
+
+		Cannot be accessed if the Base build is not set.
+		"""
 		valid = ("enUS", "esMX", "enGB", "esES", "frFR", "deDE", "ruRU", "koKR", "zhTW", "enTW", "ptBR", "ptPT", "zhCN", "enCN", "itIT")
 		if locale in valid:
 			if os.path.exists(self.localePath(locale)):
@@ -56,9 +87,20 @@ class Base(object):
 		return False
 
 	def localePath(self, locale):
+		"""
+		Points to the directory where the locale files are stored
+		<dataPath>/<locale>
+
+		Cannot be accessed if the Base build is not set.
+		"""
 		return os.path.join(self.dataPath(), locale)
 
 	def path(self):
+		"""
+		Points to the base's build directory.
+
+		Cannot be accessed if the Base build is not set.
+		"""
 		if not hasattr(self, "_path"):
 			raise RuntimeError("Cannot access Base.path() if Base does not have a build")
 
@@ -67,6 +109,8 @@ class Base(object):
 	def patchFiles(self, locale):
 		"""
 		Returns a dict of build: patch MPQs.
+
+		Cannot be accessed if the Base build is not set.
 		"""
 		files = {}
 
@@ -95,6 +139,9 @@ class Base(object):
 		return files
 
 	def setBuild(self, build):
+		"""
+		Sets the Base's build.
+		"""
 		highestMatch = 0
 		bases = self.builds()
 		for baseBuild in bases:
