@@ -272,6 +272,14 @@ class Environment(object):
 		return self.mpq.open(file)
 
 	def patchList(self):
+		"""
+		Returns the patch chain for the Environment's build
+		Attempts to figure it out by:
+		 - Looking for a mfil matching the build
+		 - If it doesn't exist, looking for a __chain__ file
+		 - If it doesn't exist either, just getting it from the list of builds
+		"""
+		ret = []
 		patches = self.base.patchFiles(self.locale)
 		builds = sorted(patches.keys())
 
@@ -280,7 +288,31 @@ class Environment(object):
 		if self.build not in builds:
 			raise BuildNotFound("Could not find build %i in %r" % (self.build, builds))
 
-		ret = []
+		# Look for a mfil matching the build
+		mfilPath = self.base.mfilFiles().get(self.build)
+		if mfilPath:
+			from mfil import MFIL2
+			mfil = MFIL2(mfilPath)
+			baseBuild = self.base.build()
+			retBuilds = []
+
+			for k, d in mfil["file"].items():
+				build = d.get("fileversion", "")
+				if not build.isdigit():
+					continue
+				build = int(build)
+
+				if build > baseBuild and build not in retBuilds:
+					retBuilds.append(build)
+
+			ret = []
+			for build in sorted(retBuilds):
+				for f in patches[build]:
+					ret.append(f)
+
+			return ret
+
+		# Look for __chain__ otherwise
 		chainPath = os.path.join(self.base.path(), "__chain__")
 		if os.path.exists(chainPath):
 			with open(chainPath, "r") as f:
