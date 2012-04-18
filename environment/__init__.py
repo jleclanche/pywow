@@ -198,7 +198,7 @@ class Environment(object):
 		# Raise BuildNotFound if we can't patch up to the desired build
 		# We should raise it in __init__ instead, but it would involve duplicate code
 		if self.build not in builds:
-			raise BuildNotFound(self.build)
+			raise BuildNotFound("Could not find build %i in %r" % (self.build, builds))
 
 		ret = []
 		chainPath = os.path.join(self.base.path(), "__chain__")
