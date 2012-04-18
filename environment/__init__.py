@@ -142,19 +142,29 @@ class Base(object):
 		"""
 		Sets the Base's build.
 		"""
-		highestMatch = 0
 		bases = self.builds()
-		for baseBuild in bases:
-			# We want the highest possible match:
-			# - filter out anything higher than the requested build
-			# - filter out anything lower than our highest match
-			if baseBuild <= build and baseBuild > highestMatch:
-				highestMatch = baseBuild
+		# First, check for an exact match so we don't have to be inefficient
+		if build in bases:
+			self._path = bases[build]
+			return
 
-		if not highestMatch:
+		# Now, get rid of all the bases higher than our build
+		for baseBuild in bases:
+			if baseBuild > build:
+				del bases[baseBuild]
+
+		# And now, get rid of the bases that do not contain our build
+		for baseBuild, path in bases.items():
+			self._path = path
+			if build not in self.patchFiles("enUS").keys():
+				del bases[baseBuild]
+
+		# Raise BuildNotFound if we don't have any more bases at this point
+		if not bases:
 			raise BuildNotFound(build)
 
-		self._path = bases[highestMatch]
+		# Finally, get the highest match and set the path appropriately
+		self._path = bases[sorted(k for k in bases)[-1]]
 
 def highestBase():
 	base = Base.default()
