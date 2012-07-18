@@ -765,8 +765,8 @@ class QuestCache(Structure):
 		ForeignKey("required_faction_2", "Faction"),
 		IntegerField("required_reputation_2"),
 		IntegerField("followup"),
-		IntegerField("money_reward"),
-		IntegerField("money_reward_cap"),
+		MoneyField("money_reward"),
+		MoneyField("money_reward_cap"),
 		ForeignKey("spell_reward", "Spell"),
 		ForeignKey("spell_trigger", "Spell"),
 		UnknownField(), # unused apart from 200 in 13233/13234

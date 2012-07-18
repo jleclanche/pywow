@@ -198,19 +198,115 @@ def highestBuild():
 
 	return ret
 
+def archivesForFlags(flags):
+	"""
+	Returns a list of archives that may be opened with \a flags
+	%(l)s is to be replaced by the locale in the paths
+	Archives may not exist, os.path.exists should be run on all returned paths
+	"""
+	archives = []
+
+	if flags & Environment.ARCHIVE_LOCALE:
+		archives.append("%(l)s/locale-%(l)s.MPQ")
+		if flags & Environment.ARCHIVE_SPEECH:
+			archives.append("%(l)s/speech-%(l)s.MPQ")
+			if flags & Environment.ARCHIVE_EXPANSION1:
+				archives.append("%(l)s/expansion1-speech-%(l)s.MPQ")
+			if flags & Environment.ARCHIVE_EXPANSION2:
+				archives.append("%(l)s/expansion2-speech-%(l)s.MPQ")
+			if flags & Environment.ARCHIVE_EXPANSION3:
+				archives.append("%(l)s/expansion3-speech-%(l)s.MPQ")
+			if flags & Environment.ARCHIVE_EXPANSION4:
+				archives.append("%(l)s/expansion4-speech-%(l)s.MPQ")
+
+	if flags & Environment.ARCHIVE_MODEL:
+		archives.append("model.MPQ")
+		archives.append("art.MPQ")
+
+	if flags & Environment.ARCHIVE_TEXTURE:
+		archives.append("texture.MPQ")
+		archives.append("itemtexture.MPQ")
+		archives.append("art.MPQ")
+
+	if flags & Environment.ARCHIVE_WORLD:
+		archives.append("world.MPQ")
+		archives.append("world2.MPQ")
+
+	if flags & Environment.ARCHIVE_SOUND:
+		archives.append("sound.MPQ")
+
+	if flags & Environment.ARCHIVE_INTERFACE:
+		archives.append("interface.MPQ")
+
+	if flags & Environment.ARCHIVE_MISC:
+		archives.append("misc.MPQ")
+
+	if flags & Environment.ARCHIVE_BASE:
+		archives.append("base-OSX.MPQ")
+		archives.append("base-Win.MPQ")
+
+	if flags & Environment.ARCHIVE_EXPANSION1:
+		archives.append("expansion1.MPQ")
+	if flags & Environment.ARCHIVE_EXPANSION2:
+		archives.append("expansion2.MPQ")
+	if flags & Environment.ARCHIVE_EXPANSION3:
+		archives.append("expansion3.MPQ")
+	if flags & Environment.ARCHIVE_EXPANSION4:
+		archives.append("expansion4.MPQ")
+
+	if flags & Environment.ARCHIVE_ALTERNATE:
+		archives.append("alternate.MPQ")
+
+	if flags & Environment.ARCHIVE_OLDWORLD:
+		archives.append("OldWorld.MPQ")
+		if flags & Environment.ARCHIVE_LOCALE:
+			archives.append("%(l)s/OldWorld-%(l)s.MPQ")
+
+	# Remove dupes
+	ret = []
+	for k in archives:
+		if k not in ret:
+			ret.append(k)
+
+	return ret
+
 class Environment(object):
-	def __init__(self, build, locale="enUS", base=Base.default()):
+
+	ARCHIVE_OLDWORLD = 0x1
+	ARCHIVE_LOCALE = 0x2
+	ARCHIVE_SPEECH = 0x4
+	ARCHIVE_TEXTURE = 0x8
+	ARCHIVE_MODEL = 0x10
+	ARCHIVE_WORLD = 0x20
+	ARCHIVE_SOUND = 0x40
+	ARCHIVE_INTERFACE = 0x80
+	ARCHIVE_BASE = 0x100
+	ARCHIVE_MISC = 0x200
+	ARCHIVE_ALTERNATE = 0x400
+	ARCHIVE_EXPANSION1 = 0x800
+	ARCHIVE_EXPANSION2 = 0x1000
+	ARCHIVE_EXPANSION3 = 0x2000
+	ARCHIVE_EXPANSION4 = 0x4000
+	ARCHIVE_EXPANSION_ALL = ARCHIVE_EXPANSION1 | ARCHIVE_EXPANSION2 | ARCHIVE_EXPANSION3 | ARCHIVE_EXPANSION4
+	ARCHIVE_ALL = 0xfffffffe # Everything except OLDWORLD
+
+	def __init__(self, build, locale="enUS", base=Base.default(), openFlags=ARCHIVE_ALL):
 		base.setBuild(build)
 		self.base = base
 		self.build = build
 
 		if not self.base.hasLocale(locale):
 			raise LocaleNotFound(locale)
-
 		self.locale = locale
-		self.path = os.path.join(self.base.localePath(locale), "locale-%s.MPQ" % (locale))
 
-		self.mpq = mpq.MPQFile(self.path)
+		patchlist = self.patchList()
+		self.archives = {}
+		self.mpq = mpq.MPQFile()
+		for path in archivesForFlags(openFlags):
+			path = os.path.join(self.base.dataPath(), path % {"l": locale})
+			if os.path.exists(path):
+				self.mpq.add_archive(path)
+
 		if build != base.build():
 			for patch in self.patchList():
 				self.mpq.patch(patch)
