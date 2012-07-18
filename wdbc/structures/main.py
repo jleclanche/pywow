@@ -3437,6 +3437,14 @@ class Item_sparse(Structure):
 		), after="flags_2")
 		fields.delete_fields("material")
 
+	def changed_15464(self, fields):
+		"""
+		Mists of Pandaria changes
+		"""
+		fields.append_fields(
+			UnknownField(),
+		)
+
 
 class ItemArmorQuality(Structure):
 	"""
