@@ -169,10 +169,13 @@ class Base(object):
 				del bases[baseBuild]
 
 		# And now, get rid of the bases that do not contain our build
+		_delete = []
 		for baseBuild, path in bases.items():
 			self._path = path
 			if build not in self.patchFiles("enUS").keys():
-				del bases[baseBuild]
+				_delete.append(baseBuild)
+		for key in _delete:
+			del bases[key]
 
 		# Raise BuildNotFound if we don't have any more bases at this point
 		if not bases:
