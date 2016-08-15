@@ -1,0 +1,10 @@
+{% load extratags %}registertooltip({
+icon: "{{obj.icon|default:"temp"}}",
+id: "{{obj.id}}",
+path: "{{path}}",{% if obj.quality %}
+quality: {{obj.quality}},
+{% endif %}{% if obj.next_page %}
+nextpage: {{obj.next_page_id}},
+{% endif %}tooltip: {{tooltip|str_repr|safe}},
+type: "{{obj.sigrie_name}}"
+})

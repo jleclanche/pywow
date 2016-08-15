@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block body %}
+<script type="text/javascript">//<![CDATA[
+{% block sorttables %}{% endblock %}
+//]]></script>
+<div id="layout">
+	<div id="logo"><h1>Sigrie</h1><a href="/"> </a></div>
+	<div id="main">
+		{% include "owdb/notice.html" %}
+		<div id="main-content">
+			{% include "owdb/sitenav.html" %}
+			{% block content_header %}
+			{% include "owdb/content_header.html" %}
+			{% endblock %}
+			<div id="content">
+				{% block content %}{% endblock %}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

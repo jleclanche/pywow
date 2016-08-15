@@ -1,0 +1,2 @@
+#!/bin/bash
+./tojson.lua $1 > json && ./fromjson.py

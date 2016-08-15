@@ -1,0 +1,16 @@
+# -*- coding: utf-8 -*-
+from django.conf.urls.defaults import *
+from sigrie.settings import MEDIA_ROOT
+
+from django.contrib import admin
+admin.autodiscover()
+
+urlpatterns = patterns("",
+	(r"^admin/doc/", include("django.contrib.admindocs.urls")),
+	(r"^admin/", include(admin.site.urls)),
+	(r"^static/(?P<path>.*)$", "django.views.static.serve", {"document_root": MEDIA_ROOT}),
+	(r"^latest", include("sigrie.additions.urls")),
+	(r"^userdata", include("sigrie.userdata.urls")),
+	(r"^utils/talents?/$", "sigrie.owdb.views.direct_to_template", {"template": "talents/index.html"}),
+	(r"^", include("sigrie.owdb.urls")),
+)

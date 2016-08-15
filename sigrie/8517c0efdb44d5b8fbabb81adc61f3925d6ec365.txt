@@ -1,0 +1,701 @@
+@import url("tooltip.css");
+
+/**
+ * Global
+ */
+
+a {
+	color: #ffd100;
+	outline-style: none;
+}
+a:hover {
+	color: #fff;
+}
+
+a img {
+	border: none;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	background-image: url("http://static.mmo-champion.com/db/img/bg.jpg"); 
+	background-color: #1d1d1d;
+	color: #ccc;
+}
+
+h1, h2, h3, h4 {
+	color: #fff;
+	line-height: 1.1em;
+}
+h1, h2, h3 {
+	border-bottom: 1px solid #505050;
+	font-weight: normal;
+	margin: 3px 0 10px;
+	padding: 0 0 6px;
+}
+h4 {
+	margin-bottom: 0.4em;
+}
+
+input[type="text"] {
+	padding: 2px 1px;
+	border: 1px solid #aaa;
+}
+
+button, .button { /* Generic button class */
+	background-color: #181818;
+	border: 1px solid #555;
+	color: white;
+	cursor: pointer;
+	font-size: 85%;
+	margin: 0 3px;
+	padding: 2px 4px;
+	text-decoration: none;
+}
+
+button:hover, .button:hover {
+	background-color: #333;
+}
+button.inactive, .button.inactive {
+	background-color: #414141 !important;
+	color: #ccc;
+	cursor: default;
+}
+
+.nohover:hover {
+	background-color: inherit !important;
+}
+
+
+/**
+ * Layout
+ */
+
+#layout {
+	margin: 0 auto;
+	max-width: 1080px;
+	min-width: 760px;
+}
+#index-content {
+	margin: 30px auto 20px;
+	padding: 30px;
+	text-align: center;
+}
+
+#logo {
+	background: transparent url("http://static.mmo-champion.com/db/img/logo-100.png") no-repeat 20px;
+}
+#logo h1 {
+	display: none;
+}
+#logo a {
+	display: block;
+	height: 105px;
+	width: 200px;
+}
+.sigrie-index #logo a {
+	display: none;
+}
+.sigrie-index #logo {
+	background: transparent url("http://static.mmo-champion.com/db/img/logo-200.png") no-repeat center;
+	height: 200px;
+	margin: 0 auto 25px;
+	width: 350px;
+}
+
+#main {
+	margin: 0 10px 10px 0;
+}
+#main-content {
+	background: #272727 url("http://static.mmo-champion.com/db/img/mmoc-bg.png") no-repeat bottom right;
+	border: 1px solid #101010;
+	border-radius: 7px;
+	margin: 0 15px 15px;
+	min-height: 600px;
+	-moz-border-radius: 7px;
+}
+#main-content h2 {
+	font-size: 18px;
+}
+
+#content-header {
+/*	border-bottom: 2px solid #8b0123; */
+/*	border-bottom: 2px solid #fdca33; */
+	height: 50px;
+	margin: auto 0;
+	padding-top: 18px;
+}
+
+#content-header h1 {
+	border: 0;
+	padding: 0;
+	font-size: 23px;
+	letter-spacing: 2px;
+	text-shadow: #000 3px 3px 3px;
+}
+
+#content-border {
+	background: #8b0123 url(/static/img/border-red.png) repeat-x;
+	border-bottom: 1px solid #191c15;
+	height: 3px;
+}
+
+#content-header img { /* icons */
+	float: left;
+	margin-right: 40px;
+	position: relative;
+	top: -10px;
+	left: 20px;
+}
+
+#dview-content {
+	padding: 20px;
+}
+
+#footer {
+	color: #665;
+	font-size: 12px;
+	margin-bottom: 1em;
+	padding-top: 32px;
+	text-align: center;
+}
+#footer a {
+	color: #665;
+	text-decoration: none;
+}
+#footer div {
+	padding-bottom: 4px;
+}
+#footer a:hover {
+	text-decoration: underline;
+}
+
+#notice {
+	background-color: #212121;
+	border: 1px solid #333;
+	color: #eee;
+	line-height: 1.5em;
+	margin: 5px 6% 10px;
+	padding: 5px;
+	text-align: center;
+	font-size: 90%;
+	-moz-box-shadow: #000 1px 1px 3px;
+	-webkit-box-shadow: #000 1px 1px 3px;
+}
+#notice:empty { /* FIXME https://bugs.webkit.org/show_bug.cgi?id=26570 */
+	border: 0;
+	background: none;
+	margin: 0;
+	padding: 0;
+}
+
+
+/**
+ * Infobox
+ */
+
+#infobox {
+	background-color: #212121;
+	border: 1px solid #191919;
+	border-bottom-left-radius: 15px;
+	border-top-right-radius: 15px;
+	float: right;
+	max-width: 14em;
+	overflow: hidden;
+	padding: 10px 25px;
+	text-align: center;
+	-moz-border-radius-bottomleft: 15px;
+	-moz-border-radius-topright: 15px;
+}
+#infobox h4 {
+	border-bottom: 1px solid #707070;
+	letter-spacing: 1px;
+	margin: 0;
+	padding-bottom: 2px;
+}
+#infobox ul {
+	color: #c3030b;
+	font-size: 98%;
+	list-style: square;
+	margin: 9px 0 7px;
+	padding: 0 4px;
+	text-align: left;
+}
+#infobox li {
+	line-height: 1.4em;
+}
+#infobox li>span {
+	color: #ccc;
+}
+
+/**
+ * prev/next links
+ */
+
+.pn {
+	border-top: 1px solid #aaa;
+	font-size: xx-small !important;
+	padding-top: 5px !important;
+}
+.pn li {
+	color: #ccc;
+	left: -20px;
+	list-style-type: none;
+	margin-left: 0;
+	position: relative;
+	white-space: pre;
+}
+.pn li>* {
+	position: relative;
+	left: 5px;
+}
+
+
+#screenshot-thumbnail {
+	border: 2px solid #222;
+	color: #505050;
+	display: block;
+	float: right;
+	margin: 15px;
+}
+#screenshot-thumbnail:hover {
+	border-color: #333;
+}
+
+#index-searchbar {
+	background: white;
+	border-radius: 3px;
+	border-bottom-color: #aaa;
+	border: 1px solid;
+	border-right-color: #aaa;
+	color: black;
+	font-size: 18px;
+	height: 25px;
+	margin: 0px;
+	padding: 5px 8px 0px 6px;
+	vertical-align: top;
+}
+
+#index-navigation {
+	background: none;
+	border: 0;
+	margin: 20px auto;
+	padding: 0;
+	text-align: center;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+}
+#index-navigation span {
+	text-align: left;
+}
+.sitenav-master {
+	border: 1px solid transparent;
+	color: #fff;
+	padding: 8px;
+	text-decoration: none;
+}
+.selected.sitenav-master {
+	background-color: #222;
+	border: 1px solid #444;
+}
+
+.searchform { /* frontpage */
+	float: none;
+}
+.searchform input[type="submit"] {
+	height: 21px;
+}
+
+.searchform input.emptytext:not(:focus) {
+	background: #fff url("http://static.mmo-champion.com/db/img/searchdatabase.png") no-repeat scroll 0.2em center;
+}
+
+.tableview-container input.emptytext:not(:focus) {
+	background: #fff url("http://static.mmo-champion.com/db/img/refine.png") no-repeat scroll 0.2em center;
+}
+
+.sigrie-textview #content {
+	background-color: #222;
+	border: 1px solid #444;
+	border-radius: 10px;
+	font-size: 13px;
+	padding: 9px;
+	margin: 15px;
+	-moz-box-shadow: #000 1px 1px 3px;
+	-webkit-box-shadow: #000 1px 1px 3px;
+	-moz-border-radius: 10px;
+}
+
+#content-header .searchform {
+	float: right;
+	position: relative;
+	right: 30px;
+	top: 5px;
+}
+
+#content-header .search {
+	width: 12em;
+}
+
+#sitenav div {
+	float: left;
+	margin-right: 3px;
+}
+
+#sitenav .searchform {
+	float: right;
+	position: relative;
+	top: -5px;
+}
+
+#sitenav .search {
+	width: 12em;
+}
+
+.sigrie-detailview #sitenav .searchform {
+	display: none; /* We already have a searchform in #content-header */
+}
+
+#filterbox {
+	padding: 5px 10px;
+}
+#filters div {
+	margin-bottom: 6px;
+}
+#filters div * {
+	margin-right: 5px;
+}
+
+#sitenav {
+	background-color: #242424;
+	border-top: 1px solid #444;
+	border-bottom: 1px solid #313131;
+	border-left: 1px solid #444;
+	border-right: 1px solid #313131;
+	padding: 9px;
+	margin: 8px;
+	min-height: 1.15em; /* All elements in the div are floating, we need this */
+	-moz-box-shadow: #000 1px 1px 3px;
+	-webkit-box-shadow: #000 1px 1px 3px;
+}
+
+.menuitem {
+	background-color: #242424;
+	border: 2px solid #333;
+	min-width: 11em;
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+	z-index: 999;
+	-moz-box-shadow: #000 1px 1px 3px;
+	-webkit-box-shadow: #000 1px 1px 3px;
+}
+
+.menuitem a {
+	border-bottom: 1px solid #111;
+	border-top: 1px solid #444;
+	display: block;
+	line-height: 1.2em;
+	padding: 4px 17px;
+	text-decoration: none;
+}
+.menuitem a[href="javascript:;"] { /* I LOVE CSS */
+	cursor: default;
+}
+.menuitem li:hover {
+	background-color: #303030;
+}
+img.menuicon {
+	clear: left;
+	float: left;
+	height: 18px;
+	padding: 4px 3px 0px;
+	width: 18px;
+}
+
+.submenu {
+	background: #242424 url("http://static.mmo-champion.com/db/img/a-right.png") no-repeat 95% center;
+}
+.submenu.selected {
+	background-color: #303030;
+}
+
+.menuheader a {
+	background-color: #1B1B1B;
+	color: #fff;
+	cursor: default;
+	font-weight: bold;
+	padding-left: 7px;
+}
+
+.tabview {
+	padding: 10px;
+}
+
+.tabcontent {
+	clear: left;
+}
+
+.tabbutton {
+	background-color: #333;
+	border-width: 1px 1px 0;
+	border-style: solid;
+	border-color: #222;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	color: white;
+	cursor: pointer;
+	float: left;
+	letter-spacing: 1px;
+	padding: 6px 11px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+	margin-top: 2px;
+}
+
+.tabbutton:hover {
+	background-color: #393939;
+}
+
+.tabbutton.selected {
+	border-color: #3f3f3f #3f3f3f transparent;
+ 	border-width: 2px 2px 0px;
+	background-color: #222222;
+	font-weight: bold;
+	letter-spacing: 0px;
+	position: relative;
+	top: 1px;
+	margin-bottom: -1px;
+}
+
+.tableview-container {
+	background-color: #222;
+	border-top: 2px solid #3f3f3f;
+	border-left: 2px solid #3f3f3f;
+	border-bottom: 2px solid #393939;
+	border-right: 2px solid #393939;
+	margin-top: 6px;
+	padding: 8px 2px;
+	-moz-box-shadow: #000 1px 1px 3px;
+	-webkit-box-shadow: #000 1px 1px 3px
+}
+
+.sorttable-pagewidget {
+	color: #fff;
+	font-size: 90%;
+	margin: 3px 15px 10px 0;
+	text-align: right;
+}
+
+.tableview-refine {
+	float: left;
+	font-size: 90%;
+	margin: 4px 0 0 15px;
+	position: relative;
+	top: -2px;
+	left: -5px;
+}
+
+
+/**
+ * Sigrie tables
+ */
+
+.sorttable {
+	background-color: #222;
+	border-collapse: collapse;
+	border-top: 1px solid #666;
+	margin: 5px auto 10px;
+	text-align: center;
+	width: 98%;
+	white-space: nowrap;
+	-moz-box-shadow: #000 2px 2px 3px;
+	-webkit-box-shadow: #000 2px 2px 3px;
+}
+.sorttable a {
+	text-decoration: none;
+}
+.sorttable td a:hover {
+	text-decoration: underline;
+}
+.sorttable a.link {
+	color: #fff;
+}
+
+.sorttable thead {
+	padding: 0;
+	border: 1px solid #666;
+}
+.sorttable th:first-child a {
+	border-left: none;
+}
+.sorttable th:last-child a {
+	border-right: none;
+}
+
+.sorttable th {
+	padding: 0;
+}
+
+.sorttable th a {
+	background: #484848 none no-repeat right center;
+	border-right: 1px solid #303030;
+	border-left: 1px solid #707070;
+	color: #fff;
+	display: block;
+	font-weight: bold;
+	line-height: 1.6em;
+	padding: 1px 19px;
+	text-transform: uppercase;
+	text-shadow: #000 1px 2px 1px;
+}
+
+.sorttable th a:hover {
+	background-color: #525252;
+}
+
+.sorttable th a.descending {
+	background-image: url("http://static.mmo-champion.com/db/img/a-down.png");
+}
+.sorttable th a.ascending {
+	background-image: url("http://static.mmo-champion.com/db/img/a-up.png");
+}
+
+
+.sorttable tbody tr {
+	border: 1px solid #555;
+}
+.sorttable tbody td {
+	border-right: 1px solid #555;
+	line-height: 1.3em;
+	padding: 2px 8px;
+}
+.sorttable tbody tr:hover {
+	background-color: #333;
+}
+
+.tt-hover { /* XXX */
+	position: absolute;
+	visibility: hidden;
+	z-index: 20;
+}
+
+
+/**
+ * Detail pages
+ */
+
+
+#dq-descr {
+	margin: 0 0 30px;
+	white-space: pre-wrap;
+}
+
+#dq-rewards, #dq-followup {
+	line-height: 1.4em;
+}
+
+#dq-followup, #da-followup {
+	line-height: 1.8em;
+	list-style-type: none;
+	margin: 0;
+	padding-left: 10px;
+}
+.dq-fcurrent, .da-fcurrent {
+	font-weight: bold;
+}
+
+.ds-spelleffect {
+	background-color: #242424;
+	border: 2px solid #777;
+	border-collapse: collapse;
+	font-size: 90%;
+	width: 98%;
+}
+.ds-spelleffect-summary {
+	padding-left: 15px;
+}
+#ds-spelleffects h4 a {
+	font-size: 80%;
+	font-weight: normal;
+}
+#ds-spelleffects td {
+	border-right: 2px solid #777;
+	padding: 0;
+	width: 50%;
+}
+#ds-spelleffects td>div {
+	float: right;
+	padding: 3px 8px;
+}
+#ds-spelleffects td:hover {
+	background-color: #292929;
+}
+#ds-spelleffects tr {
+	border: 1px solid #444;
+}
+#ds-spelleffects strong {
+	border-right: 1px solid #444;
+	display: block;
+	float: left;
+	padding: 4px 8px;
+	text-align: left;
+	width: 33%;
+}
+
+
+/**
+ * Maps
+ */
+
+.node {
+	background: url("http://static.mmo-champion.com/db/img/map-node.png") no-repeat 0 0;
+	height: 14px;
+	width: 14px;
+	margin: -7px 0px 0px -7px;
+}
+
+#content-header h1 a {
+	text-decoration: none;
+}
+
+#icon-stack {
+	position: absolute;
+	margin: 15px 0 0 -65px;
+	font-size: 16px;
+	font-weight: bold;
+	text-shadow: #000 1px 2px 2px;
+}
+
+
+/**
+ * Pages
+ */
+
+#pagewidget {
+	background-color: #2c2c2c;
+	border: 2px solid #212121;
+	float: left;
+	padding: 10px;
+	width: 21em;
+	text-align: center;
+}
+
+#pagewidget-header {
+	padding: 0 0 10px;
+}
+
+.page-next {
+	float: right;
+}
+
+.page-prev {
+	float: left;
+}
+
+#pagewidget-text>.tt-page {
+	border: none;
+	background-color: #212121;
+	float: none;
+}

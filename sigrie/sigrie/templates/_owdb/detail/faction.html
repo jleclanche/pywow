@@ -1,0 +1,22 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><a href="http://www.wowdb.com/faction.aspx?id={{obj.id}}">WoWDB</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+{% if obj.parent %}
+<p>{{obj}} is part of {{obj.parent|url}}.</p>
+{% endif %}
+
+{% sigrielisting FactionFaction obj.faction_parent %}
+{% sigrielisting FactionCreature obj.creature_faction %}
+{% sigrielisting FactionItem obj.item_required_faction %}
+{% sigrielisting FactionQuest obj.questrewardfaction_faction %}
+{% sigrielisting AchievementCriteria obj.required_for_achievement %}
+
+{% endblock %}

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Redirecting to WoWTal.com...</title>
+</head>
+<body>
+<script type="text/javascript">
+var original_url = window.location.href;
+var target_url = "http://wowtal.com/#"
+split_index = original_url.indexOf("#")
+if (split_index >= 0) target_url += original_url.split("#", 2)[1];
+window.location.href = target_url
+</script>
+</body>
+</html>

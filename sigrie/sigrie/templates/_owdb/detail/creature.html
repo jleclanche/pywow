@@ -1,0 +1,27 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><a href="http://www.wowdb.com/npc.aspx?id={{obj.id}}">WoWDB</a></li>
+<li><a href="http://wowhead.com/?npc={{obj.id}}">Wowhead</a></li>
+<li><a href="http://thottbot.com/c{{obj.id}}">Thottbot</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+<div id="dc-map">{{obj.locations|mapify|safe}}</div>
+
+{% sigrielisting CreatureDrops obj.drops %}
+{% sigrielisting CreatureSoldItems obj.solditem_vendor %}
+{% sigrielisting CreatureTrainedSpells obj.trainedspell_trainer %}
+{% sigrielisting CreatureEndsQuest obj.quest_ends_at_npc %}
+{% sigrielisting CreatureQuestDrops obj.quest_items %}
+{% sigrielisting QuestRequirement obj.required_for_quest %}
+{% sigrielisting AchievementCriteria obj.required_for_achievement %}
+{% sigrielisting CreatureSpells obj.creaturespell_creature %}
+{% sigrielisting CreatureLevelData obj.creatureleveldata_creature %}
+{% sigrielisting CreatureStartsQuest obj.starts_quests %}
+
+{% endblock %}

@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Honor values for one honorable kill, using TeamContributionPoints.dbc
+"""
+
+from pywow import wdbc
+
+BUILD = 12644
+
+HONOR = wdbc.get("TeamContributionPoints.dbc", build=BUILD)

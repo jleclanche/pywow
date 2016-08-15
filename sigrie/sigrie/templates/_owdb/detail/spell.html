@@ -1,0 +1,55 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+{% with obj.skillspell_spell as skill %}
+{% if skill.count and skill.all.0.skill.turns_grey %}<li><span>Difficulty: {{skill.all.0.get_difficulty_html|safe}}</span></li>{% endif %}
+{% endwith %}
+{% if obj.level %}<li><span>Level {{ obj.level }}</span></li>{% endif %}
+{% if obj.duration_1 > 0 and not obj.buff_description %}<li><span>Lasts {{obj.duration_1|duration}}</span></li>{% endif %}
+{% if obj.passive %}<li><span>Passive</span></li>{% endif %}
+{% if obj.usable_while_sitting %}<li><span>Usable while sitting</span></li>{% endif %}
+{% if obj.not_usable_in_combat %}<li><span>Not usable in combat</span></li>{% endif %}
+{% if obj.cannot_be_stolen %}<li><span>Cannot be <a href="/s/30449/spellsteal/">stolen</span></a>{% endif %}
+{% if obj.no_reagents_during_preparation %}<li><span>No reagent cost during <a href="/s/44521/preparation/">Preparation</span></a>{% endif %}
+<li><a href="javascript:showLinkRaw('GetSpellLink({{obj.id}})')">Link it ingame</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+{% if obj.buff_description %}
+<h4>Buff tooltip</h4>
+<div id="mtooltip" class="tooltip">
+{{ obj.buff_tooltip|safe }}
+</div>
+{% endif %}
+<div style="clear:both; padding-bottom: 10px;"></div>
+
+<script type="text/javascript">
+	new SigrieTooltip({id: {{obj.id}}, type: "spell", hook: "dview-tooltip", flags: {{obj.get_conditions|safe}}})
+</script>
+
+{% for effect in obj.spelleffectproperty_spell.iterator %}
+<h4>Effect #{{forloop.counter}}</h4>
+{{effect}}<br/>
+Value: {{effect.get_value|url}}
+{% endfor %}
+
+{% sigrielisting SpellTrainedBy obj.trainedspell_spell %}
+{% sigrielisting SpellEnchant obj.enchant_effects %}
+{% sigrielisting SpellItemRequired obj.item_required_spell %}
+{% sigrielisting SpellItemSetBonus obj.itemset_bonuses %}
+{% sigrielisting SpellItemTeaches obj.item_teaches_spell %}
+{% sigrielisting SpellItemSpell obj.item_spells %}
+{% sigrielisting SpellSkill obj.skill_spells %}
+{% sigrielisting SpellQuestReward obj.quest_spell_reward %}
+{% sigrielisting SpellQuestTrigger obj.quest_spell_trigger %}
+{% sigrielisting SpellEffectTrigger obj.spelleffectproperty_trigger_spell %}
+{% sigrielisting SpellTalentRank obj.talentrank_spell %}
+{% sigrielisting AchievementCriteria obj.required_for_achievement %}
+{% sigrielisting SpellCastedBy obj.creaturespell_spell %}
+{% sigrielisting SpellGlyphEffect obj.glyph_spell %}
+
+{% endblock %}

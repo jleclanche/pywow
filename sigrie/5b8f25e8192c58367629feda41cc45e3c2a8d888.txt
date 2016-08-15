@@ -1,0 +1,13 @@
+from django.http import *
+
+from hashlib import md5
+
+def handle_upload(request):
+	if request.method == "POST":
+		for k, file in request.FILES.items():
+			out_txt = file.read()
+			digest = md5(out_txt).hexdigest()
+			out = open("/home/sigrie/lua-queue/%s.gz" % (digest), "wb")
+			out.write(out_txt)
+			out.close()
+	return HttpResponse()

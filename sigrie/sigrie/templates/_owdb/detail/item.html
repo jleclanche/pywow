@@ -1,0 +1,45 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+{% if obj.duration_transform %}<li><span>Transforms into: <br/>{{obj.duration_transform|iconize}}</span></li>{% endif %}
+{% if obj.milling %}<li><span><a href="/skill/773/inscription/">Millable</a>: {{obj.milling}}</span></li>{% endif %}
+{% if obj.prospecting %}<li><span><a href="/skill/755/jewelcrafting/">Prospectable</a>: {{obj.prospecting}}</span></li>{% endif %}
+{% if obj.usable_in_arena %}<li><span>Usable in arenas</span></li>{% endif %}
+{% if obj.group_loot %}<li><span>Group loot</span></li>{% endif %}
+{% if obj.refundable %}<li><span>Refundable</span></li>{% endif %}
+{% if obj.faction_group %}<li><span>Side: {{obj.get_faction_group_display}}</span></li>{% endif %}
+{% if obj.bop_tradeable %}<li><span>Tradeable dungeon loot</span></li>{% endif %}
+<li><a href="http://www.wowarmory.com/item-info.xml?i={{obj.id}}">WoW Armory</a> - <a href="http://eu.wowarmory.com/item-info.xml?i={{obj.id}}">EU</a></li>
+<li><a href="http://wowhead.com/?item={{obj.id}}">Wowhead</a></li>
+{% if not obj.stub %}<li><a href="javascript:showLinkString({{obj.get_link}})">Link it ingame</a></li>{% endif %}
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+{% if obj.page %}
+<div id="pagewidget" rel="{{obj.page_id}}"></div>
+<div style="clear: left;"></div>
+{% endif %}
+
+{% sigrielisting ItemDisenchantsInto obj.get_disenchant_loot %}
+
+{% sigrielisting ItemContains obj.contains %}
+{% sigrielisting ItemContainedIn obj.loot_item %}
+{% sigrielisting ItemRelated obj.get_related %}
+{% sigrielisting ItemSoldBy obj.solditem_item %}
+{% sigrielisting ItemQuestDroppedBy obj.creature_quest_drops %}
+{% sigrielisting ItemDroppedBy obj.loot_item %}
+{% sigrielisting ItemCreatedBy obj.spell_createditem %}
+{% sigrielisting ItemCurrencyFor obj.itemextendedcost_item %}
+{% sigrielisting ItemProvidedFor obj.quest_provided_item %}
+{% sigrielisting ItemQuestReward obj.questrewarditem_item %}
+{% sigrielisting QuestRequirement obj.required_for_quest %}
+{% sigrielisting AchievementCriteria obj.required_for_achievement %}
+{% sigrielisting ItemSpellReagent obj.spell_reagents %}
+{% sigrielisting ItemSpellTool obj.tool_for_spell %}
+{% sigrielisting ItemMailAttachment obj.mail_attachment %}
+
+{% endblock %}

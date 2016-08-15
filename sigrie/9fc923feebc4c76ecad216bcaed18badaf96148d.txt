@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
+from sigrie.owdb.models import Spell
+from optparse import OptionParser
+
+o = OptionParser()
+o.add_option("-m", "--min", type="int", dest="min")
+o.add_option("-M", "--max", type="int", dest="max")
+args = o.parse_args(sys.argv[1:])[0]
+
+min = args.min or 0
+max = args.max or 100000
+
+def get_cast_time(self):
+	c = self.cast_time
+	if c == None:
+		return "Instant"
+	if c < 0:
+		return "Instant cast" # based on wpn speed
+	return "%g sec cast" % (c/100000)
+
+def main():
+	all = Spell.objects.filter(id__gt=min, id__lt=max).order_by("id")
+	tpl = """<tr class="vloot2">
+	<td><img width="30" height="30" src="http://db.mmo-champion.com/static/img/icons/%(icon)s.png"></td>
+	<td><a target="_blank" href="http://db.mmo-champion.com%(url)s" style="font-weight:bold;">%(name)s</a></td>
+	<td style="font-weight: bold;">%(description)s<br/>%(range)s %(cast)s</td>
+</tr>"""
+	thead = """<table class="sortable" cellspacing="0" cellpadding="1" style="border: 1px solid #96BC27; margin:auto"><thead>
+	<tr style="background-color:#96BC27;font-weight:bold;cursor:pointer;">
+		<th>Icon</th>
+		<th>Name</th>
+		<th>Description</th>
+	</tr></thead>\n"""
+	f = open("allspells.html", "w")
+	f.write(thead)
+	f.write("<tbody>")
+	
+	for k in all:
+		d = {
+			"url": k.get_absolute_url(),
+			"name": k.__unicode__(),
+			"description": k.description,
+			"range": k.range_max and "%r yds." % k.range_max,
+			"cast": get_cast_time(k),
+			"icon": k.icon,
+		}
+		f.write(tpl % d)
+		print k.id, k
+	print "%i spells written" % (all.count())
+	f.write("</tbody></table>")
+	f.close()
+
+if __name__ == "__main__":
+	main()

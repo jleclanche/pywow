@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from virtkey import virtkey
+from time import sleep
+from random import randrange
+
+KeyEmulator = virtkey()
+
+def press(keyname):
+	KeyEmulator.press_unicode(ord(keyname))
+	KeyEmulator.release_unicode(ord(keyname))
+
+
+def main():
+	while True:
+		r = randrange(1, 60)
+		press(" ")
+		print("Sleeping %i seconds more" % r)
+		sleep(r)
+
+
+if __name__ == "__main__":
+	try:
+		main()
+	except KeyboardInterrupt:
+		exit()

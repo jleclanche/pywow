@@ -1,0 +1,6 @@
+*.pyc
+settings_override.py
+sigrie/static/img/icons/*.png
+sigrie/static/img/icons/greyscale/
+sigrie/static/wow/*.png
+sigrie/static/js/talents/

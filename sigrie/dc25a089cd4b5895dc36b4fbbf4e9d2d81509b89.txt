@@ -1,0 +1,14 @@
+# -*- coding: utf-8 -*-
+
+from django.core.management.base import NoArgsCommand
+from owdb.models import Item
+
+glyphs = Item.objects.filter(category=16, stub=False)
+for i in glyphs:
+ spells = i.spell_createditem.exclude(name__icontains="unused")
+ if not spells.count():
+  continue
+ print i.id, ": {", "#", i
+ print "\tspells = %r," % [k.id for k in spells]
+ print "\tclasses = %r," % [int(k) for k in i.limited_to_classes]
+ print "}"

@@ -1,0 +1,66 @@
+{% extends "owdb/textview.html" %}
+{% load extratags %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h2>{{ title }}</h2>
+
+<!-- It's a big birthday cake!
+                                             LzQ
+                                             z \7L
+                                              D@\HL
+                                               L7x&D
+                                                 N\3L
+                                              LE&^WP
+                                            L9&&9L
+                                 LQNd&&@pQ L9pQ
+                               LWx[/////:NzW3HWJL                                   LLDQzz9WpHd_ dQ
+                          LPL Ld[[///// 9d#[///# J                     LPDQzE7NW3@&_____&&_ #[: HEL
+                        LE_&z N#///[//[^ [/[///// Q       LLPzE97WH&__&___&d3W79JzDDPPJW&  &WJP LQ7J
+                      LWx\pL P&////////[/////////#7 7@@@____&H3pW7JQQDPL        LD93_ ^H9DL PJW_x#/H
+                     L@[#p   Q //////////////////[pLQH _pEQL                Lz7d  &WJPLLDE3 :[/////3
+                     L7#:E    p#///[/////////////:J   LN\[# WL          PJp_ ^H9DL LQ7d #[//[[/////3
+            LEWp3@&_HP 9: L   Pd#/////////////[[ E     Qx/[x7      LQ7d^ &WzL  PJp_x[//////////////3
+            Q /x37EzP   E p   Dz7&:#[////[[#: HJL    PNx:&9L  LPJp@^^H7DL LPE3^\[//////////////////3
+            z ^  9L      zND  DH3QPDJ7WW7EzDP      L7d3EPLLD9d^ &NJPL LQ7d \[//////////////////[#x@J
+            z WL7  pDL          W HQ   Lz7NL        LLPzp@^^H9DL  PzW&x#////////////////[//[\ H9DL
+            Q W::LJd _WzP        z^\ &  ^pQL     LD93_^@pJP   DE3^:[[//////[///////////[:_pJP    LQD
+            Q W::::3PJW&_^_3N7EQDPD7337QLLLLLPzN@ _H7DL   D9H \[///////////////////#x&NzL    LzW_x#3
+            Q W:::::::::LPDEWW3@_&&___  ^_&___@WzP   LzN&x#[//////////////////[\ d9DL   LD9H \[////H
+            Q W:::::::::::::::::::::LLLLLLL???L?LPE3_:#///////////////////[:^3EPL   LQ7d #[////////H
+            Q W::::::::::::::::::::::::::::::LEH #[//////////////////[[x&WzLL   LzW_x#[////////////H
+            Q W::::::::::::::::::::::::::::::7#//////////////////[#xd7DL   LDE3^\[/////////////////H
+            Q W::::::::::::::::::::::::::::::7#//////////////[:^3EDL   LQ9d #[//////////////////[# 7
+            Q W::::::::::::::::::::::::::::::7#//////////#:_WJL    LzN&x#[//////////////////[\ H9DL
+            Q W::::::::::::::::::::::::::::::7#/////[#x@7QL   LDE3 :[///////////////////[x^pJP    PL
+            Q W::::::::::::::::::::::::::::::7#/[\^H9DL   LQ7d \[///////////////////#x&NzL   LD9H :W
+            Q W::::::::::::::::::::::::::::::J&pJP    LzN&x#[//////////////////[\ d9QL   LQN@x#[//[p
+            Q W::::::::::::::::::::::::::::::    LPEp^:[///////////////////[:^pJP    LJW_:#///////[p
+            Q W:::::::::::::::::::::::::::::: D7H \[//////////////////[#x&WzP   LDE3^\[///////////[p
+            Q W::::::::::::::::::::::::::::::9:[//////////////////[#xd7QL   LD9d #[///////////////[p
+            Q W::::::::::::::::::::::::::::::7#///////////////#\ 39P    LzW@x#/////////////////[# dz
+            Q W::::::::::::::::::::::::::::::7#//////[////#x_pJP    PJp_:[/////////////////[\ d9DL
+            Q W::::::::::::::::::::::::::::::7#///////#x@NzL   LDEH \[/////////////////[# HEP
+            Q W::::::::::::::::::::::::::::::7#//[\ H9D    LQ7@x#[/////////////////[\^pJP
+            Q W::::::::::::::::::::::::::::::9x^pEP    PJW&x#//////////////////[:_pJP
+            Q W:::::::::::::::::::::::::::::: L    PE3^\#//////////////////[x&WzL
+            Q W:::::::::::::::::::::::::::::: LD9d #[/////////////////[#x@7QL
+            Q 3::::::::::::::::::::::::::::::J #[/[///////////////[# d7QL
+             NxH3::::::::::::::::::::::::::::7#///////////////[# H9DL
+              Q&xpP::::::::::::::::::::::::::7#///////////[\ 3EP
+               LE_ HJL:::::::::::::::::::::::7#///////[:^3EP
+                 LQp^ @NEDPL:::::::::::::::::7#///[:^WJP
+                     PJW&^  ^^_d3pN77999777Np^#x_WzP
+                          LDQQzJE77NWpppWNN79JQL
+
+     Wooh! Make a wish! What?
+-->
+
+{% for update in listing %}
+	<h3>{{ update.date|date }} - New {{ update.model_name }} ({{update.count}})</h3>
+	<span style="font-family: monospace; font-size: small; padding-left: 3em;">Build {{ update.build }}</span>
+	
+	{{update.get_html_list|safe}}
+
+{% endfor %}
+
+{% endblock %}

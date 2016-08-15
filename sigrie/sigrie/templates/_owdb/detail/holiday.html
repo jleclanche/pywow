@@ -1,0 +1,12 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><a href="http://wowwiki.com/{{obj.name}}">WoWWiki</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+{% sigrielisting HolidayItem obj.item_required_holiday %}
+{% endblock %}

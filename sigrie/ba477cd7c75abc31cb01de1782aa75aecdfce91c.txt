@@ -1,0 +1,159 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import wdbc
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
+from optparse import OptionParser
+from sigrie.owdb.models import Stat, Spell
+from spell_compare import get_compare_dict as spell_compare
+
+old, new = sys.argv[1:]
+old = wdbc.fopen(old)
+new = wdbc.fopen(new)
+spell_dict = spell_compare(old.build, new.build)
+
+binds = ("None", "Bind on Pickup", "Bind on Equip", "Bind on Use", "Quest Item")
+quals = ("Poor", "Common", "Uncommon", "Rare", "Epic", "Legendary", "Artifact", "Heirloom")
+RESISTS = (
+	("armor", "Armor"),
+	("fire_resist", "Fire Resist"),
+	("nature_resist", "Nature Resist"),
+	("frost_resist", "Frost Resist"),
+	("shadow_resist", "Shadow Resist"),
+	("arcane_resist", "Arcane Resist"),
+)
+STATS = (
+	("stats_id_dyn1", "stats_amt_dyn1"),
+	("stats_id_dyn2", "stats_amt_dyn2"),
+	("stats_id_dyn3", "stats_amt_dyn3"),
+	("stats_id_dyn4", "stats_amt_dyn4"),
+	("stats_id_dyn5", "stats_amt_dyn5"),
+	("stats_id_dyn6", "stats_amt_dyn6"),
+	("stats_id_dyn7", "stats_amt_dyn7"),
+	("stats_id_dyn8", "stats_amt_dyn8"),
+	("stats_id_dyn9", "stats_amt_dyn9"),
+	("stats_id_dyn10", "stats_amt_dyn10"),
+)
+SPELLS = (
+	("spell1", "spelltrigger1", "spellcharges1", "spell_cooldown_1"),
+	("spell2", "spelltrigger2", "spellcharges2", "spell_cooldown_2"),
+	("spell3", "spelltrigger3", "spellcharges3", "spell_cooldown_3"),
+	("spell4", "spelltrigger4", "spellcharges4", "spell_cooldown_4"),
+	("spell5", "spelltrigger5", "spellcharges5", "spell_cooldown_5"),
+)
+SPELLIDS = [k[0] for k in SPELLS]
+
+def dps(speed, damage_min, damage_max):
+	return (((damage_max - damage_min) / 2.0) + damage_min) / speed
+
+def compare_stats(old, new):
+	old_dict = {}
+	new_dict = {}
+	for k in STATS:
+		stat_id = k[0]
+		amount = k[1]
+		old_dict[Stat.objects.get(id=old._raw(stat_id))] = old._raw(amount) or 0
+		new_dict[Stat.objects.get(id=new._raw(stat_id))] = new._raw(amount) or 0
+	for k in RESISTS:
+		old_dict[k[1]] = old._raw(k[0])
+		new_dict[k[1]] = new._raw(k[0])
+	
+	changes = []
+	stats = old_dict.keys()
+	stats.extend(new_dict.keys())
+	for k in set(stats):
+		if k not in new_dict:
+			changes.append("%+i %s" % (-old_dict[k], k))
+		elif k not in old_dict:
+			changes.append("%+i %s" % (new_dict[k], k))
+		elif old_dict[k] != new_dict[k]:
+			changes.append("%+i %s" % (new_dict[k] - old_dict[k], k))
+	
+	return ", ".join(changes)
+
+def compare_spells(old, new):
+	old_dict = {}
+	new_dict = {}
+	for k in SPELLS:
+		spell_id = k[0]
+		trigger = k[1]
+		charges = k[2]
+		old_dict[Spell.objects.get(id=old._raw(spell_id))] = (old._raw(trigger), old._raw(charges))
+		new_dict[Spell.objects.get(id=new._raw(spell_id))] = (new._raw(trigger), new._raw(charges))
+	
+	changes = []
+	spells = old_dict.keys()
+	spells.extend(new_dict.keys())
+	for k in set(spells):
+		if k and k.id in spell_dict:
+			changes.append("Spell %i, which is on the item, changed state:\n%s" % (k.id, spell_dict[k.id]))
+		if k not in new_dict:
+			changes.append("Spell removed: %s" % (k.description))
+		elif k not in old_dict:
+			changes.append("Spell added: %s" % (k.description))
+		elif old_dict[k] != new_dict[k]:
+			changes.append("Spell added: XXX something else")
+	
+	return ", ".join(changes)
+
+def compare_binds(old, new):
+	if old.bind != new.bind:
+		return "Binding changed from %s to %s" % (binds[old.bind], binds[new.bind])
+
+def compare_quals(old, new):
+	if old.quality != new.quality:
+		return "Quality changed from %s to %s" % (quals[old.quality], quals[new.quality])
+
+def compare_levels(old, new):
+	ret = []
+	if old.required_level != new.required_level:
+		ret.append("Required level changed from %i to %i" % (old.required_level, new.required_level))
+	if old.level != new.level:
+		ret.append("Level changed from %i to %i" % (old.level, new.level))
+	return ", ".join(ret)
+
+def compare_damage(old, new):
+	old_dmg = (old.speed, old.damage_min, omd.damage_max)
+	new_dmg = (new.speed, new.damage_min, new.damage_max)
+	if old_dmg != new_dmg:
+		a = "%.2f spd, %i-%i dmg, %.1f dps" % (float(old.speed) / 1000, old.damage_min, old.damage_max,
+			dps(float(old.speed) / 1000, old.damage_min, old.damage_max))
+		b = "%.2f spd, %i-%i dmg (%.1f dps)" % (float(new.speed) / 1000, new.damage_min, new.damage_max,
+			dps(float(new.speed) / 1000, new.damage_min, new.damage_max))
+		return a, b
+
+def main():
+	newitems = []
+	for k in new:
+		if k not in old:
+			newitems.append((new[k]._id, new[k].name))
+		else:
+			force_compare = False
+			for spell in SPELLIDS:
+				if old[k]._raw(spell) in spell_dict:
+					force_compare = True
+			if force_compare or old[k] != new[k]:
+				all_changes = []
+				for func in compare_quals, compare_binds, compare_levels, compare_stats, compare_spells:
+					changes = func(old[k], new[k])
+					if not changes:
+						continue
+					all_changes.append(changes)
+				if all_changes:
+					print '<a href="http://db.mmo-champion.com/i/%i/" class="item%i">%s</a>:' % (new[k]._id, new[k].quality, new[k].name),
+					if len(all_changes) == 1:
+						print all_changes[0]
+					else:
+						print
+						for changes in all_changes:
+							print "* " + changes
+	
+	for item in newitems:
+		continue
+		print 'New item (%i): <a href="http://db.mmo-champion.com/i/%i/">%s</a>' % (item[0], item[0], item[1])
+
+
+if __name__ == "__main__":
+	main()

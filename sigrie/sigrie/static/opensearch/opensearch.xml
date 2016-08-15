@@ -1,0 +1,12 @@
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+	<ShortName>Sigrie</ShortName>
+	<LongName>MMO-Champion Database</LongName>
+	<Description>Search WoW items, spells, quests and more on Sigrie.</Description>
+	<Contact>adys@mmo-champion.com</Contact>
+	<Url type="text/html" method="get" template="http://db.mmo-champion.com/search/?q={searchTerms}&amp;opensearch"/>
+	<Image height="32" width="32" type="image/vnd.microsoft.icon">http://db.mmo-champion.com/favicon.ico</Image>
+	<Image height="32" width="32" type="image/png">http://db.mmo-champion.com/favicon.png</Image>
+	<Language>en-us</Language>
+	<InputEncoding>UTF-8</InputEncoding>
+	<OutputEncoding>UTF-8</OutputEncoding>
+</OpenSearchDescription>

@@ -1,0 +1,598 @@
+/**
+ * Sigrie Tooltip engine
+ * Copyright (c) Jerome Leclanche <jerome@leclan.ch> for MMO-Champion
+ */
+
+@import url("wow.css");
+
+
+/**
+ * General
+ */
+
+.sigrie-tooltip { /* Tooltip styling, outer div */
+	background-color: #111122;
+/*	background: rgba(17, 17, 31, 0.9); */
+	border-top: 1px solid #ccc;
+	border-right: 1px solid #777;
+	border-bottom: 1px solid #777;
+	border-left: 1px solid #ccc;
+	color: #fff;
+	float: left;
+	font-family: Verdana,sans-serif;
+	font-size: 13px;
+	line-height: 17px;
+	max-width: 40em;
+	padding: 7px;
+	text-align: left;
+	z-index: 65000;
+	-moz-border-radius: 0.55ex;
+	-moz-box-shadow: black 1px 1px 5px;
+	-webkit-box-shadow: black 1px 1px 5px;
+	-webkit-border-radius: 0.55ex;
+}
+
+.sigrie-tooltip > * {
+	max-width: 23em;
+	min-width: 10px;
+}
+
+.sigrie-tooltip a, .sigrie-tooltip a:link, .sigrie-tooltip a:visited {
+	color: inherit;
+	text-decoration: none;
+}
+.sigrie-tooltip a:hover {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.sigrie-tooltip>div:first-child {
+	font-size: 110%;
+}
+
+.tt-hover-external { /* external hover tooltips only */
+	position: absolute;
+	z-index: 60000;
+}
+.tt-hover-external * { /* This is here to ensure elements inside external tooltips don't get some css oddities */
+	font-weight: normal;
+}
+
+.tt-hover>* { /* This is a fallback in case things go wrong and we are not displaying the intended tooltip */
+	display: none;
+}
+.tt-hover>.sigrie-tooltip { /* Hover tooltip */
+	background: rgba(17, 17, 34, 0.9);
+	display: block !important;
+	border: 1px solid rgba(187, 187, 187, 0.9);
+/*	visibility: hidden; */
+}
+.tt-retrieving { /* Styling for the loading hover tooltip */
+/*	pass; */
+}
+
+.tt-name {
+	font-size: 110%;
+	max-width: none !important;
+}
+.tt-name a:hover {
+	text-decoration: none;
+}
+.tt-nested .tt-name {
+	font-size: 100%;
+	padding-top: 1em;
+}
+.tt-nested .tt-name a:hover {
+	text-decoration: underline;
+}
+.tt-nested {
+	background: none;
+	border: none;
+	padding: 0px;
+	width: 100%;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+}
+
+.sigrie-tooltip .inactive {
+	color: #808080;
+}
+.sigrie-tooltip .disabled {
+	color: #ff0000;
+}
+.sigrie-tooltip .active {
+	color: #00ff00;
+}
+
+.tt-angular:before {
+	content: "<";
+}
+.tt-angular:after {
+	content: ">";
+}
+
+
+/**
+ * Achievements
+ */
+
+.tta-name {
+	padding-bottom: 1em;
+}
+.tta-progress {
+	color: #00ff00;
+	padding-bottom: 1em;
+}
+.tta-objective {
+	max-width: 31em;
+	padding-bottom: 1em;
+}
+.sigrie-tooltip .tta-criteria { /* XXX gecko: .tta-criteria doesn't take prio */
+	border-collapse: collapse;
+	width: 100%;
+	max-width: none;
+}
+.tta-criteria td {
+	text-align: right;
+	color: #808080;
+}
+.tta-criteria td:first-child {
+	padding-right: 20px;
+	text-align: left;
+}
+
+
+/**
+ * Creatures
+ */
+
+.ttc-name {
+	color: #ffd200;
+}
+
+.ttc-type-1:after {
+	content: " (Elite)";
+}
+.ttc-type-2:after {
+	content: " (Rare-Elite)";
+}
+.ttc-type-3:after {
+	content: " (Boss)";
+}
+.ttc-type-4:after {
+	content: " (Rare)";
+}
+
+
+/**
+ * Enchants
+ */
+
+.tte-name {
+	color: #00ff00;
+}
+.tte-effects .tte-effect-use {
+	color: #00ff00;
+}
+
+
+/**
+ * Encounters
+ */
+.ttencounter-name {
+	color: #ffd200;
+}
+.ttencounter-difficulty {
+	color: #0f0;
+}
+
+
+/**
+ * Items
+ */
+
+.tt-nested .tt-item-extra,
+.tt-hover .tt-item-extra {
+	display: none !important;
+}
+.tt-nested .tti-sell_price {
+	display: none;
+}
+
+.tti-heroic {
+	color: #0f0;
+}
+.tti-quality {
+	display: none;
+}
+.colorblind .tti-quality {
+	display: block;
+}
+.tti-subclass {
+	display: none;
+	float: right;
+	margin-left: 2.8em;
+}
+.cl2 .tti-subclass,
+.cl4 .tti-subclass,
+.cl6 .tti-subclass {
+	display: inline;
+}
+.cl2.sc14 .tti-subclass,
+.cl4.sc0 .tti-subclass {
+	display: none;
+}
+.cl15.sc5 .tti-subclass { /* Mounts */
+	display: block;
+	float: none; /* XXX this is nasty ... */
+	margin: 0;
+}
+.sl16 .tti-subclass { /* Cloaks */
+	display: none;
+}
+.tti-slot { /* HACK Make sure slot and subclass stay on the same line */
+	overflow: hidden;
+}
+.cl10 .tti-unique {
+	display: none; /* Hide Unique amounts from currency */
+}
+.tti-lockpicking {
+	color:#ff8040; /* TODO lock tooltips */
+}
+
+.tti-damage {
+	max-width: none !important;
+}
+.tti-damage_1 { /* HACK Make sure speed and damage stay on the same line */
+	overflow: hidden;
+}
+.cl6 .tti-damage > * { /* Projectiles don't show damage/speed/dps */
+	display: none;
+}
+.cl6 .tti-damage > .tti-dps-projectile {
+	display: block;
+}
+.tti-speed {
+	display: inline;
+	float: right;
+	margin-left: 2.8em;
+}
+
+.tti-enchant {
+	color: #00ff00
+}
+.tti-enchant.enabled .tti-enchant-required_skill {
+	display: none;
+}
+
+.tti-bonus_armor {
+	color: #00ff00;
+}
+.tti-socket_bonus, .tti-gem_conditions {
+	color: #9d9d9d;
+}
+.tti-gem_conditions {
+	padding-left: .6em;
+}
+.tti-gem_properties {
+	max-width: none !important;
+}
+
+.tti-race_class_requirements {
+	max-width: none !important;
+}
+
+.tti-note {
+	color: #ffd100;
+}
+.tt-item-teaches > .tti-note { /* The item teaches a spell. The note is used in the Learning field. */
+	display: none;
+}
+.tti-spells > div:not(.tt-nested) {
+	color: #00ff00;
+}
+
+/* Maybe hacky: don't give a max width to nested tooltips inside spells */
+.tt-item-teaches>.tti-spells {
+	max-width: none !important;
+}
+.tt-item-teaches>.tti-spells>div {
+	max-width: 23em !important;
+}
+.tt-item-teaches>.tti-spells>div.tt-item {
+	max-width: none !important;
+}
+
+
+.tti-spells a {
+	white-space: pre-wrap;
+}
+.tti-spell-t0:before {
+	content: "Use: ";
+}
+.tti-spell-t1:before {
+	content: "Equip: ";
+}
+.tti-spell-t2:before {
+	content: "Chance on Hit: ";
+}
+.tti-spell-t5:before {
+/*	content: "Inventory: "; */ /* Not displayed ingame */
+}
+.tti-spell-t6:before {
+	content: "Use: ";
+}
+.tt-item-teaches-creates>.tti-spells>.tti-spell-t6 { /* Don't catch nested tooltips */
+	color: white !important; /* Learning "Use" lines are white in wow. Most likely a bug. */
+}
+.tti-spell-hidden {
+	display: none;
+	font-style: italic;
+}
+.tti-spell-hidden a:before {
+	content: "<";
+}
+.tti-spell-hidden a:after {
+	content: ">";
+}
+
+.tti-stat {
+	max-width: none;
+}
+
+.tti-stat-special {
+	color: #00ff00;
+	max-width: none !important;
+}
+
+.tti-stat.inactive { /* +0 Stat (scalable items) */
+	display: none;
+}
+
+.tti-chart,
+.tti-random_enchantment,
+.tti-openable,
+.tti-page {
+	color: #00ff00;
+}
+
+.tti-disenchantable {
+	color: #88aaff;
+}
+.tti-notdisenchantable {
+	color: #ff2020;
+}
+
+.tti-level {
+	display: none;
+}
+.cl2 .tti-level,
+.cl4 .tti-level,
+.cl6 .tti-level { /* Item Level is only displayed on armor/weapons */
+	display: block;
+}
+
+.sl0 .tti-notdisenchantable, /* Not wearable */
+.sl18 .tti-notdisenchantable, /* Bag */
+.sl24 .tti-notdisenchantable /* Projectile */ {
+	display: none;
+}
+.tt-item-q0 .tti-notdisenchantable,
+.tt-item-q1 .tti-notdisenchantable {
+	display: none;
+}
+
+.tt-item-spell-reagents {
+	clear: left; /* Chrome-only apparently */
+	color: white !important;
+}
+.tti-spells>.sigrie-tooltip {
+	padding-bottom: 1em;
+}
+
+
+/**
+ * Item sets
+ */
+
+.ttis-name {
+	color: #ffd200 !important;
+}
+.ttis-items {
+	padding: 0px 0px 12px 10px;
+	color: #808080 !important; /* Make sure the item links stay gray */
+	list-style-type: none;
+	margin: 0px;
+}
+.ttis-items .active {
+	color: #ffff97;
+}
+.ttis-bonuses {
+	color: #808080;
+	list-style-type: none;
+	margin: 0px;
+	padding-left: 0px;
+}
+
+
+/**
+ * Quests
+ */
+
+.ttq-name {
+	padding-bottom: 1em;
+	color: #ffd200;
+}
+
+.ttq-objective {
+	padding-bottom: 1em;
+	white-space: pre-wrap;
+}
+
+.ttq-requirements:before { /* Requirements: */
+	content: "Requirements:";
+	color: #ffd200;
+}
+.ttq-requirements {
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
+	max-width: none !important;
+}
+.ttq-requirements li:before {
+	content: "- ";
+}
+
+/**
+ * Mails
+ */
+
+.ttmail-name {
+	color: #ffd200;
+}
+
+.ttmail-text {
+	padding-top: 1em;
+	white-space: pre-wrap;
+}
+
+
+/**
+ * Pages
+ */
+
+.ttp-text {
+	color: #ffd200;
+	text-shadow: black 2px 2px 2px;
+}
+.ttp-text p {
+	margin: 0px;
+}
+.ttp-text h1 {
+	color: inherit;
+	line-height: inherit;
+	border-bottom: none;
+	font-weight: normal;
+	margin: inherit;
+	padding: inherit;
+	font-size: 1.1em;
+}
+
+
+/**
+ * Spells
+ */
+
+.tt-spell-tradespell .tts-name {
+	color: #ffd200;
+}
+.tts-rank {
+	color: #9d9d9d;
+	float: right;
+	padding-left: 2.8em;
+}
+.tt-spell-right {
+	float: right;
+	padding-left: 2.8em;
+}
+.tt-spell-range_power { /* GOGO Power rangers */
+	max-width: none !important;
+}
+.tts-description {
+	color: #ffd200;
+	white-space: pre-wrap;
+}
+.tts-cast_time {
+	overflow: hidden;
+}
+
+.tts-required_stances,
+.tts-required_tools {
+	max-width: none !important;
+}
+
+.tts-range-friendly {
+	text-align: right;
+}
+
+.tts-power_cost {
+	overflow: hidden;
+}
+
+.tts-created_item {
+	display: none;
+}
+
+.tt-spell-tradespell .tts-created_item {
+	display: block;
+}
+.tt-spell-tradespell .tts-cast_time,
+.tt-spell-tradespell .tts-cooldown {
+	display: none;
+}
+
+/* Spelltext parser */
+
+.macro {
+	color: #0f0 !important;
+}
+
+.learned-s {
+	color: #0f0 !important;
+	font-size: xx-small;
+}
+.learned-s1 {
+	color: #aaa;
+}
+.learned-s2 {
+	color: #f33;
+}
+
+/**
+ * Buffs
+ */
+
+.ttb-name {
+	color: #ffd200; /* TODO doublecheck */
+}
+.ttb-dispel_type {
+	float: right;
+	padding-left: 2.8em;
+}
+.ttb-description {
+	white-space: pre-wrap;
+}
+.ttb-duration {
+	color: #ffd200;
+}
+
+/**
+ * Talents
+ */
+
+.ttt-spell>.tts-name { /* Hide spell name/rank on talent tooltips */
+	display: none;
+}
+.ttt-next_rank {
+	margin-top: 1em;
+}
+.ttt-next_rank:before {
+	content: "Next rank:";
+}
+
+/**
+ * Misc
+ */
+
+.ttg-type,
+.tti-glyph { /* Major/minor glyph */
+	color: #66bbff;
+}
+
+.ttf-description,
+.ttg-description,
+.tth-description,
+.ttinstance-description_horde,
+.ttskill-description {
+	color: #ffd100;
+}

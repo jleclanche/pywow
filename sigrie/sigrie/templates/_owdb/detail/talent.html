@@ -1,0 +1,11 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><a href="javascript:showLinkString({{obj.get_link}})">Link it ingame</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+{% endblock %}

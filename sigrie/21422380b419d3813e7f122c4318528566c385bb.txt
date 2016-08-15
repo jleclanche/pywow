@@ -1,0 +1,32 @@
+#!/usr/bin/lua
+
+json = require("json")
+
+savedvars = arg[1]
+
+if not savedvars then
+	print("Usage:", arg[0] .. " SavedVariables.lua")
+	os.exit(1)
+end
+
+f = loadfile(savedvars)()
+
+local function parseDB(db, startLoading)
+    for key, value in pairs(db) do
+        if type(value) == "table" then
+            parseDB(value, true)
+        elseif startLoading and type(value) == "string"  then
+            local func, msg = loadstring("return " .. value)
+            if func then
+                db[key] = func()
+            else
+                print("Failed to load", msg)
+                os.exit(1)
+            end
+        end
+    end
+end
+
+parseDB(SigrieDB)
+
+print(json.encode(SigrieDB))

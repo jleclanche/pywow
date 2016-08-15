@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block canonical %}/utils/talents/{% endblock %}
+{% block pagetype %}utils-talents{% endblock %}
+{% block title %}WoW Talent Calculator{% endblock %}
+{% block body %}
+
+<link rel="stylesheet" type="text/css" href="http://static.mmo-champion.com/db/css/talents.css?$__REV__"/>
+<script type="text/javascript" src="http://static.mmo-champion.com/db/js/talents.js?$__REV__"></script>
+<script type="text/javascript" src="http://static.mmo-champion.com/db/js/smallhash.js?$__REV__"></script>
+
+<div class="tt-hover tal-tooltip-spell"></div> 
+ 
+<div class="tal-glyph-overlay-back" id="overlay-back"></div> 
+<div class="tal-glyph-overlay" id="overlay"> 
+	<div> 
+		<div class="tal-glyph-overlay-table"> 
+			<table class="tal-glyph-table"><tbody><tr><td></td></tr></tbody></table> 
+		</div> 
+ 
+		<div class="tal-glyph-overlay-buttons"> 
+			<div class="tal-button tal-glyph-quit">Cancel</div> 
+		</div> 
+	</div> 
+</div> 
+ 
+ 
+<div id="layout"> 
+	<div id="main"> 
+		<div id="main-content"> 
+			<div id="content"> 
+				<div id="sigrie-talent-calculator"> 
+					<div class="tal-classstrip"></div> 
+ 
+					<div class="tal-tal"> 
+						<div class="tal-infobox"> 
+							<div class="tal-block"> 
+								<p class="tal-infobox-group-class"> 
+									<span class="tal-infobox-value tal-infobox-class">Druid (0/0/0)</span> 
+								</p> 
+ 
+								<p class="tal-infobox-group-level"> 
+									Level:
+									<span class="tal-infobox-value tal-infobox-requiredlevel">0</span> 
+									/
+									<span class="tal-infobox-value tal-infobox-maxlevel">85</span> 
+									(<span class="tal-infobox-value tal-infobox-spentpoints">0</span> /
+									<span class="tal-infobox-value tal-infobox-remainingpoints">41</span> points spent)
+								</p> 
+								
+								<div class="tal-infobox-prefill tal-button"> 
+								Use it ingame!
+								</div> 
+							</div> 
+ 
+							<div class="tal-button tal-togglesummary">Show Summary</div> 
+							<div class="tal-button tal-infobox-reset">Reset All</div> 
+							<input type="text" class="tal-link" value="http://wowtal.com/#k=ff-.a2y.druid" /> 
+						</div> 
+						<div class="tal-summary-trees"> 
+							<div class="tal-summary-tree"> 
+								<img src="http://static.mmo-champion.com/db/img/delete.gif" class="tal-tree-reset" alt="" /> 
+								<img src="http://static.mmo-champion.com/db/img/icons/greyscale/spell_holy_powerwordshield.png" class="tal-tree-icon" alt="" /> 
+								<div class="tal-tree-roles"></div> 
+								<span class="tal-tree-name">Discipline: </span> 
+								<span class="tal-tree-point tal-infobox-value">0</span> 
+							</div><!--
+							--><div class="tal-summary-tree"> 
+								<div class="tal-tree-roles"></div> 
+								<img src="http://static.mmo-champion.com/db/img/icons/greyscale/spell_holy_powerwordshield.png" class="tal-tree-icon" alt="" /> 
+								<img src="http://static.mmo-champion.com/db/img/delete.gif" class="tal-tree-reset" alt="" /> 
+								<span class="tal-tree-name">Discipline: </span> 
+								<span class="tal-tree-point tal-infobox-value">0</span> 
+							</div><!--
+							--><div class="tal-summary-tree"> 
+								<div class="tal-tree-roles"></div> 
+								<img src="http://static.mmo-champion.com/db/img/icons/greyscale/spell_holy_powerwordshield.png" class="tal-tree-icon" alt="" /> 
+								<img src="http://static.mmo-champion.com/db/img/delete.gif" class="tal-tree-reset" alt="" /> 
+								<span class="tal-tree-name">Discipline: </span> 
+								<span class="tal-tree-point tal-infobox-value">0</span> 
+							</div> 
+						</div> 
+ 
+						<div class="tal-summaries"> 
+							<div class="tal-summary"> 
+								<div class="tal-summary-name tal-button"></div> 
+								<div class="tal-summary-icon"> 
+									<ins></ins> 
+									<div class="tal-summary-roles"></div> 
+								</div> 
+								<ul class="tal-summary-spells"> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-mastery tal-summary-spell"></li> 
+								</ul> 
+								<div class="tal-summary-text"></div> 
+							</div><!--
+							--><div class="tal-summary"> 
+								<div class="tal-summary-name tal-button"></div> 
+								<div class="tal-summary-icon"> 
+									<ins></ins> 
+									<div class="tal-summary-roles"></div> 
+								</div> 
+								<ul class="tal-summary-spells"> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-mastery tal-summary-spell"></li> 
+								</ul> 
+								<div class="tal-summary-text"></div> 
+							</div><!--
+							--><div class="tal-summary"> 
+								<div class="tal-summary-name tal-button"></div> 
+								<div class="tal-summary-icon"> 
+									<ins></ins> 
+									<div class="tal-summary-roles"></div> 
+								</div> 
+								<ul class="tal-summary-spells"> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-spell"></li> 
+									<li class="tal-summary-mastery tal-summary-spell"></li> 
+								</ul> 
+								<div class="tal-summary-text"></div> 
+							</div> 
+						</div> 
+ 
+						<div class="tal-pane"></div> 
+ 
+						<div class="tal-glyphs-pane"> 
+							<div class="tal-glyphs"> 
+								<h3> 
+									<img src="http://static.mmo-champion.com/db/img/delete.gif" data-glyphtype="2" class="tal-glyph-reset"> 
+									Prime Glyphs
+								</h3> 
+								<div><div class="tal-glyph" data-glyphtype="2" data-glyphslot="0"></div></div> 
+								<div><div class="tal-glyph" data-glyphtype="2" data-glyphslot="1"></div></div> 
+								<div><div class="tal-glyph" data-glyphtype="2" data-glyphslot="2"></div></div> 
+							</div><!--
+							--><div class="tal-glyphs"> 
+								<h3> 
+									<img src="http://static.mmo-champion.com/db/img/delete.gif" data-glyphtype="0" class="tal-glyph-reset"> 
+									Major Glyphs
+								</h3> 
+								<div><div class="tal-glyph" data-glyphtype="0" data-glyphslot="0"></div></div> 
+								<div><div class="tal-glyph" data-glyphtype="0" data-glyphslot="1"></div></div> 
+								<div><div class="tal-glyph" data-glyphtype="0" data-glyphslot="2"></div></div> 
+							</div><!--
+							--><div class="tal-glyphs"> 
+								<h3> 
+									<img src="http://static.mmo-champion.com/db/img/delete.gif" data-glyphtype="1" class="tal-glyph-reset"> 
+									Minor Glyphs
+								</h3> 
+								<div><div class="tal-glyph" data-glyphtype="1" data-glyphslot="0"></div></div> 
+								<div><div class="tal-glyph" data-glyphtype="1" data-glyphslot="1"></div></div> 
+								<div><div class="tal-glyph" data-glyphtype="1" data-glyphslot="2"></div></div> 
+							</div> 
+						</div> 
+					</div> 
+				</div> 
+			</div> 
+		</div> 
+	</div> 
+</div> 
+
+{% endblock %}
+

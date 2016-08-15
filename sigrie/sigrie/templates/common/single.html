@@ -1,0 +1,47 @@
+{% extends "body.html" %}
+{% block canonical %}{{ obj.get_absolute_url }}{% endblock %}
+{% block pagetype %}detailview{% endblock %}
+{% block title %}{{obj}} - {{ obj.verbose_name_plural }}{% endblock %}
+
+{% block content_header %}
+
+<div id="content-header">
+<form action="/search/" method="get" class="searchform" onsubmit="var s=trim(this.elements[0].value);this.elements[0].value=s;return s.length&gt;0">
+<div>
+	<input id="searchbar" class="search" type="text" size="45" name="q" value="">
+	<input type="submit" value="Go">
+</div>
+</form>
+
+<h1>{{ obj }}</h1>
+<div id="content-border"> </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div id="dview-content">
+	{% block quickfacts %}
+		<div id="infobox">
+			<h4>{{obj.verbose_name}} #{{obj.id}}</h4>
+			{% block quickfactscont %}
+
+			{% endblock %}
+		</div>
+	{% endblock %}
+
+{% block tooltip %}
+	<div id="dview-tooltip">
+		{{ obj.htmlTooltip }}
+	</div>
+	<div style="clear: left; padding-top: 15px;"></div>
+{% endblock %}
+
+{% block subcontent %}
+
+{% endblock %}
+
+<script type="text/javascript">initTabs()</script>
+
+</div>
+{% endblock %}

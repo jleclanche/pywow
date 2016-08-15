@@ -1,0 +1,17 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><a href="http://wowwiki.com/{{obj.name}}">WoWWiki</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+{% sigrielisting SkillSpell obj.skillspell_skill %}
+{% sigrielisting SkillItem obj.item_required_skill %}
+{% sigrielisting SkillItemSet obj.itemset_required_skill %}
+{% sigrielisting SkillEnchant obj.enchant_required_skill %}
+{% sigrielisting SkillQuestReward obj.quest_skill_reward %}
+{% sigrielisting AchievementCriteria obj.required_for_achievement %}
+{% endblock %}

@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import wdbc
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
+from optparse import OptionParser
+from sigrie.owdb.models import Stat
+
+old_build, new_build = sys.argv[1:]
+old_build = int(old_build)
+new_build = int(new_build)
+
+old = wdbc.get("Achievement.dbc", old_build)
+new = wdbc.get("Achievement.dbc", new_build)
+
+def compare_objective(old, new):
+	old_objective = old.objective_enus
+	new_objective = new.objective_enus
+	if old_objective != new_objective:
+		if not old_objective:
+			return "Description added: %s" % (new_objective)
+		if not new_objective:
+			return "Description deleted: %s" % (old_objective)
+		return "Description changed:\n==========\n%s\n==========\n%s\n==========" % (old_objective, new_objective)
+
+def main():
+	newspells = []
+	for k in new:
+		if k not in old:
+			newspells.append((new[k]._id, new[k].name_enus))
+		else:
+			if old[k] != new[k]:
+				all_changes = []
+				for func in (compare_objective, ):
+					changes = func(old[k], new[k])
+					if not changes:
+						continue
+					all_changes.append(changes)
+				if all_changes:
+					print '<a href="http://db.mmo-champion.com/a/%i/">%s</a>:' % (new[k]._id, new[k].name_enus),
+					if len(all_changes) == 1:
+						print all_changes[0]
+					else:
+						print
+						for changes in all_changes:
+							print "* " + changes
+	
+	for item in newspells:
+		continue
+		print 'New achievement (%i): <a href="http://db.mmo-champion.com/a/%i/">%s</a>' % (item[0], item[0], item[1])
+
+
+if __name__ == "__main__":
+	main()

@@ -1,0 +1,10 @@
+{% extends "body.html" %}
+{% block pagetype %}textview{% endblock %}
+{% block content_header %}{% endblock %}
+{% block title %}{{ flatpage.title }}{% endblock %}
+{% block content %}
+<h2>{{ flatpage.title }}</h2>
+
+{{ flatpage.content }}
+
+{% endblock %}

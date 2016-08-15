@@ -1,0 +1,452 @@
+# -*- coding: utf-8 -*-
+
+from django.db.models import *
+from sigrie.owdb.durationfield import DurationField
+from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+
+from . import SigrieModel, BaseModel
+from sigrie.owdb import choices
+from sigrie.owdb.templatetags import extratags
+
+ACTIVE_SPELLS = { # Active spells we pass to spellstrings
+	"s": ( # Known spells
+		74434, # Soulburn
+	),
+	"a": ( # Active auras
+	),
+}
+
+class Spell(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	flags_1 = BigIntegerField(default=0)
+	flags_2 = BigIntegerField(default=0)
+	flags_3 = BigIntegerField(default=0)
+	flags_4 = BigIntegerField(default=0)
+	flags_5 = BigIntegerField(default=0)
+	flags_6 = BigIntegerField(default=0)
+	flags_7 = BigIntegerField(default=0)
+	flags_8 = BigIntegerField(default=0)
+	flags_9 = BigIntegerField(default=0)
+	cast_time = DurationField(default=0)
+	duration_1 = DurationField(default=0)
+	duration_2 = DurationField(default=0)
+	duration_3 = DurationField(default=0)
+	power_type = SmallIntegerField() # choices=choices.POWER_TYPES TODO OrderedDict support
+	range_min = PositiveIntegerField()
+	range_min_friendly = PositiveIntegerField()
+	range_max = PositiveIntegerField()
+	range_max_friendly = PositiveIntegerField()
+	range_flags = PositiveSmallIntegerField()
+	icon = CharField(max_length=64, blank=True)
+	buff_icon = CharField(max_length=64, blank=True)
+	name = CharField(max_length=256, blank=True)
+	rank = CharField(max_length=32, blank=True)
+	raw_description = TextField(blank=True)
+	raw_buff_description = TextField(blank=True)
+	school_flags = SmallIntegerField()
+	rune_cost_blood = PositiveSmallIntegerField(default=0)
+	rune_cost_frost = PositiveSmallIntegerField(default=0)
+	rune_cost_unholy = PositiveSmallIntegerField(default=0)
+	runic_power_gain = PositiveSmallIntegerField(default=0)
+	description_variables = ForeignKey("SpellDescriptionVariable", null=True, related_name="spell_description_variables")
+	
+	# SpellAuraOptions.dbc
+	stack = PositiveIntegerField()
+	proc_chance = PositiveSmallIntegerField()
+	proc_charges = PositiveIntegerField()
+	proc_type_flags = PositiveIntegerField()
+	
+	# SpellAuraRestrictions.dbc
+	required_caster_aura = PositiveSmallIntegerField()
+	required_target_aura = PositiveSmallIntegerField()
+	excluded_caster_aura = PositiveSmallIntegerField()
+	excluded_target_aura = PositiveSmallIntegerField()
+	required_caster_spell = ForeignKey("Spell", null=True, related_name="spell_required_caster_spell", add_constraint=False)
+	required_target_spell = ForeignKey("Spell", null=True, related_name="spell_required_target_spell", add_constraint=False)
+	excluded_caster_spell = ForeignKey("Spell", null=True, related_name="spell_excluded_caster_spell", add_constraint=False)
+	excluded_target_spell = ForeignKey("Spell", null=True, related_name="spell_excluded_target_spell", add_constraint=False)
+	
+	# SpellCastingRequirements.dbc
+	facing_flags = PositiveSmallIntegerField(default=0)
+	required_faction = ForeignKey("Faction", null=True, related_name="spell_required_faction")
+	required_reputation = SmallIntegerField(choices=choices.REPUTATION_LEVELS)
+	required_area_group_id = SmallIntegerField()
+	required_aura_vision = PositiveSmallIntegerField()
+	required_spell_focus = PositiveSmallIntegerField()
+	
+	# SpellCategories.dbc
+	category = PositiveSmallIntegerField()
+	defense_type = PositiveSmallIntegerField()
+	dispel_type = PositiveSmallIntegerField(choices=choices.DISPEL_TYPES)
+	mechanic = PositiveSmallIntegerField(choices=choices.SPELL_MECHANICS)
+	prevention_type = PositiveSmallIntegerField()
+	recovery_category = PositiveSmallIntegerField()
+	
+	# SpellClassOptions.dbc
+	next_spell = ForeignKey("Spell", null=True, related_name="spell_next_spell", add_constraint=False)
+	spell_class_flags_1 = BigIntegerField()
+	spell_class_flags_2 = BigIntegerField()
+	spell_class_flags_3 = BigIntegerField()
+	spell_class_set = PositiveSmallIntegerField()
+	
+	# SpellCooldowns.dbc
+	cooldown = DurationField()
+	category_cooldown = DurationField()
+	cooldown_start = DurationField()
+	
+	# SpellEquippedItems.dbc
+	required_item_category = PositiveSmallIntegerField(choices=choices.ITEM_CATEGORIES, null=True)
+	required_item_slots = BigIntegerField()
+	required_item_subclasses = BigIntegerField()
+	
+	# SpellInterrupts.dbc
+	aura_interrupt_flags = BigIntegerField()
+	channeling_interrupt_flags = BigIntegerField()
+	interrupt_flags = PositiveSmallIntegerField()
+	
+	# SpellLevels.dbc
+	base_level = PositiveSmallIntegerField()
+	max_level = PositiveSmallIntegerField()
+	level = PositiveSmallIntegerField()
+	
+	# SpellPower.dbc
+	power_amount = IntegerField()
+	power_per_level = PositiveIntegerField()
+	power_percent = PositiveSmallIntegerField()
+	power_per_second = PositiveIntegerField()
+	
+	# SpellShapeshift.dbc
+	required_stances = BigIntegerField(default=0)
+	excluded_stances = BigIntegerField(default=0)
+	
+	# SpellTargetRestrictions.dbc
+	required_target = PositiveIntegerField(default=0)
+	max_targets = PositiveSmallIntegerField()
+	max_target_level = PositiveSmallIntegerField()
+	required_target_type = PositiveIntegerField(default=0)
+	
+	reagents = ManyToManyField("Item", through="SpellReagent", related_name="spell_reagents")
+	required_tools = ManyToManyField(ContentType, through="SpellTool", related_name="spell_required_tools")
+	
+	passive = BooleanField()
+	next_melee = BooleanField()
+	tradespell = BooleanField()
+	usable_while_sitting = BooleanField()
+	not_usable_in_combat = BooleanField()
+	channeled = BooleanField()
+	cannot_be_stolen = BooleanField()
+	no_reagents_during_preparation = BooleanField()
+	
+	created_item = ForeignKey("Item", null=True, blank=True, related_name="spell_createditem")
+	glyph = ForeignKey("Glyph", null=True, blank=True, related_name="spell_glyph")
+	primary_skill = ForeignKey("Skill", null=True, blank=True, related_name="spell_primary_skill") # Helper for skill_spells
+	build = PositiveSmallIntegerField()
+	slug = SlugField()
+	
+	navigation = ("primary_skill", )
+	JSON = ("id", "rank", "level", "get_mechanic_display", "primary_skill_id", "primary_skill", "icon")
+	
+	required_for_achievement = GenericRelation("AchievementCriteria")
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Spell"
+		verbose_name_plural = "Spells"
+		ordering = ("name", "rank")
+	
+	@property
+	def description(self):
+		if not hasattr(self, "__description_cache"):
+			from owdb.spellstrings import SpellString
+			self.__description_cache = SpellString(self.raw_description)
+		return self.__description_cache.format(self, paperdoll=ACTIVE_SPELLS)
+	
+	@property
+	def buff_description(self):
+		return self.raw_buff_description
+	
+	def get_absolute_url(self):
+		return "/s/%i/%s/" % (self.id, self.slug)
+	
+	def get_navigation(self):
+		i = self.primary_skill_id
+		if not i:
+			return [("/spells", "Spells", "spells")]
+		
+		c = self.primary_skill
+		return [("/spells", "Spells", "spells"),
+			("/spells/%i" % (i), c, "spells_%i" % (i))]
+	
+	def get_json(self, rel="", JSON=[]):
+		json = super(SigrieModel, self).get_json(rel, JSON)
+		if rel in ("spell_reagents", "spell_createditem"):
+			json["reagents"] = self.get_reagents_icons()
+		return json
+	
+	def get_conditions(self):
+		from owdb.spellstrings import SpellString
+		spellstring = SpellString(self.raw_description)
+		spellstring.format(self)
+		identifiers = spellstring.get_condition_identifiers()
+		if not identifiers:
+			return "false"
+		ids = {}
+		for identifier in identifiers:
+			char, id = identifier[0], int(identifier[1:])
+			if id not in ids:
+				spell = Spell.objects.get(id=id)
+				ids[id] = {
+					"name": str(spell.name),
+					"icon": str(spell.icon),
+				}
+			ids[id][char] = 1
+		
+		return ids
+	
+	def name_and_rank(self):
+		if not self.rank:
+			return self.__unicode__()
+		return "%s (%s)" % (self.__unicode__(), self.rank)
+	
+	def has_rune_cost(self):
+		return bool(self.rune_cost_blood or self.rune_cost_frost or self.rune_cost_unholy)
+	
+	def get_category(self):
+		qs = self.skillspell_spell.all()[:1]
+		if qs:
+			return qs[0].skill
+	
+	def get_cast_time(self):
+		if self.passive:
+			return ""
+		
+		cast_time = self.cast_time
+		
+		if self.next_melee:
+			return "Next melee"
+		
+		if not cast_time:
+			if self.channeled:
+				return "Channeled"
+			if self.recovery_category == 133: # "global cooldown"
+				return "Instant cast"
+			return "Instant"
+		
+		if cast_time < 0:
+			return "Instant cast" # based on wpn speed
+		
+		return "%s cast" % (extratags.duration_short(cast_time))
+	
+	def get_reagents_icons(self):
+		"""
+		Return an icon display of reagents in HTML:
+		 10x [] 15x [] 1x []
+		Used in listings
+		"""
+		reagents = []
+		if self.tradespell:
+			for item in self.spellreagent_spell.select_related():
+				reagents.append(str("%ix %s" % (item.amount, extratags.icon(item.item, 18))))
+		return " ".join(reagents)
+	
+	def buff_tooltip(self):
+		from ..tooltip import Buff
+		return Buff(self).render({})
+
+class SpellAura(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	internal_name = CharField(max_length=64)
+	name = CharField(max_length=128)
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Spell Aura"
+		verbose_name_plural = "Spell Auras"
+	
+	def get_absolute_url(self):
+		return "/spells/?spelleffectproperty_spell__aura=%i" % (self.id)
+	
+	#def __unicode__(self):
+		#return "#%i - %s" % ((self.id), (self.name or "")+self.internal_name)
+	
+	def smart_unicode(self, effect):
+		#if self.id == 3: # Periodic Damage - 31409
+			#return "%s (%s)" % (self.name, effect.implicit_target_1)
+		#if self.id == 137: # SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE
+			#return "%s (%s)" % (self.name, Stat.objects.get(id=effect.misc_value_1+2)) # 31555
+		return self.__unicode__()
+
+class SpellDescriptionVariable(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	variables = TextField()
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Spell Description Variable"
+		verbose_name_plural = "Spell Description Variables"
+	
+	def __unicode__(self):
+		ret = self.variables
+		if len(ret) > 50:
+			return ret[:45] + "..."
+		return ret
+
+class SpellEffect(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=64)
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Spell Effect"
+		verbose_name_plural = "Spell Effects"
+	
+	#def __unicode__(self):
+		#return "#%i - %s" % ((self.id), self.name or "")
+	
+	def smart_unicode(self, effect):
+		if self.id == 2: # School Damage
+			li = []
+			for school in choices.SCHOOLS:
+				if (school[0])**2 & effect.spell.school_flags:
+					return "%s (%s)" % (self.name, school[1])
+		return self.__unicode__()
+
+class SpellEffectProperty(BaseModel):
+	effect = ForeignKey(SpellEffect, related_name="spelleffectproperty_effect", add_constraint=False)
+	amplitude = FloatField()
+	aura = ForeignKey(SpellAura, related_name="spelleffectproperty_aura", add_constraint=False)
+	aura_interval = DurationField()
+	damage_base = IntegerField()
+	scaling = FloatField()
+	chain_amplitude = FloatField()
+	chain_targets = PositiveSmallIntegerField() # up to 1000
+	die_sides = PositiveIntegerField()
+	type = BigIntegerField() # gfk
+	mechanic = PositiveSmallIntegerField() # choices or FK?
+	misc_value_1 = IntegerField()
+	misc_value_2 = IntegerField()
+	points_combo = PositiveIntegerField()
+	radius_min = FloatField()
+	radius_max = FloatField()
+	dice_real_per_level = IntegerField()
+	class_flags_1 = BigIntegerField()
+	class_flags_2 = BigIntegerField()
+	class_flags_3 = BigIntegerField()
+	trigger_spell = ForeignKey(Spell, null=True, related_name="spelleffectproperty_trigger_spell", add_constraint=False)
+	implicit_target_1 = PositiveSmallIntegerField()
+	implicit_target_2 = PositiveSmallIntegerField()
+	spell = ForeignKey(Spell, related_name="spelleffectproperty_spell")
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+		verbose_name = "Spell Effect Property"
+		verbose_name_plural = "Spell Effect Properties"
+	
+	def __unicode__(self):
+		if self.effect_id in (6, 35): # Apply Aura
+			text = "%s: %s" % (self.effect.smart_unicode(self), self.aura and self.aura.smart_unicode(self) or "Unknown aura #%i" % (self.aura_id))
+			return extratags.url(self.aura, text)
+		return self.effect and self.effect.smart_unicode(self) or "Unknown effect #%i" % (self.effect_id)
+	
+	def get_json(self, rel=""):
+		return self.spell.get_json(rel)
+	
+	def get_value(self):
+		return spelleffect_smart_unicode(self)
+
+class SpellReagent(Model):
+	spell = ForeignKey(Spell, related_name="spellreagent_spell")
+	item = ForeignKey("Item", related_name="spellreagent_item", add_constraint=False)
+	amount = PositiveSmallIntegerField()
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+	
+	def __unicode__(self):
+		return self.item and self.item.__unicode__() or "Unknown item #%i" % self.item_id
+	
+	def get_absolute_url(self):
+		return self.item.get_absolute_url()
+
+class SpellTool(BaseModel):
+	spell = ForeignKey(Spell, related_name="spelltool_spell")
+	content_type = ForeignKey(ContentType)
+	object_id = PositiveIntegerField()
+	tool = GenericForeignKey()
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+	
+	def __unicode__(self):
+		if str(self.content_type) == "item":
+			return self.tool and self.tool.__unicode__() or "Unknown item #%i" % (self.object_id)
+		else:
+			return self.tool.__unicode__()
+	
+	def get_absolute_url(self):
+		return self.tool and self.tool.get_absolute_url() or ""
+	
+	def get_json(self, rel=""):
+		return self.spell.get_json(rel)
+
+
+def spelleffect_smart_unicode(self):
+	from . import Creature, Enchant, ShapeShift, Skill
+	if self.trigger_spell:
+		return self.trigger_spell
+	
+	if self.effect_id in (6, 35): # Apply Aura
+		if self.aura_id == 36: # SPELL_AURA_MOD_SHAPESHIFT
+			return ShapeShift.objects.get(id=self.misc_value_1)
+		
+		if self.aura_id == 56: # Transform
+			return Creature.objects.get(id=self.misc_value_1) or "NPC #%i" % (self.misc_value_1)
+		
+		if self.aura_id == 77: # SPELL_AURA_MECHANIC_IMMUNITY
+			return choices.SPELL_MECHANICS[self.misc_value_1][1]
+		
+		if self.aura_id == 78: # Mounted
+			return Creature.objects.get(id=self.misc_value_1) or "NPC #%i" % (self.misc_value_1)
+		
+		if self.aura_id == 98: # Mod Skill Talent
+			return Skill.objects.get(id=self.misc_value_1)
+		
+		if self.aura_id == 139:
+			from . import Faction
+			return Faction.objects.get(id=self.misc_value_1)
+		
+		return self.misc_value_1
+	
+	if self.effect_id == 5: # Teleport Units
+		return "%i yards" % (self.radius_min)
+	
+	if self.effect_id == 16: # Quest Complete
+		from . import Quest
+		return Quest.objects.get(id=self.misc_value_1)
+	
+	if self.effect_id == 24: # Created item
+		return self.spell.created_item
+	
+	if self.effect_id == 28: # Summon
+		return Creature.objects.get(id=self.misc_value_1) or "NPC #%i" % (self.misc_value_1)
+	
+	if self.effect_id in (53, 54): # Enchant Item Permanent, Enchant Item Temporary
+		return Enchant.objects.get(id=self.misc_value_1)
+	
+	if self.effect_id == 74: # Summon totem
+		return self.glyph
+	#61 - Send Event (we dont have them)
+	
+	#return tuple((k, self.__dict__[k]) for k in self.__dict__ if not k.startswith("_"))
+	min_value = self.damage_base + 1 # 2, 62, 99, 124
+	max_value = self.damage_base + (self.die_sides * self.dice_base)
+	if max_value > min_value:
+		return "%i to %i" % (min_value, max_value)
+	return max_value

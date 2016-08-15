@@ -1,0 +1,24 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+{% if obj.sender %}
+<li><span>From: {{obj.sender|url}}</span></li>
+{% else %}
+<li>N/A</li>
+{% endif %}
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+{% if obj.attachment or obj.money %}
+<h4>Attachments</h4>
+<ul>
+{% if obj.money %}<li>Money: {{obj.money|price}}</li>{% endif %}
+{% if obj.attachment %}<li>{{obj.attachment|iconize}}</li>{% endif %}
+</ul>
+{% endif %}
+
+{% endblock %}

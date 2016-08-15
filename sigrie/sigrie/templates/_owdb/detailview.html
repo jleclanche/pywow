@@ -1,0 +1,42 @@
+{% extends "body.html" %}
+{% load extratags %}
+{% block canonical %}{{ obj.get_absolute_url }}{% endblock %}
+{% block pagetype %}detailview{% endblock %}
+{% block title %}{{obj}} - {{ obj.verbose_name_plural }}{% endblock %}
+{% block content %}
+{% with obj.get_prev_next_by_id as pn %}
+<style type="text/css">
+.pnc:before { content: "{{obj.id}}"; }
+.pn0:before { content: "{{pn.0.id}}"; }
+.pn1:before { content: "{{pn.1.id}}"; }
+</style>
+<div id="dview-content">
+{% block quickfacts %}
+<div id="infobox">
+<h4>{{obj.verbose_name}} #{{obj.id}}</h4>
+{% block quickfactscont %}
+{% endblock %}
+<ul class="pn">
+	{% if pn.0 %}<li class="pn0"><a href="{{pn.0.get_absolute_url}}">{{pn.0|truncate:25}}</a></li>{% endif %}
+	<li class="pnc"><span style="font-weight: bold;">{{ obj|truncate:30 }}</span></li>
+	{% if pn.1 %}<li class="pn1"><a href="{{pn.1.get_absolute_url}}">{{pn.1|truncate:25}}</a></li>{% endif %}
+</ul>
+</div>
+{% endblock %}
+{% endwith %}
+{{obj.screenshots.all|screenshot}}
+
+{% block tooltip %}
+<div id="dview-tooltip">
+{{ obj|tooltip:paperdoll }}
+</div>
+<div style="clear: left; padding-top: 15px;"></div>
+{% endblock %}
+
+{% block subcontent %}
+{% endblock %}
+
+<script type="text/javascript">initTabs()</script>
+
+</div>
+{% endblock %}

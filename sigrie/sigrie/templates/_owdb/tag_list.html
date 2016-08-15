@@ -1,0 +1,8 @@
+{% if obj.tags %}
+<h4>Tags</h4>
+<ul id="taglist">
+{% for tag in obj.tags %}
+<li><a href="/tag/i/{{tag}}">{{ tag }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}

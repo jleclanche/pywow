@@ -1,0 +1,6 @@
+{% for model,r in results.items %}
+var search_results_{{model.sigrie_name}} = [{% for obj in r %}
+	{{ obj.get_json|safe }}{% if not forloop.last %},{% endif %}{% endfor %}
+]
+
+{% endfor %}

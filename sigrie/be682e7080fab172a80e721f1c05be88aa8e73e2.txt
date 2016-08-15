@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, sys
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
+from sigrie.owdb.models import Quest
+from optparse import OptionParser
+
+o = OptionParser()
+o.add_option("-m", "--min", type="int", dest="min", default=0)
+o.add_option("-M", "--max", type="int", dest="max", default=50000)
+o.add_option("--category", type="int", dest="category")
+args = o.parse_args(sys.argv[1:])[0]
+
+
+def filter(all):
+	all = all.filter(id__gt=args.min, id__lt=args.max)
+	
+	if args.category:
+		all = all.filter(category=args.category)
+	
+	return all
+
+def main():
+	all = Quest.objects.order_by("id")
+	all = filter(all)
+	
+	category = "Cataclysm"
+	
+	tpl = """<tr class="vloot2"><td>%(category)s</td><td><a href="%(url)s" target="_blank">%(name)s</a><td>%(objective)s</td></td></tr>\n"""
+	thead = """
+	<table class="sortable" style="border:1px solid #96bc27;margin:auto">
+	<thead>
+		<tr style="background-color:#96BC27;font-weight:bold;cursor:pointer;">
+		<th>Category</th>
+		<th>Name</th>
+		<th>Objective</th>
+	</tr></thead>
+	<tbody>\n"""
+	f = open("allquests.html", "w")
+	f.write(thead)
+	
+	for k in all:
+		d = {
+			"category": "Cataclysm",
+			"name": k.name,
+			"url": "http://db.mmo-champion.com" + k.get_absolute_url(),
+			"objective": k.objective,
+		}
+		f.write(tpl % (d))
+		print k.id, k
+	
+	f.write("</tbody></table>")
+	f.close()
+
+if __name__ == "__main__":
+	main()

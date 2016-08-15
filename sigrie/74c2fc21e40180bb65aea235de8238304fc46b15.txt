@@ -1,0 +1,407 @@
+# -*- coding: utf-8 -*-
+"""
+Disenchanting table lookups
+Values from WoWWiki: http://www.wowwiki.com/Disenchanting_tables
+"""
+
+class RangeDict(dict):
+	"""
+	Dictionary that uses range lookups (by xrange)
+	"""
+	def __getitem__(self, index):
+		if isinstance(index, xrange):
+			return super(RangeDict, self).__getitem__(index)
+		
+		if not isinstance(index, int):
+			raise TypeError("RangeDict indices must be integers, not %r" % (type(index)))
+		
+		for key in self.keys():
+			if index in key:
+				return super(RangeDict, self).__getitem__(key)
+		
+		raise KeyError(index)
+	
+	def __setitem__(self, index, value):
+		if not isinstance(index, xrange):
+			raise TypeError("RangeDict keys should be xrange, not %r" % (type(index)))
+		return super(RangeDict, self).__setitem__(index, value)
+
+
+def setval(d, min, max, val):
+	d[xrange(min, max+1)] = val
+
+LESSER_MAGIC_ESSENCE = 10938
+GREATER_MAGIC_ESSENCE = 10939
+STRANGE_DUST = 10940
+SMALL_GLIMMERING_SHARD = 10978
+LESSER_ASTRAL_ESSENCE = 10998
+GREATER_ASTRAL_ESSENCE = 11082
+SOUL_DUST = 11083
+LARGE_GLIMMERING_SHARD = 11084
+LESSER_MYSTIC_ESSENCE = 11134
+GREATER_MYSTIC_ESSENCE = 11135
+VISION_DUST = 11137
+SMALL_GLOWING_SHARD = 11138
+LARGE_GLOWING_SHARD = 11139
+LESSER_NETHER_ESSENCE = 11174
+GREATER_NETHER_ESSENCE = 11175
+DREAM_DUST = 11176
+SMALL_RADIANT_SHARD = 11177
+LARGE_RADIANT_SHARD = 11178
+SMALL_BRILLIANT_SHARD = 14343
+LARGE_BRILLIANT_SHARD = 14344
+LESSER_ETERNAL_ESSENCE = 16202
+GREATER_ETERNAL_ESSENCE = 16203
+ILLUSION_DUST = 16204
+NEXUS_CRYSTAL = 20725
+ARCANE_DUST = 22445
+GREATER_PLANAR_ESSENCE = 22446
+LESSER_PLANAR_ESSENCE = 22447
+SMALL_PRISMATIC_SHARD = 22448
+LARGE_PRISMATIC_SHARD = 22449
+VOID_CRYSTAL = 22450
+DREAM_SHARD = 34052
+SMALL_DREAM_SHARD = 34053
+INFINITE_DUST = 34054
+GREATER_COSMIC_ESSENCE = 34055
+LESSER_COSMIC_ESSENCE = 34056
+ABYSS_CRYSTAL = 34057
+#TITANIUM_POWDER = 46849
+#ESSENCE_OR_DUST = 49640
+HYPNOTIC_DUST = 52555
+LESSER_CELESTIAL_ESSENCE = 52718
+GREATER_CELESTIAL_ESSENCE = 52719
+SMALL_HEAVENLY_SHARD = 52720
+HEAVENLY_SHARD = 52721
+MAELSTROM_CRYSTAL = 52722
+
+
+
+
+## ARMOR_UNCOMMON
+
+armor_uncommon = RangeDict()
+
+setval(armor_uncommon, 1, 15, ( # XXX 5-15?
+	(STRANGE_DUST, 80, 1, 2),
+	(LESSER_MAGIC_ESSENCE, 20, 1, 2),
+))
+
+setval(armor_uncommon, 16, 20, (
+	(STRANGE_DUST, 75, 2, 3),
+	(GREATER_MAGIC_ESSENCE, 20, 1, 2),
+	(SMALL_GLIMMERING_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 21, 25, (
+	(STRANGE_DUST, 75, 4, 6),
+	(LESSER_ASTRAL_ESSENCE, 15, 1, 2),
+	(SMALL_GLIMMERING_SHARD, 10, 1, 1),
+))
+
+setval(armor_uncommon, 26, 30, (
+	(SOUL_DUST, 75, 1, 2),
+	(GREATER_ASTRAL_ESSENCE, 20, 1, 2),
+	(LARGE_GLIMMERING_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 31, 35, (
+	(SOUL_DUST, 75, 2, 5),
+	(LESSER_MYSTIC_ESSENCE, 20, 1, 2),
+	(SMALL_GLOWING_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 36, 40, (
+	(VISION_DUST, 75, 1, 2),
+	(GREATER_MYSTIC_ESSENCE, 20, 1, 2),
+	(LARGE_GLOWING_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 41, 45, (
+	(VISION_DUST, 75, 2, 5),
+	(LESSER_NETHER_ESSENCE, 20, 1, 2),
+	(SMALL_RADIANT_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 46, 50, (
+	(DREAM_DUST, 75, 1, 2),
+	(GREATER_NETHER_ESSENCE, 20, 1, 2),
+	(LARGE_RADIANT_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 51, 55, (
+	(DREAM_DUST, 75, 2, 5),
+	(LESSER_ETERNAL_ESSENCE, 20, 1, 2),
+	(SMALL_BRILLIANT_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 56, 60, (
+	(ILLUSION_DUST, 75, 1, 2),
+	(GREATER_ETERNAL_ESSENCE, 20, 1, 2),
+	(LARGE_BRILLIANT_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 61, 65, (
+	(ILLUSION_DUST, 75, 2, 5),
+	(GREATER_ETERNAL_ESSENCE, 20, 2, 3),
+	(LARGE_BRILLIANT_SHARD, 5, 1, 1),
+))
+
+setval(armor_uncommon, 66, 79, ( # XXX 79-79?
+	(ARCANE_DUST, 75, 1, 3),
+	(LESSER_PLANAR_ESSENCE, 22, 1, 3),
+	(SMALL_PRISMATIC_SHARD, 3, 1, 1),
+))
+
+setval(armor_uncommon, 80, 99, (
+	(ARCANE_DUST, 75, 2, 3),
+	(LESSER_PLANAR_ESSENCE, 22, 2, 3),
+	(SMALL_PRISMATIC_SHARD, 3, 1, 1),
+))
+
+setval(armor_uncommon, 100, 120, (
+	(ARCANE_DUST, 75, 2, 5),
+	(GREATER_PLANAR_ESSENCE, 22, 1, 2),
+	(LARGE_PRISMATIC_SHARD, 3, 1, 1),
+))
+
+setval(armor_uncommon, 121, 151, ( # XXX 130-151?
+	(INFINITE_DUST, 75, 1, 3),
+	(LESSER_COSMIC_ESSENCE, 22, 1, 2),
+	(SMALL_DREAM_SHARD, 3, 1, 1),
+))
+
+setval(armor_uncommon, 152, 200, (
+	(INFINITE_DUST, 75, 2, 7),
+	(GREATER_COSMIC_ESSENCE, 22, 1, 2),
+	(DREAM_SHARD, 3, 1, 1),
+))
+
+setval(armor_uncommon, 201, 400, ( # FIXME values
+	(INFINITE_DUST, 75, 2, 3),
+	(LESSER_CELESTIAL_ESSENCE, 100, 1, 3),
+))
+
+## END ARMOR_UNCOMMON
+
+## WEAPON_UNCOMMON
+
+weapon_uncommon = RangeDict()
+
+setval(weapon_uncommon, 1, 15, ( # XXX 6-15?
+	(STRANGE_DUST, 20, 1, 2),
+	(LESSER_MAGIC_ESSENCE, 80, 1, 2),
+))
+
+setval(weapon_uncommon, 16, 20, (
+	(STRANGE_DUST, 20, 2, 3),
+	(GREATER_MAGIC_ESSENCE, 75, 1, 2),
+	(SMALL_GLIMMERING_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 21, 25, (
+	(STRANGE_DUST, 15, 4, 6),
+	(LESSER_ASTRAL_ESSENCE, 75, 1, 2),
+	(SMALL_GLIMMERING_SHARD, 10, 1, 1),
+))
+
+setval(weapon_uncommon, 26, 30, (
+	(SOUL_DUST, 20, 1, 2),
+	(GREATER_ASTRAL_ESSENCE, 75, 1, 2),
+	(LARGE_GLIMMERING_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 31, 35, (
+	(SOUL_DUST, 20, 2, 5),
+	(LESSER_MYSTIC_ESSENCE, 75, 1, 2),
+	(SMALL_GLOWING_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 36, 40, (
+	(VISION_DUST, 20, 1, 2),
+	(GREATER_MYSTIC_ESSENCE, 75, 1, 2),
+	(LARGE_GLOWING_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 41, 45, (
+	(VISION_DUST, 20, 2, 5),
+	(LESSER_NETHER_ESSENCE, 75, 1, 2),
+	(SMALL_RADIANT_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 46, 50, (
+	(DREAM_DUST, 20, 1, 2),
+	(GREATER_NETHER_ESSENCE, 75, 1, 2),
+	(LARGE_RADIANT_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 51, 55, (
+	(DREAM_DUST, 20, 2, 5),
+	(LESSER_ETERNAL_ESSENCE, 75, 1, 2),
+	(SMALL_BRILLIANT_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 56, 60, (
+	(ILLUSION_DUST, 20, 1, 2),
+	(GREATER_ETERNAL_ESSENCE, 75, 1, 2),
+	(LARGE_BRILLIANT_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 61, 65, (
+	(ILLUSION_DUST, 20, 2, 5),
+	(GREATER_ETERNAL_ESSENCE, 75, 2, 3),
+	(LARGE_BRILLIANT_SHARD, 5, 1, 1),
+))
+
+setval(weapon_uncommon, 66, 79, (
+	(ARCANE_DUST, 20, 1, 3),
+	(LESSER_PLANAR_ESSENCE, 75, 1, 3),
+	(SMALL_PRISMATIC_SHARD, 3, 1, 1),
+))
+
+setval(weapon_uncommon, 66, 99, ( # XXX 80-99?
+	(ARCANE_DUST, 22, 2, 3),
+	(LESSER_PLANAR_ESSENCE, 75, 2, 3),
+	(SMALL_PRISMATIC_SHARD, 3, 1, 1),
+))
+
+setval(weapon_uncommon, 100, 120, (
+	(ARCANE_DUST, 22, 2, 5),
+	(GREATER_PLANAR_ESSENCE, 75, 1, 2),
+	(LARGE_PRISMATIC_SHARD, 3, 1, 1),
+))
+
+setval(weapon_uncommon, 121, 151, ( # XXX 130-151?
+	(INFINITE_DUST, 22, 1, 2),
+	(LESSER_COSMIC_ESSENCE, 75, 1, 2),
+	(SMALL_DREAM_SHARD, 3, 1, 1),
+))
+
+setval(weapon_uncommon, 152, 200, (
+	(INFINITE_DUST, 22, 3, 7),
+	(GREATER_COSMIC_ESSENCE, 75, 1, 2),
+	(DREAM_SHARD, 3, 1, 1),
+))
+
+setval(weapon_uncommon, 201, 400, ( # FIXME values
+	(INFINITE_DUST, 22, 1, 3),
+	(LESSER_CELESTIAL_ESSENCE, 50, 1, 2),
+))
+
+## END WEAPON_UNCOMMON
+
+## ALL_RARE
+
+all_rare = RangeDict()
+
+setval(all_rare, 1, 25, (
+	(SMALL_GLIMMERING_SHARD, 100, 1, 1),
+))
+
+setval(all_rare, 26, 30, (
+	(LARGE_GLIMMERING_SHARD, 100, 1, 1),
+))
+
+setval(all_rare, 31, 35, (
+	(SMALL_GLOWING_SHARD, 100, 1, 1),
+))
+
+setval(all_rare, 36, 40, (
+	(LARGE_GLOWING_SHARD, 100, 1, 1),
+))
+
+setval(all_rare, 41, 45, (
+	(SMALL_RADIANT_SHARD, 100, 1, 1),
+))
+
+setval(all_rare, 46, 50, (
+	(LARGE_RADIANT_SHARD, 100, 1, 1),
+))
+
+setval(all_rare, 51, 55, (
+	(SMALL_BRILLIANT_SHARD, 100, 1, 1),
+))
+
+setval(all_rare, 56, 65, (
+	(LARGE_BRILLIANT_SHARD, 99.5, 1, 1),
+	(NEXUS_CRYSTAL, 0.5, 1, 1),
+))
+
+setval(all_rare, 66, 99, (
+	(SMALL_PRISMATIC_SHARD, 99.5, 1, 1),
+	(NEXUS_CRYSTAL, 0.5, 1, 1),
+))
+
+setval(all_rare, 100, 115, (
+	(LARGE_PRISMATIC_SHARD, 99.5, 1, 1),
+	(VOID_CRYSTAL, 0.5, 1, 1),
+))
+
+setval(all_rare, 116, 164, ( # XXX 130-164?
+	(SMALL_DREAM_SHARD, 99.5, 1, 1),
+	(ABYSS_CRYSTAL, 0.5, 1, 1),
+))
+
+setval(all_rare, 165, 350, ( # XXX 165+
+	(DREAM_SHARD, 99.5, 1, 1),
+	(ABYSS_CRYSTAL, 0.5, 1, 1),
+))
+
+setval(all_rare, 351, 500, ( # FIXME values
+	(HEAVENLY_SHARD, 100, 1, 1),
+))
+
+## END ALL_RARE
+
+## ALL_EPIC
+
+all_epic = RangeDict()
+
+setval(all_epic, 1, 45, ( # XXX 40-45?
+	(SMALL_RADIANT_SHARD, 100, 2, 4),
+))
+
+setval(all_epic, 46, 50, (
+	(LARGE_RADIANT_SHARD, 100, 2, 4),
+))
+
+setval(all_epic, 51, 55, (
+	(SMALL_BRILLIANT_SHARD, 100, 2, 4),
+))
+
+setval(all_epic, 56, 60, (
+	(NEXUS_CRYSTAL, 100, 1, 1),
+))
+
+setval(all_epic, 61, 80, (
+	(NEXUS_CRYSTAL, 100, 1, 2),
+))
+
+setval(all_epic, 81, 164, ( # XXX 95-100?
+	(VOID_CRYSTAL, 100, 1, 2),
+))
+
+setval(all_epic, 165, 350, ( # XXX 165+
+	(ABYSS_CRYSTAL, 100, 1, 1),
+))
+
+setval(all_epic, 351, 500, ( # FIXME values
+	(MAELSTROM_CRYSTAL, 100, 1, 2),
+))
+
+## END ALL_EPIC
+
+def getDisenchantTable(slot, quality, level):
+	if quality == 4: # epic
+		t = all_epic
+	elif quality == 3: # rare
+		t = all_rare
+	else:
+		if slot in (13, 15, 17, 21, 22, 26): # Weapons
+			t = weapon_uncommon
+		else:
+			t = armor_uncommon
+	
+	return t[level]
+
+del setval

@@ -1,0 +1,32 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><span class="pvp-type-{{obj.pvp}}">{{obj.get_territory_display}}</span></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+{% if obj.map %}
+<h4>Map</h4>
+<div id="map-container"></div>
+<script type="text/javascript">
+{{obj.get_map|safe}}
+</script>
+{% else %}{% if obj.parent_area and obj.parent_area.map %}
+<h4>Map of {{ obj.parent_area|url }}</h4>
+<div id="map-container"></div>
+<script type="text/javascript">
+{{obj.parent_area.get_map|safe}}
+</script>
+{% endif %}
+{% endif %}
+{% sigrielisting ZoneCreatureFound obj %}
+{% sigrielisting ZoneQuest obj.quest_zone %}
+{% sigrielisting ZoneSubzone obj.zone_parent_area %}
+{% sigrielisting ZoneItem obj.item_zone_bind %}
+{% sigrielisting ZoneInstance obj.instance_zone %}
+{% sigrielisting AchievementCriteria obj.required_for_achievement %}
+{% endblock %}

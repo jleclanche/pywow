@@ -1,0 +1,89 @@
+# -*- coding: utf-8 -*-
+from sigrie.owdb import models
+
+urlkeys = {
+	"achievement": models.Achievement,
+	"ach":         models.Achievement,
+	"a":           models.Achievement,
+	
+	"creature":    models.Creature,
+	"npc":         models.Creature,
+	"c":           models.Creature,
+	
+	"enchant":     models.Enchant,
+	"e":           models.Enchant,
+	
+	"encounter":   models.Encounter,
+	
+	"faction":     models.Faction,
+	"f":           models.Faction,
+	
+	"glyph":       models.Glyph,
+	"g":           models.Glyph,
+	
+	"holiday":     models.Holiday,
+	"h":           models.Holiday,
+	
+	"instance":    models.Instance,
+	
+	"item":        models.Item,
+	"i":           models.Item,
+	
+	"itemset":     models.ItemSet,
+	"is":          models.ItemSet,
+	
+	"mail":        models.Mail,
+	
+	"gameobject":  models.Object,
+	"object":      models.Object,
+	"obj":         models.Object,
+	"o":           models.Object,
+	
+	"page":        models.Page,
+	"p":           models.Page,
+	
+	"quest":       models.Quest,
+	"q":           models.Quest,
+	
+	"spell":       models.Spell,
+	"s":           models.Spell,
+	"buff":        models.Spell,
+	
+	"skill":       models.Skill,
+	
+	"talent":      models.Talent,
+	"t":           models.Talent,
+	
+	"zone":        models.Zone,
+	"z":           models.Zone,
+}
+
+urlkeys_plural = {
+	"achievements": models.Achievement,
+	"creatures":    models.Creature,
+	"enchants":     models.Enchant,
+	"encounters":   models.Encounter,
+	"factions":     models.Faction,
+	"glyphs":       models.Glyph,
+	"holidays":     models.Holiday,
+	"instances":    models.Instance,
+	"items":        models.Item,
+	"itemsets":     models.ItemSet,
+	"mails":        models.Mail,
+	"objects":      models.Object,
+	"pages":        models.Page,
+	"quests":       models.Quest,
+	"spells":       models.Spell,
+	"buffs":        models.Spell,
+	"skills":       models.Skill,
+	"talents":      models.Talent,
+	"zones":        models.Zone,
+}
+
+allkeys = urlkeys.copy()
+allkeys.update(urlkeys_plural)
+
+joinedkeys = "|".join(urlkeys.keys() + urlkeys_plural.keys())
+joinedkeys_singular = "|".join(urlkeys.keys())
+
+MODELS = set(urlkeys.values())

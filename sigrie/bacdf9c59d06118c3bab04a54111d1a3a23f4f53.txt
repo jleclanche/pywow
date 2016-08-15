@@ -1,0 +1,172 @@
+# -*- coding: utf-8 -*-
+
+from django.db.models import *
+from sigrie.owdb.durationfield import DurationField
+from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+
+from . import SigrieModel, BaseModel
+from sigrie.owdb import choices
+
+class Quest(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	level = SmallIntegerField()
+	required_level = SmallIntegerField()
+	category = PositiveSmallIntegerField(null=True, blank=True)
+	zone = ForeignKey("Zone", null=True, blank=True, related_name="quest_zone")
+	type = PositiveSmallIntegerField(choices=choices.QUEST_TYPES, null=True, blank=True)
+	suggested_players = PositiveSmallIntegerField()
+	followup = ForeignKey("Quest", null=True, blank=True, related_name="quest_followup", add_constraint=False)
+	required_money = PositiveIntegerField()
+	experience_reward = PositiveIntegerField(default=0)
+	money_reward = PositiveIntegerField()
+	money_reward_cap = PositiveIntegerField()
+	spell_reward = ForeignKey("Spell", null=True, blank=True, related_name="quest_spell_reward", add_constraint=False)
+	spell_trigger = ForeignKey("Spell", null=True, blank=True, related_name="quest_spell_trigger", add_constraint=False)
+	honor_reward_multiplier = FloatField()
+	arena_reward = PositiveIntegerField()
+	skill_reward = ForeignKey("Skill", null=True, blank=True, related_name="quest_skill_reward")
+	skill_points_reward = PositiveSmallIntegerField(default=0)
+	provided_item = ForeignKey("Item", null=True, blank=True, related_name="quest_provided_item")
+	sharable = BooleanField()
+	raid = BooleanField()
+	daily = BooleanField()
+	flags_pvp = BooleanField()
+	weekly = BooleanField()
+	title_reward = ForeignKey("Title", null=True, blank=True, related_name="quest_title_reward", add_constraint=False)
+	required_player_kills = PositiveIntegerField()
+	talents_reward = PositiveIntegerField()
+	items_reward = ManyToManyField("Item", through="QuestRewardItem", related_name="quest_items_reward")
+	reputation_reward = ManyToManyField("Faction", through="QuestRewardFaction", related_name="quest_reputation_reward")
+	name = CharField(max_length=256, blank=True)
+	objective = TextField(blank=True)
+	description = TextField(blank=True)
+	summary = TextField(blank=True)
+	quick_summary = TextField(blank=True)
+	requirements = ManyToManyField(ContentType, through="QuestRequirement", related_name="quest_requirements")
+	quest_items = ManyToManyField("Item", blank=True, related_name="quest_quest_items")
+	npcframe_accept_text = CharField(max_length=256)
+	npcframe_handin_text = CharField(max_length=256)
+	
+	
+	locations = GenericRelation("locations.Node")
+	starts_at_npc = ForeignKey("Creature", related_name="quest_starts_at_npc", null=True, blank=True)
+	starts_at_object = ForeignKey("Object", related_name="quest_starts_at_object", null=True, blank=True)
+	ends_at_npc = ForeignKey("Creature", related_name="quest_ends_at_npc", null=True, blank=True)
+	ends_at_object = ForeignKey("Object", related_name="quest_ends_at_object", null=True, blank=True)
+	timer = DurationField(null=True)
+	
+	build = PositiveSmallIntegerField()
+	slug = SlugField(blank=True)
+	
+	required_for_achievement = GenericRelation("AchievementCriteria")
+	
+	navigation = ("category", )
+	JSON = ("id", "level", "required_level", "category", "zone", "zone_id", "get_type")
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Quest"
+		verbose_name_plural = "Quests"
+		ordering = ("name", "id")
+	
+	def get_absolute_url(self):
+		return "/q/%i/%s/" % (self.id, self.slug)
+	
+	def get_link(self):
+		"Return the ingame item link for js"
+		color = "ffffff00"
+		linkstring = "quest:%i:%i" % (self.id, self.level)
+		content = self.name.replace("'", r"\\\'").replace('"', r'\"')
+		
+		return ",".join("'%s'" % (k) for k in (color, linkstring, content))
+	
+	def get_type(self):
+		ret = []
+		if self.daily:
+			ret.append("Daily")
+		elif self.weekly:
+			ret.append("Weekly")
+		if self.type:
+			ret.append(self.get_type_display())
+		return " ".join(ret)
+	
+	def itemrewards_static(self):
+		return [k for k in self.questrewarditem_quest.iterator() if not k.choice]
+	
+	def itemrewards_choice(self):
+		return [k for k in self.questrewarditem_quest.iterator() if k.choice]
+	
+	def get_honor_points(self, level=choices.LEVEL_CAP):
+		from ..honor import HONOR
+		level = level if level > 0 else choices.LEVEL_CAP
+		return int(HONOR[level].points * self.honor_reward_multiplier) / 10
+	
+	def get_difficulty_html(self):
+		html = '<span class="%s">%i</span>'
+		
+		if self.level == -1: # level -1 is always yellow
+			return " .. ".join([html % ("d2", 1), html % ("d2", choices.LEVEL_CAP)])
+		
+		red = max(0, self.level - 5)
+		orange = max(0, self.level - 4)
+		yellow = max(0, self.level - 2)
+		green = self.level + 3
+		grey = self.level + 7
+		li = ((red, "d4"), (orange, "d3"), (yellow, "d2"), (green, "d1"), (grey, "d0"))
+		return " ".join(html % (k[1], k[0]) for k in li if k[0])
+
+class QuestRequirement(BaseModel):
+	quest = ForeignKey(Quest, related_name="questrequirement_quest")
+	content_type = ForeignKey(ContentType)
+	object_id = PositiveIntegerField()
+	requirement = GenericForeignKey()
+	amount = IntegerField()
+	text = CharField(max_length=256, blank=True)
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+	
+	def __unicode__(self):
+		if self.text:
+			return self.text
+		if str(self.content_type) == "creature":
+			return self.requirement and self.requirement.__unicode__() or "Unknown creature #%i" % (self.object_id)
+		if str(self.content_type) == "item":
+			return self.requirement and self.requirement.__unicode__() or "Unknown item #%i" % (self.object_id)
+		if str(self.content_type) == "faction":
+			return self.requirement.__unicode__()
+		return self.content_type.__unicode__()
+	
+	def get_absolute_url(self):
+		return self.requirement and self.requirement.get_absolute_url() or ""
+	
+	def get_json(self, rel=""):
+		return self.quest.get_json(rel)
+
+class QuestRewardItem(BaseModel):
+	quest = ForeignKey(Quest, related_name="questrewarditem_quest")
+	item = ForeignKey("Item", related_name="questrewarditem_item")
+	amount = SmallIntegerField()
+	choice = BooleanField()
+	
+	def __unicode__(self):
+		return self.item.__unicode__()
+	
+	def get_json(self, rel=""):
+		return self.quest.get_json(rel)
+
+class QuestRewardFaction(BaseModel):
+	quest = ForeignKey(Quest, related_name="questrewardfaction_quest")
+	faction = ForeignKey("Faction", related_name="questrewardfaction_faction")
+	amount = IntegerField()
+	
+	def __unicode__(self):
+		return self.faction.__unicode__()
+	
+	def get_json(self, rel=""):
+		if rel == "questrewardfaction_quest":
+			return self.quest.get_json(rel)
+		return self.faction.get_json(rel)

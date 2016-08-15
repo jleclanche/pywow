@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+import os
+import sys
+os.environ["DJANGO_SETTINGS_MODULE"] = "sigrie.settings"
+sys.path.append("../sigrie/")
+
+def main():
+	from sigrie.owdb.models import Glyph
+	glyphs = Glyph.objects.all().exclude(spell__build__lt=12857)
+	tpl = "[url=http://db.mmo-champion.com%s]%s[/url] - %s"
+	def printlist(glyphs):
+		for glyph in glyphs:
+			if glyph.spell:
+				print tpl % (glyph.get_absolute_url(), glyph.name, glyph.spell.description)
+	
+	print "Prime glyphs"
+	printlist(glyphs.filter(flags=2))
+	print "Major glyphs"
+	printlist(glyphs.filter(flags=0))
+	print "Minor glyphs"
+	printlist(glyphs.filter(flags=1))
+
+if __name__ == "__main__":
+	main()

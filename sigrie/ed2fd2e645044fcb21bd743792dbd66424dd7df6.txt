@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+
+"""
+Enchant condition engine for meta gem tooltips.
+"""
+
+ENCHANT_CONDITION_AND = " and "
+ENCHANT_CONDITION_EQUAL_COMPARE = "an equal number of %s and %s gems"
+ENCHANT_CONDITION_EQUAL_VALUE = "exactly %d %s gem"
+ENCHANT_CONDITION_EQUAL_VALUE_P1 = "exactly %d %s gems"
+ENCHANT_CONDITION_LESS_VALUE = "less than %d %s gem"
+ENCHANT_CONDITION_LESS_VALUE_P1 = "less than %d %s gems"
+ENCHANT_CONDITION_MORE_COMPARE = "more %s gems than %s gems"
+ENCHANT_CONDITION_MORE_EQUAL_COMPARE = "at least as many %s gems as %s gems"
+ENCHANT_CONDITION_MORE_VALUE = "at least %d %s gem"
+ENCHANT_CONDITION_MORE_VALUE_P1 = "at least %d %s gems"
+ENCHANT_CONDITION_NOT_EQUAL_COMPARE = "a different number of %s and %s gems"
+ENCHANT_CONDITION_NOT_EQUAL_VALUE = "any number but %d %s gem"
+ENCHANT_CONDITION_NOT_EQUAL_VALUE_P1 = "any number but %d %s gems"
+ENCHANT_CONDITION_REQUIRES = "Requires "
+
+
+def conditionToString(obj):
+	comparator = ""
+	if obj.comparator == 2:
+		comparator = ENCHANT_CONDITION_MORE_COMPARE
+		if obj.value > 1:
+			comparator = ENCHANT_CONDITION_MORE_COMPARE_P1
+		comparator = comparator % (obj.get_compare_color_display(), obj.get_gem_color_display())
+	
+	if obj.comparator == 3:
+		comparator = ENCHANT_CONDITION_MORE_COMPARE
+		if obj.value > 1:
+			comparator = ENCHANT_CONDITION_MORE_COMPARE_P1
+		comparator = comparator % (obj.get_gem_color_display(), obj.get_compare_color_display())
+	
+	elif obj.comparator == 5:
+		comparator = ENCHANT_CONDITION_MORE_VALUE
+		if obj.value > 1:
+			comparator = ENCHANT_CONDITION_MORE_VALUE_P1
+		comparator = comparator % (obj.value, obj.get_gem_color_display())
+	
+	return ENCHANT_CONDITION_REQUIRES + comparator

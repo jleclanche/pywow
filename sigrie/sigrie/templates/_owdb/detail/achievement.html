@@ -1,0 +1,26 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+{% if obj.points %}<li><span>{{obj.points}} points</span></li>{% endif %}
+<li><a href="javascript:showLinkRaw('GetAchievementLink({{obj.id}})')">Link it ingame</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+{% if obj.reward %}<h3>Reward</h3>
+<p>{{obj.reward}}</p>
+{% endif %}
+
+{% if obj.parent or obj.achievement_parent.count %}
+<h4>Follow-up</h4>
+<ul id="da-followup">
+	{% if obj.parent %}<li class="da-fbefore"> « {{ obj.parent|iconize }}</li>{% endif %}
+	<li class="da-fcurrent">…{{obj|icon:16}} {{ obj }}</li>
+	{% for achievement in obj.achievement_parent.iterator %}<li class="da-fafter"> » {{ achievement|iconize }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+{% sigrielisting AchievementCriteria obj.required_for_achievement %}
+{% endblock %}

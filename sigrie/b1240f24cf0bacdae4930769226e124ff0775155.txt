@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block pagetype %}index{% endblock %}
+{% block body %}
+<div id="index-content">
+<div id="logo"><h1>Sigrie</h1><a href="/"> </a></div>
+<form action="/search/" method="get" class="searchform" onsubmit="var s=trim(this.elements[0].value);this.elements[0].value=s;return s.length>0">
+<div>
+	<input id="index-searchbar" class="search" type="text" size="45" name="q" value="{{query}}"/>
+</div>
+</form>
+<script type="text/javascript">document.getElementById("index-searchbar").focus();</script>
+<p id="index-navigation">
+	<a class="sitenav-master" href="/items" rel="items">Items &rsaquo;</a> |
+	<a class="sitenav-master" href="/achievements" rel="achievements">Achievements &rsaquo;</a> |
+	<a class="sitenav-master" href="/creatures" rel="creatures">Creatures &rsaquo;</a> |
+	<a class="sitenav-master" href="/quests" rel="quests">Quests &rsaquo;</a> |
+	<a class="sitenav-master" href="/spells" rel="spells">Spells &rsaquo;</a> |
+	<a class="sitenav-master" href="javascript:;" rel="index_more" style="cursor:default;">More &rsaquo;</a>
+</div>
+</p>
+{% endblock %}

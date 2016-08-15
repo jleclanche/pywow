@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
+def main():
+	import sys
+	from pywow import wdbc
+
+	fname = sys.argv[1]
+	build = sys.argv[2]
+	separator = ","
+	
+	f = wdbc.get(fname, build=int(build))
+	print separator.join(f.structure.column_names)
+	for row in f.rows():
+		r = [repr(str(k)) for k in row]
+		print separator.join(r)
+
+if __name__ == "__main__":
+	main()

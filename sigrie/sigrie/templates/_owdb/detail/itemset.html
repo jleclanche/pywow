@@ -1,0 +1,21 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><a href="http://www.wowdb.com/itemset.aspx?id={{obj.id}}">WoWDB</a></li>
+<li><a href="http://wowhead.com/?itemset={{obj.id}}">Wowhead</a></li>
+<li><a href="http://thottbot.com/set{{obj.id}}">Thottbot</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+{% if obj.additional_items %}
+<h4>Also part of this set</h4>
+<ul>{% for item in obj.additional_items %}
+<li>{{ item|url }}</li>
+{% endfor %}</ul>
+{% endif %}
+
+{% endblock %}

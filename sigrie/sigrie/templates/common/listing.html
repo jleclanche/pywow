@@ -1,0 +1,30 @@
+{% extends "body.html" %}
+{% block pagetype %}listview{% endblock %}
+
+{% block content %}
+{% block subcontent %}
+<div id="filterbox" searchtype="{{type}}">
+<div id="filters"></div>
+</div>
+
+<div id="tab" class="tabview">
+<div class="tabbar">
+{% for cls, queryset in results.items %}
+	<div id="tab_{{cls.sigrie_name}}" class="tabbutton{% if forloop.first %} selected{% endif %}">{{cls}} ({{queryset.count|default:500}})</div>
+{% endfor %}
+</div>
+{% for cls in results %}
+	<div id="tab_{{cls.sigrie_name}}_content" class="tabcontent" style="display: none;">
+		<div class="tableview-container">
+			<input id= "search_results_{{cls.sigrie_name}}-searchbox" type="text" name="itemname" class="tableview-refine"/>
+			<div class="tableview-pagewidget"></div>
+			<table class="sorttable" name="search_results_{{cls.sigrie_name}}" id="search_results_{{cls.sigrie_name}}" template="sorttable_template_{{cls.sigrie_name}}">
+			</table>
+			<div class="tableview-pagewidget"></div>
+		</div>
+	</div>
+{% endfor %}
+</div>
+
+{% endblock %}
+{% endblock %}

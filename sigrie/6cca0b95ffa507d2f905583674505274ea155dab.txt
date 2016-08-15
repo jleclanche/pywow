@@ -1,0 +1,4 @@
+[paths]
+default = ssh://hg@68.64.47.106/sites/db.mmo-champion
+[git]
+intree = true

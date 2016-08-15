@@ -1,0 +1,743 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import datetime
+import json
+import os
+import re
+import wdbc
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
+from sigrie.owdb import models
+from sigrie.locations.models import Node
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import MultipleObjectsReturned
+from termcolor import colored
+
+js = open("json", "r")
+d = json.loads(js.read())
+js.close()
+
+ID_ARENAPOINTS = 43307
+ID_HONORPOINTS = 43308
+
+BUILD = d["build"]
+CLASS = d["class"]
+
+NPC_TYPES = {
+	"mailbox":         0x00001,
+	"auctioneer":      0x00002,
+	"battlemaster":    0x00004,
+	"innkeeper":       0x00008,
+	"banker":          0x00010,
+	"can_repair":      0x00020,
+	"flightmaster":    0x00080,
+	"stable_master":   0x00100,
+	"tabard":          0x00200,
+	"vendor":          0x00400,
+	"trainer":         0x00800,
+	"spirit_healer":   0x01000,
+	"talent_wipe":     0x04000,
+	"arena_organizer": 0x08000,
+	"petition":        0x10000,
+}
+
+REQUIRED_SPELL_LOOKUPS = {
+	"Defensive Stance":       71,
+	"Tame Beast":             1515,
+	"Berserker Stance":       2458,
+	"Blood Strike (Rank 1)":  45902,
+	"Icy Touch (Rank 1)":     52372,
+	#"Frost Strike (Rank 1)": 49143,
+	"Death Coil (Rank 1)":    47541,
+	"Plague Strike (Rank 1)": 52373,
+}
+
+COORDS_BLACKLIST = [
+	19644, # Image of Archmage Vargoth
+	25305, # Dancing Flames
+	27881, # Wintergrasp Catapult
+	27882, # Brew Bubble
+	30481, # Darkmoon Fortune Teller
+	32638, # Hakmud of Argus
+	32639, # Gnimo
+	32641, # Drix Blackwrench
+	32642, # Mojodishu
+	35642, # Jeeves
+	35646, # Wormhole
+]
+
+ARENA_POINTS = 43307
+HONOR_POINTS = 43308
+
+class BadData(Exception):
+	pass
+
+def WARN(txt, color="red"):
+	print colored("WARN: " + txt, color)
+
+def guid_to_id(GUID, build):
+	if 10505 < build < 11159:
+		shift_by = 32
+	else:
+		shift_by = 24
+	return (GUID >> shift_by) & 0xFFFFF
+
+
+def do_solditems():
+	if "npcs" not in d:
+		return
+	for key in d["npcs"]:
+		table = d["npcs"][key]
+		for id in table:
+			npc = table[id]
+			if not id.isdigit():
+				continue
+			id = int(id)
+			sigrie_npc = models.Creature.objects.get(id=id)
+			if not sigrie_npc:
+				WARN("Skipped #%i because it was not found in the database" % (id))
+				raw_input()
+			npc_info = npc.get("info", {})
+			
+			if not isinstance(npc_info, dict):
+				continue
+			
+			if "sold" not in npc:
+				continue
+			
+			for sold in npc["sold"]:
+				sigrie_item = models.Item.objects.get(id=int(sold["id"]))
+				if not sigrie_item:
+					WARN("Item #%r not found!" % (int(sold["id"])))
+					raw_input()
+					continue
+				
+				qs = models.SoldItem.objects.filter(vendor=sigrie_npc, item=sigrie_item)
+				if not "itemCost" in sold:
+					sold["itemCost"] = {}
+				
+				extended_cost = dict(sold["itemCost"])
+				
+				#preprocess honor/arena pts
+				if sold.get("honor"):
+					extended_cost[HONOR_POINTS] = sold["honor"]
+				if sold.get("arena"):
+					extended_cost[ARENA_POINTS] = sold["arena"]
+				
+				for i in extended_cost:
+					item, amount = int(i), extended_cost[i]
+					qs = qs.filter(itemextendedcost_sold_item__item_id=item, itemextendedcost_sold_item__amount=amount)
+				sigrie_solditem = qs.get()
+				
+				bracket = sold.get("bracket", 0)
+				rating = sold.get("rating", 0)
+				limited_quantity = sold.get("limitedQuantity", None)
+				if limited_quantity == 0:
+					continue # This isn't supposed to happen, as -1 defines unlimited and 0 "out of stock"
+				else:
+					limited_quantity = 0
+				
+				if not sigrie_solditem:
+					sigrie_solditem = models.SoldItem(
+						vendor = sigrie_npc,
+						item = sigrie_item,
+						limited_quantity = limited_quantity,
+						stack = sold["quantity"],
+						bracket = bracket,
+						rating = rating,
+					)
+					sigrie_solditem.save()
+					
+					if bracket or rating:
+						sigrie_item.required_arena_rating = rating
+						sigrie_item.required_arena_bracket = bracket
+						sigrie_item.save()
+					
+					for item_id in extended_cost:
+						amount = extended_cost[item_id]
+						q = models.ItemExtendedCost(sold_item=sigrie_solditem, item_id=int(item_id), amount=amount)
+						q.save()
+					
+					print colored("Adding sold item %s" % (sigrie_solditem), "green")
+				else:
+					pass # TODO update stuff here
+
+
+def coordlist(list):
+	"""
+	Helper to split lists of coords
+	into lists of lists of coords
+	"""
+	items = len(list)
+	i = 0
+	ret = []
+	while i < items:
+		ret.append(list[i:i+5])
+		i += 5
+	return ret
+
+def coordsToArea(key, x, y, zone, floor):
+	zone = zone.lower()
+	
+	if zone in ("azeroth", "kalimdor", "northrend"):
+		WARN("Skipped location %r %r %r %r, bad data" % (x, y, zone, floor))
+		raise BadData()
+	
+	if zone == "theargentcoliseum": # theargentcoliseum map is shared
+		if key.startswith("party:5:"):
+			zone = models.Zone.objects.get(id=4723)
+		elif key.startswith("raid:"):
+			zone = models.Zone.objects.get(id=4722)
+	
+	else:
+		if (x, y) == (0, 0): # then floor == wmoareatable_zone
+			zones = models.Zone.objects.filter(name__iexact=zone, map="")
+			if zones.count() > 1:
+				if floor:
+					_zones = zones.filter(zone_parent_area__name=floor).distinct()
+					if _zones.count() == 1:
+						zones = _zones
+					else:
+						_zones = zones.filter(wmoareatable_zone__name=floor).distinct()
+						if _zones.count() == 1:
+							zones = _zones
+						else:
+							zones = zones.filter(parent_area=None)
+				else:
+					zones = zones.filter(parent_area=None)
+			zone = zones.get(name__iexact=zone)
+		
+		else:
+			zone = models.Zone.objects.get(map=zone)
+	return zone
+
+
+def record_loot(obj, item, model, id, group_size, heroic_level, loot_type):
+	count = obj["looted"]
+	amount_min = obj["minStack"]
+	amount_max = obj["maxStack"]
+	loot = models.Loot.objects.get(
+		content_type = model,
+		object_id = id,
+		item_id = item,
+		group_size = group_size,
+		heroic_level = heroic_level,
+		loot_type = loot_type,
+	)
+	if loot:
+		loot.count += count
+		loot.amount_min = min(amount_min, loot.amount_min)
+		loot.amount_max = min(amount_max, loot.amount_max)
+	
+	else:
+		loot = models.Loot(
+			content_type = model,
+			object_id = id,
+			item_id = item,
+			amount_min = amount_min,
+			amount_max = amount_max,
+			count = count,
+			group_size = group_size,
+			heroic_level = heroic_level, # 0 or 1
+			loot_type = loot_type,
+		)
+		print colored(loot, "green")
+	loot.save()
+
+def record_coords(obj, model, id, key):
+	for (x, y, zone, floor, count) in coordlist(obj.get("coords", [])):
+		if x > 100 or y > 100 or x < 0 or y < 0:
+			WARN("Skipped recording (%r, %r, %r, %r, %r): bad data" % (x, y, zone, floor, count))
+			continue
+		try:
+			zone = coordsToArea(key, x, y, zone, floor)
+		except BadData:
+			continue
+		
+		if not zone:
+			WARN("????? zone %r %r" % (obj["coords"], zone))
+			raw_input()
+			return
+		
+		if isinstance(floor, basestring):
+			floor = 0
+		
+		nodes = Node.objects.filter(
+			content_type = model,
+			object_id = id,
+			zone = zone,
+			x__gt = x-0.2,
+			x__lt = x+0.2,
+			y__gt = y-0.2,
+			y__lt = y+0.2,
+			floor = floor,
+		)[:1]
+		
+		if nodes:
+			node = nodes[0]
+			node.seen_count += count
+			node.save()
+		else:
+			node = Node(content_type=model, object_id=id, zone=zone, x=x, y=y, floor=floor, seen_count=count)
+			node.save()
+
+
+def getSkillRequiredSpell(k, required_skill):
+	if k in REQUIRED_SPELL_LOOKUPS:
+		k = REQUIRED_SPELL_LOOKUPS[k]
+	
+	if isinstance(k, int):
+		return models.Spell.objects.get(id=k)
+	
+	required_spell = None
+	_required_spell = models.Spell.objects.filter(name=k)
+	
+	if _required_spell.count() > 1:
+		_required_spell = _required_spell.exclude(description="")
+	
+	required_spell = _required_spell.get()
+	if not required_spell and k.endswith(")"): # (Rank 3)
+		name, rank = re.match(r"(.+) \((.+)\)", k).groups()
+		_required_spell = models.Spell.objects.filter(name=name, rank=rank)
+		
+		if _required_spell.count() > 1:
+			_required_spell = _required_spell.filter(skill_spells__gt=1)
+		
+		if _required_spell.count() > 1:
+			_required_spell = _required_spell.exclude(description="")
+		
+		if _required_spell.count() > 1 and not required_skill: # class trainer
+			_required_spell = _required_spell.filter(
+				models.Q(power_amount__gt=0) |
+				models.Q(mana_cost_percent__gt=0) |
+				models.Q(rune_cost_unholy__gt=0) |
+				models.Q(rune_cost_frost__gt=0) |
+				models.Q(rune_cost_blood__gt=0)
+			)
+		
+		if _required_spell.count() > 1:
+			print _required_spell
+			print k
+		
+		required_spell = _required_spell.get()
+	return required_spell
+
+
+def update_wealth(sigrie_obj, table):
+	for coin in table.get("coin", {}):
+		mod = False
+		if coin > sigrie_obj.wealth_max:
+			sigrie_obj.wealth_max = coin
+			mod = True
+		if coin < sigrie_obj.wealth_min or (not sigrie_obj.wealth_min):
+			sigrie_obj.wealth_min = coin
+			mod = True
+		if mod:
+			sigrie_obj.save()
+
+def do_npcs():
+	if "npcs" not in d:
+		return
+	creature_ctype = ContentType.objects.get_for_model(models.Creature)
+	for key in d["npcs"]:
+		table = d["npcs"][key]
+		for id in table:
+			if not id.isdigit():
+				WARN("Skipping npc %r (id.isdigit() == false)" % (id))
+				continue
+			npc = table[id]
+			id = int(id)
+			sigrie_npc = models.Creature.objects.get(id=id)
+			if not sigrie_npc:
+				WARN("Skipped #%i because it was not found in the database" % (id))
+				raw_input()
+			npc_info = npc.get("info", {})
+			
+			if not isinstance(npc_info, dict):
+				continue
+			
+			try:
+				name = npc_info["name"]
+			except KeyError:
+				WARN("Skipped #%i %r because of the lack of name" % (id, npc))
+				continue
+			
+			if name != sigrie_npc.name:
+				WARN("%r != %r - skipped" % (name, sigrie_npc.name))
+			
+			print colored("#%i - %s" % (id, name), "green")
+			
+			heroic = key.endswith("heroic")
+			group_size = 0
+			if key != "world":
+				type, group_size, mode = key.split(":")
+			
+			SPELLS = {}
+			for k in npc.get("spells", {}):
+				SPELLS[k] = False
+			for k in npc.get("auras", {}):
+				SPELLS[k] = True
+			
+			for spell_id in SPELLS:
+				creaturespell = models.CreatureSpell.objects.get(
+					creature = sigrie_npc,
+					spell_id = spell_id,
+					group_size = group_size,
+					heroic_level = int(heroic),
+				)
+				if not creaturespell:
+					creaturespell = models.CreatureSpell(
+						creature = sigrie_npc,
+						spell_id = spell_id,
+						aura = SPELLS[spell_id],
+						group_size = group_size,
+						heroic_level = int(heroic),
+					)
+					creaturespell.save()
+					print colored("Saved %s" % (creaturespell), "green")
+				elif not SPELLS[spell_id] and creaturespell.aura:
+					creaturespell.aura = False
+					creaturespell.save()
+			
+			looted_items = npc.get("loot", {})
+			looted_count = npc.get("looted", 0)
+			if (looted_items and not looted_count) or (looted_count and ((not looted_items) and (not npc.get("coin")))):
+				WARN("Skipped #%i %r because its loot doesn't make sense" % (id, npc))
+				continue
+			elif looted_count:
+				for item in npc.get("loot", {}):
+					record_loot(npc["loot"][item], item, model=creature_ctype, id=id, group_size=group_size, heroic_level=int(heroic), loot_type=0)
+				
+				if heroic:
+					sigrie_npc.looted_count_heroic += looted_count
+				else:
+					sigrie_npc.looted_count += looted_count
+				sigrie_npc.save()
+			
+			update_wealth(sigrie_npc, table)
+			
+			for spell in npc.get("teaches", {}):
+				required_level = spell["levelReq"]
+				required_skill_level = spell["skillLevelReq"]
+				price = spell["price"]
+				trained_spell = models.Spell.objects.get(id=spell["id"])
+				if not trained_spell:
+					raise ValueError(spell)
+				
+				sigrie_trainedspell = models.TrainedSpell.objects.get(trainer=sigrie_npc, spell=trained_spell)
+				if not sigrie_trainedspell:
+					required_skill = None
+					if "skillReq" in spell:
+						required_skill = models.Skill.objects.get(name=spell["skillReq"])
+						if not required_skill:
+							raise ValueError(spell)
+					
+					required_spells = []
+					for k in spell.get("abilityRequirements", []):
+						required_spell = getSkillRequiredSpell(k, required_skill)
+						if not required_spell:
+							raise ValueError(spell)
+						required_spells.append(required_spell)
+					
+					sigrie_trainedspell = models.TrainedSpell(
+						trainer = sigrie_npc,
+						spell = trained_spell,
+						required_level = required_level,
+						required_skill = required_skill,
+						required_skill_level = required_skill_level,
+						price = price
+					)
+					sigrie_trainedspell.save()
+					sigrie_trainedspell.required_spells = required_spells
+					print colored("Adding trained spell %s" % (sigrie_trainedspell), "green")
+				else:
+					if price > sigrie_trainedspell.price:
+						sigrie_trainedspell.price = price
+						sigrie_trainedspell.save()
+					if required_level > sigrie_trainedspell.required_level:
+						sigrie_trainedspell.required_level = required_level
+						sigrie_trainedspell.save()
+				
+			if id in COORDS_BLACKLIST:
+				WARN("Skipped recording coords (blacklisted)", color="yellow")
+			else:
+				record_coords(npc, model=creature_ctype, id=id, key=key)
+			
+			for info in npc.get("info", {}):
+				
+				if info.isdigit() or info == "-1" or info == "-2": # level data
+					level = int(info)
+					if level == -1: # TODO check boss
+						level = 0
+					elif level == -2: # HACK for json tables
+						level = 1
+					elif not level or level < -2 or level > 83:
+						WARN("Bad data! Private server? level %r" % (level))
+						raw_input()
+						continue
+					
+					level_data = models.CreatureLevelData.objects.get(
+						creature = sigrie_npc,
+						level = level,
+						group_size = group_size,
+						heroic_level = int(heroic),
+					)
+					if level_data:
+						continue
+					else:
+						health = npc_info[info]["maxHealth"]
+						power = npc_info[info]["maxPower"]
+						power_type = npc_info[info]["powerType"]
+						
+						sigrie_npc.power_type = power_type
+						sigrie_npc.save()
+						
+						level_data = models.CreatureLevelData(
+							creature = sigrie_npc,
+							level = level,
+							group_size = group_size,
+							heroic_level = int(heroic),
+							health = health,
+							power = power,
+						)
+						level_data.save()
+						
+						print colored("Recording %s (%i health, %i power)" % (level_data, health, power), "green")
+						continue
+				
+				if info == "name":
+					pass
+				
+				elif info == "noPockets":
+					sigrie_npc.no_pockets = True
+					sigrie_npc.save()
+				
+				elif info == "taxiNode":
+					taxi = npc["info"]["taxiNode"]
+					try:
+						taxi = models.TaxiNode.objects.get(name=taxi)
+					except MultipleObjectsReturned, e:
+						WARN("Skipped %r because of multiple objects returned" % (taxi))
+						continue
+					if sigrie_npc.flight_path_id is not None and sigrie_npc.flight_path_id != taxi.id:
+						WARN("Skipped %r->%r flight path update" % (sigrie_npc.flight_path, taxi))
+						continue
+					sigrie_npc.flight_path = taxi
+					sigrie_npc.save()
+				
+				elif info == "reputation":
+					rep = npc["info"]["reputation"]
+					faction = models.Faction.objects.get(name=rep["faction"])
+					if not faction:
+						WARN("Skipped rep gain of %r because the faction %r was not found" % (rep["amount"], faction))
+					print "\t", faction, "%+i" % (rep["amount"])
+				
+				elif info == "greeting":
+					greeting = npc["info"]["greeting"]
+					if greeting:
+						orig = sigrie_npc.trainer_greeting
+						if orig and orig != greeting:
+							WARN("Skipped %r -> %r update" % (orig, greeting))
+							continue
+						sigrie_npc.trainer_greeting = greeting
+						sigrie_npc.save()
+				
+				elif info == "reaction":
+					pass
+				
+				elif info == "bitType":
+					mask = npc["info"]["bitType"]
+					for k in NPC_TYPES:
+						if mask & NPC_TYPES[k]:
+							setattr(sigrie_npc, k, True)
+							sigrie_npc.save()
+				
+				elif info == "battlefields":
+					orig = sigrie_npc.battlemaster_id
+					battlefields = npc["info"]["battlefields"]
+					if orig is not None and orig != battlefields:
+						WARN("Skipped battlefield update on %r->%r" % (orig, battlefields))
+						continue
+					if not orig:
+						sigrie_npc.battlemaster_id = battlefields
+						sigrie_npc.save()
+				
+				elif info == "pvp":
+					sigrie_npc.pvp = True
+					sigrie_npc.save()
+				
+				elif info == "factionGroup":
+					faction_group = npc["info"]["factionGroup"]
+					try:
+						sigrie_npc.faction_group = {"Horde": 0, "Alliance": 1}[faction_group]
+					except KeyError:
+						WARN("%r not a faction group" % (faction_group))
+						raw_input()
+						continue
+					sigrie_npc.save()
+				
+				elif info == "faction":
+					faction = npc["info"]["faction"]
+					sigrie_faction = models.Faction.objects.get(name=faction)
+					if not sigrie_faction:
+						WARN("Faction %r not found in the database")
+						raw_input()
+						continue
+					sigrie_npc.faction = sigrie_faction
+					sigrie_npc.save()
+				
+				else:
+					print "info", info, id, npc
+					raw_input(npc["info"][info])
+
+def stringToID(id, model):
+	if not id.isdigit():
+		try:
+			sigrie_object = model.objects.get(name=id)
+		except MultipleObjectsReturned:
+			raise BadData("Multiple %s(name=%r) in database" % (model.__name__, id))
+	else:
+		id = int(id)
+		sigrie_object = model.objects.get(pk=id)
+	
+	if not sigrie_object:
+		raise BadData("%s %r not in database" % (model.__name__, id))
+	
+	return sigrie_object, sigrie_object.pk
+
+def do_objects():
+	if "objects" not in d:
+		return
+	object_ctype = ContentType.objects.get_for_model(models.Object)
+	for key in d["objects"]:
+		table = d["objects"][key]
+		for id in table:
+			obj = table[id]
+			
+			try:
+				sigrie_object, id = stringToID(id, models.Object)
+			except BadData, e:
+				WARN("Skipping object: %s" % (e))
+				continue
+			
+			if not sigrie_object:
+				WARN("Skipped #%i because it was not found in the database" % (id))
+				raw_input()
+			
+			if -id in COORDS_BLACKLIST:
+				WARN("Skipped recording coords (blacklisted)", color="yellow")
+			else:
+				print colored("Recording coords for %r" % (sigrie_object), "green")
+				record_coords(obj, model=object_ctype, id=id, key=key)
+
+
+def do_quests():
+	if "quests" not in d:
+		return
+	count = Node.objects.count()
+	for id in d["quests"]:
+		table = d["quests"][id]
+		if not id.isdigit():
+			WARN("Quest name lookups disabled")
+			continue
+		if table:
+			try:
+				sigrie_quest, id = stringToID(id, models.Quest)
+			except BadData, e:
+				WARN("Skipping quest: %s" % (e))
+				continue
+			
+			poi = table.get("poi", [])
+			for (x, y, poi_id, floor, zone) in coordlist(poi):
+				node = Node.objects.get_or_create(
+					x=x, y=y,
+					zone=models.WorldMap.objects.get(name=zone).area,
+					floor=floor,
+					quest_poi_id=poi_id,
+					content_type=ContentType.objects.get_for_model(models.Quest),
+					object_id=id,
+				)
+			
+			startsID = table.get("startsID")
+			endsID = table.get("endsID")
+			if startsID:
+				# starts/ends ids are positive for npcs, negative for objects
+				if startsID > 0: # npc
+					starts_obj = models.Creature.objects.get(id=startsID)
+					if not starts_obj:
+						WARN("NPC %i not found (starts quest %i)" % (startsID, id))
+						raw_input()
+						continue
+					
+					starts_obj.starts_quests.add(sigrie_quest)
+					print colored("NPC %s (%i) starts Quest #%i" % (starts_obj, startsID, id), "green")
+				
+				elif startsID < 0: # object
+					startsID = abs(startsID)
+					starts_obj = models.Object.objects.get(id=startsID)
+					if not starts_obj:
+						WARN("Object %i not found (starts quest %i)" % (startsID, id))
+						raw_input()
+						continue
+					
+					starts_obj.starts_quests.add(sigrie_quest)
+					print colored("Object %s (%i) starts Quest #%i" % (starts_obj, startsID, id), "green")
+			
+			if endsID:
+				if endsID > 0:
+					sigrie_quest.ends_at_id = endsID
+				elif endsID < 0:
+					sigrie_quest.ends_at_object_id = abs(endsID)
+				
+				sigrie_quest.save()
+			
+			timer = table.get("timer")
+			if timer:
+				if timer < 0:
+					WARN("Something's wrong, why is %i timer %r seconds?" % (id, timer))
+					raw_input()
+				print colored("%s -> timer = %i seconds" % (sigrie_quest, timer), "green")
+				sigrie_quest.timer = datetime.timedelta(seconds=timer)
+				sigrie_quest.save()
+	
+	print "%i quest POIs added" % (Node.objects.count() - count)
+
+
+def do_items():
+	if "items" not in d:
+		return
+	
+	item_ctype = ContentType.objects.get_for_model(models.Item)
+	
+	for id in d["items"]:
+		table = d["items"][id]
+		id = int(id)
+		if table:
+			sigrie_item = models.Item.objects.get(id=id)
+			if not sigrie_item.openable:
+				WARN("Skipped loot update on %r because it is not openable" % (sigrie_item))
+				continue
+			
+			else:
+				looted_items = table.get("loot", {})
+				looted_count = table.get("looted", 0)
+				if (looted_items and not looted_count) or (looted_count and ((not looted_items) and (not table.get("coin")))):
+					WARN("Skipped #%i %r because its loot doesn't make sense" % (id, table))
+					continue
+				
+				for item in table.get("loot", {}):
+					record_loot(table["loot"][item], item, model=item_ctype, id=id, group_size=0, heroic_level=0, loot_type=0)
+				update_wealth(sigrie_item, table)
+				
+				sigrie_item.looted_count += looted_count
+				sigrie_item.save()
+
+def main():
+	do_solditems()
+	do_npcs()
+	do_quests()
+	do_objects()
+	do_items()
+
+if __name__ == "__main__":
+	main()

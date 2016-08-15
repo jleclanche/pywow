@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+
+from django.core.management.base import NoArgsCommand
+from owdb.models import Item
+
+gems = Item.objects.filter(category=3, stub=False).exclude(subcategory=7)
+for i in gems:
+	created = i.spell_reagents.filter(created_item__category=3).exclude(name__icontains="Transmute")
+	if not created.count():
+		continue
+	print i.id, ": {", "#", i
+	print "\n".join("\t%i, # %s" % (k.created_item.id, k) for k in created)
+	print "}"

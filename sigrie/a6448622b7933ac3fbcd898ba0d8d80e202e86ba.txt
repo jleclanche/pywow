@@ -1,0 +1,259 @@
+# -*- coding: utf-8 -*-
+from django.views.decorators.cache import cache_page
+from django.core.exceptions import MultipleObjectsReturned, FieldError
+from django.core.serializers import serialize
+from django.db.models import Q
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
+from django.shortcuts import render_to_response
+from django.template import RequestContext as _RequestContext
+from django.utils.datastructures import SortedDict
+from .urlkeys import allkeys, MODELS
+from .warnings import Warn as W
+
+# for search
+from functools import reduce # forward-compatibility
+from operator import or_ as operator_or
+
+RESULTS_MAX = 500 # Max amount of results on any listing page (except categories)
+RESULTS_MAX_MODIFIED = 3000
+
+MIME = {
+	"js": "text/javascript",
+	"json": "application/json",
+	"python": "text/plain",
+	"xml": "text/xml",
+}
+
+
+class RequestContext(_RequestContext):
+	def __init__(self, request, context, *pargs, **kwargs):
+		context["request"] = request
+		_RequestContext.__init__(self, request, context, *pargs, **kwargs)
+
+
+def direct_to_template(request, template, **kwargs):
+	return render_to_response(template, RequestContext(request, kwargs))
+
+
+@cache_page(86400)
+def list_query(request, results, type, template="owdb/listview.html", **kwargs):
+	warn = W()
+	max_results = RESULTS_MAX
+	get = request.GET.copy()
+	
+	if type != "all":
+		type = allkeys[type].__name__.lower() # (ach|achievements|a) -> achievement
+		if not isinstance(results, dict):
+			results = { allkeys[type]: results }
+	
+	results_total = 0
+	_results_final = {}
+	for model in results:
+		r = results[model]
+		if get:
+			if "results_max" in get and get["results_max"].isdigit():
+				max_results = min(RESULTS_MAX_MODIFIED, int(get["results_max"]))
+				del get["results_max"]
+			
+			d = {}
+			excluded = {}
+			for k, v in get.items():
+				dic = d
+				if v:
+					if k.endswith("__not"):
+						dic = excluded
+						k = k.split("__not")[0]
+					
+					if k.endswith("__in"):
+							v = v.split(",")
+						
+					elif k.endswith("__matches") or k.endswith("__imatches"):
+						k = k.replace("__matches", "__regex").replace("__imatches", "__iregex")
+						v = "(%s)" % ("|".join(v.split()))
+				dic[k.encode("ascii", "ignore")] = v
+			try:
+				r = r.filter(**d).exclude(**excluded).distinct()
+			except Exception:
+				pass
+		
+		try:
+			# TODO here redir to "no result" page if total is 0
+			total = r.count()
+		except Exception:
+			total = 0
+		
+		if total:
+			if total > max_results * 1.1: # Allow up to 1.1*RESULTS_MAX results, leaving a margin (no "showing first 1000 out of 1003 results")
+				results_total = total
+				r = r[:max_results]
+				warn.w("TOO_MANY_RESULTS")
+			
+			_results_final[model] = r
+			if get:
+				break
+	
+	results_final = SortedDict()
+	for k in MODELS: # FIXME use count()
+		if k in _results_final:
+			results_final[k] = _results_final[k]
+		
+	
+	d = { "results": results_final, "results_total": results_total, "results_max": max_results, "type": type }
+	d.update(kwargs)
+	d["warn"] = warn.c(d)
+	
+	return render_to_response(template, RequestContext(request, d))
+
+
+def search_redirect(request):
+	"""
+	Redirect from search?q=foo to search/all/foo/
+	"""
+	g = request.GET
+	query = "q" in g and g["q"].strip().replace("/", "_").replace(" ", "_")
+	type = "type" in g and g["type"] or "all"
+	if query:
+		try:
+			query = query.decode("us-ascii")
+		except UnicodeEncodeError:
+			return HttpResponsePermanentRedirect("/search/%s/" % (type))
+		return HttpResponsePermanentRedirect("/search/%s/%s/" % (type, query))
+	return HttpResponsePermanentRedirect("/items") # XXX
+
+def search(query, models):
+	"""
+	Search for query in a list of models
+	"""
+	results = {}
+	query = query.strip().replace("'", "").replace(",", "") # TODO remove more stuff like slugify
+	if not query:
+		return results
+	
+	# split on whitespace and remove duplicate keywords
+	query_list = set(query.split())
+	
+	for cls in models:
+		if cls.search_fields:
+			 # Keep a copy of all()
+			if hasattr(cls, "filtered_objects"):
+				_qs = cls.filtered_objects.all()
+			else:
+				_qs = cls.objects.all()
+			qs = _qs
+			for bit in query_list:
+				# for every keyword, filter model with SQL OR
+				or_queries = [Q(**{"%s__icontains" % (field_name): bit}) for field_name in cls.search_fields]
+				qs = qs.filter(reduce(operator_or, or_queries))
+			
+			#if not qs: # fall back to regex search
+				#regex_query = ".?".join(query)
+				#or_queries = [Q(**{"%s__iregex" % (field_name): regex_query}) for field_name in cls.search_fields]
+				#qs = qs.filter(reduce(operator_or, or_queries))
+			
+			if qs:
+				results[cls] = qs
+	
+	return results
+
+def search_type(request, type, query):
+	query = query and query.strip().replace("_", " ") or ""
+	if type == "all":
+		results = search(query, MODELS)
+	else:
+		results = search(query, [allkeys[type]])
+	
+	if len(results) == 1:
+		# Only 1 result dict. How many results?
+		result_for_model = results.values()[0]
+		if result_for_model.count() == 1:
+			return HttpResponsePermanentRedirect(result_for_model[0].get_absolute_url())
+	
+	return list_query(request, results, type, template="owdb/listview.html", query=query)
+
+
+def listing(request, type, navstr):
+	cls = allkeys[type]
+	objects = getattr(cls, "filtered_objects", cls.objects) # filtered_objects is a manager override for listings
+	
+	if not navstr or not hasattr(cls, "navigation"):
+		results = objects.all() # Model.navigation may not be defined
+	else:
+		results = objects.filter(**dict(zip(cls.navigation, navstr.split("/"))))
+	try:
+		split = navstr and len(navstr.split("/")) or 0
+		nav = results[0].get_navigation()[:split+1] # XXX
+	except Exception:
+		nav = []
+	
+	return list_query(request, results, type, template="owdb/listview.html", nav=nav)
+
+
+def detailview(request, type, view="detail", serial=None, **kwargs):
+	"Wrapper function for detailview urls (both by slug and id)"
+	warn = W()
+	slug = ""
+	model = allkeys[type]
+	if "slug" in kwargs:
+		slug = kwargs["slug"].lower()
+		obj = model.objects.filter(Q(slug=slug) | Q(name__iexact=slug) | Q(name__iexact=slug.replace("_", " ")))
+		if not obj.count():
+			obj = model.objects.filter(slug__startswith=slug+"-")
+		if len(obj) > 1:
+			warn.w("MULTIPLE_SLUG_RESULTS")
+		
+	elif "id" in kwargs:
+		id = kwargs["id"].split(":")[0]
+		try:
+			id = int(id)
+		except ValueError:
+			id = "".join(k for k in id if k.isdigit())
+			if not id: # Somehow, it's an empty string
+				raise Http404
+			id = int(id)
+		obj = model.objects.filter(id=id)
+	
+	if not obj:
+		if view == "tooltip_js":
+			tooltip_html = '<div class="sigrie-tooltip tt-error">Error retrieving tooltip</div>'
+			return render_to_response("owdb/tooltipjs.html", {"tooltip": tooltip_html}, mimetype=MIME["js"])
+		else:
+			raise Http404()
+	
+	paperdoll = obj[0].get_paperdoll(request=request, id="id" in kwargs and kwargs["id"])
+	
+	d = { "request": request, "obj": obj[0], "nav": obj[0].get_navigation(), "serial": serial, "slug": slug, "paperdoll": paperdoll }
+	d.update()
+	d["warn"] = warn.c(d)
+	
+	if view == "detail": return detail(**d)
+	elif view == "tooltip": return tooltip(**d)
+	elif view == "tooltip_js": return tooltip(js=True, **d)
+	elif view == "icon": return icon(**d)
+	elif view == "serial": return serialized(queryset=obj, **d)
+
+
+def get_tooltip(obj, paperdoll):
+	return str(obj.tooltip(paperdoll=paperdoll))
+
+
+@cache_page(86400)
+def detail(request, **kwargs):
+	return render_to_response("owdb/detail/%s.html" % (kwargs["obj"].sigrie_name), RequestContext(request, kwargs))
+
+@cache_page(86400)
+def tooltip(request, obj, paperdoll, js=False, **kwargs):
+	tooltip = str(get_tooltip(obj, paperdoll)) # str for toHtml
+	if js:
+		return render_to_response("owdb/tooltipjs.html", {"obj": obj, "path": request.get_full_path(), "tooltip": tooltip}, mimetype=MIME["js"])
+	return HttpResponse(tooltip)
+
+
+def icon(obj, **kwargs):
+	icon = obj and getattr(obj, "icon", "temp") or "temp"
+	return HttpResponsePermanentRedirect("http://static.mmo-champion.com/db/img/icons/%s.png" % (icon))
+
+
+@cache_page(86400)
+def serialized(request, queryset, serial, **kwargs):
+	data = serialize(serial, queryset)
+	return HttpResponse(data, mimetype=MIME[serial])

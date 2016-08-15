@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import shutil
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
+from sigrie.screenshots.models import Screenshot
+from sigrie.owdb.urlkeys import urlkeys
+from sigrie.settings import MEDIA_ROOT
+from django.contrib.contenttypes.models import ContentType
+
+SCREENSHOT_DIR = "./queued_screenshots/"
+CACHE_DIR = "./cached_screenshots/"
+SIGRIE_SCREENSHOTS = MEDIA_ROOT + "img/screenshots/"
+
+def save_from_filename(fname):
+	f = SCREENSHOT_DIR + fname
+	name = os.path.split(fname)[-1]
+	
+	name = os.path.splitext(name)[0]
+	model, id = name.lower().split("_")
+	cls = urlkeys[model]
+	ctype = ContentType.objects.get_for_model(cls)
+	screenshot = Screenshot(content_type=ctype, object_id=id)
+	screenshot.save()
+	original_path = SCREENSHOT_DIR + name + ".jpg"
+	destination_path = SIGRIE_SCREENSHOTS + str(screenshot.pk) + ".jpg"
+	thumbnail_path = SIGRIE_SCREENSHOTS + str(screenshot.pk) + ".thumbnail.jpg"
+	os.popen("convert %s -thumbnail 250x250 %s" % (original_path, thumbnail)) # make a thumbnail TODO use pil
+	shutil.copy(original_path, destination_path)
+	os.rename(original_path, CACHE_DIR + name + ".jpg")
+	print screenshot, model, id
+
+def main():
+	screenshots = os.listdir(SCREENSHOT_DIR)
+	for f in screenshots:
+		save_from_filename(f)
+	
+	print "Done uploading %i screenshots" % (len(screenshots))
+
+if __name__ == "__main__":
+	main()

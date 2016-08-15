@@ -1,0 +1,270 @@
+# -*- coding: utf-8 -*-
+from sigrie.owdb.models import *
+from django.contrib.admin import ModelAdmin, TabularInline, site
+
+class AchievementCriteriaInline(TabularInline):
+	model = AchievementCriteria
+
+class EnchantEffectInline(TabularInline):
+	model = EnchantEffect
+	raw_id_fields = ("spell", )
+
+class EnchantConditionInline(TabularInline):
+	model = EnchantConditionProperty
+
+class ItemSpellInline(TabularInline):
+	model = ItemSpell
+	raw_id_fields = ("spell", )
+
+class ItemSetBonusInline(TabularInline):
+	model = ItemSetBonus
+	raw_id_fields = ("spell", )
+
+class ItemSetItemInline(TabularInline):
+	model = ItemSetItem
+	raw_id_fields = ("item", )
+
+class ItemStatInline(TabularInline):
+	model = ItemStat
+
+class QuestRewardItemInline(TabularInline):
+	model = QuestRewardItem
+	raw_id_fields = ("item", )
+
+class QuestRequirementInline(TabularInline):
+	model = QuestRequirement
+
+class SpellEffectInline(TabularInline):
+	model = SpellEffectProperty
+
+class SpellReagentInline(TabularInline):
+	model = SpellReagent
+	raw_id_fields = ("item", )
+
+
+class AchievementAdmin(ModelAdmin):
+	inlines = (AchievementCriteriaInline, )
+	list_display = ("__unicode__", "category", "instance", "parent", "reward", "statistic", "serverfirst", "id")
+	list_filter = ("faction", "points", "statistic", "serverfirst", "build")
+	raw_id_fields = ("instance", "parent")
+	search_fields = ("name", "reward")
+
+class AchievementCriteriaAdmin(ModelAdmin):
+	list_display = ("__unicode__", "content_type", "achievement", "type", "required_amount", "timer")
+	list_filter = ("type", )
+	raw_id_fields = ("achievement", )
+	search_fields = ("name", )
+
+class AchievementCategoryAdmin(ModelAdmin):
+	list_display = ("__unicode__", "parent", "id")
+	search_fields = ("name", )
+
+class CreatureAdmin(ModelAdmin):
+	list_display = ("__unicode__", "title", "category", "family", "type", "pvp", "faction_group", "display_id", "id")
+	list_filter = ("type", "cursor", "leader", "faction_group", "build")
+	raw_id_fields = ("quest_drops", "starts_quests")
+	search_fields = ("name", "title")
+
+class CreatureFactionRewardAdmin(ModelAdmin):
+	list_display = ("__unicode__", "creature", "faction", "amount")
+	list_filter = ("amount", )
+	raw_id_fields = ("creature", "faction")
+	search_fields = ("creature__name", "faction__name")
+
+class CreatureFamilyAdmin(ModelAdmin):
+	list_display = ("__unicode__", "min_scale", "min_scale_level", "max_scale", "max_scale_level", "skill_tree", "skill_tree_generic", "pet_food_mask", "talent_type", "icon", "id")
+	list_filter = ("talent_type", )
+	search_fields = ("name", )
+
+class DungeonMapAdmin(ModelAdmin):
+	search_fields = ("name", "instance__name")
+	list_filter = ("floor", )
+	list_display = ("__unicode__", "instance", "floor", "y_1", "x_1", "y_2", "x_2", "id")
+
+class EnchantAdmin(ModelAdmin):
+	inlines = (EnchantEffectInline, EnchantConditionInline)
+	list_display = ("__unicode__", "charges", "gem", "required_skill", "required_skill_level", "required_level", "id")
+	list_filter = ("required_level", "required_skill_level", "charges", "build")
+	raw_id_fields = ("gem", )
+	search_fields = ("name", )
+
+class FactionAdmin(ModelAdmin):
+	list_display = ("__unicode__", "parent", "description", "id")
+	raw_id_fields = ("parent", )
+	search_fields = ("name", )
+
+class ObjectAdmin(ModelAdmin):
+	list_display = ("__unicode__", "type", "display_id", "id")
+	list_filter = ("type", )
+	raw_id_fields = ("quest_items", )
+
+class GlyphAdmin(ModelAdmin):
+	list_display = ("__unicode__", "spell", "flags", "icon", "id")
+	list_filter = ("flags", )
+	raw_id_fields = ("spell", )
+	search_fields = ("name", )
+
+class HolidayAdmin(ModelAdmin):
+	search_fields = ("name", )
+	list_display = ("__unicode__", "description", "icon", "id")
+
+class InstanceAdmin(ModelAdmin):
+	list_display = ("__unicode__", "internal_name", "type", "zone", "max_players", "continent", "expansion", "loading_screen", "icon", "id")
+	list_filter = ("type", "max_players", "expansion")
+	raw_id_fields = ("zone", "continent")
+	search_fields = ("name", )
+
+class ItemAdmin(ModelAdmin):
+	#fieldsets = [
+		#("Flags", {"fields": [
+			#"conjured", "openable", "heroic", "unique_equipped", "group_loot",
+			#"refundable", "chart", "prospecting", "milling", "enchant_scroll",
+			#"bop_tradeable", "horde", "alliance"
+		#]}),
+		#("Heirloom", {"fields": ["scaling_stats", "scaling_flags"]}),
+		#("Addon data", {"fields": ["looted_count", "wealth_min", "wealth_max", "required_arena_rating", "required_arena_bracket"]})
+	#]
+	inlines = (ItemSpellInline, ItemStatInline)
+	list_display = ("__unicode__", "quality", "level", "required_level", "subclass", "slot", "armor", "teaches_spell", "duration", "armory", "build", "id")
+	list_filter = ("bind", "quality", "slot", "stub", "armory", "duration", "build")
+	raw_id_fields = ("required_spell", "required_faction", "teaches_spell", "itemset", "zone_bind", "instance_bind", "starts_quest", "socket_bonus", "gem_properties", "duration_transform")
+	search_fields = ("name", )
+	#date_hierarchy = 'pub_date'
+
+class ItemClassAdmin(ModelAdmin):
+	list_display = ("name", "category", "id1", "id2", "hands", "id")
+	list_filter = ("id1", "category", "hands")
+	search_fields = ("name", "category")
+
+class ItemSetAdmin(ModelAdmin):
+	inlines = (ItemSetBonusInline, ItemSetItemInline)
+	list_display = ("__unicode__", "required_skill", "required_skill_level", "id")
+	list_filter = ("build", )
+	raw_id_fields = ("items", )
+	search_fields = ("name", "items__name")
+
+class LockPropertyAdmin(ModelAdmin):
+	list_display = ("__unicode__", "ordering", "item", "lock_type_id", "required_skill_level", "action")
+	list_filter = ("type", "action")
+	raw_id_fields = ("item", )
+	search_fields = ("item__name", )
+
+class LootAdmin(ModelAdmin):
+	list_display = ("__unicode__", "source", "item", "amount_min", "amount_max", "count", "group_size", "heroic_level", "percent_override", "armory_percent", "loot_type")
+	list_filter = ("heroic_level", "group_size", "loot_type")
+	raw_id_fields = ("item", )
+	search_fields = ("item__name", "object_id")
+
+class MailAdmin(ModelAdmin):
+	list_display = ("__unicode__", "sender", "attachment", "stationery", "money", "id")
+	raw_id_fields = ("sender", "attachment", "stationery")
+	search_fields = ("name", "text")
+
+class PageAdmin(ModelAdmin):
+	list_display = ("__unicode__", "next_page", "id")
+	list_filter = ("build", )
+	search_fields = ("text", )
+
+class QuestAdmin(ModelAdmin):
+	list_display = ("__unicode__", "level", "required_level", "category", "zone", "type", "followup", "experience_reward", "daily", "id")
+	list_filter = ("type", "suggested_players", "sharable", "daily", "weekly", "raid", "timer", "build")
+	inlines = (QuestRewardItemInline, QuestRequirementInline)
+	raw_id_fields = ("zone", "followup", "spell_reward", "spell_trigger", "provided_item", "ends_at_object", "ends_at_npc", "starts_at_object", "starts_at_npc", "quest_items")
+	search_fields = ("name", "description")
+
+class ScalingStatAdmin(ModelAdmin):
+	list_display = ("__unicode__", "stat", "modifier", "ordering")
+
+class ShapeShiftAdmin(ModelAdmin):
+	list_display = ("__unicode__", "icon", "id")
+	raw_id_fields = ("spells", )
+
+class SkillAdmin(ModelAdmin):
+	list_display = ("__unicode__", "category", "icon", "is_tradeskill", "id")
+	list_filter = ("is_tradeskill", )
+	search_fields = ("name", )
+
+class SoldItemAdmin(ModelAdmin):
+	list_display = ("__unicode__", "vendor", "item", "limited_quantity", "stack", "rating", "bracket")
+	list_filter = ("rating", "bracket")
+	raw_id_fields = ("vendor", "item")
+	search_fields = ("vendor__name", "item__name")
+
+class SpellAdmin(ModelAdmin):
+	inlines = (SpellReagentInline, )
+	list_display = ("__unicode__", "rank", "base_level", "level", "category", "mechanic", "dispel_type", "cooldown", "primary_skill", "created_item", "glyph", "id")
+	list_filter = ("mechanic", "dispel_type", "build")
+	raw_id_fields = (
+		"required_caster_spell", "required_target_spell", "excluded_caster_spell", "excluded_target_spell",
+		"required_faction", "next_spell", "description_variables", "created_item", "glyph", "primary_skill",
+	)
+	search_fields = ("name", )
+
+class StatAdmin(ModelAdmin):
+	list_display = ("__unicode__", "text", "special", "resist", "id")
+	list_filter = ("special", "resist")
+	search_fields = ("name", "text")
+
+class TalentAdmin(ModelAdmin):
+	list_display = ("__unicode__", "tab", "row", "column", "active", "id")
+	list_filter = ("active", "tab", "row", "column")
+	search_fields = ("name", )
+
+class TalentTabAdmin(ModelAdmin):
+	list_display = ("__unicode__", "class_mask", "pet_mask", "page", "internal_name", "id")
+
+class TaxiNodeAdmin(ModelAdmin):
+	raw_id_fields = ("mount_horde", "mount_alliance")
+
+class TrainedSpellAdmin(ModelAdmin):
+	list_display = ("__unicode__", "trainer", "spell", "required_level", "required_skill", "required_skill_level", "price")
+	raw_id_fields = ("trainer", "spell", "required_spells")
+	list_filter = ("required_level", )
+	search_fields = ("trainer__name", "spell__name")
+
+class WorldMapAdmin(ModelAdmin):
+	list_display = ("__unicode__", "instance", "area", "virtual_map", "dungeon_map", "y_1", "x_1", "y_2", "x_2", "id")
+
+class ZoneAdmin(ModelAdmin):
+	list_display = ("__unicode__", "parent_area", "level", "map", "territory", "floors", "id")
+	list_filter = ("territory", "level")
+	raw_id_fields = ("parent_area", )
+	search_fields = ("name", )
+
+site.register(Achievement, AchievementAdmin)
+site.register(AchievementCriteria, AchievementCriteriaAdmin)
+site.register(AchievementCategory, AchievementCategoryAdmin)
+site.register(Creature, CreatureAdmin)
+site.register(CreatureFactionReward, CreatureFactionRewardAdmin)
+site.register(CreatureFamily, CreatureFamilyAdmin)
+site.register(DungeonMap, DungeonMapAdmin)
+site.register(Enchant, EnchantAdmin)
+site.register(Faction, FactionAdmin)
+site.register(Object, ObjectAdmin)
+site.register(Glyph, GlyphAdmin)
+site.register(Holiday, HolidayAdmin)
+site.register(Instance, InstanceAdmin)
+site.register(Item, ItemAdmin)
+site.register(ItemClass, ItemClassAdmin)
+site.register(ItemSet, ItemSetAdmin)
+site.register(Lock)
+site.register(LockProperty, LockPropertyAdmin)
+site.register(Loot, LootAdmin)
+site.register(Mail, MailAdmin)
+site.register(Page, PageAdmin)
+site.register(Quest, QuestAdmin)
+site.register(ScalingStat, ScalingStatAdmin)
+site.register(Skill, SkillAdmin)
+site.register(SoldItem, SoldItemAdmin)
+site.register(Spell, SpellAdmin)
+site.register(SpellAura)
+site.register(SpellEffect)
+site.register(Stat, StatAdmin)
+site.register(ShapeShift, ShapeShiftAdmin)
+site.register(TaxiNode, TaxiNodeAdmin)
+site.register(Talent, TalentAdmin)
+site.register(TalentTab, TalentTabAdmin)
+site.register(Title)
+site.register(TrainedSpell, TrainedSpellAdmin)
+site.register(WorldMap, WorldMapAdmin)
+site.register(Zone, ZoneAdmin)

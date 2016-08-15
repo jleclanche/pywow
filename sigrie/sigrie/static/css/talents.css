@@ -1,0 +1,786 @@
+.crop {
+	overflow: hidden;
+	height: 1.33333em;
+}
+
+.center {
+	text-align: center;
+}
+
+#sigrie-talent-calculator {
+	min-width: 750px;
+	margin: 15px auto;
+	overflow: hidden;
+}
+
+div.tal-tal {
+	display: none;
+}
+
+/* -- Class selector -- */
+
+div.tal-calculator {
+    position: relative;
+    overflow: visible;
+}
+
+div.tal-classstrip {
+	background-color: #212121;
+	border: 1px solid #191919;
+	padding: 8px 6px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	height: 42px;
+	width: 720px;
+	margin: 0px auto 15px auto;
+}
+
+div.tal-active, div.tal-inactive:hover {
+	opacity: 1;
+	filter: alpha(opacity=100);
+}
+
+div.tal-inactive {
+	opacity: 0.6;
+	filter: alpha(opacity=60);
+}
+
+div.tal-class:hover, .tal-tree-icon:hover, .tal-glyph-reset:hover, .tal-tree-reset:hover {
+	box-shadow: cyan 0px 0px 10px;
+	-webkit-box-shadow: cyan 0px 0px 10px;
+	-moz-box-shadow: cyan 0px 0px 10px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+div.tal-class-noneselected {
+	text-align: center;
+	font-size: 18px;
+	margin-top: 30px;
+}
+
+div.tal-class {
+	width: 42px;
+	height: 42px;
+	margin: 0px 14px;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	cursor: pointer;
+}
+
+div.tal-class > img {
+	width: 42px !important;
+	height: 42px !important;
+}
+
+/* -- Heads -- */
+
+div.tal-summary-trees {
+	margin-top: 20px;
+	text-align: center;
+}
+
+div.tal-summary-tree {
+	background-color: #212121;
+	border: 1px solid #191919;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	margin-bottom: 10px;
+	margin: 0px 1px 10px;
+	position: relative;
+	width: 241px;
+}
+
+/* -- Infobox -- */
+div.tal-infobox {
+	position: relative;
+	overflow: auto;
+}
+
+div.tal-block {
+	overflow: hidden;
+	width: 100%;
+	border-bottom: 1px solid #333;
+	padding-bottom: 5px;
+	margin-bottom: 5px;
+}
+
+div.tal-infobox p {
+	display: inline;
+	margin: 0;
+	padding: 0;
+}
+
+.tal-infobox-prefill {
+    float: right;
+    position: relative;
+    z-index: 5;
+}
+
+p.tal-infobox-group-level {
+    left: 0;
+	position: absolute;
+	width: 98%;
+	text-align: center;
+	z-index: 4;
+}
+
+input.tal-link {
+	width: 300px !important;
+	background-color: #333;
+	color: #ccc;
+}
+
+/* -- Trees -- */
+div.tal-pane {
+	text-align: center;
+	position: relative;
+}
+
+div.tal-summaries {
+	text-align: center;
+	display: none;
+}
+
+div.tal-tab, div.tal-summary {
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	position: relative;
+	border: 1px solid transparent;
+	vertical-align: top;
+	margin: 1px;
+}
+
+div.tal-tree, div.tal-tab, div.tal-summary {
+	width: 241px;
+	height: 409px;  /* == rows * (TALENT_ICON_SIZE + TALENT_ICON_MARGIN) + TALENT_ICON_MARGIN    */
+}
+
+
+div.tal-tab.tal-disabled img.tal-tree-background {
+	filter: gray;
+}
+
+img.tal-tree-icon {
+	height: 32px;
+	left: -1px;
+	position: absolute;
+	top: -9px;
+	width: 32px;
+}
+
+div.tal-tree-roles {
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	height: 1px;
+	position: relative;
+	top: -2px;
+	vertical-align: top;
+}
+
+img.tal-tree-icon:hover {
+	cursor: pointer;
+}
+
+img.tal-tree-background {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+/* -- Summary -- */
+
+div.tal-summary {
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	position: relative;
+	background-color: #111;
+	text-shadow: #111 1px 1px 1px;
+}
+
+div.tal-summary-icon {
+	position: relative;
+	width: 52px;
+	height: 52px;
+	border-radius: 28px;
+	-moz-border-radius: 28px;
+	margin: 50px auto;
+	margin-top: 30px;
+	background-position: -4px -4px;
+	-webkit-box-shadow: 0 0 80px yellow; /* Overriden in Javascript */
+	-moz-box-shadow: 0 0 80px yellow; /* Overriden in Javascript */
+}
+
+div.tal-summary-icon:hover {
+	cursor: pointer;
+}
+
+div.tal-summary-name {
+	margin: 10px auto;
+}
+
+div.tal-button {
+	background-image: url(http://static.mmo-champion.com/db/img/wowtal/red_button.png);
+	background-repeat: no-repeat;
+	background-position: right;
+	width: 157px;
+	height: 21px;
+	text-align: center;
+	color: #FFD100;
+	text-shadow: black 2px 2px 1px;
+	line-height: 21px;
+	font-family: Arial;
+	font-weight: bold;
+	font-size: 11px;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+}
+
+div.tal-button:hover {
+	color: white;
+	cursor: pointer;
+}
+
+
+
+div.tal-summary-icon ins {
+	display: block;
+	position: absolute;
+	left: -13px;
+	top: -13px;
+	width: 78px;
+	height: 78px;
+	background-image: url(http://static.mmo-champion.com/db/img/wowtal/round_icon_border.png);
+}
+
+div.tal-summary-roles {
+	bottom: -7px;
+	line-height: 0px;
+	position: absolute;
+	right: -12px;
+	width: 20px;
+}
+
+ul.tal-summary-spells {
+	padding-left: 20px;
+}
+
+li.tal-summary-spell {
+	text-align: left;
+	list-style-type: none;
+	margin: 8px 0;
+	font-size: 11px;
+	height: 20px;
+}
+
+li.tal-summary-spell a {
+	text-decoration: none;
+}
+
+li.tal-summary-spell img {
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+	margin-right: 5px;
+}
+
+li.tal-summary-spell:nth-child(1) {
+	font-size: 15px;
+	height: 40px;
+}
+
+li.tal-summary-spell:nth-child(1) img {
+	width: 40px;
+	height: 40px;
+}
+
+div.tal-summary-text {
+	font-size: 12px;
+	position: absolute;
+	top: 330px;
+	margin: 10px;
+	text-align: left;
+	color: white;
+	left: 0;
+}
+
+/* -- Talents -- */
+div.tal-talent {
+	width: 39px;
+	height: 39px;
+	position: absolute;
+	z-index: 5;
+}
+
+div.tal-talent.tal-rank-spendable:hover {
+	cursor: pointer;
+}
+
+div.tal-talent.tal-rank-max:hover {
+	cursor: default;
+}
+
+div.tal-talent img {
+	width: 39px;
+	height: 39px;
+	border: 2px solid #707070;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+div.tal-rank-spendable.tal-talent img {
+	border-color: #22aa22;
+}
+
+div.tal-rank-max.tal-talent img {
+	border-color: #ffcc00;
+}
+
+div.tal-rank {
+	position: absolute;
+	top: 29px;
+	left: 32px;
+	padding-left: 2px;
+	visibility: hidden;
+	background-color: black;
+	border: 1px solid gold;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	width: 10px;
+	line-height: 14px;
+	
+	box-shadow: black 2px 2px 2px;
+	-webkit-box-shadow: black 2px 2px 2px;
+	-moz-box-shadow: black 2px 2px 2px;
+}
+
+div.tal-rank.tal-rank-spendable {
+	color: #00FF00;
+	visibility: visible;
+}
+
+div.tal-rank.tal-rank-max {
+	color: #FFD700;
+	visibility: visible;
+}
+
+div.tal-rank.tal-rank-empty:not(.tal-rank-spendable) {
+	visibility: hidden !important;
+}
+
+div.tal-overlay {
+	background-image: url(/static/img/UI-EmptySlots.png);
+	background-position: 0px 0px;
+	width: 43px;
+	height: 43px;
+	position: absolute;
+	left: -2px;
+	top: -1px;
+}
+
+div.tal-rank-spendable div.tal-overlay {
+	background-position: -86px 0px;
+}
+
+div.tal-rank-max div.tal-overlay {
+	background-position: -43px 0px;
+}
+
+/* -- Branches/Arrows -- */
+div.tal-branch-ver, div.tal-branch-hor {
+	position: absolute;
+	z-index: 3;
+}
+div.tal-arrow {
+	z-index: 6;
+}
+
+div.tal-branch-ver {
+	background-image: url(/static/img/wowtal/branches-ver.png);
+	background-repeat: repeat-y;
+	width: 21px;
+}
+
+div.tal-branch-ver.tal-branch-disabled {
+	background-position: -21px 0px;
+}
+
+div.tal-branch-hor {
+	background-image: url(/static/img/wowtal/branches-hor.png);
+	background-repeat: repeat-x;
+	height: 21px;
+}
+
+div.tal-branch-hor.tal-branch-disabled {
+	background-position: 0px -21px;
+}
+
+div.tal-branch-ver.tal-arrow {
+	background-image: url(/static/img/wowtal/arrows-ver.png);
+	height: 8px;
+}
+
+div.tal-branch-hor.tal-arrow-left {
+	background-image: url(/static/img/wowtal/arrows-hor.png);
+	width: 8px;
+}
+
+div.tal-branch-hor.tal-arrow-right {
+	background-image: url(/static/img/wowtal/arrows-hor.png);
+	background-position: -8px 0px;
+	width: 8px;
+}
+
+div.tal-branch-hor.tal-arrow-right.tal-branch-disabled {
+	background-position: -8px -21px;
+}
+
+/* -- Tooltip -- */
+div.tal-tooltip {
+	position: absolute;
+	z-index: 40000;
+}
+
+div.tal-tooltip div.sigrie-tooltip {
+	background: none;
+	border: none;
+	padding: 0px;
+	width: 100%;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	float: none;
+}
+
+div.tal-tooltip-maxed div.ttt-next_rank, div.tal-tooltip-unlearnt div.ttt-next_rank {
+	margin-top: 0px;
+}
+
+div.tal-tooltip-maxed div.ttt-next_rank:before, div.tal-tooltip-unlearnt div.ttt-next_rank:before {
+	content: "";
+}
+
+div.tal-tooltip-learn {
+	color: #00ff00;
+	display: none;
+}
+
+div.tal-tooltip-spendable div.tal-tooltip-learn {
+	display: block;
+}
+
+div.tal-tooltip-unlearn {
+	color: #ff0000;
+}
+
+div.tal-tooltip-unlearnt div.tal-tooltip-unlearn {
+	display: none;
+}
+
+div.tal-tooltip div.ttt-next_rank div.tts-rank {
+	display: none;
+}
+
+div.tal-tooltip-unlearnt div.ttt-next_rank div.tts-rank {
+	display: block;
+}
+
+div.tal-tooltip div.ttt-next_rank div.tts-name, div.tal-tooltip div.ttt-cur_rank div.tts-name {
+	display: none;
+}
+
+div.tal-tooltip div.ttt-depends {
+	display: none;
+}
+
+div.tal-tooltip-missingdep div.ttt-depends {
+	color: #ff0000;
+	display: block;
+}
+
+div.tal-tooltip div.ttt-row {
+	display: none;
+}
+
+div.tal-tooltip-missingpoints div.ttt-row {
+	color: #ff0000;
+	display: block;
+}
+
+div.tts-rank, div.tt-spell-right {
+	*display: none !important;
+}
+
+/* -- Right Menu -- */
+div.tal-menubox {
+	background-color: #212121;
+	border: 1px solid #191919;
+	border-top-right-radius: 15px;
+	border-bottom-right-radius: 15px;
+	-moz-border-radius-topright: 15px;
+	-moz-border-radius-bottomright: 15px;
+	width: 195px;
+}
+
+.tal-menubox h3 {
+	padding-left: 12px;
+	font-size: 16px;
+	font-weight: bold;
+	border-bottom: 1px solid #333;
+}
+
+div.tal-summary {
+	font-size: 95%;
+}
+
+div.tal-infobox {
+	background-color: #212121;
+	border: 1px solid #191919;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	margin: 5px auto 5px auto;
+	padding: 5px;
+	width: 720px;
+}
+
+div.tal-infobox-container {
+	padding: 0 5px 10px;
+}
+
+div.tal-infobox img.tal-tree-icon {
+	float: right;
+}
+
+a.tal-infobox-label {
+	color: #CCC;
+	text-decoration: none;
+}
+
+span.tal-infobox-value {
+	line-height: 1.1em;
+	color: #15DF15;
+	font-weight: bold;
+}
+
+img.tal-tree-reset, img.tal-glyph-reset {
+	cursor: pointer;
+	margin-right: 3px;
+}
+
+img.tal-tree-reset {
+	position: absolute;
+	left: 228px;
+	top: 3px;
+}
+
+
+div.tal-infobox-masteries {
+	font-size: 12px;
+}
+
+div.tal-infobox-mastery a:hover {
+	cursor: default;
+}
+
+h4.tal-infobox-masteries {
+	margin-left: 2px;
+	margin-top: 50px;
+}
+
+div.tal-infobox input {
+	border: none;
+	display: inline;
+	height: 1.1em;
+	width: 1.3em;
+}
+
+span.tal-infobox-maxlevel {
+	border-bottom: 1px dotted white;
+	cursor: pointer;
+}
+
+/* -- Bottom -- */
+
+div.tal-togglesummary, div.tal-infobox-reset {
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	float: right;
+}
+
+/* -- Glyphs -- */
+
+div.tal-glyphs-pane {
+	text-align: center;
+}
+
+div.tal-glyphs {
+	width: 239px;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	background-color: #212121;
+	border: 1px solid #191919;
+	margin: 2px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	text-align: left;
+}
+
+div.tal-glyph {
+	text-align: left;
+	margin-bottom: 10px;
+	margin-left: 15px;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	line-height: 32px;
+	height: 32px;
+}
+
+div.tal-glyphs h3 {
+	border-bottom: 1px solid #333;
+	color: #ccc;
+	font-size: 14px;
+	text-align: center;
+	margin-bottom: 5px;
+}
+
+div.tal-glyph a {
+	text-decoration: none;
+	font-size: 13px;
+}
+
+div.tal-glyph img {
+	width: 32px;
+	height: 32px;
+	vertical-align: middle;
+	margin-right: 5px;
+}
+
+div.tal-glyph-overlay-back {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: black;
+	z-index: 199;
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+}
+
+div.tal-glyph-overlay {
+	display: none;
+	left: 50%;
+	position: fixed;
+	*position: absolute;
+	top: 50%;
+	width: 1px;
+	height: 1px;
+	z-index: 200;
+}
+
+div.tal-glyph-overlay > div {
+	position: relative;
+	top: -278px;
+	height: 554px;
+	width: 780px;
+	left: -390px;
+
+	background: black;
+	z-index: 200;
+
+	border: 10px solid #333;
+}
+
+.tal-glyph-overlay-table {
+	overflow-y: auto;
+	height: 523px;
+}
+
+.tal-glyph-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.tal-glyph-table tr {
+	background-color: #111;
+	padding: 2px 2px;
+	border-bottom: 1px solid #333;
+}
+
+.tal-glyph-table tr:hover {
+	background-color: #222;
+	cursor: pointer;
+}
+
+.tal-glyph-table td {
+	padding: 2px;
+	height: 20px;
+}
+
+.tal-glyph-table img {
+	width: 20px;
+	vertical-align: middle;
+}
+
+.tal-glyph-icon {
+	width: 23px;
+}
+
+.tal-glyph-name {
+	color: #FFD100;
+	font-size: 13px;
+	white-space: nowrap;
+}
+
+.tal-glyph-desc {
+	font-size: 11px;
+}
+
+.tal-glyph-spec {
+	font-size: 11px;
+	text-align: center;
+	color: #aaa;
+}
+
+.tal-glyph-overlay-buttons {
+	text-align: right;
+	background-color: #333;
+	padding-top: 10px;
+}
+
+.tal-glyph-empty {
+	text-align: center;
+	line-height: 25px;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.tal-glyph-used * {
+	color: #333;
+	background-color: black;
+}
+
+tr.tal-glyph-used:hover {
+	cursor: default;
+}
+
+.tal-glyph-used img {
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+}
+
+
+.tal-glyph-emptyglyph a {
+	color: #9D9D9D;
+}

@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+from sigrie.additions.models import *
+from django.contrib.admin import ModelAdmin, TabularInline, site
+
+
+def clear_added_objects(modeladmin, request, queryset):
+	for addition in queryset:
+		addition.content_type.model_class().objects.filter(id__in=[k.added_object and k.added_object.id for k in addition.addedobject_addition.all()]).delete()
+		addition.delete()
+
+
+clear_added_objects.short_description = "Delete this addition and every object added"
+
+class AddedObjectAdmin(TabularInline):
+	model = AddedObject
+
+class AdditionAdmin(ModelAdmin):
+	inlines = (AddedObjectAdmin, )
+	list_display = ("__unicode__", "build", "date", "content_type")
+	list_filter = ("build", )
+	actions = (clear_added_objects, )
+
+
+site.register(Addition, AdditionAdmin)

@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>{% block title %}World of Warcraft Database{% endblock %} - Sigrie</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+<meta name="description" content="Sigrie is a World of Warcraft database for items, achievements, spells..."/>
+<link rel="canonical" href="http://db.mmo-champion.com{% block canonical %}{{ request.META.PATH_INFO }}{% endblock %}"/>
+<link rel="stylesheet" type="text/css" href="/static/css/sigrie.css?$__REV__"/>
+<link rel="search" type="application/opensearchdescription+xml" href="/static/opensearch/opensearch.xml" title="Sigrie"/>
+<script type="text/javascript" src="/static/js/sigrie.js?$__REV__"></script>
+<!--[if IE]><link type="text/css" rel="stylesheet" href="/static/css/ie.css?$__REV__"/><![endif]-->
+</head>
+<body id="www-sigrie-com" class="sigrie-{% block pagetype %}root{% endblock %}">
+{% block body %}
+{% endblock %}
+<div id="footer">
+	<div id="footer-about"><a href="http://db.mmo-champion.com/">Sigrie</a> - <a href="/about/">About</a></div>
+	<div id="footer-copyright">&copy;2010 - <a href="http://www.mmo-champion.com/">MMO-Champion</a></div>
+</div>
+<script type="text/javascript">
+var _gaq=_gaq||[];_gaq.push(["_setAccount","UA-1555148-1"]);_gaq.push(["_trackPageview"]);
+(function(){var a=document.createElement("script");a.src="http://www.google-analytics.com/ga.js";
+a.setAttribute("async","true");document.documentElement.firstChild.appendChild(a)})();
+triggerLoadEvents()
+</script>
+</body>
+</html>

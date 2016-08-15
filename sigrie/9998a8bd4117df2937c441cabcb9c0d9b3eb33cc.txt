@@ -1,0 +1,68 @@
+# -*- coding: utf-8 -*-
+from django.db.models import Model, PositiveIntegerField, DateTimeField, ForeignKey, ManyToManyField
+from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from sigrie.owdb.templatetags import extratags
+
+class Addition(Model):
+	date = DateTimeField()
+	object_list = ManyToManyField(ContentType, through="AddedObject")
+	build = PositiveIntegerField()
+	content_type = ForeignKey(ContentType, related_name="addition_model")
+	
+	class Meta:
+		ordering = ("-date", )
+	
+	def __unicode__(self):
+		return "Addition on %s" % self.date.isoformat()
+	
+	def model_name(self):
+		return self.content_type.model_class()().verbose_name_plural
+	
+	def __table_name(self):
+		model = self.addedobject_addition.all()[:1][0].content_type
+		return "%s_%s" % (model.app_label, model.model)
+	
+	def count(self):
+		return self.addedobject_addition.count()
+	
+	def get_html_list(self):
+		ret = []
+		for addition in self.addedobject_addition.all()[:500]:
+			k = '<li>%s <span class="addition-objectid">(#%i)</span></li>' % (extratags.url(addition.added_object), addition.object_id)
+			ret.append(k)
+		return "<ul>%s</ul>" % "".join(ret)
+	
+	def html_elements(self):
+		ret = []
+		table_name = self.__table_name()
+		_column_list = ["id", "name"]
+		column_list = ['"%s"."%s"' % (table_name, k) for k in _column_list]
+		objects = self.addedobject_addition.raw("""
+			SELECT *, %s FROM "additions_addedobject"
+			INNER JOIN "%s" ON (%s = %s)
+			WHERE "additions_addedobject".addition_id = %%s
+		""" % (
+			", ".join(column_list),
+			table_name,
+			'"%s"."id"' % (table_name),
+			'"additions_addedobject"."object_id"',
+		), [self.pk])
+		for k in objects:
+			ret.append("%s - %s" % (self.content_type.sigrie_name, "foo"))
+			#ret.append(url(k))
+		return ret
+
+class AddedObject(Model):
+	addition = ForeignKey(Addition, related_name="addedobject_addition")
+	content_type = ForeignKey(ContentType, null=True, blank=True)
+	object_id = PositiveIntegerField(null=True, blank=True)
+	added_object = GenericForeignKey()
+	
+	def __unicode__(self):
+		return self.added_object and self.added_object.__unicode__() or "<Unresolved %s: %s #%i>" % (self.__class__.__name__, self.content_type, self.object_id)
+	
+	def get_absolute_url(self):
+		if hasattr(self.added_object, "get_absolute_url"):
+			return self.added_object.get_absolute_url()
+		return "#"

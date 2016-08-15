@@ -1,0 +1,24 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><a href="http://wowwiki.com/{{obj.name}}">WoWWiki</a></li>
+{% if obj.data.quest %}
+<li class="exclam-yellow">{{obj.data.quest|url}}</span></li>
+{% endif %}
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+<div id="dc-map">{{obj.locations|mapify|safe}}</div>
+
+
+{% if obj.data.page %}
+<div id="pagewidget" rel="{{obj.data.page_id}}"></div>
+<div style="clear: left;"></div>
+{% endif %}
+
+
+{% endblock %}

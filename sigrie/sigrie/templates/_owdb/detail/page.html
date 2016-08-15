@@ -1,0 +1,16 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+{% if obj.next_page %}<li>{{obj.next_page|url:"Next page"}}</li>{% endif %}
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+{% sigrielisting PagePrevious obj.page_next_page %}
+{% sigrielisting PageItem obj.item_page %}
+{% sigrielisting PageObject obj %}
+
+{% endblock %}

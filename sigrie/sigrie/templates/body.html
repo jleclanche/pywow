@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load extratags %}
+{% block body %}
+<div id="layout">
+	<div id="logo">
+		<h1>Sigrie</h1>
+		<a href="/"> </a>
+	</div>
+	<div id="main">
+		<div id="main-content">
+			{% sitenav %}
+
+			{% block content_header %}
+			{% include "owdb/content_header.html" %}
+			{% endblock %}
+			<div id="content">
+				{% block content %}
+				{% endblock %}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

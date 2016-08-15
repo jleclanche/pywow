@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+
+from django.db.models import Model, PositiveIntegerField, PositiveSmallIntegerField, FloatField, ManyToManyField, ForeignKey
+
+class ScalingStatDistribution(Model):
+	id = PositiveIntegerField(primary_key=True)
+	stats = ManyToManyField("Stat", through="ScalingStat", related_name="scalingstatdistribution_stats")
+	max_level = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+	
+	def __unicode__(self):
+		return "Distribution Level 1-%i" % (self.max_level)
+
+class ScalingStat(Model):
+	distribution = ForeignKey(ScalingStatDistribution, related_name="scalingstat_distribution")
+	stat = ForeignKey("Stat", related_name="scalingstat_stat")
+	modifier = FloatField()
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+	
+	def __unicode__(self):
+		return "%s * %f" % (self.stat, self.modifier)
+
+class ScalingStatValues(Model):
+	"""
+	Structure replicated from ScalingStatValues.dbc
+	"""
+	id = PositiveIntegerField(primary_key=True)
+	level = PositiveSmallIntegerField()
+	coefficient_1 = PositiveIntegerField()
+	coefficient_2 = PositiveIntegerField()
+	coefficient_3 = PositiveIntegerField()
+	coefficient_4 = PositiveIntegerField()
+	armor_modifier_1 = PositiveIntegerField()
+	armor_modifier_2 = PositiveIntegerField()
+	armor_modifier_3 = PositiveIntegerField()
+	armor_modifier_4 = PositiveIntegerField()
+	dps_modifier_1 = PositiveIntegerField()
+	dps_modifier_2 = PositiveIntegerField()
+	dps_modifier_3 = PositiveIntegerField()
+	dps_modifier_4 = PositiveIntegerField()
+	dps_modifier_5 = PositiveIntegerField()
+	dps_modifier_6 = PositiveIntegerField()
+	spellpower = PositiveIntegerField()
+	coefficient_5 = PositiveIntegerField()
+	coefficient_6 = PositiveIntegerField()
+#	IntegerField("no_armor")
+	cloth = PositiveIntegerField()
+	leather = PositiveIntegerField()
+	mail = PositiveIntegerField()
+	plate = PositiveIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("-level", )

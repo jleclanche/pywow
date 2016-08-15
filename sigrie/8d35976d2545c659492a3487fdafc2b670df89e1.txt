@@ -1,0 +1,345 @@
+# -*- coding: utf-8 -*-
+
+from django.db.models import Model, PositiveIntegerField, PositiveSmallIntegerField, SmallIntegerField, BooleanField, ForeignKey
+from sigrie.owdb.durationfield import DurationField
+
+class GameObjectModel(Model):
+	
+	class Meta:
+		abstract = True
+		app_label = "owdb"
+		ordering = ("id", )
+	
+	def __unicode__(self):
+		return "%s #%i" % (self.__class__.__name__, self.id)
+	
+	def get_json(self, rel):
+		from . import Object
+		return Object.objects.get(id=self.id).get_json(rel)
+
+
+class GameObject_Door(GameObjectModel): # 0
+	id = PositiveIntegerField(primary_key=True)
+	start_open = BooleanField()
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_door_lock")
+	auto_close_timer = DurationField()
+	#uint32 openTextID;                              //4 can be used to replace castBarCaption?
+	#uint32 closeTextID;                             //5
+	#uint32 ignoredByPathing;                        //6
+
+class GameObject_Button(GameObjectModel): # 1
+	id = PositiveIntegerField(primary_key=True)
+	start_open = BooleanField()
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_button_lock", add_constraint=False)
+	auto_close_timer = DurationField()
+	trap = ForeignKey("Object", null=True, related_name="gameobject_button_trap", add_constraint=False)
+	#uint32 noDamageImmune;                          //4 isBattlegroundObject
+	#uint32 large;                                   //5
+	#uint32 openTextID;                              //6 can be used to replace castBarCaption?
+	#uint32 closeTextID;                             //7
+	#uint32 losOK;                                   //8
+
+class GameObject_QuestGiver(GameObjectModel): # 2
+	id = PositiveIntegerField(primary_key=True)
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_questgiver_lock", add_constraint=False)
+	quest_list = PositiveIntegerField()
+	material_id = PositiveSmallIntegerField()
+	gossip_id = PositiveIntegerField()
+	custom_animation_id = PositiveIntegerField()
+	#uint32 noDamageImmune;                          //5
+	#uint32 openTextID;                              //6 can be used to replace castBarCaption?
+	#uint32 losOK;                                   //7
+	#uint32 allowMounted;                            //8
+	#uint32 large;                                   //9
+
+class GameObject_Chest(GameObjectModel): # 3
+	id = PositiveIntegerField(primary_key=True)
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_chest_lock")
+	loot_id = PositiveIntegerField()
+	restock_time = PositiveIntegerField()
+	consumable = BooleanField()
+	min_openings = PositiveIntegerField()
+	max_openings = PositiveIntegerField()
+	loot_event_id = PositiveIntegerField()
+	trap = ForeignKey("Object", null=True, related_name="gameobject_chest_trap", add_constraint=False)
+	quest = ForeignKey("Quest", null=True, related_name="gameobject_chest_quest")
+	level = PositiveSmallIntegerField()
+	#uint32 losOK;                                   //10
+	leave_loot = PositiveIntegerField()
+	unusable_in_combat = BooleanField()
+	#uint32 logLoot;                                 //13
+	#uint32 openTextID;                              //14 can be used to replace castBarCaption?
+	group_loot_rules = PositiveIntegerField()
+	#uint32 floatingTooltip;                         //16
+
+#class GameObject_Binder(GameObjectModel): # 4
+	#id = PositiveIntegerField(primary_key=True)
+
+class GameObject_Generic(GameObjectModel): # 5
+	id = PositiveIntegerField(primary_key=True)
+	#uint32 floatingTooltip;                         //0
+	#uint32 highlight;                               //1
+	server_only = BooleanField()
+	#uint32 large;                                   //3
+	float_on_water = BooleanField()
+	quest = ForeignKey("Quest", null=True, related_name="gameobject_generic_quest")
+
+class GameObject_Trap(GameObjectModel): # 6
+	id = PositiveIntegerField(primary_key=True)
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_trap_lock")
+	level = PositiveSmallIntegerField()
+	radius = PositiveIntegerField() # radius for trap activation
+	spell = ForeignKey("Spell", null=True, related_name="gameobject_trap_spell", add_constraint=False)
+	charges = PositiveIntegerField()
+	cooldown = DurationField()
+	auto_close_timer = DurationField()
+	start_delay = PositiveIntegerField()
+	server_only = BooleanField()
+	stealthed = BooleanField()
+	#uint32 large;                                   //10
+	#uint32 stealthAffected;                         //11
+	#uint32 openTextID;                              //12 can be used to replace castBarCaption?
+	#uint32 closeTextID;                             //13
+	#uint32 ignoreTotems;                            //14
+
+class GameObject_Chair(GameObjectModel): # 7
+	id = PositiveIntegerField(primary_key=True)
+	slots = PositiveSmallIntegerField()
+	height = PositiveIntegerField()
+	creator_use_only = BooleanField()
+	event_id = PositiveIntegerField()
+
+class GameObject_SpellFocus(GameObjectModel): # 8
+	id = PositiveIntegerField(primary_key=True)
+	focus_id = PositiveIntegerField()
+	range = PositiveIntegerField()
+	trap = ForeignKey("Object", null=True, related_name="gameobject_spellfocus_trap", add_constraint=False)
+	server_only = BooleanField()
+	quest = ForeignKey("Quest", null=True, related_name="gameobject_spellfocus_quest")
+	#uint32 large;                                   //5
+	#uint32 floatingTooltip;                         //6
+
+class GameObject_Text(GameObjectModel): # 9
+	id = PositiveIntegerField(primary_key=True)
+	page = ForeignKey("Page", related_name="gameobject_text_page", add_constraint=False)
+	language_id = PositiveSmallIntegerField()
+	material_id = PositiveSmallIntegerField()
+	#uint32 allowMounted;                            //3
+
+class GameObject_Goober(GameObjectModel): # 10
+	id = PositiveIntegerField(primary_key=True)
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_goober_lock")
+	quest = ForeignKey("Quest", null=True, related_name="gameobject_goober_quest")
+	event_id = PositiveIntegerField()
+	auto_close_timer = DurationField()
+	custom_animation_id = PositiveIntegerField()
+	consumable = BooleanField()
+	cooldown = DurationField()
+	page = ForeignKey("Page", null=True, related_name="gameobject_goober_page", add_constraint=False)
+	language_id = PositiveSmallIntegerField()
+	material_id = PositiveSmallIntegerField()
+	spell = ForeignKey("Spell", null=True, related_name="gameobject_goober_spell", add_constraint=False)
+	#uint32 noDamageImmune;                          //11
+	trap = ForeignKey("Object", null=True, related_name="gameobject_goober_trap", add_constraint=False)
+	#uint32 large;                                   //13
+	#uint32 openTextID;                              //14 can be used to replace castBarCaption?
+	#uint32 closeTextID;                             //15
+	#uint32 losOK;                                   //16 isBattlegroundObject
+	#uint32 allowMounted;                            //17
+	#uint32 floatingTooltip;                         //18
+	gossip_id = PositiveIntegerField()
+	#uint32 WorldStateSetsState;                     //20
+
+class GameObject_Transport(GameObjectModel): # 11
+	id = PositiveIntegerField(primary_key=True)
+	pause = PositiveIntegerField()
+	start_open = BooleanField()
+	auto_close_timer = DurationField()
+	pause_event_1_id = PositiveIntegerField()
+	pause_event_2_id = PositiveIntegerField()
+
+class GameObject_AreaDamage(GameObjectModel): # 12
+	id = PositiveIntegerField(primary_key=True)
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_areadamage_lock")
+	radius = PositiveSmallIntegerField()
+	damage_min = PositiveIntegerField()
+	damage_max = PositiveIntegerField()
+	damage_school = PositiveSmallIntegerField()
+	auto_close_timer = DurationField()
+	#uint32 openTextID;                              //6
+	#uint32 closeTextID;                             //7
+
+class GameObject_Camera(GameObjectModel): # 13
+	id = PositiveIntegerField(primary_key=True)
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_camera_lock")
+	cinematic_id = PositiveIntegerField()
+	event_id = PositiveIntegerField()
+	#uint32 openTextID;                              //3 can be used to replace castBarCaption?
+
+
+#class GameObject_MapObject(GameObjectModel): # 14
+	#id = PositiveIntegerField(primary_key=True)
+
+class GameObject_MOTransport(GameObjectModel): # 15
+	id = PositiveIntegerField(primary_key=True)
+	taxi_id = PositiveIntegerField()
+	move_speed = PositiveIntegerField()
+	acceleration = PositiveIntegerField()
+	start_event_id = PositiveIntegerField()
+	stop_event_id = PositiveIntegerField()
+	transport_physics = PositiveIntegerField()
+	map = ForeignKey("Instance", null=True, related_name="gameobject_motransport_map")
+	world_state = PositiveIntegerField()
+
+#class GameObject_DuelFlag(GameObjectModel): # 16
+	#id = PositiveIntegerField(primary_key=True)
+
+#class GameObject_FishingNode(GameObjectModel): # 17
+	#id = PositiveIntegerField(primary_key=True)
+
+class GameObject_SummoningRitual(GameObjectModel): # 18
+	id = PositiveIntegerField(primary_key=True)
+	required_players = PositiveSmallIntegerField()
+	spell = ForeignKey("Spell", null=True, related_name="gameobject_summoningritual_spell", add_constraint=False)
+	#uint32 ritualPersistent;                        //3
+	#uint32 casterTargetSpell;                       //4
+	#uint32 casterTargetSpellTargets;                //5
+	party_only = BooleanField()
+	no_target_check = BooleanField()
+
+#class GameObject_Mailbox(GameObjectModel): # 19
+	#id = PositiveIntegerField(primary_key=True)
+
+#class GameObject_DoNotUse(GameObjectModel): # 20
+	#id = PositiveIntegerField(primary_key=True)
+
+class GameObject_GuardPost(GameObjectModel): # 21
+	id = PositiveIntegerField(primary_key=True)
+	creature = ForeignKey("Creature", null=True, related_name="gameobject_guardpost_creature")
+	charges = PositiveSmallIntegerField()
+
+class GameObject_SpellCaster(GameObjectModel): # 22
+	id = PositiveIntegerField(primary_key=True)
+	spell = ForeignKey("Spell", related_name="gameobject_spellcaster_spell")
+	charges = SmallIntegerField()
+	party_only = BooleanField()
+	#uint32 allowMounted;                            //3
+	#uint32 large;                                   //4
+
+class GameObject_MeetingStone(GameObjectModel): # 23
+	id = PositiveIntegerField(primary_key=True)
+	min_level = PositiveSmallIntegerField()
+	max_level = PositiveSmallIntegerField()
+	zone = ForeignKey("Zone", null=True, related_name="gameobject_meetingstone_zone")
+
+class GameObject_FlagStand(GameObjectModel): # 24
+	id = PositiveIntegerField(primary_key=True)
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_flagstand_lock")
+	spell = ForeignKey("Spell", related_name="gameobject_flagstand_spell", add_constraint=False)
+	radius = PositiveSmallIntegerField()
+	return_aura = ForeignKey("Spell", null=True, related_name="gameobject_flagstand_return_aura", add_constraint=False)
+	return_spell = ForeignKey("Spell", null=True, related_name="gameobject_flagstand_return_spell", add_constraint=False)
+	#uint32 noDamageImmune;                          //5
+	#uint32 openTextID;                              //6
+	#uint32 losOK;                                   //7
+
+class GameObject_FishingHole(GameObjectModel): # 25
+	id = PositiveIntegerField(primary_key=True)
+	radius = PositiveSmallIntegerField() # how close bobber must land
+	loot_id = PositiveIntegerField()
+	min_openings = PositiveIntegerField()
+	max_openings = PositiveIntegerField()
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_fishinghole_lock")
+
+class GameObject_FlagDrop(GameObjectModel): # 26
+	id = PositiveIntegerField(primary_key=True)
+	lock = ForeignKey("Lock", null=True, related_name="gameobject_flagdrop_lock")
+	event_id = PositiveIntegerField()
+	spell = ForeignKey("Spell", related_name="gameobject_flagdrop_spell", add_constraint=False)
+	#uint32 noDamageImmune;                          //3
+	#uint32 openTextID;                              //4
+
+class GameObject_MiniGame(GameObjectModel): # 27
+	id = PositiveIntegerField(primary_key=True)
+	game_type = PositiveSmallIntegerField()
+
+class GameObject_CapturePoint(GameObjectModel): # 29
+	id = PositiveIntegerField(primary_key=True)
+	radius = PositiveSmallIntegerField()
+	spell = ForeignKey("Spell", null=True, related_name="gameobject_capturepoint", add_constraint=False)
+	#uint32 worldState1;                             //2
+	#uint32 worldstate2;                             //3
+	#uint32 winEventID1;                             //4
+	#uint32 winEventID2;                             //5
+	#uint32 contestedEventID1;                       //6
+	#uint32 contestedEventID2;                       //7
+	#uint32 progressEventID1;                        //8
+	#uint32 progressEventID2;                        //9
+	#uint32 neutralEventID1;                         //10
+	#uint32 neutralEventID2;                         //11
+	#uint32 neutralPercent;                          //12
+	#uint32 worldstate3;                             //13
+	#uint32 minSuperiority;                          //14
+	#uint32 maxSuperiority;                          //15
+	#uint32 minTime;                                 //16
+	#uint32 maxTime;                                 //17
+	#uint32 large;                                   //18
+	#uint32 highlight;                               //19
+	#uint32 startingValue;                           //20
+	#uint32 unidirectional;                          //21
+
+class GameObject_AuraGenerator(GameObjectModel): # 30
+	id = PositiveIntegerField(primary_key=True)
+	start_open = BooleanField()
+	radius = PositiveSmallIntegerField()
+	aura_1 = ForeignKey("Spell", related_name="gameobject_auragenerator_aura", add_constraint=False)
+	condition_id = PositiveIntegerField()
+	#uint32 auraID2;                                 //4
+	#uint32 conditionID2;                            //5
+	#uint32 serverOnly;                              //6
+
+class GameObject_DungeonDifficulty(GameObjectModel): # 31
+	id = PositiveIntegerField(primary_key=True)
+	instance = ForeignKey("Instance", null=True, related_name="gameobject_dungeondifficulty_instance", add_constraint=False)
+	difficulty = PositiveSmallIntegerField()
+
+class GameObject_BarberChair(GameObjectModel): # 32
+	id = PositiveIntegerField(primary_key=True)
+	height = PositiveSmallIntegerField()
+	offset = PositiveSmallIntegerField()
+
+class GameObject_DestructibleBuilding(GameObjectModel): # 33
+	id = PositiveIntegerField(primary_key=True)
+	health = PositiveIntegerField()
+	#uint32 creditProxyCreature;                     //1
+	#uint32 empty1;                                  //2
+	#uint32 intactEvent;                             //3
+	#uint32 empty2;                                  //4
+	#uint32 damagedNumHits;                          //5
+	#uint32 empty3;                                  //6
+	#uint32 empty4;                                  //7
+	#uint32 empty5;                                  //8
+	#uint32 damagedEvent;                            //9
+	#uint32 empty6;                                  //10
+	#uint32 empty7;                                  //11
+	#uint32 empty8;                                  //12
+	#uint32 empty9;                                  //13
+	#uint32 destroyedEvent;                          //14
+	#uint32 empty10;                                 //15
+	#uint32 debuildingTimeSecs;                      //16
+	#uint32 empty11;                                 //17
+	#uint32 destructibleData;                        //18
+	#uint32 rebuildingEvent;                         //19
+	#uint32 empty12;                                 //20
+	#uint32 empty13;                                 //21
+	#uint32 damageEvent;                             //22
+	#uint32 empty14;                                 //23
+
+#class GameObject_GuildBank(GameObjectModel): # 34
+	#id = PositiveIntegerField(primary_key=True)
+
+class GameObject_TrapDoor(GameObjectModel): # 35
+	id = PositiveIntegerField(primary_key=True)
+	pause = PositiveIntegerField()
+	start_open = BooleanField()
+	auto_close = BooleanField()

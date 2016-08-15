@@ -1,0 +1,11 @@
+# -*- coding: utf-8 -*-
+from sigrie.locations.models import *
+from django.contrib.admin import ModelAdmin, site
+
+class NodeAdmin(ModelAdmin):
+	raw_id_fields = ("zone", )
+	list_display = ("__unicode__", "content_type", "object_id", "seen_count", "floor")
+	list_filter = ("content_type", )
+	search_fields = ("zone__name", "object_id")
+
+site.register(Node, NodeAdmin)

@@ -1,0 +1,6 @@
+@import url("tooltip-ie.css");
+
+.sorttable tbody td {
+	border-bottom: 1px solid #555;
+	border-left: 1px solid #555;
+}

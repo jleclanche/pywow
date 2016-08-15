@@ -1,0 +1,557 @@
+# -*- coding: utf-8 -*-
+
+from django.db.models import *
+from sigrie.owdb.durationfield import DurationField
+from django.contrib.contenttypes.generic import GenericRelation
+
+from . import SigrieModel, BaseModel
+from sigrie import utils
+from sigrie.owdb import choices
+
+
+class ItemManager(Manager):
+	def get_query_set(self):
+		return super(ItemManager, self).get_query_set().filter(stub=False, armory=False)
+
+class Item(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	subclass = ForeignKey("ItemClass", related_name="item_subclass")
+	name = CharField(max_length=256, blank=True)
+	icon = CharField(max_length=64, blank=True)
+	quality = PositiveSmallIntegerField(choices=choices.QUALITIES, default=1)
+	
+	# flags
+	conjured = BooleanField(default=False)
+	openable = BooleanField(default=False)
+	heroic = BooleanField(default=False)
+	totem = BooleanField(default=False)
+	group_loot = BooleanField(default=False)
+	refundable = BooleanField(default=False)
+	chart = BooleanField(default=False)
+	prospecting = SmallIntegerField(default=0)
+	unique_equipped = BooleanField(default=False)
+	usable_in_arena = BooleanField(default=False)
+	enchant_scroll = BooleanField(default=False)
+	milling = SmallIntegerField(default=0)
+	bop_tradeable = BooleanField(default=False)
+	
+	# flags_2
+	horde = BooleanField(default=False)
+	alliance = BooleanField(default=False)
+	sell_extended_price = BooleanField(default=False)
+	need_roll_disabled = BooleanField(default=False)
+	caster_weapon = BooleanField(default=False)
+	
+	buy_price = BigIntegerField(default=0)
+	sell_price = BigIntegerField(default=0)
+	slot = PositiveSmallIntegerField(default=0, choices=choices.SLOTS)
+	class_mask = BigIntegerField(null=True, blank=True)
+	race_mask = BigIntegerField(null=True, blank=True)
+	level = SmallIntegerField(default=0)
+	required_level = PositiveSmallIntegerField(default=0)
+	required_skill = ForeignKey("Skill", null=True, blank=True, related_name="item_required_skill")
+	required_skill_level = PositiveSmallIntegerField(null=True, blank=True)
+	required_spell = ForeignKey("Spell", null=True, blank=True, related_name="item_required_spell")
+	required_faction = ForeignKey("Faction", null=True, blank=True, related_name="item_required_faction")
+	required_reputation = SmallIntegerField(choices=choices.REPUTATION_LEVELS, null=True, blank=True)
+	unique = PositiveIntegerField(default=0)
+	stack = PositiveIntegerField(default=0)
+	bag_slots = SmallIntegerField(default=0)
+	stats = ManyToManyField("Stat", through="ItemStat", related_name="item_stats")
+	scaling_stats = ForeignKey("ScalingStatDistribution", null=True, blank=True, related_name="item_scaling_stats")
+	scaling_flags = PositiveIntegerField(default=0)
+	damage_min = FloatField(default=0.0)
+	damage_max = FloatField(default=0.0)
+	damage_type = SmallIntegerField(default=0, choices=choices.SCHOOLS)
+	damage_min_2 = FloatField(default=0.0)
+	damage_max_2 = FloatField(default=0.0)
+	damage_type_2 = SmallIntegerField(default=0, choices=choices.SCHOOLS)
+	armor = PositiveIntegerField(default=0)
+	speed = FloatField(default=0.0)
+	spells = ManyToManyField("Spell", through="ItemSpell", related_name="item_spells")
+	teaches_spell = ForeignKey("Spell", null=True, blank=True, related_name="item_teaches_spell", add_constraint=False)
+	bind = SmallIntegerField(default=0, choices=choices.BINDS)
+	note = CharField(max_length=1024, blank=True)
+	page = ForeignKey("Page", null=True, blank=True, related_name="item_page", add_constraint=False)
+	starts_quest = ForeignKey("Quest", null=True, blank=True, related_name="item_starts_quest")
+	lockpicking = PositiveSmallIntegerField(null=True, blank=True)
+	lock = ForeignKey("Lock", null=True, blank=True)
+	random_enchantment = BooleanField(default=False)
+	random_enchantment_id = IntegerField(null=True, blank=True)
+	random_suffix_id = IntegerField(null=True, blank=True)
+	block = PositiveIntegerField(default=0)
+	itemset = ForeignKey("ItemSet", null=True, blank=True, related_name="item_itemset", add_constraint=False)
+	durability = PositiveSmallIntegerField(default=0)
+	zone_bind = ForeignKey("Zone", null=True, blank=True, related_name="item_zone_bind")
+	instance_bind = ForeignKey("Instance", null=True, blank=True, related_name="item_instance_bind")
+	bag_category = IntegerField(default=0)
+	tool_category = ForeignKey("ToolCategory", null=True, blank=True, related_name="item_tool_category")
+	socket1 = utils.GemColorField(null=True, blank=True)
+	socket2 = utils.GemColorField(null=True, blank=True)
+	socket3 = utils.GemColorField(null=True, blank=True)
+	socket_bonus = ForeignKey("Enchant", null=True, blank=True, related_name="item_socket_bonus")
+	gem_properties = ForeignKey("Enchant", null=True, blank=True, related_name="item_gem_properties")
+	gem_color = utils.GemColorField(null=True, blank=True)
+	disenchanting = SmallIntegerField(default=0)
+	bonus_armor = PositiveSmallIntegerField(null=True, blank=True)
+	duration = DurationField(null=True, blank=True)
+	duration_transform = ForeignKey("Item", null=True, blank=True, related_name="item_duration_transform")
+	unique_category = ForeignKey("ItemUniqueCategory", null=True, blank=True, related_name="item_unique_category")
+	required_holiday = ForeignKey("Holiday", null=True, blank=True, related_name="item_required_holiday")
+	scaling_factor = FloatField(default=0.0)
+	
+	armory = BooleanField()
+	stub = BooleanField()
+	build = PositiveSmallIntegerField()
+	slug = SlugField(blank=True)
+	
+	#openable items
+	looted_count = PositiveIntegerField(default=0)
+	wealth_min = PositiveIntegerField(default=0)
+	wealth_max = PositiveIntegerField(default=0)
+	contains = GenericRelation("Loot", related_name="item_contains")
+	
+	required_arena_rating = PositiveSmallIntegerField(default=0)
+	required_arena_bracket = PositiveSmallIntegerField(default=0)
+	required_for_achievement = GenericRelation("AchievementCriteria")
+	required_for_quest = GenericRelation("QuestRequirement")
+	tool_for_spell = GenericRelation("SpellTool")
+	
+	objects = Manager()
+	filtered_objects = ItemManager()
+	
+	link = ("id",  "enchant", "socket1", "socket2", "socket3", "socket4", "suffix", "guid", "level")
+	navigation = ("subclass__id1", "subclass__id2", "slot")
+	JSON = ("id", "category", "subcategory", "quality", "slot", "bag_slots", "level", "required_level", "icon")
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("-quality", "name", "-level", "id")
+		verbose_name = "Item"
+		verbose_name_plural = "Items"
+	
+	def __unicode__(self):
+		return self.name or "Item #%r" % (self.id) # FIXME deferred stuff
+	
+	@property
+	def category(self):
+		return self.subclass.id1
+	
+	@property
+	def subcategory(self):
+		return self.subclass.id2
+	
+	@property
+	def faction(self):
+		if self.horde:
+			return choices.FACTION_HORDE
+		elif self.alliance:
+			return choices.FACTION_ALLIANCE
+		return choices.FACTION_NONE
+	
+	def get_absolute_url(self):
+		return "/i/%i/%s/" % (self.id, self.slug)
+	
+	def get_htclasses(self):
+		return "q%d" % (self.quality)
+	
+	def get_navigation(self):
+		sc = self.subclass
+		id1 = sc.id1
+		id2 = sc.id2
+		return [("/items", "Items", "items"),
+			("/items/%i" % (id1), sc.get_id1_display(), "items_%i" % (id1)),
+			("/items/%i/%i" % (id1, id2), sc.category or sc.name, "items_%i_%i" % (id1, id2))]
+	
+	def get_link(self):
+		"Return the ingame item link for js"
+		colors = {
+			0: "ff9d9d9d", # Poor
+			1: "ffffffff", # Common
+			2: "ff1eff00", # Uncommon
+			3: "ff0080ff", # Rare
+			4: "ffb048f8", # Epic
+			5: "ffff8000", # Legendary
+			6: "ffe5cc80", # Artifact
+			7: "ffe5cc80", # Heirloom
+		}
+		color = colors[self.quality]
+		linkstring = "item:%i" % (self.id)
+		content = self.name.replace("'", r"\\\'").replace('"', r'\"')
+		
+		return ",".join("'%s'" % (k) for k in (color, linkstring, content))
+	
+	def get_scaling_flag(self, obj):
+		mask = self.scaling_flags
+		if mask & 0x00000001:
+			return obj.coefficient_1
+		if mask & 0x00000002:
+			return obj.coefficient_2
+		if mask & 0x00000004:
+			return obj.coefficient_3
+		if mask & 0x00000008:
+			return obj.coefficient_5
+		if mask & 0x00000010:
+			return obj.coefficient_4
+		if mask & 0x40000:
+			return obj.coefficient_6
+	
+	def get_scaling_armor(self, obj):
+		mask = self.scaling_flags
+		if mask & 0x00000020:
+			return obj.armor_modifier_1
+		if mask & 0x00000040:
+			return obj.armor_modifier_2
+		if mask & 0x00000080:
+			return obj.armor_modifier_3
+		if mask & 0x00000100:
+			return obj.armor_modifier_4
+		if mask & 0x00100000:
+			return obj.cloth
+		if mask & 0x00200000:
+			return obj.leather
+		if mask & 0x00400000:
+			return obj.mail
+		if mask & 0x00800000:
+			return obj.plate
+	
+	def get_scaling_dps(self, obj):
+		mask = self.scaling_flags
+		if mask & 0x00000200:
+			return obj.dps_modifier_1
+		if mask & 0x00000400:
+			return obj.dps_modifier_2
+		if mask & 0x00000800:
+			return obj.dps_modifier_3
+		if mask & 0x00001000:
+			return obj.dps_modifier_4
+		if mask & 0x00002000:
+			return obj.dps_modifier_5
+		if mask & 0x00004000:
+			return obj.dps_modifier_6
+	
+	def get_disenchant_loot(self):
+		if not self.disenchanting:
+			return
+		from ..disenchanting import getDisenchantTable
+		row = getDisenchantTable(slot=self.slot, quality=self.quality, level=self.level)
+		ret = []
+		for r in row:
+			item, percent, min, max = r
+			item = Item.objects.get(id=item)
+			link = str(item.get_absolute_url())
+			quality = item.quality
+			name = str(item)
+			ret.append({"name": name, "quality": quality, "link": link, "percent": percent, "amount_min": min, "amount_max": max, "icon": str(item.icon)})
+		
+		return ret
+	
+	def get_itemset(self):
+		if self.itemset:
+			return self.itemset
+		qs = ItemSet.objects.filter(items=self)[:1]
+		if qs:
+			return qs[0]
+	
+	def get_related(self):
+		if not self.name:
+			return
+		return self.__class__.objects.filter(name=self.name).exclude(id=self.id)
+	
+	def dps(self):
+		damage_min, damage_max = self.damage_min, self.damage_max
+		return ((((damage_max - damage_min) / 2.0) + damage_min) / (self.speed or 1.0))
+	
+	def projectile_dps(self):
+		return ((self.damage_max - self.damage_min) / 2.0 + self.damage_min)
+	
+	def source(self):
+		source = []
+		if self.solditem_item.exists():
+			source.append("Vendor")
+		if self.spell_createditem.exists():
+			source.append("Created")
+		if self.quest_items_reward.exists():
+			source.append("Quest")
+		return ", ".join(source)
+	
+	
+	def get_spec(self):
+		lookups = iter((
+			# Get rid of PvP items asap
+			35, "PvP", # resilience
+			
+			6, "Heal", # Spirit
+			3, "Physical DPS", # Agility
+			4, "Melee", # Strength
+			5, "Spell DPS", # Intellect
+			12, "Tank", # defense
+			14, "Tank", # parry
+			15, "Tank", # block
+			37, "Melee", # expertise
+			38, "Physical DPS", # attack power
+			45, "Spell DPS", # spell power
+			48, "Tank", # block
+			50, "Tank", # extra armor
+		))
+		ret = []
+		stats = [stat.id for stat in self.stats.only("id")]
+		for stat, type in zip(lookups, lookups):
+			if stat in stats:
+				return [type]
+		return []
+	
+	@property
+	def glyph(self):
+		for spell in self.spells.all(): # filter(glyph) ?
+			glyph = spell.glyph
+			if glyph:
+				return glyph
+	
+	def preprocess_paperdoll(self, id, request):
+		paperdoll = super(Item, self).preprocess_paperdoll(id, request)
+		for k in ("socket1", "socket2", "socket3"):
+			if k in request.GET:
+				try:
+					paperdoll[k] = Item.objects.get(id=int(request.GET[k])).gem_properties_id
+				except (AttributeError, ValueError):
+					continue
+		
+		paperdoll["items"] = []
+		if "items" in request.GET and self.itemset:
+			items = request.GET["items"].split(",")
+			for k in items:
+				try:
+					k = int(k)
+				except ValueError:
+					continue
+				item = Item.objects.get(id=k)
+				if item:
+					paperdoll["items"].append(item)
+			paperdoll["equipped_items"] = self.itemset.get_equipped_items(paperdoll["items"])
+		return paperdoll
+	
+	def get_paperdoll(self, id, request):
+		from . import Enchant
+		paperdoll = self.preprocess_paperdoll(id, request)
+		
+		if paperdoll["enchant"]:
+			enchant = Enchant.objects.get(id=paperdoll["enchant"])
+			if enchant:
+				paperdoll["enchant"] = enchant
+			else:
+				del paperdoll["enchant"]
+		
+		paperdoll["sockets"] = []
+		for k in ("socket1", "socket2", "socket3"):
+			key = paperdoll[k]
+			if key:
+				socket = Enchant.objects.get(id=key)
+				if socket:
+					paperdoll["sockets"].append(socket)
+		
+		max = self.durability
+		if max:
+			try:
+				cur = int(request.GET.get("durability", self.durability))
+			except ValueError:
+				cur = max
+			if not (0 <= cur <= max):
+				cur = max
+			paperdoll["durability"] = cur
+		
+		skills = request.GET.get("skills")
+		if skills:
+			paperdoll["skills"] = {}
+			skills = skills.split(",")
+			for skill in skills:
+				try:
+					skill, level = skill.split(":")
+					skill, level = int(skill), int(level)
+					if level < 1:
+						continue
+					paperdoll["skills"][skill] = level
+				except ValueError:
+					continue
+		
+		return paperdoll
+
+
+class ItemClass(BaseModel):
+	id = CharField(max_length=8, primary_key=True) # I am so sorry
+	id1 = SmallIntegerField(choices=choices.ITEM_CATEGORIES)
+	id2 = SmallIntegerField(null=True)
+	hands = PositiveSmallIntegerField()
+	name = CharField(max_length=64, blank=True)
+	category = CharField(max_length=128, blank=True)
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Item Class"
+		verbose_name_plural = "Item Classes"
+	
+	def get_absolute_url(self):
+		if not self.id2 and self.id2 != 0:
+			return "/items/%i/" % (self.id1)
+		return "/items/%i/%i/" % (self.id1, self.id2)
+
+
+class ItemUniqueCategory(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=128, blank=True)
+	amount = PositiveSmallIntegerField()
+	equipped = BooleanField()
+
+	def __unicode__(self):
+		return self.name
+	
+	def get_absolute_url(self):
+		return "/items/?unique_category=%i" % (self.id)
+
+
+class ItemStat(BaseModel):
+	item = ForeignKey(Item, related_name="itemstat_item")
+	stat = ForeignKey("Stat")
+	unknown_1 = IntegerField()
+	unknown_2 = IntegerField()
+	amount = IntegerField()
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+	
+	def __unicode__(self):
+		if self.stat.text:
+			return self.stat.text % (self.amount)
+		return ""
+
+class ItemExtendedCost(BaseModel):
+	sold_item = ForeignKey("SoldItem", related_name="itemextendedcost_sold_item")
+	item = ForeignKey(Item, related_name="itemextendedcost_item")
+	amount = PositiveIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("-item__quality", )
+	
+	def __unicode__(self):
+		return "%s (%i)" % (self.item, self.amount)
+	
+	def get_json(self, rel=""):
+		return self.sold_item.get_json(rel)
+
+class ItemSpell(Model):
+	item = ForeignKey(Item, related_name="itemspell_item")
+	spell = ForeignKey("Spell", related_name="itemspell_spell", add_constraint=False)
+	trigger = PositiveSmallIntegerField(choices=choices.SPELL_TRIGGERS)
+	charges = SmallIntegerField()
+	cooldown = DurationField()
+	#categorycooldown = IntegerField()
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+
+	def __unicode__(self):
+		return self.spell and (self.spell.description or self.spell.__unicode__()) or "Unknown spell #%i" % (self.spell_id)
+	
+	def get_absolute_url(self):
+		return self.spell and self.spell.get_absolute_url()
+
+
+class ItemSet(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=256)
+	items = ManyToManyField("Item", through="ItemSetItem", related_name="itemset_items")
+	bonuses = ManyToManyField("Spell", through="ItemSetBonus", related_name="itemset_bonuses")
+	required_skill = ForeignKey("Skill", null=True, blank=True, related_name="itemset_required_skill")
+	required_skill_level = PositiveSmallIntegerField()
+	
+	build = PositiveSmallIntegerField()
+	slug = SlugField()
+	
+	JSON = ("id", "required_skill", "required_skill_level")
+	link = ("id", "item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9")
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Item Set"
+		verbose_name_plural = "Item Sets"
+	
+	def get_absolute_url(self):
+		return "/is/%i/%s/" % (self.id, self.slug)
+	
+	@property
+	def additional_items(self):
+		self_items = self.items.all() # XXX probably doable with a single queryset
+		all_items = Item.objects.filter(itemset=self)
+		return [k for k in all_items if k not in self_items]
+	
+	def total_slots(self):
+		items = self.items.all()
+		multislots = (11, 12, 13) # ring, trinket, one-hand
+		return len(set([k.slot for k in items if k.slot not in multislots])) + len([k for k in items if k.slot in multislots])
+	
+	def get_item_pos(self, item):
+		qs = self.itemsetitem_itemset.filter(item=item)[:1]
+		if qs:
+			return item, qs[0].ordering
+		if item.itemset == self:
+			qs = self.itemsetitem_itemset.filter(item__slot=item.slot)[:1]
+			if qs:
+				return item, qs[0].ordering
+		return None, 0
+	
+	def get_equipped_items(self, items):
+		d = {}
+		for item in items:
+			if item:
+				i, o = self.get_item_pos(item)
+				if i:
+					d[o] = i
+		return d
+	
+	def get_paperdoll(self, id, request):
+		paperdoll = self.preprocess_paperdoll(id, request)
+		paperdoll["items"] = []
+		for i in range(10):
+			i += 1
+			key = "item%i" % (i)
+			if key in paperdoll and paperdoll[key]:
+				item = Item.objects.get(id=paperdoll[key])
+				if item:
+					paperdoll["items"].append(item)
+		paperdoll["equipped_items"] = self.get_equipped_items(paperdoll["items"])
+		return paperdoll
+
+class ItemSetBonus(Model):
+	itemset = ForeignKey("ItemSet", related_name="itemsetbonus_itemset")
+	spell = ForeignKey("Spell", related_name="itemsetbonus_spell")
+	required_amount = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("required_amount", )
+	
+	def __unicode__(self):
+		return self.spell and self.spell.description or "Unknown spell #%i" % (self.spell_id)
+	
+	def get_absolute_url(self):
+		return self.spell and self.spell.get_absolute_url() or ""
+
+class ItemSetItem(Model):
+	itemset = ForeignKey("ItemSet", related_name="itemsetitem_itemset")
+	item = ForeignKey("Item", related_name="itemsetitem_item")
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+	
+	def __unicode__(self):
+		return "%s: %s" % (self.itemset.__unicode__(), self.item.__unicode__())
+	
+	def get_absolute_url(self):
+		return self.item.get_absolute_url()

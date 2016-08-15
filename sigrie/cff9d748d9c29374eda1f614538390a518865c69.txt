@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+from django.conf.urls.defaults import *
+
+urlpatterns = patterns("sigrie.owdb.views",
+	(r"/tooltip/+js/*$", "detailview", {"view": "tooltip_js"}),
+	(r"/tooltip/*$", "detailview", {"view": "tooltip"}),
+	(r"/icon/*$", "detailview", {"view": "icon"}),
+	(r"/(?P<serial>json|xml)$", "detailview", {"view": "serial"}),
+	(r"^", "detailview"),
+)

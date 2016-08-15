@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, sys
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
+from sigrie.owdb.models import Item
+from optparse import OptionParser
+
+o = OptionParser()
+o.add_option("-m", "--min", type="int", dest="min", default=50000)
+o.add_option("-M", "--max", type="int", dest="max", default=100000)
+o.add_option("--quality", type="int", dest="quality", default=None)
+o.add_option("--build", type="int", dest="build", default=0)
+o.add_option("--level", type="int", dest="level", default=None)
+o.add_option("--faction", type="string", dest="faction", default="")
+o.add_option("--no-itemset", "-s", action="store_true", dest="itemset")
+args = o.parse_args(sys.argv[1:])[0]
+
+def filter(all):
+	all = all.filter(stub=False, id__gt=args.min, id__lt=args.max)
+	
+	if args.build: # filter cataclysm-only items
+		from sigrie.additions.models import AddedObject
+		new_items = [k.object_id for k in AddedObject.objects.filter(addition__build=args.build, content_type__name="item").only("object_id")]
+		all = all.filter(id__in=new_items)
+	
+	if args.faction:
+		all = all.filter(required_faction__name__icontains=args.faction)
+	
+	if args.level is not None:
+		all = all.filter(level=args.level)
+	
+	if args.quality is not None:
+		all = all.filter(quality=args.quality)
+	
+	if args.itemset:
+		all = all.filter(itemset__isnull=True)
+	
+	return all
+
+def main():
+	all = Item.objects.order_by("id")
+	all = filter(all)
+	
+	tpl = """<tr class="vloot2"><td>%(level)r</td><td>%(subcategory)s</td><td>%(spec)s</td><td>%(slot)s</td><td><a href="%(url)s" target="_blank" class="item%(cls)r">%(name)s</a></td></tr>\n"""
+	
+	thead = """
+	<table class="sortable" style="border:1px solid #96bc27;margin:auto">
+	<thead>
+		<tr style="background-color:#96BC27;font-weight:bold;cursor:pointer;">
+		<th>Level</th>
+		<th>Type</th>
+		<th>Spec</th>
+		<th>Slot</th>
+		<th>Name</th>
+	</tr></thead>
+	<tbody>\n"""
+	f = open("allitems.html", "w")
+	f.write(thead)
+
+	for k in all:
+		d = {
+			"level": k.level,
+			"subcategory": k.subclass,
+			"slot": k.get_slot_display(),
+			"url": "http://db.mmo-champion.com" + k.get_absolute_url(),
+			"cls": k.quality,
+			"spec": ", ".join(k.get_spec()),
+			"name": k.name
+		}
+		f.write(tpl % (d))
+		print k.id, k
+	
+	f.write("</tbody></table>")
+	f.close()
+
+if __name__ == "__main__":
+	main()

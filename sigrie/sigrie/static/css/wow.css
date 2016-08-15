@@ -1,0 +1,147 @@
+/* Item quality levels */
+.q0 { /* Poor */
+	color: #9d9d9d;
+}
+.q1 {  /* Common */
+	color: #ffffff;
+}
+.q2 { /* Uncommon */
+	color: #1eff00;
+}
+.q3 { /* Rare */
+	color: #0080ff;
+}
+.q4 { /* Epic */
+	color: #b048f8;
+}
+.q5 { /* Legendary */
+	color: #ff8000;
+}
+.q6 { /* Artifact */
+	color: #e5cc80;
+}
+.q7 { /* Heirloom */
+	color: #e5cc80;
+}
+
+.d0 {
+	color: #808080;
+}
+.d1 {
+	color: #40bf40;
+}
+.d2 {
+	color: #ffff00;
+}
+.d3 { /* Orange: Very hard */
+	color: #ff8040;
+}
+.d4 { /* Red: Impossible */
+	color:#ff0000;
+}
+
+.c0 {
+	color:#ffd100;
+}
+.c1 {
+	color:#ff0000;
+}
+
+.price>.g { background-image:
+url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAYlJREFUOE+1kjFLw0AUgA/aQqAICUiJY7oJBSkddBCLMYuFIBQCgqPQv6AiooPU4lZBSgpOokMmKaaDpVLnBB0KEZFmLS5ZHc/3rr0zVouLPvi4LN/37mgJ+ZdJSsryQtoCauVV2QYcoCIlSfY3laC4tzXju1WZIhcHWpyoWEhXpsqlJVLjImd4lxdgpNvUKESsb/LGmrzTONSoe6oyvKvR6VYJDVo67Z1nGEFbpvX9tA/PUYQsSaQAchTCFhR7DVWEUMIInt5ljgUQCBhcVmC7jXI8gAQtlUlxeMAspqz4dn8ygDLCrg1PEHzeYBTQVGLcNHKD92edwkm7Zxqj3y6z8+XBpP3bRXEGLYkhnjAORBhA3l6PmYzgd/i0zeSJQASBAg9kIeDjdgxQ6jKRgwEE5cdrjQXMlYQT/wUxUsEAwjfzm3AZwe/6bmogtsdGaZ6knKEn0aGnfyG8Lwnso/xgfnb89h9GMY2EPSUQWfpcR05Ol8XIEjE21zM24AAdEG0QLTn+z/vL+QDvA3ACSxsT7gAAAABJRU5ErkJggg==)
+!important;
+}
+.price>.s { background-image:
+url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAWdJREFUOMu1k79qwlAUhx2zumWsDqFSt0jdKpW8QIU8QLGmFqdiUYJDsThICQjFoREn0SUQkIKTo+BQgm/gK2Tp4Hh7fhdPuK20TgofCTHfd0/+pVIn+qUzZxmb6BfMgk8EhEPHs0dNiOXrclS9rQpQv6+rxIZhOP/JfRaZ8Wgs4UjzsSkoYh/Imqa1a3c10XhoSFpPLblFZOANhNt25T4CRITLVGWT5Hj4NhTeq5dEOMAgsg9gCovldPGy6EMG3efujykgAZ5CCdjq6hEHMAFEBtJsMpMgwgFSk4DVcTvbxcdC0PaA0ftIMg/novfSS46TaqmBGAGw+dyI6WQqwf56tZYyhyBXbioxqSYHsnju+AOB3ddOiowa4Aly57ng9yN0eDReGSHs8+gMrb5NVldf3fxFPsAJuHFhECbwZIAm3eq6bv35/lPEV2Wwl2OSl7hfR78FnFS6KvlEQCxJ9OmYjfflJJ/tNxkJZUXu3LsjAAAAAElFTkSuQmCC)
+!important;
+}
+.price>.c { background-image:
+url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAYxJREFUOE+1krFLAlEYwN/gcFDEHUEcCdUZBFoUh0EEQlRHQXBUxlEJ0iBKq1NE1FAOGlKLy4lTIMFBS+Akrk5H0R/g3Hb9Ca/ve9xnr6Ra6oMf7xB/v++dyNg/jTanKQ5QNhhzcwsTHpwFIPabyFA8mFb90qLOEZBlAnNsqPCtbA4rZRKJ5lGKv95kxImR2qrBIeIMyCpjJxfrM7yU0gX17bg4q8B93hIn0rANxFcjTJPlJMhBK7/Mm4cmv92Y6oeqEvWdeQpwCFgka5uxURe3Y4A20y1QkpECjrzdR1m+gZDDQOs0I8BXGQjojFnVvaVe9zzN4eS1XfMTD0Vb0Lk+5g2IN21doLDwFcJAgAHkpVnhj2dZIePz011JyBRCuZhUAwgkKRBLJ6I+bsfA23NLiIQcoBukxhWPyQORAgYQ3I4ihvCZrk7A9l5/uzTayuSI18nG+RVEOnATorK/xruXOYE9a/SMiGJ9leWIK8tIKAcgt1X64X4a/NJWIuoCHtAG0YXPHODjn/eX8w7Z6TFPZdbKiQAAAABJRU5ErkJggg==)
+!important;
+}
+
+.wow-socket {
+	background-repeat: no-repeat !important;
+	color: #9d9d9d !important;
+	padding-left: 20px !important;
+}
+.socket-meta, .socket-prismatic { background-image:
+url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABPElEQVQ4y62TvWoCQRRGfYQtt9ROmxjriBKruF2ECLFTCSISrIIEEQl2wSpYBauATcCnCNgINoJNwFeZeC7cywwrqVz42L85Z+6d2c1kLnFMJ1NXui5Jctmcaz22LL2nnoV3w+ehxQSAu+1OAsTAxcdCsv5eS3imguPv8bzAr0AlPkxOw9OCQr7gNMldYu2QOI4t3EdRZDHB6GUUCEin3TFJUk9MojBVBoLNzyZVwfh1LBACfQa8+lqlBSphELOrqNvuWvmcgVMC3bLl51IWihlJ8aroBv2Bq1aq1iIL27hvSAIBMDMgAERQvikL5EtoQSWBQBcJSCUqICoARBIIAFUCDKgCQL+Fs9tYu625w/4g8fedUmnNh1hMxnEOBPP3ubxoPjQN5hqBL9GJAgEwEgL0X/R7mL3N3EX+5D8pJnXC+Fwn6QAAAABJRU5ErkJggg==)
+!important;
+}
+.socket-red { background-image:
+url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABSklEQVQ4T62TMUvDQBiGO2ZwCFjhRKwNHDUZhASyHNRFnFyEbC7S0qFIhyqCHTL7G3RwtOCSsYtQRxehf0DwLzg6fub95D6uXkFBAw/fkHueuwuk0fiP5+HslAqlmEme0XO/EN4uBoIJQxqlCTO7LkkCEOlxyiCQBKEAyQUyvS54egFMSG7kV4FhW1NSvwTn2x3mqKmYZC1cJggECUxTQ4gAG7jZzTlwvLFFVzsdL7A4KfyAPYHdfZ4esIQAQgByme75AXsFiNjdhu7ijCMsOydARAKzrqGsXgywqGwnzOG6oio21FMt+Yj2KnBWBiABBHqbEUtu5McAJCxAxAYAAmCstR+AeBnHcgKIdlrx+xWABEY6oveXOZPVi1yi4IthS/MsmiF9PFU8lwLVZMyB2+7+yoAFsheAjAhAwKXKjYBTQAT39Q8ogb88n5FsTf0OAWt9AAAAAElFTkSuQmCC)
+!important;
+}
+.socket-yellow { background-image:
+url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABVElEQVQ4T62SMUvDUBRGMzhkDLhELJJAFN9mFjGbBF1aUCiIKKgtHTpWKFWkQ8HRUaSFksHBLkLGjp3cdRAcXfsTOjhc8124L9FXcdAHhzudk/uSWNZ/nGRwTPGWQ5hh4NDzU1Xz/tLQROsO9Tp7zHSakA5Ans1GTK8dckSAVERkTCOACakY+R5wFywz0DzwSHkOc364zJSzGFCB/QW/lKMDo5uQEAESGFyucWB/e5EuTlaMwOQxNgOygTx90g9ZQgAhALnVWDUDcgWIeLqEkivFEcg/bjDuRxRmLwgoz6Zu3Wd2Nh1KrxXVKi5FGw7juzaTDsP5AUgAgVpliaVi5NcAJGyBiAQAAqB5VDIDENtngd4AokwRi1eQiA50O2V6e71jZBNBVsZXwqzuZj/dR8pTB3zX0oFWXc0NCJCNAERsARBIh3HObaTBFhDBw/1pHvjL+QSvnm2ZWmLKewAAAABJRU5ErkJggg==)
+!important;
+}
+.socket-blue { background-image:
+url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABRUlEQVQ4T62RsUvDQBSHM3YM6BBRpIGgHFglUpCULIpToUizC9ZSHIropENGRwsdu3ToUhChg4Nj146OLkLX/hEOz/yevmfa3NiDjxuS78u7i+OsY113XsgrJ0wlfqSkM1Pat3PF3YkoOk0VDUCcvBKDQGnTKJDyQMSyBrBDykdsgeFouhwoH9+Q6xlm++SecYM6k59mFQ2EjTEhAiSwVx9wYGP/gnZrDwU5aX0UAzKBfD28nPLLCCAE+Ii1tBiQI0DE1yVkGkOWRBYQ0UDUnGRyyOChH6eM65+TyZ55h1d6iSW8k5G0FvYAJIDA1tGvmI9IoBL37AFImAK7BAACwBoIqncEZAIW/3YRV48ANOAfdCl9eqfPL/o/it6Jz+AvYfeCNj3333i3Bs6aY2tAgEzftByAjAgw1S5HBNyPgCkgCs461g9Im1PpE/9wfAAAAABJRU5ErkJggg==)
+!important;
+}
+
+.price span {
+	background-position: right bottom;
+	background-repeat: no-repeat;
+}
+
+.price-hidden {
+	visibility: hidden;
+	padding-right: 10px;
+}
+
+.iconinline {
+	margin-right: 4px;
+}
+
+.pvp-type-0 {
+	color: #ffd100 !important;
+}
+.pvp-type-2 { /* Alliance */
+	color: #6363ff !important;
+}
+.pvp-type-4 { /* Horde */
+	color: #ff0000 !important;
+}
+.pvp-type-6 { /* Sanctuary */
+	color: #66bbff !important;
+}
+
+.exclam-yellow {
+	list-style-image: url(/static/img/exclam-yellow.png);
+}
+
+/* icons */
+.iconized-large {
+	margin: 8px 0;
+}
+.iconized-large .icon {
+	display: inline;
+}
+.iconized-large span {
+	position: relative;
+	top: -1em;
+}
+.iconized-small {
+	display: inline;
+}
+.iconized-small .icon {
+	display: inline;
+	position: relative;
+	top: 3px;
+	left: 3px;
+}
+
+/* Heirloom scaling stuff */
+.tti-required_level_range input {
+	border: none;
+	display: inline;
+	height: 1.1em;
+	width: 1.3em;
+}
+.tti-current_level {
+	border-bottom: 1px dotted white;
+}
+

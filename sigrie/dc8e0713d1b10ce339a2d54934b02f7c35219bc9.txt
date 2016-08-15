@@ -1,0 +1,1157 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import division
+from django.db.models import *
+from sigrie.owdb.durationfield import DurationField
+from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from sigrie import utils
+from sigrie.owdb import choices
+from sigrie.owdb.templatetags import extratags
+from ..paperdoll import Paperdoll, LinkString
+from .. import tooltip
+
+class AccessProperty(object):
+	"""
+	Helper to be able to access Model.sigrie_name without instancing
+	"""
+	def __init__(self, method):
+		self.method = method
+	
+	def __get__(self, obj, type):
+		return self.method(type)
+
+class BaseModel(Model):
+	link = ("id",  )
+	JSON = ("id", )
+	
+	class Meta:
+		abstract = True
+		app_label = "owdb"
+	
+	def __unicode__(self):
+		return self.name or "%s #%r" % (self.verbose_name, self.pk)
+	
+	## HACK to allow easier handling in templates etc
+	@property
+	def verbose_name(self):
+		return self._meta.verbose_name
+	@property
+	def verbose_name_plural(self):
+		return self._meta.verbose_name_plural
+	@AccessProperty
+	def sigrie_name(cls):
+		return cls.__name__.lower()
+	
+	
+	def get_json(self, rel="", JSON=[]):
+		"""
+		Query a json output of the row
+		Returns a dictionary with exclusively string keys
+		Required rel argument, the relation for which the
+		 row is queried.
+		Optional argument JSON, to override self.JSON
+		"""
+		d = {}
+		JSON = JSON or self.JSON
+		for k in JSON:
+			v = getattr(self, k)
+			if callable(v):
+				v = v()
+			if v == None:
+				d[k] = ""
+			elif isinstance(v, bool):
+				d[k] = int(v)
+			elif type(v) not in (str, int, float):
+				try:
+					d[k] = str(v)
+				except UnicodeError:
+					d[k] = v.encode("ascii", "ignore")
+			else:
+				d[k] = v
+		
+		if hasattr(self, "get_absolute_url"):
+			d["link"] = str(self.get_absolute_url())
+		
+		if hasattr(self, "name"):
+			d["name"] = self.__unicode__().encode("ascii", "ignore")
+		
+		return d
+
+class SigrieModel(BaseModel):
+	"""
+	Basic sigrie model.
+	This class assumes more properties than BaseModel:
+	 * A name attribute
+	 * A slug attribute
+	 * A tooltip model of the same class name present in tooltip.py
+	"""
+	
+	screenshots = GenericRelation("screenshots.Screenshot")
+	search_fields = ("name", "slug")
+	
+	class Meta:
+		abstract = True
+		app_label = "owdb"
+		ordering = ("name", "id") # basemodel?
+	
+	def get_absolute_url(self):
+		return "/%s/%i/%s/" % (self.sigrie_name, self.id, self.slug)
+	
+	def get_navigation(self):
+		"""
+		Used for navigation keys in the top bar.
+		Returns a list of tuples:
+		 (path, display_name, menu)
+		"""
+		return [("/%ss" % (self.sigrie_name), self.verbose_name_plural, self.sigrie_name + "s")]
+	
+	def get_prev_next_by_id(self):
+		"""
+		Query for previous and next object in id order.
+		Used for infobox id listing.
+		"""
+		prev = self.__class__.objects.filter(id__lt=self.id).order_by("-id")[:1].only("id", "name", "slug").get()
+		next = self.__class__.objects.filter(id__gt=self.id).order_by("id")[:1].only("id", "name", "slug").get()
+		return prev, next
+	
+	ICON_IMG_TEMPLATE = '<span id="header-icon"><img src="http://static.mmo-champion.com/db/img/icons/%(icon)s.png" width="48" height="48"></img></span>'
+	ICON_LINK_TEMPLATE = '<a href="/%(sigrie_name)s?icon=%(icon)s">%(template)s</a><span id="icon-stack">%(stack)s</span>'
+	def get_icon(self):
+		"""
+		Return an HTML icon for the content header
+		"""
+		_icon, stack = self.get_icon_data()
+		icon = str(_icon or "temp") # temp.png is a default icon with the wow logo
+		stack = str(stack or "")
+		
+		context = {
+			"icon": icon,
+			"sigrie_name": self.sigrie_name + "s",
+			"stack": stack,
+		}
+		template = self.ICON_IMG_TEMPLATE % (context)
+		
+		if _icon: # If we want a stack and an "empty" icon, just return "temp" as icon
+			context["template"] = template
+			return self.ICON_LINK_TEMPLATE % (context)
+		
+		return template
+	
+	def get_icon_data(self):
+		"""
+		Return icon, stack as text to display on the icon in templates
+		"""
+		stack = getattr(self, "stack", 0)
+		stack = 0 if (stack < 2 or stack > 100000) else stack
+		return getattr(self, "icon", None), stack
+	
+	def preprocess_paperdoll(self, id, request):
+		if not id:
+			id = str(self.id)
+		paperdoll = LinkString(self.link, id)
+		paperdoll["character"] = Paperdoll()
+		paperdoll["character"].update(request.GET)
+		return paperdoll
+	
+	def get_paperdoll(self, id, request):
+		return self.preprocess_paperdoll(id, request)
+	
+	def tooltip(self, paperdoll={}):
+		"""
+		Query a tooltip rendering of the current object.
+		The class must be present in the Tooltip module
+		and have the same name as the class the tooltip
+		is for.
+		"""
+		return getattr(tooltip, self.__class__.__name__)(self).render(paperdoll) # tooltip.Item(self).render(paperdoll)
+
+
+class Achievement(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	faction = SmallIntegerField()
+	instance = ForeignKey("Instance", null=True)
+	parent = ForeignKey("Achievement", null=True, related_name="achievement_parent", add_constraint=False)
+	name = CharField(max_length=256)
+	points = PositiveIntegerField()
+	statistic = BooleanField()
+	ordering = PositiveSmallIntegerField()
+	hidden = BooleanField()
+	serverfirst = BooleanField()
+	icon = CharField(max_length=64, blank=True)
+	reward = CharField(max_length=256)
+	objective = TextField(blank=True)
+	category = ForeignKey("AchievementCategory", related_name="achievement_category")
+	criteria = ManyToManyField(ContentType, through="AchievementCriteria", related_name="achievement_criteria")
+	
+	build = PositiveSmallIntegerField()
+	slug = SlugField()
+	
+	navigation = ("category", )
+	JSON = ("id", "icon", "faction", "points", "instance", "instance_id")
+	
+	required_for_achievement = GenericRelation("AchievementCriteria", related_name="achievement_required_for_achievement")
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Achievement"
+		verbose_name_plural = "Achievements"
+		ordering = ("statistic", "ordering", "-points", "name", "id")
+	
+	def get_absolute_url(self):
+		return "/a/%i/%s/" % (self.id, self.slug)
+	
+	def get_navigation(self):
+		c = self.category
+		i = self.category_id
+		return [("/achievements", "Achievements", "achievements"),
+			("/achievements/%i" % (i), c, "achievements_%i" % (i))]
+
+class AchievementCategory(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	parent = ForeignKey("AchievementCategory", null=True, related_name="achievementcategory_parent", add_constraint=False)
+	name = CharField(max_length=64, blank=True)
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Achievement Category"
+		verbose_name_plural = "Achievement Categories"
+	
+	def get_absolute_url(self):
+		return "/achievements/%s/" % ("/".join([str(self.id), str(self.parent.id)]))
+
+class AchievementCriteria(BaseModel): # Incomplete by design
+	id = PositiveIntegerField(primary_key=True)
+	achievement = ForeignKey("Achievement", related_name="achievementcriteria_achievement")
+	content_type = ForeignKey(ContentType, null=True, blank=True)
+	object_id = PositiveIntegerField(null=True, blank=True)
+	type = PositiveIntegerField()
+	name = CharField(max_length=128)
+	requirement = GenericForeignKey()
+	required_amount = PositiveIntegerField()
+	timer = DurationField()
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+		verbose_name = "Achievement Criterion"
+		verbose_name_plural = "Achievement Criteria"
+	
+	def __unicode__(self):
+		if not self.content_type:
+			return self.name or self.achievement.name
+		reqname = self.requirement and self.requirement.__unicode__()
+		return self.name or reqname or "Unknown %s #%r" % (self.content_type, self.object_id)
+	
+	def get_json(self, rel=""):
+		return self.achievement.get_json(rel)
+	
+	def get_absolute_url(self):
+		return self.requirement and hasattr(self.requirement, "get_absolute_url") and self.requirement.get_absolute_url() or ""
+
+
+class Creature(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=256, blank=True)
+	title = CharField(max_length=128, blank=True)
+	cursor = CharField(max_length=32, blank=True)
+	category = PositiveSmallIntegerField(choices=choices.CREATURE_CATEGORIES)
+	family = PositiveSmallIntegerField()
+	type = PositiveSmallIntegerField(choices=choices.CREATURE_TYPES)
+	leader = BooleanField()
+	quest_drops = ManyToManyField("Item", blank=True, related_name="creature_quest_drops")
+	display_id = PositiveIntegerField(serialize=False)
+	
+	faction = ForeignKey("Faction", null=True, blank=True, related_name="creature_faction")
+	battlemaster_id = PositiveSmallIntegerField(null=True, blank=True)
+	flight_path = ForeignKey("TaxiNode", null=True, blank=True, related_name="creature_flight_path")
+	trainer_greeting = TextField(blank=True)
+	mailbox = BooleanField(default=False)
+	auctioneer = BooleanField(default=False)
+	battlemaster = BooleanField(default=False)
+	innkeeper = BooleanField(default=False)
+	banker = BooleanField(default=False)
+	guild_bank = BooleanField(default=False)
+	can_repair = BooleanField(default=False)
+	flightmaster = BooleanField(default=False)
+	stable_master = BooleanField(default=False)
+	tabard = BooleanField(default=False)
+	vendor = BooleanField(default=False)
+	trainer = BooleanField(default=False)
+	spirit_healer = BooleanField(default=False)
+	talent_wipe = BooleanField(default=False)
+	arena_organizer = BooleanField(default=False)
+	petition = BooleanField(default=False)
+	no_pockets = BooleanField(default=False)
+	pvp = BooleanField(default=False)
+	faction_group = PositiveSmallIntegerField(null=True, blank=True, choices=choices.FACTION_GROUPS)
+	power_type = PositiveSmallIntegerField(null=True, blank=True) # , choices=choices.POWER_TYPES
+	skinning_type = ForeignKey("Skill", null=True, blank=True, related_name="creature_skinning_type")
+	
+	looted_count = PositiveIntegerField(default=0)
+	looted_count_heroic = PositiveIntegerField(default=0)
+	wealth_min = PositiveIntegerField(default=0)
+	wealth_max = PositiveIntegerField(default=0)
+	
+	starts_quests = ManyToManyField("Quest", blank=True, related_name="creature_starts_quests")
+	#sells = ManyToManyField("Item", through="SoldItem", related_name="creature_sells")
+	#spells = ManyToManyField("Spell", related_name="creature_spells")
+	
+	locations = GenericRelation("locations.Node")
+	
+	build = PositiveSmallIntegerField()
+	slug = SlugField()
+	
+	required_for_quest = GenericRelation("QuestRequirement")
+	required_for_achievement = GenericRelation("AchievementCriteria")
+	drops = GenericRelation("Loot")
+	
+	navigation = ("category", "family")
+	JSON = ("id", "title", "category", "family", "type")
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Creature"
+		verbose_name_plural = "Creatures"
+	
+	def get_absolute_url(self):
+		return "/c/%i/%s/" % (self.id, self.slug)
+
+class CreatureFamily(BaseModel):
+	"""
+	CreatureFamily.dbc
+	Hunter pet families
+	Also used for other pets
+	"""
+	id = PositiveSmallIntegerField(primary_key=True)
+	min_scale = FloatField()
+	min_scale_level = PositiveSmallIntegerField()
+	max_scale = FloatField()
+	max_scale_level = PositiveSmallIntegerField()
+	skill_tree = ForeignKey("Skill", related_name="creaturefamily_skill_tree")
+	skill_tree_generic = ForeignKey("Skill", null=True, related_name="creaturefamily_skill_tree_generic")
+	pet_food_mask = PositiveIntegerField()
+	talent_type = SmallIntegerField()
+	name = CharField(max_length=64, blank=True)
+	icon = CharField(max_length=64, blank=True)
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Creature Family"
+		verbose_name_plural = "Creature Families"
+
+class CreatureLevelData(BaseModel):
+	creature = ForeignKey("Creature", related_name="creatureleveldata_creature")
+	level = PositiveSmallIntegerField()
+	health = PositiveIntegerField()
+	power = PositiveIntegerField()
+	group_size = PositiveSmallIntegerField(default=0)
+	heroic_level = PositiveSmallIntegerField(default=0, choices=choices.HEROIC_LEVELS)
+	
+	JSON = ("id", "level", "health", "power", "group_size", "heroic_level", "power_type")
+	
+	def __unicode__(self):
+		return "%s (%i)" % (self.creature, self.level)
+	
+	@property
+	def power_type(self):
+		return self.creature.power_type
+
+class CreatureSpell(BaseModel):
+	creature = ForeignKey("Creature", related_name="creaturespell_creature")
+	spell = ForeignKey("Spell", related_name="creaturespell_spell")
+	aura = BooleanField()
+	group_size = PositiveSmallIntegerField(default=0) # 0 = solo, 5 = group, 10 = raid, 20 = classicraid, 25 = raid, 40 = classicraid
+	heroic_level = PositiveSmallIntegerField(default=0, choices=choices.HEROIC_LEVELS)
+	
+	def __unicode__(self):
+		return "%s->%s" % (self.creature, self.spell)
+	
+	def get_json(self, rel=""):
+		if rel == "creaturespell_spell":
+			return self.creature.get_json(rel)
+		return self.spell.get_json(rel)
+
+class CreatureFactionReward(BaseModel):
+	creature = ForeignKey("Creature", related_name="creaturefactionreward_creature")
+	faction = ForeignKey("Faction", related_name="creaturefactionreward_faction")
+	amount = SmallIntegerField()
+	
+	def __unicode__(self):
+		return "%s->%s (%i)" % (self.creature, self.faction, self.amount)
+	
+	def get_absolute_url(self):
+		return self.creature.get_absolute_url()
+
+class TrainedSpell(BaseModel):
+	trainer = ForeignKey("Creature", related_name="trainedspell_trainer")
+	spell = ForeignKey("Spell", related_name="trainedspell_spell")
+	required_level = PositiveSmallIntegerField()
+	required_skill = ForeignKey("Skill", null=True, related_name="trainedspell_required_skill")
+	required_skill_level = PositiveSmallIntegerField()
+	price = PositiveIntegerField()
+	required_spells = ManyToManyField("Spell", related_name="trainedspell_required_spells")
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("required_skill_level", )
+	
+	def __unicode__(self):
+		if self.spell.rank:
+			return "%s->%s (%s)" % (self.trainer, self.spell, self.spell.rank)
+		return "%s->%s" % (self.trainer, self.spell)
+	
+	def get_absolute_url(self):
+		return self.trainer.get_absolute_url()
+	
+	def get_json(self, rel=""):
+		if rel == "trainedspell_trainer":
+			json = self.spell.get_json(rel)
+		else:
+			json = self.trainer.get_json(rel)
+		json["price"] = extratags.price(self.price)
+		json["required_skill"] = str(self.required_skill or "")
+		json["required_skill_id"] = self.required_skill_id or 0
+		json["required_skill_level"] = self.required_skill_level
+		json["required_level"] = self.required_level or ""
+		# FIXME this is linearly sql-bad!
+		#json["required_spells"] = str(", ".join(url(k) for k in self.required_spells.iterator()))
+		return json
+
+class Loot(BaseModel):
+	content_type = ForeignKey(ContentType)
+	object_id = PositiveIntegerField()
+	source = GenericForeignKey()
+	item = ForeignKey("Item", related_name="loot_item")
+	amount_min = PositiveSmallIntegerField()
+	amount_max = PositiveSmallIntegerField()
+	count = PositiveIntegerField()
+	group_size = PositiveSmallIntegerField(default=0) # 0 = solo, 5 = group, 10 = raid, 20 = classicraid, 25 = raid, 40 = classicraid
+	heroic_level = PositiveSmallIntegerField(default=0, choices=choices.HEROIC_LEVELS)
+	loot_type = PositiveSmallIntegerField(default=0, choices=choices.LOOT_TYPES)
+	percent_override = PositiveSmallIntegerField(default=0)
+	armory_percent = PositiveSmallIntegerField(default=0)
+	
+	def __unicode__(self):
+		return "%s->%s" % (self.source, self.item)
+	
+	def get_absolute_url(self):
+		return self.source.get_absolute_url()
+	
+	def get_json(self, rel=""):
+		if rel == "creature__loot_item":
+			json = self.source.get_json(rel)
+		elif rel == "item__loot_item":
+			json = self.source.get_json(rel)
+		else:
+			json = self.item.get_json(rel)
+		json["group_size"] = self.group_size
+		json["count"] = self.count
+		percent = self.percent_override
+		if not percent:
+			if self.heroic_level:
+				percent = self.count / self.source.looted_count_heroic
+			else:
+				percent = self.count / self.source.looted_count
+			percent *= 100
+		json["percent"] = percent
+		return json
+
+
+class Currency(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	category = PositiveIntegerField()
+	ordering = PositiveSmallIntegerField()
+	name = CharField(max_length=128, blank=True)
+	icon = CharField(max_length=64, blank=True)
+	unknown = IntegerField()
+	unknown_1 = IntegerField()
+	unknown_2 = IntegerField()
+	unknown_3 = IntegerField()
+	unknown_4 = IntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Currency"
+		verbose_name_plural = "Currencies"
+
+
+class Enchant(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	charges = PositiveSmallIntegerField()
+	name = CharField(max_length=128, blank=True)
+	effects = ManyToManyField("Spell", through="EnchantEffect", related_name="enchant_effects")
+	gem = ForeignKey("Item", null=True, blank=True, related_name="enchant_gem")
+	required_skill = ForeignKey("Skill", null=True, blank=True, related_name="enchant_required_skill")
+	required_skill_level = PositiveSmallIntegerField()
+	required_level = PositiveSmallIntegerField()
+	
+	conditions = ManyToManyField("EnchantCondition", through="EnchantConditionProperty", related_name="enchant_conditions") # SpellItemEnchantmentCondition.dbc
+	
+	build = PositiveSmallIntegerField()
+	slug = SlugField()
+	
+	JSON = ("id", "charges", "required_skill", "required_skill_level")
+	
+	search_fields = None # Not searchable
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Enchant"
+		verbose_name_plural = "Enchants"
+	
+	def get_absolute_url(self):
+		return "/e/%i/%s/" % (self.id, self.slug)
+	
+	@property
+	def icon(self):
+		if self.gem:
+			return self.gem.icon
+
+
+class EnchantCondition(BaseModel):
+	gem_color = utils.GemColorField()
+	operand = PositiveSmallIntegerField()
+	comparator = PositiveSmallIntegerField()
+	compare_color = utils.GemColorField()
+	value = PositiveSmallIntegerField()
+	logic = PositiveSmallIntegerField()
+	
+	def __unicode__(self):
+		from ..enchant_conditions import conditionToString
+		return conditionToString(self)
+
+class EnchantConditionProperty(Model):
+	enchant = ForeignKey("Enchant", related_name="enchantconditionproperty_enchant")
+	condition = ForeignKey("EnchantCondition", related_name="enchantconditionproperty_enchantcondition")
+	ordering = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("ordering", )
+		verbose_name = "Enchant condition property"
+		verbose_name_plural = "Enchant condition properties"
+
+class EnchantEffect(Model):
+	enchant = ForeignKey("Enchant", related_name="enchanteffect_enchant")
+	spell = ForeignKey("Spell", null=True, blank=True, related_name="enchanteffect_spell", add_constraint=False)
+	stat = ForeignKey("Stat", null=True, blank=True, related_name="enchanteffect_stat")
+	type = PositiveSmallIntegerField(choices=choices.ENCHANT_TYPES)
+	amount = SmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+	
+	def __unicode__(self):
+		if self.stat:
+			return "%+i %s" % (self.amount, self.stat)
+		return "%s" % (self.spell)
+
+
+class Faction(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=256)
+	description = TextField(blank=True)
+	parent = ForeignKey("Faction", null=True, blank=True, related_name="faction_parent", add_constraint=False)
+	
+	slug = SlugField()
+	
+	required_for_achievement = GenericRelation("AchievementCriteria")
+	
+	JSON = ("id", "parent", "parent_id")
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Faction"
+		verbose_name_plural = "Factions"
+	
+	def get_absolute_url(self):
+		return "/f/%i/%s/" % (self.id, self.slug)
+
+
+class GemProperty(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	enchant = ForeignKey("Enchant", null=True, related_name="gemproperty_enchant")
+	unknown = SmallIntegerField()
+	unique_equipped = BooleanField()
+	color = utils.GemColorField()
+	required_item_level = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Gem Property"
+		verbose_name_plural = "Gem Properties"
+
+
+class Object(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	type = PositiveSmallIntegerField(choices=choices.GAME_OBJECT_TYPES)
+	display_id = PositiveIntegerField()
+	name = CharField(max_length=256, blank=True)
+	cursor = CharField(max_length=32, blank=True)
+	faction = ForeignKey("Faction", null=True, related_name="object_faction")
+	quest_items = ManyToManyField("Item", related_name="object_quest_items")
+	
+	content_type = ForeignKey(ContentType, null=True)
+	object_id = PositiveIntegerField()
+	data = GenericForeignKey()
+	
+	starts_quests = ManyToManyField("Quest", blank=True, related_name="object_starts_quests")
+	
+	locations = GenericRelation("locations.Node")
+	
+	build = PositiveSmallIntegerField()
+	slug = SlugField()
+	
+	navigation = ("type", )
+	JSON = ("id", "type", "get_type_display")
+	
+	class Meta:
+		app_label = "owdb"
+		db_table = "owdb_gameobject"
+		verbose_name = "Object"
+		verbose_name_plural = "Objects"
+	
+	def get_absolute_url(self):
+		return "/o/%i/%s/" % (self.id, self.slug)
+	
+	def get_navigation(self):
+		c = self.get_type_display()
+		i = self.type
+		return [("/objects", self.verbose_name_plural, "objects"),
+			("/achievements/%i" % (i), c, "achievements_%i" % i)]
+
+
+class Glyph(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=256, blank=True)
+	spell = ForeignKey("Spell", null=True, blank=True, related_name="glyph_spell")
+	flags = PositiveSmallIntegerField(choices=choices.GLYPH_TYPES) # type
+	icon = CharField(max_length=64, blank=True)
+	
+	slug = SlugField()
+	
+	JSON = ("id", "flags")
+	search_fields = None # Not searchable
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Glyph"
+		verbose_name_plural = "Glyphs"
+	
+	def get_absolute_url(self):
+		return "/g/%i/%s/" % (self.id, self.slug)
+	
+	@property
+	def type(self): # XXX
+		return self.flags
+	
+	def get_type_display(self): # XXX
+		return self.get_flags_display()
+
+
+class Holiday(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=256)
+	description = TextField(blank=True)
+	icon = CharField(max_length=64, blank=True)
+	
+	slug = SlugField()
+	
+	search_fields = None # Not searchable
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Holiday"
+		verbose_name_plural = "Holidays"
+	
+	def get_absolute_url(self):
+		return "/h/%i/%s/" % (self.id, self.slug)
+
+
+class Instance(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	internal_name = CharField(max_length=128, unique=True)
+	type = PositiveSmallIntegerField(choices=choices.INSTANCE_TYPES)
+	name = CharField(max_length=256)
+	zone = ForeignKey("Zone", null=True, blank=True, related_name="instance_zone")
+	description_horde = TextField(blank=True)
+	description_alliance = TextField(blank=True)
+	loading_screen = CharField(max_length=64)
+	continent = ForeignKey("Instance", null=True, blank=True, related_name="instance_continent", add_constraint=False)
+	entrance_x = FloatField()
+	entrance_y = FloatField()
+	expansion = PositiveSmallIntegerField(choices=choices.EXPANSIONS)
+	max_players = PositiveSmallIntegerField()
+	icon = CharField(max_length=64, blank=True)
+	phasing_parent = ForeignKey("Instance", null=True, blank=True, related_name="instance_phasing_parent", add_constraint=False)
+	
+	slug = SlugField()
+	
+	JSON = ("id", "type", "name", "zone", "zone_id", "max_players")
+	
+	search_fields = None # Not searchable
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Instance"
+		verbose_name_plural = "Instances"
+	
+	def get_absolute_url(self):
+		return "/instance/%i/%s/" % (self.id, self.slug)
+
+
+class Encounter(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	instance = ForeignKey(Instance, related_name="encounter_instance")
+	difficulty = SmallIntegerField(choices=choices.ENCOUNTER_DIFFICULTIES)
+	ordering = PositiveSmallIntegerField()
+	name = CharField(max_length=128)
+	
+	slug = SlugField()
+	
+	JSON = ("id", "instance", "instance_id", "difficulty", "ordering", "name")
+	
+	search_fields = None # Not searchable
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Encounter"
+		verbose_name_plural = "Encounters"
+		ordering = ("-instance_id", "-difficulty", "ordering")
+
+
+class Lock(Model):
+	id = PositiveIntegerField(primary_key=True)
+	
+	class Meta:
+		app_label = "owdb"
+
+class LockProperty(Model):
+	lock = ForeignKey(Lock, related_name="lockproperty_lock")
+	ordering = PositiveSmallIntegerField()
+	type = PositiveSmallIntegerField()
+	item = ForeignKey("Item", related_name="lockproperties_item", null=True)
+	lock_type_id = PositiveSmallIntegerField()
+	required_skill_level = PositiveSmallIntegerField()
+	action = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Lock property"
+		verbose_name_plural = "Lock properties"
+	
+	def __unicode__(self):
+		return "Lock #%i property" % (self.lock_id)
+
+
+class MailManager(Manager):
+	def get_query_set(self):
+		return super(MailManager, self).get_query_set().exclude(name="")
+
+class Mail(SigrieModel):
+	id = IntegerField(primary_key=True)
+	name = CharField(max_length=64, blank=True)
+	text = TextField(blank=True)
+	sender = ForeignKey("Creature", null=True, blank=True, related_name="mail_sender")
+	money = PositiveIntegerField(default=0)
+	attachment = ForeignKey("Item", null=True, blank=True, related_name="mail_attachment")
+	stationery = ForeignKey("Item", null=True, blank=True, related_name="mail_stationery")
+	
+	slug = SlugField(blank=True)
+	
+	search_fields = None # Not searchable
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Mail"
+		verbose_name_plural = "Mails"
+	
+	def get_absolute_url(self):
+		return "/mail/%i/%s/" % (self.id, self.slug)
+
+
+class Mastery(SigrieModel):
+	id = PositiveSmallIntegerField(primary_key=True)
+	spell = ForeignKey("Spell", related_name="mastery_spell")
+	required_class = PositiveSmallIntegerField()
+	page = PositiveSmallIntegerField()
+	text_1 = CharField(max_length=128)
+	text_2 = CharField(max_length=128)
+	text_3 = CharField(max_length=128)
+	multiplier_1 = FloatField()
+	multiplier_2 = FloatField()
+	multiplier_3 = FloatField()
+	name = CharField(max_length=64, blank=True)
+	icon = CharField(max_length=64, blank=True)
+	slug = SlugField(blank=True)
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Mastery"
+		verbose_name_plural = "Masteries"
+
+
+class Page(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=64, blank=True)
+	text = TextField(blank=True)
+	next_page = ForeignKey("Page", null=True, blank=True, related_name="page_next_page", add_constraint=False)
+	
+	build = PositiveSmallIntegerField()
+	slug = SlugField(blank=True)
+	
+	JSON = ("id", "next_page_id")
+	search_fields = None # Not searchable
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Page"
+		verbose_name_plural = "Pages"
+	
+	def get_absolute_url(self):
+		return "/p/%i/%s/" % (self.id, self.slug)
+
+
+class ShapeShift(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=128)
+	icon = CharField(max_length=64)
+	spells = ManyToManyField("Spell", related_name="shapeshift_spells")
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Shapeshift"
+		verbose_name_plural = "Shapeshifts"
+	
+	def get_absolute_url(self):
+		return "/spells/?required_stances__band=%i" % (2**(self.id-1))
+
+
+class Skill(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=128)
+	description = TextField(blank=True)
+	icon = CharField(max_length=64, blank=True)
+	is_tradeskill = BooleanField()
+	spells = ManyToManyField("Spell", through="SkillSpell", related_name="skill_spells")
+	category = PositiveSmallIntegerField(choices=choices.SKILL_CATEGORIES)
+	
+	slug = SlugField()
+	
+	required_for_achievement = GenericRelation("AchievementCriteria")
+	
+	JSON = ("id", "name", "icon", "is_tradeskill", "category")
+	navigation = ("category", )
+	search_fields = None # Not searchable
+	
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Skill"
+		verbose_name_plural = "Skills"
+	
+	def get_navigation(self):
+		c = self.get_category_display()
+		i = self.category
+		return [("/skills", "Skills", "skills"),
+			("/skills/%i" % (i), c, "skills_%i" % i)]
+	
+	def get_absolute_url(self):
+		return "/skill/%i/%s/" % (self.id, self.slug)
+
+class SkillSpell(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	skill = ForeignKey(Skill, related_name="skillspell_skill")
+	spell = ForeignKey("Spell", related_name="skillspell_spell", add_constraint=False)
+	required_races = PositiveIntegerField()
+	required_classes = PositiveIntegerField()
+	excluded_races = PositiveIntegerField()
+	excluded_classes = PositiveIntegerField()
+	required_skill_level = PositiveSmallIntegerField()
+	acquire_method = PositiveSmallIntegerField()
+	turns_yellow = PositiveSmallIntegerField()
+	turns_green = PositiveSmallIntegerField()
+	turns_grey = PositiveSmallIntegerField()
+	unknown_11927 = PositiveIntegerField()
+	unknown_12266 = PositiveIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("-turns_yellow", "-turns_grey", "spell__name", "spell__rank", "id")
+	
+	def __unicode__(self):
+		return ("%s->%s" % (self.skill, self.spell))
+	
+	def get_json(self, rel=""):
+		if rel == "skillspell_skill":
+			json = self.spell.get_json(rel, JSON=("id", "rank", "icon"))
+			json["reagents"] = self.spell.get_reagents_icons()
+			
+			if self.turns_grey > 0:
+				json["skill_levels"] = self.get_difficulty_html()
+			else:
+				json["skill_levels"] = ""
+			
+			if self.spell.created_item_id:
+				json["created_item"] = str("%ix %s" % (1, extratags.icon(self.spell.created_item, 18)))
+			else:
+				json["created_item"] = ""
+			
+			return json
+		return self.spell.get_json(rel)
+	
+	def get_difficulty_html(self):
+		yellow = self.turns_yellow
+		green = self.turns_green
+		grey = self.turns_grey
+		
+		html = '<span class="%s">%i</span>'
+		
+		return " ".join([html % ("d2", yellow), html % ("d1", green), html % ("d0", grey)])
+
+
+class SoldItem(BaseModel):
+	vendor = ForeignKey(Creature, related_name="solditem_vendor")
+	item = ForeignKey("Item", related_name="solditem_item")
+	limited_quantity = PositiveIntegerField(default=0)
+	stack = PositiveSmallIntegerField(default=1)
+	rating = PositiveIntegerField(default=0)
+	bracket = PositiveSmallIntegerField(default=0)
+	extended_cost = ManyToManyField("Item", through="ItemExtendedCost", related_name="solditem_extended_cost")
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("-item__quality", ) # FIXME adding item__name results in distinct() being ignored
+		#ordering = ("item", ) # FIXME: bugs out
+		#ordering = ("arena_rating", "arena_team_size") # doesn't bug out
+	
+	def get_absolute_url(self):
+		return self.item.get_absolute_url()
+	
+	def get_json(self, rel=""):
+		if rel == "solditem_item" or rel == "itemextendedcost_item":
+			json = self.item.get_json(rel)
+			json["price"] = str(utils.get_price(self))
+			json["stock"] = self.limited_quantity
+			return json
+		elif rel == "solditem_vendor":
+			json = self.vendor.get_json(rel)
+			json["price"] = str(utils.get_price(self))
+			return json
+		return self.item.get_json(rel)
+	
+	def __unicode__(self):
+		return "%s->%s" % (self.vendor, self.item)
+
+
+class Stat(BaseModel):
+	id = PositiveSmallIntegerField(primary_key=True)
+	name = CharField(max_length=64)
+	text = CharField(max_length=256, blank=True)
+	special = BooleanField()
+	resist = BooleanField()
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Stat"
+		verbose_name_plural = "Stats"
+	
+	def get_absolute_url(self):
+		return "/items/?stat=%i" % (self.id)
+
+
+class Talent(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	tab = ForeignKey("TalentTab", related_name="talent_tab")
+	row = PositiveSmallIntegerField()
+	column = PositiveSmallIntegerField()
+	ranks = ManyToManyField("Spell", through="TalentRank", related_name="talent_ranks")
+	dependencies = ManyToManyField("Talent", through="TalentDependency", related_name="talent_dependencies")
+	active = BooleanField()
+	unknown_pet_1 = BigIntegerField()
+	unknown_pet_2 = BigIntegerField()
+	
+	name = CharField(max_length=128) # Guessed from rank 1
+	icon = CharField(max_length=64) # same
+	build = PositiveSmallIntegerField()
+	slug = SlugField()
+	
+	JSON = ("id", "max_ranks", "tab", "tab_id")
+	link = ("id", "rank")
+	search_fields = None # Not searchable
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Talent"
+		verbose_name_plural = "Talents"
+	
+	def get_absolute_url(self):
+		return "/t/%i/%s/" % (self.id, self.slug)
+	
+	def get_link(self):
+		"Return the ingame item link for js"
+		color = "ff4e96f7"
+		linkstring = "talent:%i" % (self.id)
+		content = self.name.replace("'", r"\\\'").replace('"', r'\"')
+		
+		return ",".join("'%s'" % (k) for k in (color, linkstring, content))
+	
+	def get_paperdoll(self, id, request):
+		paperdoll = self.preprocess_paperdoll(id, request)
+		
+		rank = paperdoll["rank"]
+		try:
+			rank = max(int(rank), -1)
+		except ValueError:
+			rank = -1
+		if rank > self.max_ranks - 1:
+			rank = -1
+		paperdoll["rank"] = rank
+		return paperdoll
+	
+	@property
+	def max_ranks(self):
+		return self.ranks.count()
+
+class TalentDependency(Model):
+	talent = ForeignKey(Talent, related_name="talentdependency_talent")
+	dependency = ForeignKey(Talent, related_name="talentdependency_dependency")
+	count = PositiveSmallIntegerField()
+	type = PositiveSmallIntegerField() # 1 = top, 2 = right, 3 = left
+	
+	class Meta:
+		app_label = "owdb"
+
+class TalentRank(Model):
+	talent = ForeignKey(Talent, related_name="talentrank_talent")
+	spell = ForeignKey("Spell", related_name="talentrank_spell")
+	rank = PositiveSmallIntegerField()
+	
+	class Meta:
+		app_label = "owdb"
+		ordering = ("rank", )
+	
+	def get_json(self, rel=""):
+		return self.talent.get_json(rel)
+
+class TalentTab(BaseModel):
+	id = PositiveSmallIntegerField(primary_key=True)
+	name = CharField(max_length=128)
+	icon = CharField(max_length=64)
+	class_mask = PositiveIntegerField()
+	pet_mask = PositiveIntegerField()
+	page = PositiveSmallIntegerField()
+	internal_name = CharField(max_length=128)
+	description = TextField()
+	
+	build = PositiveSmallIntegerField()
+	
+	def get_absolute_url(self):
+		return "/talents/?tab=%i" % (self.id)
+
+
+class TaxiNode(BaseModel):
+	id = PositiveSmallIntegerField(primary_key=True)
+	map = ForeignKey(Instance, related_name="taxinode_map", add_constraint=False)
+	x = FloatField()
+	y = FloatField()
+	z = FloatField()
+	name = CharField(max_length=64)
+	mount_horde = ForeignKey(Creature, related_name="taxinode_mount_horde", null=True)
+	mount_alliance = ForeignKey(Creature, related_name="taxinode_mount_alliance", null=True)
+
+
+class Title(BaseModel):
+	id = PositiveSmallIntegerField(primary_key=True)
+	title = CharField(max_length=128)
+	index = PositiveSmallIntegerField()
+	cataclysm_flag = BooleanField(default=False) # What is it?
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Title"
+		verbose_name_plural = "Titles"
+	
+	def __unicode__(self):
+		return self.title % ("<name>")
+
+
+class ToolCategory(BaseModel):
+	id = PositiveSmallIntegerField(primary_key=True)
+	name = CharField(max_length=64)
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Tool Category"
+		verbose_name_plural = "Tool Categories"
+	
+	def get_absolute_url(self):
+		return "/items/?tool_category=%i" % (self.id)
+
+
+class DungeonMap(BaseModel):
+	id = PositiveSmallIntegerField(primary_key=True)
+	instance = ForeignKey("Instance", related_name="dungeonmap_instance")
+	floor = PositiveSmallIntegerField()
+	name = CharField(max_length=64)
+	y_1 = FloatField()
+	y_2 = FloatField()
+	x_1 = FloatField()
+	x_2 = FloatField()
+
+class WorldMap(BaseModel):
+	id = PositiveSmallIntegerField(primary_key=True)
+	instance = ForeignKey("Instance", null=True, related_name="worldmap_instance")
+	area = ForeignKey("Zone", null=True, related_name="worldmap_area")
+	name = CharField(max_length=64)
+	y_1 = FloatField()
+	y_2 = FloatField()
+	x_1 = FloatField()
+	x_2 = FloatField()
+	virtual_map = ForeignKey(Instance, null=True, related_name="worldmap_virtual_map")
+	dungeon_map = ForeignKey(DungeonMap, null=True, related_name="worldmap_dungeon_map", add_constraint=False) # DungeonMap is updated after WorldMap
+
+
+class Zone(SigrieModel):
+	id = PositiveIntegerField(primary_key=True)
+	parent_area = ForeignKey("Zone", null=True, blank=True, related_name="zone_parent_area", add_constraint=False)
+	level = PositiveSmallIntegerField()
+	name = CharField(max_length=256)
+	territory = PositiveSmallIntegerField(choices=choices.TERRITORY_TYPES)
+	map = CharField(max_length=128)
+	floors = PositiveSmallIntegerField()
+	
+	slug = SlugField()
+	
+	required_for_achievement = GenericRelation("AchievementCriteria")
+	
+	JSON = ("id", "level", "name", "parent_area", "parent_area_id", "territory")
+	
+	class Meta:
+		app_label = "owdb"
+		verbose_name = "Zone"
+		verbose_name_plural = "Zones"
+	
+	def get_absolute_url(self):
+		return "/z/%i/%s/" % (self.id, self.slug)
+	
+	def get_json(self, rel=""):
+		if rel == "zone_parent_area":
+			return super(SigrieModel, self).get_json(rel, JSON=("id", "level", "name", "territory"))
+		return super(SigrieModel, self).get_json(rel)
+	
+	def get_map(self):
+		js = "var floor = { name: %r, file: %r };"
+		render = "maplib.renderMaps([floor])"
+		return js % (str(self.name), str(self.map)) + render
+
+class WMOAreaTable(BaseModel):
+	id = PositiveIntegerField(primary_key=True)
+	name = CharField(max_length=256, blank=True)
+	zone = ForeignKey("Zone", null=True, related_name="wmoareatable_zone")
+	
+	slug = SlugField()
+	

@@ -1,0 +1,15 @@
+# -*- coding: utf-8 -*-
+
+from django.core.management.base import NoArgsCommand
+from owdb.models import ItemSet
+
+s = "DressUpItemLink(%i)"
+
+for i in ItemSet.objects.all():
+	items = i.items.all()
+	if not items:
+		continue
+	print "-- %s (%i)" % (i, i.id)
+	itemlist = [k.id for k in items]
+	funcs = ";".join(s % (item) for item in itemlist)
+	print "/script %s" % (funcs)

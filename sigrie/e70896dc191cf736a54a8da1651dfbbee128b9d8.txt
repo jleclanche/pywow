@@ -1,0 +1,167 @@
+# -*- coding: utf-8 -*-
+
+from unicodedata import normalize
+from string import maketrans
+from django.utils.safestring import mark_safe
+from django.db.models import PositiveSmallIntegerField
+from sigrie.owdb.templatetags.extratags import icon, price
+from sigrie.owdb import choices
+import re
+
+class GemColorField(PositiveSmallIntegerField):
+	def contribute_to_class(self, cls, name):
+		self.set_attributes_from_name(name)
+		cls._meta.add_field(self)
+		setattr(cls, 'get_%s_display' % (self.name), lambda cls: self.__get_value(cls))
+	
+	def __get_value(self, cls):
+		value = getattr(cls, self.name)
+		for k in choices.SOCKETS:
+			if 2**(k-1) & value:
+				return choices.SOCKETS[k]
+
+class HtmlTag(object):
+	def __init__(self, text="", tag="div", children=[], classes={}):
+		self.tag = tag
+		self.classes = classes.copy()
+		self.attributes = {}
+		self.text = normalize("NFKD", unicode(text)).encode("ascii", "ignore")
+		self.children = children
+	
+	def __str__(self):
+		if not self.tag:
+			return ""
+		if self.classes:
+			self.attributes["class"] = " ".join(k for k in self.classes.keys() if self.classes[k])
+		attrs = " ".join('%s="%s"' % (k, self.attributes[k]) for k in self.attributes)
+		
+		innerHTML = self.text or "".join(str(k) for k in self.children)
+		return mark_safe('<%s %s>%s</%s>' % (self.tag, attrs, innerHTML, self.tag))
+
+
+def json_to_html(li, name):
+	ret = "var %s = [" % (name)
+	ret += "\n\t%s\n" % (",\n\t".join(str(k) for k in li))
+	ret += "]\n"
+	return ret
+
+def get_price(item):
+	buy_price = item.item.buy_price
+	if item.itemextendedcost_sold_item.count():
+		cost = []
+		if item.item.sell_extended_price and buy_price:
+			# items with sell_extended_price sell for money + extended cost
+			cost.append(price(buy_price))
+		
+		for ext in item.itemextendedcost_sold_item.iterator():
+			cost.append("%d %s " % (ext.amount, icon(ext.item, 16)))
+		return "".join(cost)
+	return buy_price and price(buy_price) or ""
+
+
+def get_reputation_level(rep):
+	li = [36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000]
+	_i = -42000
+	for i, k in enumerate(li):
+		if rep <= _i:
+			return i
+		_i += k
+	return i
+
+def average(a, b):
+	"Returns the average of two values"
+	return a + (b-a)/2
+
+strin = """ '".,?!:;%*#&+=()[]<>/"""
+strout =  "----------------------"
+def slugify(txt):
+	"Slugifies a string by transforming it into a normalized slug"
+	trans = maketrans(strin, strout)
+	txt = unicode(txt.decode("utf-8", "ignore"))
+	txt = normalize("NFKD", txt).encode("ascii", "ignore").strip().lower()
+	txt = txt.replace("'", "").translate(trans)
+	txt = "-".join(seg for seg in txt.split("-") if seg)[:50].rstrip("-")
+	return txt
+
+def clean_page_html(text):
+	# TODO use an html parser
+	text = text.replace(
+		"</BODY>", "").replace(
+		"</HTML>", "").replace(
+		"<HTML>", "").replace(
+		"<BODY>", "").replace(
+		"\\", "/").replace(
+		"\n", ""
+	)
+	if text.find("src=") != -1:
+		sre = re.search(r'<img src="([^"]+)"(.*?)/>', text, re.I)
+		path, attributes = sre.groups()
+		tag = '<img alt="%s" src="/static/wow/%s.png"%s/>' % (path, path.lower(), attributes)
+		text = re.sub(r'<(IMG|img) (.*?)/>', tag, text)
+	
+	return text
+
+def replace_inline_vars(txt):
+	"""
+	Used for quests and mails
+	"""
+	if txt.find("$") == -1:
+		return txt
+	return txt.replace(
+		"$B", "\n").replace(
+		"$b", "\n").replace(
+		"$C", "<class>").replace(
+		"$c", "<class>").replace(
+		"$N", "<name>").replace(
+		"$n", "<name>").replace(
+		"$R", "<race>").replace(
+		"$r", "<race>")
+
+def page_to_name(text):
+	l = 10
+	L = 35
+	L2 = 20
+	
+	if text.find("<H1") != -1:
+		sre = re.search(r"<H1 .+>(.+)</H1>", text)
+		if sre: return sre.groups()[0]
+	if text.find("<img") != -1:
+		text = re.sub(r"<img .+>?", "", text)
+	text = text.replace("<HTML>", "").replace("<BODY>", "").replace("<P>", "").replace("</P>", "")
+	
+	text = text[:45].strip()
+	
+	if text.find("<") != text.find(">"):
+		text = text.replace("<", "")
+	
+	if len(text) < L:
+		return text
+	
+	for c in ("<br/>", ":", ",\n", "\n", ". ", "! "):
+		i = text[4:].find(c)
+		if i != -1:
+			return text[:i+4]
+	
+	i = text[L2:].find(",")
+	if i != -1:
+		return text[:i+L2] + "..."
+	
+	i = text[l:].find('"')
+	if i != -1:
+		return text[:i+l] + "..."
+	
+	for c in ("...", "."):
+		i = text[L:].find(c)
+		if i != -1:
+			return text[:i+L]
+	
+	i = text[L2:].find(" ")
+	if i != -1:
+		return text[:i+L2] + "..."
+	return text
+
+def get_icon_path(t, attr="icon"):
+	"Helper for icon path => icon name"
+	icon = getattr(t, attr, "")
+	path = icon and icon.path or ""
+	return path.lower().replace("\\", "/").split("/")[-1]

@@ -1,0 +1,17 @@
+{% extends "common/single.html" %}
+
+{% block quickfactscont %}
+<ul>
+	<li><a href="http://us.battle.net/wow/en/item/{{obj.id}}">WoW Armory</a> - <a href="http://eu.battle.net/wow/en/item/{{obj.id}}">EU</a></li>
+	<li><a href="http://wowhead.com/item={{obj.id}}">Wowhead</a></li>
+	<li><a href="javascript:showLinkString('{{obj.qualityColor}}','item:{{obj.id}}','{{obj.name}}')">Link it ingame</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+<div class="sigrie-tooltip tooltip-item">
+{{ tooltip|safe }}
+</div>
+
+{% endblock %}

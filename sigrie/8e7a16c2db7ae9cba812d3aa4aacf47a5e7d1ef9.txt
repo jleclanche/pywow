@@ -1,0 +1,86 @@
+# -*- coding: utf-8 -*-
+
+from choices import CLASSES, RACES, LEVEL_CAP
+from collections import defaultdict
+
+DEFAULT_CLASS = 0xFFFFFFFF
+DEFAULT_RACE = 0xFFFFFFFF
+
+def check_level(i, default):
+	if 1 <= i <= LEVEL_CAP:
+		return i
+	return default
+
+def check_class(i, default):
+	if i in CLASSES:
+		return i
+	return default
+
+def check_race(i, default):
+	if i in RACES:
+		return i
+	return default
+
+def check_positive(i):
+	if 0 <= i:
+		return i
+	return default
+
+def check_percent(i, default):
+	if 0 <= i <= 100:
+		return i
+	return default
+
+
+class Paperdoll(object):
+	##
+	# The VALUES dict contains a key->(default, type, check)
+	# lookup where:
+	# * default is the default value
+	# * type is the type the value should be stored as
+	# * check is a function that returns a sanitized value
+	#   for a given argument
+	VALUES = {
+		"level": (LEVEL_CAP, int, check_level),
+		"class": (DEFAULT_CLASS, int, check_class), # All classes
+		"race": (DEFAULT_RACE, int, check_race), # All races
+		"haste": (0.0, float, check_percent),
+		"base_mana": (0, int, check_positive),
+		"base_health": (0, int, check_positive),
+		#"home": 24, # "Northshire Abbey"
+	}
+	
+	def __init__(self, *pargs, **kwargs):
+		self.values = {}
+		super(Paperdoll, self).__init__(*pargs, **kwargs)
+	
+	def __repr__(self):
+		return self.values.__repr__()
+	
+	def __getitem__(self, key):
+		if key not in self.values:
+			if key not in self.VALUES:
+				raise KeyError(key)
+			self.values[key] = self.VALUES[key][0]
+		return self.values[key]
+	
+	def __setitem__(self, key, value):
+		if key in self.VALUES:
+			default, type, func = self.VALUES[key]
+			value = func(type(value), default)
+		self.values[key] = value
+	
+	def update(self, other):
+		for k in other:
+			self[k] = other[k]
+
+
+def LinkString(values, link):
+	d = defaultdict(lambda: 0)
+	for i, k in enumerate(link.split(":")):
+		if k.isdigit():
+			d[values[i]] = int(k)
+	for k in values:
+		if k not in d:
+			d[k] = ""
+	return d

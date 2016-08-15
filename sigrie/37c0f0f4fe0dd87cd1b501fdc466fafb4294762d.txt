@@ -1,0 +1,31 @@
+
+	<table class="sortable" style="border:1px solid #96bc27;margin:auto">
+	<thead>
+		<tr style="background-color:#96BC27;font-weight:bold;cursor:pointer;">
+		<th>Level</th>
+		<th>Type</th>
+		<th>Spec</th>
+		<th>Slot</th>
+		<th>Name</th>
+	</tr></thead>
+	<tbody>
+	<tr class="vloot2"><td>251</td><td>Plate</td><td>Melee</td><td>Wrist</td><td><a href="http://db.mmo-champion.com/i/53491/twilight-offering-bands/" target="_blank" class="item4">Twilight Offering Bands</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Miscellaneous</td><td>Spell DPS</td><td>Finger</td><td><a href="http://db.mmo-champion.com/i/53492/ring-of-the-three-headed-beast/" target="_blank" class="item4">Ring of the Three-Headed Beast</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Mail</td><td>Physical DPS</td><td>Legs</td><td><a href="http://db.mmo-champion.com/i/53493/sacrificial-mail/" target="_blank" class="item4">Sacrificial Mail</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Plate</td><td>Heal</td><td>Waist</td><td><a href="http://db.mmo-champion.com/i/53494/girdle-of-oblation/" target="_blank" class="item4">Girdle of Oblation</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Miscellaneous</td><td>Melee</td><td>Finger</td><td><a href="http://db.mmo-champion.com/i/53495/old-gods-blessing/" target="_blank" class="item4">Old Gods' Blessing</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Shield</td><td>Melee</td><td>Off Hand</td><td><a href="http://db.mmo-champion.com/i/53496/barrier-of-the-earth-princess/" target="_blank" class="item4">Barrier of the Earth Princess</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Cloth</td><td>Spell DPS</td><td>Back</td><td><a href="http://db.mmo-champion.com/i/53497/zaetars-deathshroud/" target="_blank" class="item4">Zaetar's Deathshroud</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Cloth</td><td>Heal</td><td>Chest</td><td><a href="http://db.mmo-champion.com/i/53498/earth-brides-gown/" target="_blank" class="item4">Earth Bride's Gown</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Miscellaneous</td><td>Physical DPS</td><td>Neck</td><td><a href="http://db.mmo-champion.com/i/53499/amulet-of-the-centauri/" target="_blank" class="item4">Amulet of the Centauri</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Plate</td><td>Melee</td><td>Chest</td><td><a href="http://db.mmo-champion.com/i/53500/tectonic-plate/" target="_blank" class="item4">Tectonic Plate</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Miscellaneous</td><td>Physical DPS</td><td>Finger</td><td><a href="http://db.mmo-champion.com/i/53501/sulfurons-favor/" target="_blank" class="item4">Sulfuron's Favor</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Miscellaneous</td><td>Melee</td><td>Neck</td><td><a href="http://db.mmo-champion.com/i/53502/flamelash-amulet/" target="_blank" class="item4">Flamelash Amulet</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Miscellaneous</td><td>Heal</td><td>Neck</td><td><a href="http://db.mmo-champion.com/i/53503/pendant-of-burning-spirits/" target="_blank" class="item4">Pendant of Burning Spirits</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Leather</td><td>Heal</td><td>Feet</td><td><a href="http://db.mmo-champion.com/i/53504/flamewakers-treads/" target="_blank" class="item4">Flamewaker's Treads</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Plate</td><td>Melee</td><td>Chest</td><td><a href="http://db.mmo-champion.com/i/53505/salamander-skin/" target="_blank" class="item4">Salamander Skin</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Cloth</td><td>Physical DPS</td><td>Back</td><td><a href="http://db.mmo-champion.com/i/53506/cloak-of-mocking-winds/" target="_blank" class="item4">Cloak of Mocking Winds</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Cloth</td><td>Spell DPS</td><td>Feet</td><td><a href="http://db.mmo-champion.com/i/53507/sandfury-sandals/" target="_blank" class="item4">Sandfury Sandals</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Leather</td><td>Physical DPS</td><td>Chest</td><td><a href="http://db.mmo-champion.com/i/53508/pulmonary-casing/" target="_blank" class="item4">Pulmonary Casing</a></td></tr>
+<tr class="vloot2"><td>251</td><td>Miscellaneous</td><td>Spell DPS</td><td>Neck</td><td><a href="http://db.mmo-champion.com/i/53509/amulet-of-evil-winds/" target="_blank" class="item4">Amulet of Evil Winds</a></td></tr>
+</tbody></table>

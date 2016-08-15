@@ -1,0 +1,15 @@
+{% extends "common/single.html" %}
+
+{% block quickfactscont %}
+<ul>
+<li><a href="javascript:showLinkRaw('GetSpellLink({{obj.id}})')">Link it ingame</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+<div class="sigrie-tooltip tooltip-spell">
+{{ tooltip|safe }}
+</div>
+
+{% endblock %}

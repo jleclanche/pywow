@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+from pywow import wdbc
+from optparse import OptionParser
+
+o = OptionParser()
+o.add_option("-b", "--build", type="int", dest="build")
+o.add_option("-l", "--locale", type="string", dest="locale", default="enUS")
+
+args, _ = o.parse_args(sys.argv[1:])
+
+build = args.build
+
+itemdbc = wdbc.get("Item.dbc", build)
+newcache = wdbc.new("itemcache-fake.wdb", build=build, structure=wdbc.structures.ItemCache)
+
+newcache.header.wdb4 = 548
+newcache.header.wdb5 = 5
+newcache.header.locale = args.locale[::-1]
+newcache.header.version = 0
+
+for k in itemdbc:
+	row = itemdbc[k]
+	newcache[k] = { "_id": k,
+		"category": row.category,
+		"subcategory": row.subcategory,
+		"level": 2, # Needed to avoid weapons crashing in cataclysm 11927+
+		"sound_override_subclassid": row.sound_override_subclassid,
+		"sheath_type": row.sheath_type,
+		"display": row.display,
+		"slot": row.slot,
+		"name": "Item #%i (d:%i)" % (k, row.display or 0),
+	}
+
+newcache.write()

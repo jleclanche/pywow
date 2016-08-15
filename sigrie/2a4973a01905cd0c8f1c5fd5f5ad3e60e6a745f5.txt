@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+from django.conf.urls.defaults import *
+from ..urlkeys import joinedkeys, joinedkeys_singular
+
+urlpatterns = patterns("sigrie.owdb.views",
+	(r"^$", "direct_to_template", {"template": "owdb/index.html"}),
+	
+	(r"^robots.txt", "direct_to_template", {"template": "robots.txt"}), # TODO make this static
+	
+	(r"^search/(?P<type>%s|all)/(?P<query>[^/]+)?/$" % (joinedkeys), "search_type"),
+	(r"^search/?$", "search_redirect"),
+	
+	# navigation
+	(r"^(?P<type>%s)/?(?P<id>[0-9:-]+)[^/]*?" % (joinedkeys_singular), include("sigrie.owdb.urls.detailview")),
+	(r"^(?P<type>%s)/(?P<slug>[^/]+)" % (joinedkeys_singular), include("sigrie.owdb.urls.detailview")),
+	(r"^(?P<type>%s)/?(?P<navstr>[\d/]*?)/$" % (joinedkeys), "listing"),
+)

@@ -1,0 +1,104 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+{% block quickfactscont %}
+<ul>
+{% if obj.required_level %}<li><span>Requires level {{ obj.required_level }}</span>{% endif %}
+<li><span>{% if obj.sharable %}Sharable{% else %}Not sharable{% endif %}</span></li>
+{% if obj.level %}<li><span>Difficulty: {{obj.get_difficulty_html|safe}}</span></li>{% endif %}
+{% if obj.timer %}<li><span>Timer: {{obj.timer|duration}}</span></li>{% endif %}
+{% if obj.ends_at_npc %}<li><span>Ends: {{ obj.ends_at_npc|url }}</span></li>{% endif %}
+{% if obj.ends_at_object %}<li><span>Ends: {{ obj.ends_at_object|url }}</span></li>{% endif %}
+<li><a href="http://wowhead.com/?quest={{obj.id}}">Wowhead</a></li>
+<li><a href="javascript:showLinkString({{obj.get_link}})">Link it ingame</a></li>
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+<div id="dq-map">{{obj.locations|mapify|safe}}</div>
+
+<h3>[{{obj.level}}] {{ obj }}{% if obj.get_type %} ({{obj.get_type}}){% endif %}</h3>
+<p>{{obj.quick_summary}}</p>
+{% if obj.provided_item %}
+Provided item: {{obj.provided_item|iconize}}
+{% endif %}
+{% if obj.suggested_players %}
+<p>
+Suggested Players [{{obj.suggested_players}}]
+</p>
+{% endif %}
+<h4>Description</h4>
+<p id="dq-descr">
+{{ obj.description|genderinline }}
+</p>
+<h4>Rewards</h4>
+<ul id="dq-rewards">
+
+{% if obj.experience_reward %}
+	<li>{{ obj.experience_reward }} experience</li>
+{% endif %}
+
+{% if obj.money_reward %}
+	<li class="dq-money_reward">{{ obj.money_reward|price }}{% if obj.money_reward_cap %} (+ {{ obj.money_reward_cap|price }} at level 80){% endif %}</li>
+{% else %}{% if obj.money_reward_cap %}
+	<li class="dq-money_reward_cap">{{ obj.money_reward_cap|price }} (at level 80 only)</li>
+{% endif %}{% endif %}
+
+{% if obj.talents_reward %}<li class="dq-talents_reward">{{ obj.talents_reward }} additional talent points</li>{% endif %}
+
+{% if obj.honor_reward_multiplier %}
+	<li class="dq-honor_reward">{{ obj.get_honor_points }} <a href="/i/43308/honor-points/">Honor Points</a> (at level {% if obj.level > 0 %}{{obj.level}}{% else %}85{% endif %})</li>
+{% endif %}
+
+{% if obj.arena_reward %}
+	<li class="dq-arena_reward">{{ obj.arena_reward }} <a href="/i/43307/arena-points/">Arena Points</a></li>
+{% endif %}
+
+{% if obj.title_reward %}
+	<li class="dq-title_reward">The title: {{ obj.title_reward|url }}</li>
+{% endif %}
+
+{% if obj.reputation_reward.count %}{% for faction in obj.questrewardfaction_quest.iterator %}
+	<li>{{faction.amount}} reputation with {{faction.faction|url}}</li>
+{% endfor %}{% endif %}
+
+{% if obj.skill_reward %}
+	<li>+{{obj.skill_points_reward}} {{obj.skill_reward|url}} Skill point
+{% endif %}
+
+{% if obj.itemrewards_static %}{% for item in obj.itemrewards_static %}
+	<li>{{ item.item|iconize }}{% if item.amount != 1 %} x{{ item.amount }}{% endif %}</li>
+{% endfor %}{% endif %}
+</ul>
+
+{% if obj.itemrewards_choice %}
+You will be able to choose one of these rewards:
+<ul>{% for item in obj.itemrewards_choice %}
+	<li>{{ item.item|iconize }}{% if item.amount != 1 %} x{{ item.amount }}{% endif %}</li>
+{% endfor %}</ul>
+{% endif %}
+
+{% if obj.spell_reward %}You will learn:
+{{obj.spell_reward|iconize:"large"}}
+{% endif %}
+
+{% if obj.spell_trigger %}
+The following spell will be cast on you:
+{{obj.spell_trigger|iconize:"large"}}
+{% endif %}
+
+{% sigrielisting QuestCreatureStart obj.creature_starts_quests %}
+{% sigrielisting QuestItemStart obj.item_starts_quest %}
+{% sigrielisting AchievementCriteria obj.required_for_achievement %}
+
+{% if obj.followup or obj.quest_followup.count %}
+<h4>Follow-up</h4>
+<ul id="dq-followup">
+{% for quest in obj.quest_followup.iterator %}
+<li class="dq-fbefore">{{ quest|url }}</li>{% endfor %}
+<li class="dq-fcurrent">{{ obj }}</li>
+{% if obj.followup %}<li class="dq-fafter">{{ obj.followup|url }}</li>{% endif %}
+</ul>
+{% endif %}
+
+{% endblock %}

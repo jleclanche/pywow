@@ -1,0 +1,380 @@
+# -*- coding: utf-8 -*-
+
+from templatetags.extratags import url, iconize, price
+from sigrie.utils import json_to_html, get_price
+
+
+class SigrieListing(object):
+	title = ""
+	id = ""
+	
+	def __init__(self, iterable):
+		self.iterable = iterable
+	
+	def count(self):
+		return self.iterable.count()
+	
+	def render(self):
+		if not self.iterable:
+			return ""
+		if not self.count():
+			return ""
+		
+		table = self.create_table()
+		if not table: # sometimes self.count() > len(table)
+			return ""
+		html = '<script type="text/javascript">//<![CDATA[\n'
+		html += json_to_html(table, self.id)
+		html += "addTab(%r, %r)\n//]]></script>" % (self.id, "%s (%i)" % (self.title, len(table)))
+		return html
+	
+	def create_table(self):
+		return [obj.get_json(rel=self.id) for obj in self.iterable.select_related().distinct()]
+
+
+##
+# Generic
+#
+
+class ItemListing(SigrieListing):
+	title = "Items"
+	id = "items"
+
+class QuestListing(SigrieListing):
+	title = "Quests"
+	id = "quests"
+
+# Generic relations
+class AchievementCriteria(SigrieListing):
+	title = "Criterion for"
+	id = "required_for_achievement"
+
+class QuestRequirement(SigrieListing):
+	title = "Objective of"
+	id = "required_for_quest"
+
+class CreatureDrops(SigrieListing):
+	title = "Drops"
+	id = "drops"
+
+class CreatureSpells(SigrieListing):
+	title = "Casts"
+	id = "creaturespell_creature"
+
+class ItemContains(SigrieListing):
+	title = "Contains"
+	id = "item__contains"
+
+class ItemContainedIn(SigrieListing):
+	title = "Contained in"
+	id = "item__loot_item"
+	
+	def __init__(self, iterable):
+		self.iterable = iterable.filter(content_type__name="item")
+
+##
+# Creatures
+#
+
+class CreatureEndsQuest(SigrieListing):
+	title = "Ends Quests"
+	id = "quest_ends_at_npc"
+
+class CreatureStartsQuest(SigrieListing):
+	title = "Starts Quests"
+	id = "creature__starts_quests"
+
+class CreatureQuestDrops(SigrieListing):
+	title = "Drops (Quest)"
+	id = "creature_quest_drops"
+
+class CreatureSoldItems(SigrieListing):
+	title = "Sells"
+	id = "solditem_item"
+
+class CreatureTrainedSpells(SigrieListing):
+	title = "Trains"
+	id = "trainedspell_trainer"
+
+class CreatureLevelData(SigrieListing):
+	title = "Level data"
+	id = "creatureleveldata_creature"
+
+##
+# Enchants
+#
+
+class EnchantProperty(SigrieListing):
+	title = "Property for"
+	id = "enchant_property"
+
+class EnchantSocketBonus(SigrieListing):
+	title = "Socket bonus for"
+	id = "item_socket_bonus"
+
+
+##
+# Factions
+#
+
+class FactionCreature(SigrieListing):
+	title = "NPCs"
+	id = "creature_faction"
+
+class FactionFaction(SigrieListing):
+	title = "Factions"
+	id = "faction_parent"
+
+class FactionItem(ItemListing):
+	id = "item_required_faction"
+
+class FactionQuest(QuestListing):
+	id = "questrewardfaction_quest"
+
+
+##
+# Holidays
+#
+
+class HolidayItem(ItemListing):
+	id = "item_required_holiday"
+
+
+##
+# Instances
+#
+
+class InstanceContinent(SigrieListing):
+	title = "Instances"
+	id = "instance_continent"
+
+class InstanceEncounter(SigrieListing):
+	title = "Encounters"
+	id = "encounter_instance"
+	
+	def __init__(self, iterable):
+		self.iterable = iterable.filter(difficulty=0)
+
+class InstanceEncounterHeroic(SigrieListing):
+	title = "Encounters (Heroic)"
+	id = "encounter_instance__heroic"
+	
+	def __init__(self, iterable):
+		self.iterable = iterable.filter(difficulty=1)
+
+
+##
+# Items
+#
+
+class ItemRelated(SigrieListing):
+	title = "Related items"
+	id = "item_related"
+
+class ItemCreatedBy(SigrieListing):
+	title = "Created by"
+	id = "spell_createditem"
+
+class ItemCurrencyFor(SigrieListing):
+	title = "Currency for"
+	id = "itemextendedcost_item"
+	
+	def create_table(self):
+		li = []
+		distinct = []
+		for item in self.iterable.select_related():
+			if item.sold_item.item_id not in distinct:
+				distinct.append(item.sold_item.item_id)
+				li.append(item.sold_item.get_json(rel=self.id))
+		return li
+
+class ItemDroppedBy(SigrieListing):
+	title = "Dropped by"
+	id = "creature__loot_item"
+	
+	def __init__(self, iterable):
+		self.iterable = iterable.filter(content_type__name="creature")
+
+class ItemQuestDroppedBy(SigrieListing):
+	title = "Dropped by"
+	id = "item__creature_quest_drops"
+
+class ItemProvidedFor(SigrieListing):
+	title = "Provided for"
+	id = "quest_provided_item"
+
+class ItemQuestReward(SigrieListing):
+	title = "Reward from"
+	id = "item_reward_from"
+
+class ItemSoldBy(SigrieListing):
+	title = "Sold by"
+	id = "solditem_vendor"
+
+class ItemSpellReagent(SigrieListing):
+	title = "Reagent for"
+	id = "spell_reagents"
+
+class ItemSpellTool(SigrieListing):
+	title = "Tool for"
+	id = "item_tool_for_spell"
+
+class ItemMailAttachment(SigrieListing):
+	title = "Sent in"
+	id = "mail_attachment"
+
+class ItemDisenchantsInto(SigrieListing):
+	title = "Disenchants into"
+	id = "item_disenchant"
+	
+	def count(self):
+		return 1
+	
+	def create_table(self):
+		return self.iterable
+
+##
+# Pages
+#
+
+class PageItem(SigrieListing):
+	title = "Found on Items"
+	id = "item_page"
+
+class PageObject(SigrieListing):
+	title = "Found on Objects"
+	id = "_gameobject_page"
+	
+	def __init__(self, obj):
+		self.iterable = obj.gameobject_text_page
+
+class PagePrevious(SigrieListing):
+	title = "Previous Page"
+	id = "page_next_page"
+
+##
+# Quests
+#
+
+class QuestItemStart(SigrieListing):
+	title = "Started by Item"
+	id = "item_starts_quest"
+
+class QuestCreatureStart(SigrieListing):
+	title = "Started by NPC"
+	id = "creature_starts_quests"
+
+class QuestObjectStart(SigrieListing):
+	title = "Started by Object"
+	id = "object_starts_quests"
+
+
+##
+# Spells
+#
+
+class SpellCastedBy(SigrieListing):
+	title = "Casted by"
+	id = "creaturespell_spell"
+
+class SpellEnchant(SigrieListing):
+	title = "Effect for"
+	id = "enchant_effects"
+
+class SpellEffectTrigger(SigrieListing):
+	title = "Triggered by spell"
+	id = "spelleffectproperty_trigger_spell"
+
+class SpellGlyphEffect(SigrieListing):
+	title = "Glyph effect for"
+	id = "glyph_spell"
+
+class SpellItemRequired(SigrieListing):
+	title = "Required for"
+	id = "item_required_spell"
+
+class SpellItemSetBonus(SigrieListing):
+	title = "Set bonus for"
+	id = "spell_itemset_bonus"
+
+class SpellItemTeaches(SigrieListing):
+	title = "Taught by"
+	id = "spell_item_teaches"
+
+class SpellItemSpell(SigrieListing):
+	title = "Used by"
+	id = "item_spells"
+	
+	def __init__(self, iterable):
+		self.iterable = iterable.exclude(teaches_spell__isnull=False)
+
+class SpellQuestReward(SigrieListing):
+	title = "Reward from"
+	id = "quest_spell_reward"
+
+class SpellQuestTrigger(SigrieListing):
+	title = "Triggered by quest"
+	id = "quest_spell_trigger"
+
+class SpellSkill(SigrieListing):
+	title = "Part of skill"
+	id = "skill_spells"
+
+class SpellTalentRank(SigrieListing):
+	title = "Talent effect for"
+	id = "talentrank_spell"
+
+class SpellTrainedBy(SigrieListing):
+	title = "Trained by"
+	id = "trainedspell_spell"
+
+
+##
+# Skills
+#
+
+class SkillEnchant(SigrieListing):
+	title = "Enchants"
+	id = "enchant_required_skill"
+
+class SkillItem(ItemListing):
+	id = "item_required_skill"
+
+class SkillItemSet(SigrieListing):
+	title = "Item Sets"
+	id = "itemset_required_skill"
+
+class SkillSpell(SigrieListing):
+	title = "Spells"
+	id = "skillspell_skill"
+
+class SkillQuestReward(SigrieListing):
+	title = "Points rewarded by"
+	id = "quest_skill_reward"
+
+
+##
+# Zones
+#
+
+class ZoneCreatureFound(SigrieListing):
+	id = "creature__node_zone"
+	title = "NPCs"
+	
+	def __init__(self, obj):
+		from .models import Creature
+		self.iterable = Creature.objects.filter(locations__zone=obj).distinct()
+
+class ZoneQuest(QuestListing):
+	id = "quest_zone"
+
+class ZoneInstance(SigrieListing):
+	id = "instance_zone"
+	title = "Instance"
+
+class ZoneItem(ItemListing):
+	id = "item_zone_bind"
+
+class ZoneSubzone(SigrieListing):
+	id = "zone_parent_area"
+	title = "Subzones"

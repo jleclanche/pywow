@@ -1,0 +1,9 @@
+# -*- coding: utf-8 -*-
+from sigrie.screenshots.models import *
+from django.contrib.admin import ModelAdmin, site
+
+class ScreenshotAdmin(ModelAdmin):
+	list_display = ("__unicode__", "content_type", "object_id")
+	list_filter = ("content_type", )
+
+site.register(Screenshot, ScreenshotAdmin)

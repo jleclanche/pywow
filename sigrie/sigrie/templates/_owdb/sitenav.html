@@ -1,0 +1,7 @@
+<div id="sitenav">
+{% block sitenav_searchbox %}{% include "owdb/searchbox.html" %}{% endblock %}
+<a href="/" rel="sigrie">Database</a>
+{% for menu in nav %}
+&#xbb; <a href="{{menu.0}}" rel="{{menu.2}}">{{ menu.1 }}</a>
+{% endfor %}
+</div>

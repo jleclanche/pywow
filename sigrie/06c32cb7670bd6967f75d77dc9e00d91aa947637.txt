@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+from django.template import Context, Template
+
+warnings = {
+	"TOO_MANY_RESULTS": "Only showing the first {{ results_max }} out of {{ results_total }} results. Please refine your query.",
+	"MULTIPLE_SLUG_RESULTS": """There are multiple {{ obj.verbose_name_plural|lower }} with that name. 
+		If this is not the {{ obj.verbose_name|lower }} you are looking for, please <a href="/search/{{obj.sigrie_name}}/{{slug}}/">refine your query</a>.""",
+	"INVALID_FILTER": """You have specified an invalid filter. If you believe this to be bug in the database, 
+		please <a href="mailto:boubouille@mmo-champion.com">report it</a>.""",
+}
+
+class Warn(object):
+	
+	T = '<div class="notice-warning">%s</div>'
+	
+	def __init__(self, warn="", context={}):
+		self.warn = []
+		self.w(warn)
+		self.c(context)
+		self.cache = {}
+	
+	def c(self, c):
+		self.cont = Context(c)
+		return self
+	
+	def w(self, w):
+		if w and w not in self.cache:
+			self.warn.append(w and Template(warnings[w]) or Template(w))
+			self.cache[w] = True
+	
+	def render(self):
+		s = ""
+		for w in self.warn:
+			s += self.T % w.render(self.cont)
+		return s

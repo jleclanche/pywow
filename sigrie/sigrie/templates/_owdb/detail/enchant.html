@@ -1,0 +1,26 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li>N/A</li>
+</ul>
+{% endblock %}
+{% block subcontent %}
+
+{% for effect in obj.enchanteffect_enchant.iterator %}
+<h4>Effect {{ forloop.counter }}</h4>
+<ul>
+<li>Effect: {{ effect.get_type_display }}</li>
+{% if effect.spell %}
+<li>Spell: {{ effect.spell|url }}</li>
+{% else %}
+<li>Stat: {{ effect.stat }}</li>
+<li>Amount: {{ effect.amount }}</li>
+{% endif %}
+</ul>{% endfor %}
+
+{% sigrielisting EnchantProperty obj.item_gem_properties %}
+{% sigrielisting EnchantSocketBonus obj.item_socket_bonus %}
+
+{% endblock %}

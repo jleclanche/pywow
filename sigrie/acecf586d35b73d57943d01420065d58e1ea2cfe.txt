@@ -1,0 +1,19 @@
+
+DEBUG = True
+
+DATABASES = {
+	"default": {
+		"NAME": "sigrie",
+		"ENGINE": "postgresql_psycopg2",
+		"BACKEND": "django.db.backends.postgres_psycopg2",
+		"USER": "postgres",
+		"PASSWORD": "ah2nsihb",
+		"HOST": "localhost",
+	}
+}
+
+MEDIA_ROOT = "/home/adys/src/hg/sigrie/sigrie/static/"
+
+TEMPLATE_DIRS = (
+	"/home/adys/src/hg/sigrie/sigrie/templates/",
+)

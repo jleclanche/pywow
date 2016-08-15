@@ -1,0 +1,1145 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import division
+from itertools import izip_longest
+from django.utils import html
+from templatetags.extratags import *
+from sigrie.utils import HtmlTag
+from sigrie.owdb import choices
+
+ITEM_REQ_ARENA_RATING = "Requires personal and team arena rating of %d"
+ITEM_REQ_ARENA_RATING_3V3 = "Requires personal and team arena rating of %d\nin 3v3 or 5v5 brackets"
+ITEM_REQ_ARENA_RATING_5V5 = "Requires personal and team arena rating of %d\nin 5v5 brackets"
+
+class Tooltip(object):
+	SHORT = "tt"
+	LONG = "tt-tooltip"
+	TPL = []
+	def __init__(self, obj):
+		self.obj = obj
+	
+	def do_name(self):
+		return HtmlTag(url(self.obj), classes={"tt-name": True, "%s-name" % (self.SHORT): True})
+	
+	def default(self, name):
+		t = getattr(self.obj, name)
+		if t:
+			return HtmlTag(url(t))
+	
+	def toHtml(self, text):
+		return HtmlTag(classes={self.LONG: True, "sigrie-tooltip": True}, text=text)
+	
+	def render(self, paperdoll):
+		ret = []
+		for key in self.TPL:
+			if key.startswith("_"):
+				tag = getattr(self, key)(paperdoll)
+				if not tag: continue
+				ret.append(tag)
+				continue
+			
+			if not getattr(self.obj, key) and key != "name": # Always process do_name
+				continue
+			
+			if hasattr(self, "do_%s" % (key)):
+				do = getattr(self, "do_%s" % key)()
+			else:
+				do = self.default(key)
+			
+			if do:
+				do.classes[self.SHORT+"-"+key] = True
+				ret.append(do)
+		return self.toHtml("".join(str(k) for k in ret))
+
+	
+def generic_required_skill(self, skill=None, level=None, text_skill="Requires %s (%i)", text_noskill="Requires %s"):
+	skill = url(skill or self.obj.required_skill)
+	level = level or self.obj.required_skill_level
+	if level:
+		text = text_skill % (skill, level)
+	else:
+		text = text_noskill % (skill)
+	return HtmlTag(text)
+
+def get_reagents_list(spell, text="%s", classes={}):
+	"""
+	Return an HtmlTag containing a comma-separated
+	list of reagents for a spell.
+	"""
+	ret = []
+	for item in spell.spellreagent_spell.iterator():
+		ret.append(url(item.item) if item.amount == 1 else "%s (%i)" % (url(item.item), item.amount))
+	return HtmlTag(text % (", ".join(ret)), classes=classes)
+
+
+class Achievement(Tooltip):
+	SHORT = "tta"
+	LONG = "tt-achievement"
+	TPL = (
+		"name",
+		"_do_progress",
+		"objective",
+		"_do_criteria",
+	)
+	
+	def _do_progress(self, paperdoll):
+		return HtmlTag("Achievement in progress", classes={"tta-progress": True})
+	
+	def _do_criteria(self, paperdoll):
+		criteria = self.obj.achievementcriteria_achievement
+		if self.obj.achievementcriteria_achievement.count():
+			cells = []
+			for criterion in self.obj.achievementcriteria_achievement.iterator():
+				cells.append(HtmlTag(text=url(criterion), tag="td"))
+			table = [[_k for _k in t if _k] for t in izip_longest(cells[::2], cells[1::2])]
+			ret = []
+			for row in table:
+				ret.append(HtmlTag(children=row, tag="tr"))
+			return HtmlTag(children=ret, tag="table", classes={"tta-criteria": True})
+
+
+class Creature(Tooltip):
+	SHORT = "ttc"
+	LONG = "tt-creature"
+	TPL = (
+		"name",
+		"title",
+		"_do_level",
+		"faction",
+		"pvp",
+		"leader",
+	)
+	
+	def _do_level(self, paperdoll):
+		category = HtmlTag(self.obj.get_category_display(), tag="span", classes={"ttc-category": True})
+		level_type = HtmlTag("Level ?? ", tag="span", classes={"ttc-level": True})
+		return HtmlTag(children=[level_type, category], classes={"ttc-type-%i" % self.obj.type: True})
+	
+	def do_pvp(self):
+		return HtmlTag("PvP")
+	
+	def do_leader(self):
+		return HtmlTag("Leader")
+
+
+class Encounter(Tooltip):
+	SHORT = "ttencounter"
+	LONG = "tt-encounter"
+	TPL = (
+		"name",
+		"difficulty",
+		"instance",
+	)
+	
+	def do_difficulty(self):
+		return HtmlTag("Heroic")
+	
+	def do_instance(self):
+		ordering = self.obj.ordering + 1
+		if ordering == 1:
+			th = "st"
+		elif ordering == 2:
+			th = "nd"
+		else:
+			th = "th"
+		
+		template = "%i%s encounter of %s"
+		
+		return HtmlTag(template % (ordering, th, url(self.obj.instance)))
+
+class Enchant(Tooltip):
+	SHORT = "tte"
+	LONG = "tt-enchant"
+	TPL = (
+		"name",
+		"required_skill",
+		"required_level",
+		"_do_effects",
+		"_do_conditions",
+		"charges"
+	)
+	
+	def do_required_skill(self):
+		return generic_required_skill(self, text_skill="Enchantment Requires %s (%i)", text_noskill="Enchantment Requires %s")
+	
+	def do_required_level(self):
+		return HtmlTag("Enchantment Requires Level %i" % (self.obj.required_level))
+	
+	def _do_effects(self, paperdoll):
+		if not self.obj.enchanteffect_enchant.count():
+			return
+		ret = []
+		for effect in self.obj.enchanteffect_enchant.iterator():
+			if effect.type == 7:
+				ret.append(HtmlTag("Use: %s" % (url(effect.spell, text=effect.spell.description)), classes={"tte-effect-use": True}))
+			elif effect.type == 8:
+				ret.append(HtmlTag("Prismatic Socket", classes={"tte-socket": True, "socket": True, "socket-prismatic": True}))
+		if ret:
+			return HtmlTag(children=ret, classes={"tte-effects": True})
+	
+	def _do_conditions(self, paperdoll):
+		conditions = self.obj.conditions
+		if conditions.count():
+			ret = []
+			for condition in conditions.all():
+				ret.append(HtmlTag(condition, classes={"tte-conditions": True}))
+			return HtmlTag(children=ret)
+	
+	def do_charges(self):
+		return HtmlTag("%i Charges" % (self.obj.charges))
+
+
+class Faction(Tooltip):
+	SHORT = "ttf"
+	LONG = "tt-faction"
+	TPL = ("name", "description")
+
+
+class Glyph(Tooltip):
+	SHORT = "ttg"
+	LONG = "tt-glyph"
+	TPL = (
+		"_do_name",
+		"_do_type",
+		"_do_description",
+	)
+	
+	def _do_name(self, paperdoll):
+		if self.obj.name:
+			return HtmlTag(url(self.obj), classes={"tt-name": True, "%s-name" % (self.SHORT): True})
+	
+	def _do_type(self, paperdoll):
+		text = self.obj.get_type_display()
+		return HtmlTag(text, classes={"ttg-type": True})
+	
+	def _do_description(self, paperdoll):
+		spell = self.obj.spell
+		if spell:
+			return HtmlTag(url(spell, text=spell.description), classes={"ttg-description": True})
+		return HtmlTag("Use a Glyph from your inventory to inscribe your spellbook.", classes={"ttg-description": True, "tt-glyph-nospell": True})
+
+
+class Holiday(Tooltip):
+	SHORT = "tth"
+	LONG = "tt-holiday"
+	TPL = ("name", "description")
+
+
+class Instance(Tooltip):
+	SHORT = "ttinstance"
+	LONG = "tt-instance"
+	TPL = (
+		"name",
+		"description_horde",
+		#"description_alliance",
+	)
+
+
+class Item(Tooltip):
+	SHORT = "tti"
+	LONG = "tt-item"
+	TPL = (
+		"_do_name",
+		"_do_glyph", # where?
+		"heroic",
+		"quality",
+		"chart",
+		"zone_bind",
+		"instance_bind",
+		"conjured",
+		"bind",
+		"_do_unique",
+		"starts_quest",
+		"lockpicking",
+		"_do_subclass",
+		"slot",
+		"_do_damage",
+		"_do_armor",
+		"block",
+		"_do_stats",
+		"_do_enchant",
+		"_do_sockets",
+		"_do_gem_properties",
+		"random_enchantment",
+		"duration",
+		"required_holiday",
+		"_do_races_classes",
+		"_do_durability",
+		"_do_required_level",
+		"_do_level",
+		"required_arena_rating",
+		"required_skill",
+		"required_spell",
+		"required_faction",
+		"_do_stats_special",
+		"_do_spells",
+		"_do_charges",
+		"_do_itemset",
+		"note",
+		"openable",
+		"_do_page",
+		"_do_disenchanting",
+		"sell_price",
+	)
+	
+	def toHtml(self, text):
+		classes = {
+			self.LONG: True,
+			"sigrie-tooltip": True,
+			"cl%i" % (self.obj.subclass.id1): True,
+			"sc%i" % (self.obj.subclass.id2): True,
+			"sl%i" % (self.obj.slot): True,
+			"tt-item-scalable": bool(self.obj.scaling_stats),
+			"tt-item-teaches": bool(self.obj.teaches_spell_id),
+			"tt-item-teaches-creates": bool(self.obj.teaches_spell and self.obj.teaches_spell.created_item),
+		}
+		tag = HtmlTag(text, classes=classes)
+		if self.obj.quality != None:
+			tag.classes["tt-item-q%i" % (self.obj.quality)] = True
+		return tag
+	
+	def _do_name(self, paperdoll):
+		ret = HtmlTag(url(self.obj), classes={"tt-name": True, "tti-name": True})
+		if self.obj.quality != None:
+			ret.classes["q%i" % (self.obj.quality)] = True
+		return ret
+	
+	
+	def _do_glyph(self, paperdoll):
+		glyph = self.obj.glyph
+		if glyph:
+			text = glyph.get_type_display()
+			return HtmlTag(url(glyph, text=text), classes={"tti-glyph": True})
+	
+	def do_heroic(self):
+		return HtmlTag("Heroic")
+	
+	def do_quality(self):
+		return HtmlTag(self.obj.get_quality_display())
+	
+	def do_chart(self):
+		return HtmlTag("Right Click for Details", classes={"tt-angular": True})
+	
+	def do_conjured(self):
+		return HtmlTag("Conjured Item")
+	
+	def do_bind(self):
+		return HtmlTag(self.obj.get_bind_display())
+	
+	def do_unique_category(self):
+		u = self.obj.unique_category
+		equip = u.equipped and "Unique Equipped" or "Unique"
+		return HtmlTag("%s: %s (%i)" % (equip, url(u), u.amount))
+	
+	def _do_unique(self, paperdoll):
+		if self.obj.unique_equipped:
+			return HtmlTag("Unique-Equipped", classes={"tti-unique_equipped": True})
+		
+		if self.obj.unique:
+			if self.obj.unique > 1:
+				return HtmlTag("Unique (%i)" % (self.obj.unique), classes={"tti-unique": True})
+			return HtmlTag("Unique", classes={"tti-unique": True})
+		
+		u = self.obj.unique_category
+		if u:
+			text = "%%s: %s (%i)" % (url(u), u.amount)
+			if u.equipped:
+				return HtmlTag(text % ("Unique Equipped"), classes={"tti-unique_category": True})
+			return HtmlTag(text % ("Unique"), classes={"tti-unique_category": True})
+	
+	def do_starts_quest(self):
+		return HtmlTag(url(self.obj.starts_quest, text="This Item Begins a Quest"))
+	
+	def do_lockpicking(self):
+		# TODO encrypted (lock 1807)
+		from owdb.models import Skill
+		locked = HtmlTag("Locked", classes={"tt-lock-locked": True})
+		lockpicking = Skill.objects.get(id=633)
+		req = generic_required_skill(self, skill=lockpicking, level=self.obj.lockpicking)
+		req.classes["tt-lock-lockpicking"] = True
+		return HtmlTag(children=[locked, lockpicking])
+	
+	def _do_subclass(self, paperdoll):
+		if self.obj.subclass: # FIXME: scalingstats, mail<-leather, plate<-mail
+			return HtmlTag(url(self.obj.subclass), classes={"tti-subclass": True})
+	
+	def do_slot(self):
+		if self.obj.bag_slots:
+			return HtmlTag("%i Slot %s" % (self.obj.bag_slots, url(self.obj.subclass)), classes={"tti-bag_slots": True})
+		return HtmlTag(self.obj.get_slot_display())
+	
+	def _do_damage(self, paperdoll):
+		speed = self.obj.speed
+		damage_min, damage_max, damage_type = 0, 0, ""
+		if self.obj.scaling_stats:
+			from owdb.models import ScalingStatValues
+			level = paperdoll["character"]["level"]
+			row = ScalingStatValues.objects.get(level=level)
+			dps = self.obj.get_scaling_dps(row)
+			if not dps:
+				return
+			damage_min = float(int(dps * speed * 0.7))
+			damage_max = float(int(dps * speed * 1.3))
+			damage_type = "Damage"
+		elif self.obj.damage_max:
+			dps = self.obj.dps()
+			damage_min = round(self.obj.damage_min)
+			damage_max = round(self.obj.damage_max)
+		else:
+			return
+		damage_type = "%s Damage" % (self.obj.get_damage_type_display()) if self.obj.damage_type else "Damage"
+		
+		speed = HtmlTag("Speed %.2f" % (speed), classes={"tti-speed": True}) if self.obj.speed else ""
+		damage = HtmlTag("%.0f - %.0f %s" % (damage_min, damage_max, damage_type), classes={"tti-damage_1": True})
+		
+		ret = [speed, damage]
+		
+		ret.append(HtmlTag("(%.1f damage per second)" % (dps), classes={"tti-dps": True}))
+		
+		if self.obj.subclass.id1 == 6:
+			ret.append(HtmlTag("Adds %g damage per second" % (self.obj.projectile_dps()), classes={"tti-dps-projectile": True}))
+		
+		return HtmlTag(children=ret, classes={"tti-damage": True, "tti-damage-scaling": bool(self.obj.scaling_stats)})
+	
+	def _do_armor(self, paperdoll):
+		if self.obj.scaling_stats:
+			from owdb.models import ScalingStatValues
+			level = paperdoll["character"]["level"]
+			row = ScalingStatValues.objects.get(level=level)
+			armor = self.obj.get_scaling_armor(row)
+			if armor:
+				text = "%i Armor" % (armor)
+				return HtmlTag(text, classes={"tti-armor-scaling": True, "tti-armor": True})
+		elif self.obj.armor:
+			if self.obj.bonus_armor:
+				text = "%s Armor (+%i)" % (self.obj.armor, self.obj.bonus_armor)
+			else:
+				text = "%s Armor" % (self.obj.armor)
+			return HtmlTag(text, classes={"tti-bonus_armor": bool(self.obj.bonus_armor), "tti-armor": True})
+	
+	def do_block(self):
+		return HtmlTag("%i Block" % (self.obj.block))
+	
+	def __cache_stats(self):
+		# caching to avoid two duplicate queries
+		self.stats = {True: [], False: [], "resists": 0, "resist_out": False}
+		stats = self.obj.itemstat_item
+		for stat in stats.all():
+			self.stats[stat.stat.special].append(stat)
+			if stat.stat.resist:
+				self.stats["resists"] += 1
+	
+	def __get_resist_text(self, stat):
+		if self.stats["resist_out"]:
+			return
+		if self.stats["resists"] == 5: # > ?
+			self.stats["resist_out"] = True
+			return "%+i to All Resistances" % (stat.amount)
+		return stat
+	
+	def _do_stats(self, paperdoll, special=False):
+		ret = []
+		if not hasattr(self, "stats"):
+			self.__cache_stats()
+		
+		if self.obj.scaling_stats:
+			from owdb.models import ScalingStatValues
+			stats = self.obj.scaling_stats.scalingstat_distribution.filter(stat__special=special)
+			level = paperdoll["character"]["level"]
+			row = ScalingStatValues.objects.get(level=level)
+			for stat in stats.iterator():
+				#amount = self.obj.get_scaling_flag(row) * stat.modifier
+				amount = 0 # FIXME
+				ret.append(HtmlTag(stat.stat.text % (amount), classes={"tti-stat": True, "tti-stat-scaling": True, "tti-stat-special": special, "inactive": not int(amount)}))
+		
+		else:
+			stats = self.stats[special]
+			if not stats:
+				return
+			for stat in stats:
+				if stat.stat.text:
+					if stat.stat.resist:
+						stat = self.__get_resist_text(stat)
+						if not stat: continue
+					ret.append(HtmlTag(stat, classes={"tti-stat": True}))
+		
+		return HtmlTag(children=ret)
+	
+	def _do_enchant(self, paperdoll):
+		if paperdoll["enchant"]:
+			active = True
+			enchant = paperdoll["enchant"]
+			enchant_tag = HtmlTag(url(enchant), classes={"tti-enchant-enchant": True})
+			required_skill = ""
+			if enchant.required_skill:
+				if enchant.required_skill_level:
+					required_skill = HtmlTag("Enchantment Requires %s (%i)" % (url(enchant.required_skill), enchant.required_skill_level))
+					
+					if "skills" in paperdoll:
+						active = False
+						if enchant.required_skill_id in paperdoll["skills"]:
+							active = paperdoll["skills"][enchant.required_skill_id] >= enchant.required_skill_level
+				else:
+					required_skill = HtmlTag("Enchantment Requires %s" % (url(enchant.required_skill)))
+					if "skills" in paperdoll:
+						active = enchant.required_skill_id in paperdoll["skills"]
+				
+				required_skill.classes["tti-enchant-required_skill"] = True
+			required_level = ""
+			if enchant.required_level:
+				required_level = HtmlTag("Enchantment Requires Level %i" % (enchant.required_level), classes={"tti-enchant-required_level": True})
+			ret = [enchant_tag, required_skill, required_level]
+			return HtmlTag(children=ret, classes={"tti-enchant": True, "enabled": active, "disabled": not active})
+	
+	def _do_sockets(self, paperdoll):
+		ret = []
+		inactive = 0
+		for i, socket in enumerate([self.obj.socket1, self.obj.socket2, self.obj.socket3]):
+			try:
+				gem = paperdoll["sockets"] and paperdoll["sockets"][i]
+			except IndexError:
+				gem = None
+			
+			if socket:
+				inactive += 1
+				if gem:
+					ret.append(HtmlTag(iconize(gem), classes={"tti-socket": True}))
+					if gem.gem and socket & gem.gem.gem_color:
+						inactive -= 1
+				else:
+					socket_name = getattr(self.obj, "get_socket%i_display" % (i+1))()
+					text = '<a href="/items/?gem_color__band=%i">%s Socket</a>'
+					ret.append(HtmlTag(text % (socket, socket_name), classes={"tti-socket": True, "wow-socket": True, "socket-%s" % (socket_name.lower()): True}))
+			
+			elif gem:
+				ret.append(HtmlTag(iconize(gem), classes={"tti-socket": True}))
+		
+		if self.obj.socket_bonus:
+			ret.append(HtmlTag("Socket Bonus: %s" % (url(self.obj.socket_bonus)), classes={"tti-socket_bonus": True, "active": not inactive}))
+		
+		if ret:
+			return HtmlTag(children=ret, classes={"tti-sockets": True})
+	
+	def _do_gem_properties(self, paperdoll):
+		enchant = self.obj.gem_properties
+		if enchant:
+			ret = [HtmlTag(url(enchant))]
+			for condition in enchant.conditions.all():
+				ret.append(HtmlTag(condition, classes={"tti-gem_conditions": True}))
+			return HtmlTag(children=ret, classes={"tti-gem_properties": True})
+	
+	def do_random_enchantment(self):
+		return HtmlTag("Random enchantment", classes={"tt-angular": True})
+	
+	def do_duration(self):
+		return HtmlTag("Duration: %s" % (duration_short(self.obj.duration)))
+	
+	def do_required_holiday(self):
+		text = self.obj.required_holiday and url(self.obj.required_holiday) or "(null)"
+		return HtmlTag("Requires %s" % (text))
+	
+	def _do_races_classes(self, paperdoll):
+		ret = []
+		mask = self.obj.class_mask
+		li = []
+		for k in choices.CLASSES:
+			if mask and mask & 2**(k-1):
+				li.append(choices.CLASSES[k])
+		if 0 < len(li) < len(choices.CLASSES):
+			ret.append(HtmlTag("Classes: %s" % (", ".join(li)), classes={"tti-class_mask": True, "disabled": not mask & paperdoll["character"]["class"]}))
+		
+		li = []
+		mask = self.obj.race_mask
+		for k in choices.RACES:
+			if mask and mask & 2**(k-1):
+				li.append(choices.RACES[k])
+		if 0 < len(li) < len(choices.RACES):
+			ret.append(HtmlTag("Races: %s" % (", ".join(li)), classes={"tti-race_mask": True, "disabled": not mask & paperdoll["character"]["race"]}))
+		if ret:
+			return HtmlTag(children=ret, classes={"tti-race_class_requirements": True})
+	
+	def _do_durability(self, paperdoll):
+		if self.obj.durability:
+			dur = self.obj.durability
+			text = "Durability %i / %i"
+			cur = 0
+			if "durability" in paperdoll:
+				try:
+					cur = int(paperdoll["durability"])
+					cur = min(cur, dur)
+				except ValueError:
+					cur = dur
+				text = text % (cur, dur)
+			else:
+				text = text % (dur, dur)
+			ret = HtmlTag(text, classes={"tt-item-extra": True, "tti-durability": True, "disabled": not cur})
+			return ret
+	
+	def _do_required_level(self, paperdoll):
+		cur = paperdoll["character"]["level"]
+		if self.obj.scaling_stats:
+			min = 1
+			max = self.obj.scaling_stats.max_level
+			return HtmlTag('Requires Level %i to %i (<span class="tti-current_level">%i</span>)' % (min, max, cur), classes={"tti-required_level_range": True})
+		
+		if self.obj.required_level:
+			min = self.obj.required_level
+			return HtmlTag("Requires Level %i" % (min), classes={"tti-required_level": True, "disabled": cur < min})
+	
+	def _do_level(self, paperdoll):
+		if not (self.obj.stub and not self.obj.level):
+			return HtmlTag("Item Level %i" % (self.obj.level), classes={"tti-level": True})
+	
+	def do_required_arena_rating(self):
+		bracket = self.obj.required_arena_bracket
+		if bracket == 3:
+			text = ITEM_REQ_ARENA_RATING_3V3
+		elif bracket:
+			text = ITEM_REQ_ARENA_RATING_5V5
+		else:
+			text = ITEM_REQ_ARENA_RATING
+		return HtmlTag(text % self.obj.required_arena_rating)
+	
+	def do_required_skill(self):
+		# TODO check Requires XXX (0) - Mageroyal?!
+		ret = generic_required_skill(self)
+		if self.obj.required_skill_level:
+			return ret
+	
+	def do_required_spell(self):
+		spell = url(self.obj.required_spell)
+		return HtmlTag("Requires %s" % (spell))
+	
+	def do_required_faction(self):
+		return HtmlTag("Requires %s - %s" % (url(self.obj.required_faction), self.obj.get_required_reputation_display()))
+	
+	def _do_stats_special(self, paperdoll):
+		ret = self._do_stats(paperdoll, special=True)
+		if ret:
+			ret.classes["tti-stat-special"] = True
+			return ret
+	
+	def _do_spells(self, paperdoll):
+		ret = []
+		
+		def createditem(created, ret):
+			"Helper to append a created item"
+			tag = created.spell.created_item.tooltip(paperdoll)
+			tag.classes["tt-nested"] = True
+			ret.append(tag)
+			if created.spell.reagents.count():
+				ret.append(get_reagents_list(created.spell, text="Requires %s", classes={"tt-item-spell-reagents": True}))
+		
+		self.charges = 0
+		for spell in self.obj.itemspell_item.all():
+			created = None
+			if spell.trigger == 6: # Learning
+				if spell.spell and spell.spell.glyph and spell.spell.glyph.spell:
+					text = url(spell.spell.glyph, text="Permanently teaches you this glyph.\n\n%s" % (spell.spell.glyph.spell.description))
+				else:
+					text = url(spell, text=self.obj.note or "(null)")
+				if spell.spell and spell.spell.created_item:
+					created = spell
+				tag = HtmlTag(text, classes={"tti-spell-t%i" % (spell.trigger): True})
+			else:
+				tag = HtmlTag(children=[colorinline(url(spell))], classes={"tti-spell-t%i" % (spell.trigger): True})
+				if not spell.spell or not spell.spell.description: # Spells without text are hidden
+					tag.classes["tti-spell-hidden"] = True
+				elif spell.charges: # Append charges, but only if the spell is not hidden
+					self.charges = spell.charges
+				
+				if spell.cooldown and spell.cooldown > 0: # Append cooldown
+					tag.children.append(HtmlTag(" (%s Cooldown)" % (duration_shortcap(spell.cooldown)), tag="span", classes={"tti-spell-cooldown": True}))
+			ret.append(tag)
+			if created:
+				createditem(created, ret)
+		
+		if ret:
+			return HtmlTag(children=ret, classes={"tti-spells": True})
+	
+	def _do_charges(self, paperdoll):
+		charges = abs(self.charges)
+		if charges > 1:
+			return HtmlTag("%i Charges" % (charges), classes={"tti-charges": True})
+	
+	def _do_itemset(self, paperdoll):
+		itemset = self.obj.get_itemset()
+		if itemset:
+			ret = itemset.tooltip(paperdoll)
+			ret.classes["tt-nested"] = True
+			ret.classes["tti-itemset"] = True
+			return ret
+	
+	def do_note(self):
+		return HtmlTag('"%s"' % (html.escape(self.obj.note)))
+	
+	def do_openable(self):
+		if not self.obj.lockpicking:
+			return HtmlTag("Right Click to Open", classes={"tt-angular": True})
+	
+	def _do_page(self, paperdoll):
+		if self.obj.page_id:
+			text = url(self.obj.page, text="This item can be read")
+			return HtmlTag(text, classes={"tti-page": True, "tt-angular": True})
+	
+	def _do_disenchanting(self, paperdoll):
+		if self.obj.stub:
+			return
+		from owdb.models import Skill
+		enchanting = Skill.objects.get(id=333)
+		disenchanting = self.obj.disenchanting
+		
+		if disenchanting:
+			tag = generic_required_skill(self, skill=enchanting, level=disenchanting, text_skill="Disenchanting requires %s (%i)", text_noskill="Disenchanting requires %s")
+			tag.classes["tti-disenchantable"] = True
+		else:
+			tag = HtmlTag("Cannot be disenchanted", classes={"tti-notdisenchantable": True})
+		tag.classes["tt-item-extra"] = True
+		
+		return tag
+	
+	def do_sell_price(self):
+		return HtmlTag("Sell Price: %s" % (price(self.obj.sell_price)))
+
+
+class ItemSet(Tooltip):
+	SHORT = "ttis"
+	LONG = "tt-itemset"
+	TPL = (
+		"_do_name",
+		"required_skill",
+		"_do_items",
+		"_do_bonuses",
+	)
+	
+	def _do_name(self, paperdoll):
+		max = self.obj.total_slots()
+		equipped = "equipped_items" in paperdoll and len(paperdoll["equipped_items"]) or 0
+		ret = "%s (%i/%i)" % (url(self.obj), equipped, max)
+		return HtmlTag(ret, classes={"tt-name": True, "ttis-name": True})
+	
+	def do_required_skill(self):
+		# TODO check requires XXX (0)
+		return generic_required_skill(self)
+	
+	def _do_items(self, paperdoll):
+		ret = []
+		for i, item in enumerate(self.obj.itemsetitem_itemset.select_related()):
+			i += 1
+			if "equipped_items" in paperdoll and i in paperdoll["equipped_items"]:
+				tag = HtmlTag(url(paperdoll["equipped_items"][i]), tag="li", classes={"active": True})
+			else:
+				tag = HtmlTag(url(item.item), tag="li")
+			ret.append(tag)
+		return HtmlTag(children=ret, tag="ul", classes={"ttis-items": True})
+	
+	def _do_bonuses(self, paperdoll):
+		ret = []
+		for spell in self.obj.itemsetbonus_itemset.select_related():
+			amount = spell.required_amount
+			if "equipped_items" not in paperdoll or len(paperdoll["equipped_items"]) < amount:
+				tag = HtmlTag("(%i) Set: %s" % (amount, url(spell)), tag="li")
+			else:
+				tag = HtmlTag("Set: %s" % (url(spell, text=spell.spell.description)), tag="li", classes={"active": True})
+			ret.append(tag)
+		return HtmlTag(children=ret, tag="ul", classes={"ttis-bonuses": True})
+
+
+class Page(Tooltip):
+	SHORT = "ttp"
+	LONG = "tt-page"
+	TPL = ("text", )
+	
+	def do_text(self):
+		from django.utils.safestring import mark_safe
+		text = mark_safe(self.obj.text)
+		return HtmlTag(text)
+
+
+class Mail(Tooltip):
+	SHORT = "ttmail"
+	LONG = "tt-mail"
+	TPL = (
+		"name",
+		"text",
+	)
+	
+	def do_text(self):
+		text = html.escape(self.obj.text)
+		return HtmlTag(genderinline(text))
+
+
+class Object(Tooltip):
+	SHORT = "tto"
+	LONG = "tt-object"
+	TPL = ("name", )
+
+
+class Quest(Tooltip):
+	SHORT = "ttq"
+	LONG = "tt-quest"
+	TPL = (
+		"name",
+		"objective",
+		"_do_requirements",
+	)
+	
+	def do_objective(self):
+		objective = html.escape(self.obj.objective) # genderinline already ouputs escaped html
+		return HtmlTag(genderinline(objective))
+	
+	def __do_summary(self):
+		return HtmlTag(self.obj.summary, tag="li", classes={"ttq-summary": True})
+	
+	def __do_requirements(self):
+		ret = []
+		for req in self.obj.questrequirement_quest.iterator():
+			if str(req.content_type) == "faction":
+				text = "%%s: %s" % (choices.REPUTATION_LEVELS[req.amount][1])
+			else:
+				text = "%%s x %i" % (req.amount)
+			
+			ret.append(HtmlTag(text % url(req), tag="li", classes={"ttq-requirement": True}))
+		return ret
+	
+	def __do_required_player_kills(self):
+		return HtmlTag("Players x%i" % (self.obj.required_player_kills), tag="li", classes={"ttq-required_player_kills": True})
+	
+	def __do_required_money(self):
+		return HtmlTag("Required money: %s" % (price(self.obj.required_money)), tag="li", classes={"ttq-required_money": True})
+	
+	def _do_requirements(self, paperdoll):
+		ret = []
+		if self.obj.summary:
+			ret.append(self.__do_summary())
+		
+		if self.obj.questrequirement_quest.count:
+			reqs = self.__do_requirements()
+			for k in reqs:
+				ret.append(k)
+		
+		if self.obj.required_player_kills:
+			ret.append(self.__do_required_player_kills())
+		
+		if self.obj.required_money:
+			ret.append(self.__do_required_money())
+		
+		if ret:
+			return HtmlTag(tag="ul", children=ret, classes={"ttq-requirements": True})
+
+
+class Spell(Tooltip):
+	SHORT = "tts"
+	LONG = "tt-spell"
+	TPL = (
+		"_do_name",
+		"_do_range_power",
+		"_do_cast_cooldown",
+		"_do_required_tools",
+		"_do_reagents",
+		"required_item_subclasses",
+		"required_stances",
+		"_do_description",
+		"_do_created_item",
+	)
+	
+	def toHtml(self, text):
+		classes = {
+			self.LONG: True,
+			"sigrie-tooltip": True,
+			"tt-spell-tradespell": self.obj.tradespell,
+		}
+		return HtmlTag(text, classes=classes)
+	
+	def __do_range(self, paperdoll):
+		range_min = self.obj.range_min
+		range_max_friendly = self.obj.range_max_friendly
+		range_max = self.obj.range_max
+		range_flags = self.obj.range_flags
+		
+		if range_max_friendly and range_max != range_max_friendly:
+			# Dispel Magic (527)
+			# We don't care about range_min
+			enemy = "Enemy: %i yd range" % (range_max)
+			friendly = "Friendly: %i yd range" % (range_max_friendly)
+			text = "%s<br/>%s" % (enemy, friendly)
+			return HtmlTag(text, classes={"tts-range": True, "tts-range-friendly": True})
+		
+		
+		if range_max:
+			if range_max == 50000:
+				text = "Unlimited range"
+			elif range_min or range_flags & 2:
+				text = "%i-%i yd range" % (range_min or 5, range_max)
+			elif range_max == 5 and range_flags & 1:
+				text = "Melee Range"
+			else:
+				text = "%i yd range" % (range_max)
+			
+			return HtmlTag(text, classes={"tts-range": True})
+	
+	def __do_power_cost(self, paperdoll):
+		if self.obj.has_rune_cost():
+			runes = [
+				(self.obj.rune_cost_blood, "Blood"),
+				(self.obj.rune_cost_frost, "Frost"),
+				(self.obj.rune_cost_unholy, "Unholy"),
+			]
+			text = " ".join("%i %s" % (k[0], k[1]) for k in runes if k[0])
+			return HtmlTag(text, classes={"tts-power_cost": True, "tts-rune_cost": True})
+		
+		if self.obj.power_percent:
+			cost_percent = self.obj.power_percent
+			if self.obj.power_type == -2: # Health
+				base_health = paperdoll["character"]["base_health"]
+				if paperdoll["character"]["base_health"]:
+					amount = (base_health * cost_percent / 100)
+					text = "%i Health" % (amount)
+				else:
+					text = "%i%% of base health" % (cost_percent)
+			else:
+				base_mana = paperdoll["character"]["base_mana"]
+				if paperdoll["character"]["base_mana"]:
+					amount = (base_mana * cost_percent / 100)
+					text = "%i Mana" % (amount)
+				else:
+					text = "%i%% of base mana" % (cost_percent)
+			return HtmlTag(text, classes={"tts-power_cost": True, "tts-power_percent": True})
+		
+		if self.obj.power_amount:
+			type = self.obj.power_type
+			amount = self.obj.power_amount
+			if type in (1, 6): # Rage/Runic Power amounts are divided by 10
+				amount /= 10
+			text = "%i %s" % (amount, choices.POWER_TYPES[type])
+			if self.obj.power_per_second:
+				text += ", plus %i per sec" % (self.obj.power_per_second)
+			return HtmlTag(text, classes={"tts-power_cost": True})
+	
+	def __do_cooldown(self, paperdoll):
+		cooldown = self.obj.cooldown or self.obj.category_cooldown
+		if cooldown:
+			return HtmlTag("%s cooldown" % (duration_short(cooldown)), classes={"tts-cooldown": True})
+	
+	def __do_cast_time(self, paperdoll):
+		#cast_time -= (cast_time * haste / 100)
+		ret = self.obj.get_cast_time()
+		if ret:
+			return HtmlTag(ret, classes={"tts-cast_time": True})
+	
+	def _do_name(self, paperdoll):
+		ret = []
+		if self.obj.rank:
+			ret.append(HtmlTag(self.obj.rank, classes={"tts-rank": True}))
+		if self.obj.tradespell:
+			cat = self.obj.get_category()
+			if cat:
+				ret.append(url(self.obj, text="%s: %s" % (cat, self.obj.__unicode__())))
+			else:
+				ret.append(url(self.obj))
+		else:
+			ret.append(url(self.obj))
+		return HtmlTag(children=ret, classes={"tt-name": True, "tts-name": True})
+	
+	def _do_range_power(self, paperdoll):
+		ret = {}
+		ret["range"] = self.__do_range(paperdoll)
+		ret["power_cost"] = self.__do_power_cost(paperdoll)
+		
+		if ret["range"] and ret["power_cost"]:
+			ret["range"].classes["tt-spell-right"] = True
+		order = ["range", "power_cost"]
+		ret = [ret[k] for k in order if ret[k]]
+		if ret:
+			return HtmlTag(children=ret, classes={"tt-spell-range_power": True})
+	
+	def _do_cast_cooldown(self, paperdoll):
+		ret = {}
+		ret["cooldown"] = self.__do_cooldown(paperdoll)
+		ret["cast_time"] = self.__do_cast_time(paperdoll)
+		
+		if ret["cooldown"] and ret["cast_time"]:
+			ret["cooldown"].classes["tt-spell-right"] = True
+		order = ["cooldown", "cast_time"]
+		ret = [ret[k] for k in order if ret[k]]
+		if ret:
+			return HtmlTag(children=ret, classes={"tt-spell-cast_cooldown": True})
+	
+	def _do_required_tools(self, paperdoll):
+		qs = self.obj.spelltool_spell
+		if qs.count():
+			text = ", ".join(url(k) for k in qs.iterator())
+			return HtmlTag("Tools: %s" % (text), classes={"tts-required_tools": True})
+	
+	def _do_reagents(self, paperdoll):
+		if self.obj.reagents.count():
+			return get_reagents_list(self.obj, text="Reagents:<br/> %s", classes={"tts-reagents": True})
+	
+	def do_required_item_subclasses(self):
+		category = self.obj.required_item_category
+		mask = self.obj.required_item_subclasses
+		
+		if self.obj.flags_3 & 0x00002000: # Permanent enchants
+			return
+		
+		# ItemSubClassMask.dbc
+		def __get_url(category, mask):
+			url_tpl = "/items/?category=%i&subcategory__in=%s"
+			li = [str(bit) for bit in range(32) if (mask >> bit) & 1]
+			return url_tpl % (category, ",".join(li))
+		
+		text = choices.ItemSubClassMask.get((category, mask))
+		if text:
+			text = '<a href="%s">%s</a>' % (__get_url(category, mask), text)
+			return HtmlTag("Requires %s" % (text))
+		
+		from owdb.models import ItemClass
+		subclasses = ItemClass.objects.filter(id1=self.obj.required_item_category)
+		required_subclasses = [k for k in subclasses if mask & 2**k.id2]
+		text = ", ".join(url(k, text=k.category) for k in required_subclasses)
+		return HtmlTag("Requires %s" % (text))
+	
+	def do_required_stances(self):
+		if self.obj.flags_3 & 0x80000: # Don't show stance requirements
+			return
+		
+		return # XXX
+		
+		mask = self.obj.required_stances
+		from owdb.models import ShapeShift
+		shapeshifts = ShapeShift.objects.exclude(name="")
+		required_shapeshifts = [k for k in shapeshifts if mask & 2**(k.id-1)]
+		text = ", ".join(url(k) for k in required_shapeshifts)
+		return HtmlTag("Requires %s" % (text))
+	
+	def _do_description(self, paperdoll):
+		from owdb.spellstrings import SpellString
+		from owdb.models.spells import ACTIVE_SPELLS
+		try:
+			ret = SpellString(self.obj.raw_description).format(self.obj, paperdoll=ACTIVE_SPELLS)
+		except UnicodeEncodeError:
+			ret = "" # XXX 91012
+		return HtmlTag(colorinline(html.escape(ret)), classes={"tts-description": True})
+	
+	def _do_created_item(self, paperdoll):
+		if not self.obj.created_item:
+			return
+		ret = self.obj.created_item.tooltip(paperdoll)
+		ret.classes["tt-nested"] = True
+		ret.classes["tts-created_item"] = True
+		return ret
+
+class Buff(Tooltip):
+	SHORT = "ttb"
+	LONG = "tt-buff"
+	TPL = (
+		"_do_name",
+		"_do_description",
+		"_do_duration"
+	)
+	
+	def _do_name(self, paperdoll):
+		ret = [url(self.obj)]
+		if self.obj.dispel_type:
+			dispel_type = HtmlTag(self.obj.get_dispel_type_display(), classes={"ttb-dispel_type": True})
+			ret.insert(0, dispel_type)
+		return HtmlTag(children=ret, classes={"tt-name": True, "%s-name" % (self.SHORT): True})
+	
+	def _do_description(self, paperdoll):
+		from owdb.spellstrings import SpellString
+		ret = SpellString(self.obj.raw_buff_description).format(self.obj)
+		return HtmlTag(colorinline(ret), classes={"ttb-description": True})
+	
+	def _do_duration(self, paperdoll):
+		if self.obj.duration_1 > 0:
+			return HtmlTag("%s remaining" % (duration(self.obj.duration_1)), classes={"ttb-duration": True})
+
+
+class Skill(Tooltip):
+	SHORT = "ttskill"
+	LONG = "tt-skill"
+	TPL = ("name", "description")
+
+
+class Talent(Tooltip):
+	SHORT = "ttt"
+	LONG = "tt-talent"
+	TPL = (
+		"name",
+		"_do_rank",
+		"_do_dependencies",
+		"row",
+		"_do_spell",
+	)
+	
+	def _do_rank(self, paperdoll):
+		text = "Rank %i/%i"
+		min_rank = paperdoll["rank"]
+		max_rank = self.obj.max_ranks
+		if min_rank == -1:
+			min_rank = 0
+		else:
+			min_rank = min_rank+1
+		
+		return HtmlTag(text % (max(min_rank, 0), max_rank), classes={"ttt-rank": True})
+	
+	def _do_spell(self, paperdoll):
+		all_ranks = self.obj.ranks.all()
+		if not all_ranks:
+			return
+		rank = paperdoll["rank"]
+		max_ranks = all_ranks.count()
+		if rank == -1:
+			spell = all_ranks[0]
+		else:
+			spell = all_ranks[rank]
+		ret = []
+		current_spell = spell.tooltip(paperdoll)
+		current_spell.classes["tt-nested"] = True
+		current_spell.classes["ttt-spell"] = True
+		ret.append(current_spell)
+		if -1 < rank < max_ranks-1:
+			next_rank = all_ranks[rank+1]
+			next_rank = next_rank.tooltip(paperdoll)
+			next_rank.classes["tt-nested"] = True
+			next_rank.classes["ttt-spell"] = True
+			next_rank.classes["ttt-next_rank"] = True
+			ret.append(next_rank)
+		return HtmlTag(children=ret, classes={"ttt-ranks": True})
+	
+	def _do_dependencies(self, paperdoll):
+		dependencies = self.obj.talentdependency_talent.all()
+		if not dependencies:
+			return
+		
+		# There are no multi-dependencies for now. We don't bother handling it.
+		dependency = dependencies[0]
+		count = dependency.count + 1
+		if count == 1:
+			text = "Requires %i point in %s"
+		else:
+			text = "Requires %i points in %s"
+		
+		return HtmlTag(text % (count, url(dependency.dependency)))
+	
+	def do_row(self):
+		count = self.obj.row * 5
+		text = "Requires %i points in %s Talents"
+		return HtmlTag(text % (count, url(self.obj.tab)))
+
+
+class Zone(Tooltip):
+	SHORT = "ttz"
+	LONG = "tt-zone"
+	TPL = (
+		"name",
+		"_do_pvp",
+		"level",
+	)
+	
+	def _do_pvp(self, paperdoll):
+		return HtmlTag(self.obj.get_territory_display(), classes={"ttz-pvp": True,"pvp-type-%i" % (self.obj.territory): True})
+	
+	def do_level(self):
+		if self.obj.level > 0:
+			return HtmlTag("Level %i" % (self.obj.level))

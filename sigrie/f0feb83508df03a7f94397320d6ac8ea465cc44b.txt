@@ -1,0 +1,15 @@
+.tta-name a { color: #fff !important; }
+.tts-name a { color: #fff !important; }
+.ttis-name a { color: #ffd200 !important; }
+.tti-spells a { color: #0f0 !important; }
+.ttis-items a { color: #808080 !important; }
+.ttis-bonuses a { color: #808080 !important; }
+.tti-socketbonus a { color: #808080 !important; }
+.tti-reagentlist a { color: #fff !important; }
+.tti-socketbonus a { color: #9d9d9d !important; }
+.tti-unique-category a { color: #fff !important; }
+.tti-subclass a { color: #fff !important; }
+.tti-bagslots a { color: #fff !important; }
+.tti-disenchantable a { color: #88aaff !important; }
+.tta-criteria * { color: #808080 !important; }
+.ttis-bonuses li a { color: #808080 !important; }

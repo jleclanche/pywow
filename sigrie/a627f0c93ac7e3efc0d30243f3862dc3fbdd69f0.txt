@@ -1,0 +1,419 @@
+# -*- coding: utf-8 -*-
+
+##
+# Constants
+
+LEVEL_CAP = 85
+
+FACTION_NONE = 0
+FACTION_HORDE = 1
+FACTION_ALLIANCE = 2
+
+
+##
+# DBCs
+
+ItemSubClassMask = {
+	(2, 41105): "One-Handed Melee Weapon",
+	(2, 173555): "Melee Weapon",
+	(2, 262156): "Ranged Weapon",
+	(4, 96): "Shield",
+}
+
+##
+# Choices
+
+BINDS = (
+	(0, ""),
+	(1, "Binds when picked up"),
+	(2, "Binds when equipped"),
+	(3, "Binds when used"),
+	(4, "Quest Item"),
+	(5, "Binds to account"),
+)
+
+CLASSES = {
+	 1: "Warrior",
+	 2: "Paladin",
+	 3: "Hunter",
+	 4: "Rogue",
+	 5: "Priest",
+	 6: "Death Knight",
+	 7: "Shaman",
+	 8: "Mage",
+	 9: "Warlock",
+	11: "Druid",
+}
+
+POWER_TYPES = { # Negative values from PowerDisplay.dbc
+	-166: "Sun Power", # POWER_TYPE_SUN_POWER
+	-165: "Fuel", # FUEL
+	-164: "Wind Power", # POWER_TYPE_WIND_POWER
+	-163: "Wind Power", # POWER_TYPE_WIND_POWER
+	-162: "Wind Power", # POWER_TYPE_WIND_POWER
+	-161: "Arcane Energy", # POWER_TYPE_ARCANEENERGY
+	-153: "Energy", # POWER_TYPE_ENERGY
+	-151: "Fire Power", # POWER_TYPE_ORANGE_POWER
+	-150: "Poison Power", # POWER_TYPE_GREEN_POWER
+	-149: "Arcane Power", # POWER_TYPE_PURPLE_POWER
+	-148: "Lightning Power", # POWER_TYPE_BLUE_POWER
+	-147: "Shadowflame Energy", # POWER_TYPE_SHADOWFLAME_ENERGY
+	-146: "Swing Velocity", # POWER_TYPE_SWING_VELOCITY
+	-145: "Sun Energy", # POWER_TYPE_SUN_ENERGY
+	-144: "Life Energy", # POWER_TYPE_LIFE_ENERGY
+	-143: "Arcane Energy", # POWER_TYPE_ARCANE_ENERGY
+	-142: "Wrath", # POWER_TYPE_WRATH
+	-141: "Blood Power", # POWER_TYPE_BLOOD_POWER
+	-121: "Ooze", # POWER_TYPE_OOZE
+	-101: "Heat", # POWER_TYPE_HEAT
+	 -82: "Vault Cracking Progress", # POWER_TYPE_VAULT_CRACKING_PROGRESS
+	 -61: "Steam Pressure", # POWER_TYPE_STEAM
+	 -41: "Pyrite", # POWER_TYPE_PYRITE
+	  -2: "Health",
+	  -1: "Ammo", # AMMOSLOT
+	   0: "Mana",
+	   1: "Rage",
+	   2: "Focus",
+	   3: "Energy",
+	   4: "Consumable",
+	   5: "Runes",
+	   6: "Runic Power",
+	   7: "Soul Shard",
+	   9: "Holy Power",
+	   10: "Test Power",
+}
+
+CREATURE_CATEGORIES = (
+	(0, "Not Specified"),
+	(1, "Beast"),
+	(2, "Dragonkin"),
+	(3, "Demon"),
+	(4, "Elemental"),
+	(5, "Giant"),
+	(6, "Undead"),
+	(7, "Humanoid"),
+	(8, "Critter"),
+	(9, "Mechanical"),
+	(10, ""),
+	(11, "Totem"),
+	(12, "Non-combat Pet"),
+	(13, "Gas Cloud"),
+)
+
+CREATURE_TYPES = (
+	(0, ""),
+	(1, "Elite"),
+	(2, "Rare-Elite"),
+	(3, "Boss"),
+	(4, "Rare"),
+)
+
+# FIXME - Add SortedDict support to choices
+DISPEL_TYPES = (
+#	(0, "None"),
+	(1, "Magic"),
+	(2, "Curse"),
+	(3, "Disease"),
+	(4, "Poison"),
+	(5, ""),
+	(6, ""),
+	(7, ""),
+	(8, ""),
+#	(5, "Stealth"),
+#	(6, "Invisibility"),
+#	(7, "All(M+C+D+P)"),
+#	(8, "Special - npc only"),
+	(9, "Enrage"),
+	(10, ""),
+	(11, ""),
+#	(10, "ZG Trinkets"),
+#	(11, "ZZOLD UNUSED"),
+)
+
+ENCHANT_TYPES = (
+	(0, "Dummy"),
+	(1, "Weapon Enhancement"),
+	(2, "Flat Damage Bonus"),
+	(3, "Spell Effect"),
+	(4, "Defensive Stat Bonus"),
+	(5, "Offensive Stat/Rating Bonus"),
+	(6, "Totem"),
+	(7, "On Use Spell"),
+	(8, "Add Socket"),
+)
+
+ENCOUNTER_DIFFICULTIES = (
+	(0, "Normal"),
+	(1, "Heroic"),
+)
+
+EXPANSIONS = (
+	(0, "None"),
+	(1, "The Burning Crusade"),
+	(2, "Wrath of the Lich King"),
+	(3, "Cataclysm"),
+)
+
+FACTION_GROUPS = (
+	(0, "Horde"),
+	(1, "Alliance"),
+)
+
+GAME_OBJECT_TYPES = (
+	(0, "Door"),
+	(1, "Button"),
+	(2, "Questgiver"),
+	(3, "Container"),
+	(4, "Binder"),
+	(5, "Generic"),
+	(6, "Trap"),
+	(7, "Chair"),
+	(8, "Spell Focus"),
+	(9, "Text"),
+	(10, "Goober"),
+	(11, "Elevator"),
+	(12, "Area Damage"),
+	(13, "Camera"),
+	(14, "Map Object"),
+	(15, "Transport"),
+	(16, "Duel Flag"),
+	(17, "Fishing Node"),
+	(18, "Summoning Ritual"),
+	(19, "Mailbox"),
+	(20, "DO NOT USE"),
+	(21, "Guard Post"),
+	(22, "Spellcaster"),
+	(23, "Meeting Stone"),
+	(24, "Flag Stand"),
+	(25, "Fishing School"),
+	(26, "Flag Drop"),
+	(27, "Mini-game"),
+	(29, "PvP Capture Point"),
+	(30, "Aura Generator"),
+	(31, "Dungeon Portal"),
+	(32, "Barbershop Chair"),
+	(33, "Destructible Building"),
+	(34, "Guild Bank"),
+	(35, "Trap Door"),
+)
+
+GLYPH_TYPES = (
+	(0, "Major Glyph"),
+	(1, "Minor Glyph"),
+	(2, "Prime Glyph"),
+)
+
+HEROIC_LEVELS = (
+	(0, "Normal"),
+	(1, "Heroic"),
+	# heroic1 and heroic2? toc?!
+)
+
+INSTANCE_TYPES = (
+	(0, "Generic"),
+	(1, "Group"),
+	(2, "Raid"),
+	(3, "Battleground"),
+	(4, "Arena"),
+)
+
+ITEM_CATEGORIES = ( # ItemClass.dbc
+	(0, "Consumable"),
+	(1, "Container"),
+	(2, "Weapon"),
+	(3, "Gem"),
+	(4, "Armor"),
+	(5, "Reagent"),
+	(6, "Projectile"),
+	(7, "Trade Goods"),
+	(8, "Generic"), # Generic(OBSOLETE)
+	(9, "Recipe"),
+	(10, "Money"),
+	(11, "Quiver"),
+	(12, "Quest"),
+	(13, "Key"),
+	(14, "Permanent"), # Permanent(OBSOLETE)
+	(15, "Miscellaneous"),
+	(16, "Glyph"),
+)
+
+LOOT_TYPES = (
+	(0, "Loot"),
+	(1, "Skinning"),
+	(2, "Pickpocketing"),
+	(3, "Mining"),
+	(5, "Herbalism"),
+	(6, "Engineering"),
+)
+
+TERRITORY_TYPES = (
+	(0, "Contested territory"),
+	(2, "Alliance territory"),
+	(4, "Horde territory"),
+	(6, "Sanctuary"),
+)
+
+QUALITIES = (
+	(0, "Poor"),
+	(1, "Common"),
+	(2, "Uncommon"),
+	(3, "Rare"),
+	(4, "Epic"),
+	(5, "Legendary"),
+	(6, "Artifact"),
+	(7, "Heirloom"),
+)
+
+QUEST_TYPES = ( # From QuestInfo.dbc
+	(0, ""),
+	(1, "Group"),
+	(21, "Life"),
+	(41, "PvP"),
+	(62, "Raid"),
+	(81, "Dungeon"),
+	(82, "World Event"),
+	(83, "Legendary"),
+	(84, "Escort"),
+	(85, "Heroic"),
+	(88, "Raid (10)"),
+	(89, "Raid (25)"),
+)
+
+RACES = {
+	 1: "Human",
+	 2: "Orc",
+	 3: "Dwarf",
+	 4: "Night Elf",
+	 5: "Undead",
+	 6: "Tauren",
+	 7: "Gnome",
+	 8: "Troll",
+	 9: "Goblin",
+	10: "Blood Elf",
+	11: "Draenei",
+	22: "Worgen",
+}
+
+REPUTATION_LEVELS = (
+	(0, "Hated"),
+	(1, "Hostile"),
+	(2, "Unfriendly"),
+	(3, "Neutral"),
+	(4, "Friendly"),
+	(5, "Honored"),
+	(6, "Revered"),
+	(7, "Exalted"),
+)
+
+SCHOOLS = (
+	(0, "Physical"),
+	(1, "Holy"),
+	(2, "Fire"),
+	(3, "Nature"),
+	(4, "Frost"),
+	(5, "Shadow"),
+	(6, "Arcane"),
+)
+
+SKILL_CATEGORIES = (
+	(5, "Attributes"),
+	(6, "Weapon Skills"),
+	(7, "Class Skills"),
+	(8, "Armor Proficiencies"),
+	(9, "Secondary Skills"),
+	(10, "Languages"),
+	(11, "Professions"),
+	(12, "Not Displayed"),
+)
+
+SKINNING_TYPES = (
+	(0, ""),
+	(1, 393), # Skinning
+	(2, 182), # Herbalism
+	(3, 186), # Mining
+	(4, 202), # Engineering
+)
+
+SLOTS = (
+	(0, ""),
+	(1, "Head"),
+	(2, "Neck"),
+	(3, "Shoulder"),
+	(4, "Shirt"),
+	(5, "Chest"),
+	(6, "Waist"),
+	(7, "Legs"),
+	(8, "Feet"),
+	(9, "Wrist"),
+	(10, "Hands"),
+	(11, "Finger"),
+	(12, "Trinket"),
+	(13, "One-Hand"),
+	(14, "Off Hand"),
+	(15, "Ranged"),
+	(16, "Back"),
+	(17, "Two-Hand"),
+	(18, "Bag"),
+	(19, "Tabard"),
+	(20, "Chest"),
+	(21, "Main Hand"),
+	(22, "Off-Hand"),
+	(23, "Held In Off-hand"),
+	(24, "Projectile"),
+	(25, "Thrown"),
+	(26, "Ranged"),
+	(28, "Relic"),
+)
+
+SOCKETS = {
+	1: "Meta",
+	2: "Red",
+	3: "Yellow",
+	4: "Blue",
+	5: "Hydraulic",
+	6: "Cogwheel",
+}
+
+SPELL_MECHANICS = (
+	(0, ""),
+	(1, "Charm"),
+	(2, "Disorient"),
+	(3, "Disarm"),
+	(4, "Distract"),
+	(5, "Flee"),
+	(6, "Grip"),
+	(7, "Root"),
+	(8, "Slow"),
+	(9, "Silence"),
+	(10, "Sleep"),
+	(11, "Snare"),
+	(12, "Stun"),
+	(13, "Freeze"),
+	(14, "Incapacitate"),
+	(15, "Bleed"),
+	(16, "Heal"),
+	(17, "Polymorph"),
+	(18, "Banish"),
+	(19, "Shield"),
+	(20, "Shackle"),
+	(21, "Mount"),
+	(22, "Infection"),
+	(23, "Turn"),
+	(24, "Horrify"),
+	(25, "Invulnerability"),
+	(26, "Interrupt"),
+	(27, "Daze"),
+	(28, "Discovery"),
+	(29, "Invulnerability"),
+	(30, "Sap"),
+	(31, "Enrage"),
+	(32, ""), # FIXME s82124
+)
+
+SPELL_TRIGGERS = (
+	(0, "Use"),
+	(1, "Equip"),
+	(2, "Chance on hit"),
+	(5, "Inventory"),
+	(6, "Learning")
+)

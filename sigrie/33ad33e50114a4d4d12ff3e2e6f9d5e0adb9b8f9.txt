@@ -1,0 +1,2288 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+from pywow import wdbc
+os.environ['DJANGO_SETTINGS_MODULE'] = "sigrie.settings"
+from django.contrib.contenttypes.models import ContentType
+from sigrie.owdb import models
+from sigrie.additions.models import Addition, AddedObject
+from datetime import datetime
+from optparse import OptionParser
+from sigrie import utils
+from math import floor
+import dungeon_floors
+
+o = OptionParser()
+o.add_option("-b", "--build", type="int", dest="build")
+o.add_option("--no-additions", action="store_true", dest="no_additions", help="Don't show new additions")
+o.add_option("--ignore-build", action="store_true", dest="ignore_build", help="Ignore build-based update skips")
+o.add_option("--only-new", action="store_true", dest="only_new", help="Only add new objects")
+o.add_option("--armory", action="store_true", dest="armory", help="Enable armory mode")
+o.add_option("--debug", action="store_true", dest="debug", help="Enable debug mode")
+o.add_option("--caches", action="store_true", dest="caches", help="Only process cache files")
+o.add_option("--common", action="store_true", dest="common", help="Only process common DBC files")
+o.add_option("--itemdbc", action="store_true", dest="itemdbc", help="Only process Item.db2")
+
+args = o.parse_args(sys.argv[1:])[0]
+build = args.build
+ignore_build = args.ignore_build
+no_additions = args.no_additions
+armory = args.armory or False
+
+##
+# Constants
+
+INVTYPE_CHEST                 = 5
+INVTYPE_WEAPON                = 13
+INVTYPE_SHIELD                = 14
+INVTYPE_RANGED                = 15
+INVTYPE_2HWEAPON              = 17
+INVTYPE_ROBE                  = 20
+INVTYPE_WEAPONMAINHAND        = 21
+INVTYPE_WEAPONOFFHAND         = 22
+INVTYPE_THROWN                = 25
+INVTYPE_RANGEDRIGHT           = 26
+ITEM_CLASS_WEAPON             = 2
+ITEM_CLASS_ARMOR              = 4
+ITEM_MOD_EXTRA_ARMOR          = 50
+ITEM_MOD_FIRE_RESISTANCE      = 51
+ITEM_MOD_FROST_RESISTANCE     = 52
+ITEM_MOD_SHADOW_RESISTANCE    = 54
+ITEM_MOD_NATURE_RESISTANCE    = 55
+ITEM_MOD_ARCANE_RESISTANCE    = 56
+ITEM_QUALITY_HEIRLOOM         = 7
+ITEM_SUBCLASS_ARMOR_CLOTH     = 1
+ITEM_SUBCLASS_ARMOR_LEATHER   = 2
+ITEM_SUBCLASS_ARMOR_MAIL      = 3
+ITEM_SUBCLASS_ARMOR_PLATE     = 4
+ITEM_SUBCLASS_WEAPON_BOW      = 2
+ITEM_SUBCLASS_WEAPON_GUN      = 3
+ITEM_SUBCLASS_WEAPON_THROWN   = 16
+ITEM_SUBCLASS_WEAPON_CROSSBOW = 18
+ITEM_SUBCLASS_WEAPON_WAND     = 19
+
+DEFAULT_ICON = "temp"
+
+qualities = ("poor", "common", "uncommon", "rare", "epic", "legendary", "artifact")
+types = ("no_armor", "cloth", "leather", "mail", "plate")
+try:
+	armorlocation           = wdbc.get("ArmorLocation", build)
+	itemarmorquality        = wdbc.get("ItemArmorQuality", build)
+	itemarmorshield         = wdbc.get("ItemArmorShield", build)
+	itemarmortotal          = wdbc.get("ItemArmorTotal", build)
+	itemdamageonehand       = wdbc.get("ItemDamageOneHand", build)
+	itemdamageonehandcaster = wdbc.get("ItemDamageOneHandCaster", build)
+	itemdamagetwohand       = wdbc.get("ItemDamageTwoHand", build)
+	itemdamagetwohandcaster = wdbc.get("ItemDamageTwoHandCaster", build)
+	itemdamageammo          = wdbc.get("ItemDamageAmmo", build)
+	itemdamageranged        = wdbc.get("ItemDamageRanged", build)
+	itemdamagethrown        = wdbc.get("ItemDamageThrown", build)
+	itemdamagewand          = wdbc.get("ItemDamageWand", build)
+except KeyError:
+	pass
+
+def getDamageDBC(subcategory, slot, flags):
+	if slot in (INVTYPE_WEAPON, INVTYPE_WEAPONMAINHAND, INVTYPE_WEAPONOFFHAND):
+		if flags & 0x200:
+			return itemdamageonehandcaster
+		return itemdamageonehand
+	
+	if slot == INVTYPE_2HWEAPON:
+		if flags & 0x200:
+			return itemdamagetwohandcaster
+		return itemdamagetwohand
+	
+	if slot in (INVTYPE_RANGED, INVTYPE_THROWN, INVTYPE_RANGEDRIGHT):
+		if subcategory in (ITEM_SUBCLASS_WEAPON_BOW, ITEM_SUBCLASS_WEAPON_GUN, ITEM_SUBCLASS_WEAPON_CROSSBOW):
+			return itemdamageranged
+		if subcategory == ITEM_SUBCLASS_WEAPON_THROWN:
+			return itemdamagethrown
+		if subcategory == ITEM_SUBCLASS_WEAPON_WAND:
+			return itemdamagewand
+
+def getDamage(level, category, subcategory, quality, slot, flags, speed):
+	if not (1 <= level <= 1000):
+		return 0, 0
+	
+	if category != ITEM_CLASS_WEAPON:
+		dps = 0.0
+	
+	if quality >= ITEM_QUALITY_HEIRLOOM:
+		return 0, 0
+	
+	dbc = getDamageDBC(subcategory, slot, flags)
+	if not dbc:
+		dps = 0.0
+	else:
+		dps = getattr(dbc[level], qualities[quality])
+	
+	min = int(floor(dps * speed / 1000 * 0.7 + 0.5))
+	max = int(floor(dps * speed / 1000 * 1.3 + 0.5))
+	return min, max
+
+
+def getArmor(level, category, subcategory, quality, slot):
+	if quality >= ITEM_QUALITY_HEIRLOOM:
+		return 0
+	
+	if not (1 <= level <= 1000):
+		return 0
+	
+	if slot == INVTYPE_SHIELD:
+		total = getattr(itemarmorshield[level], qualities[quality])
+		return int(floor(total + 0.5))
+	
+	if slot == INVTYPE_ROBE:
+		slot = INVTYPE_CHEST
+	
+	if category != ITEM_CLASS_ARMOR or not slot:
+		return 0
+	
+	if subcategory not in (ITEM_SUBCLASS_ARMOR_CLOTH, ITEM_SUBCLASS_ARMOR_LEATHER, ITEM_SUBCLASS_ARMOR_MAIL, ITEM_SUBCLASS_ARMOR_PLATE):
+		return 0
+	
+	total = getattr(itemarmortotal[level], types[subcategory])
+	_quality = getattr(itemarmorquality[level], qualities[quality])
+	_slot = getattr(armorlocation[slot], types[subcategory])
+	
+	return int(floor(total * _quality * _slot + 0.5))
+
+
+class DjangoModel(object):
+	"""
+	Base class for database updates
+	update() is the entry point
+	"""
+	RECORD_ADDITIONS = True
+	
+	def load(self):
+		self.file = wdbc.get(self.fname, build)
+	
+	def ignore_build(self, p, build):
+		"""
+		Returns whether the update should be skipped
+		(because of build, ...)
+		"""
+		if ignore_build:
+			return False
+		if not getattr(p, "build", 0) >= build:
+			return False
+		return True
+	
+	def update(self):
+		print "Updating %s" % (self.fname)
+		self.load()
+		self.addition = None
+		self.begin_addition()
+		for row in sorted(self.file.rows())[::-1]:
+			print "Updating row #%i" % (row.id)
+			
+			override = self.do_update(row)
+			if override:
+				continue
+			
+			try:
+				d, sets = self.refdict(row)
+			except KeyError, txt:
+				print "WARNING: A key was not found for row #%i: %r" % (row.id, txt)
+				continue
+			
+			p = self.Model.objects.get(id=d["id"])
+			
+			if self.check_for_existence(p):
+				if armory and not p.armory:
+						continue
+				if args.only_new:
+					continue
+				if self.ignore_build(p, build):
+					continue
+				self.Model.objects.filter(id=p.id).update(**d)
+			
+			else:
+				p = self.Model(**d)
+				p.save()
+				if sets:
+					for k in sets:
+						setattr(p, k, sets[k])
+					p.save()
+				if self.addition:
+					self.record_addition(d["id"])
+			
+			self.postupdate(p, row)
+		
+		self.end_addition()
+		self.finish_update()
+	
+	def do_update(self, row):
+		pass
+	
+	def begin_addition(self):
+		if no_additions:
+			return
+		if not self.RECORD_ADDITIONS:
+			return
+		self.addition = Addition(date=datetime.now(), build=build, content_type=ContentType.objects.get_for_model(self.Model))
+		self.addition.save()
+	
+	def check_for_existence(self, p):
+		return p
+	
+	def end_addition(self):
+		if getattr(self, "addition", None) and not self.addition.object_list.count():
+			self.addition.delete()
+	
+	def finish_update(self):
+		pass
+	
+	def record_addition(self, id):
+		ctype = ContentType.objects.get_for_model(self.Model)
+		q = AddedObject(addition=self.addition, object_id=id, content_type=ctype)
+		q.save()
+		print "New %s #%i" % (ctype, id)
+	
+	def postupdate(self, p, row):
+		pass
+
+
+
+class DBAchievement(DjangoModel):
+	Model = models.Achievement
+	fname = "Achievement.dbc"
+	
+	CRITERIATYPES = {
+		0: "creature",
+		1: "instance",
+		7: "skill",
+		8: "achievement",
+		11: "zone",
+		16: "instance",
+		20: "creature",
+		27: "quest",
+		28: "spell",
+		29: "spell",
+		31: "zone",
+		33: "instance",
+		34: "spell",
+		36: "item",
+		40: "skill",
+		41: "item",
+		42: "item",
+		43: "zone",
+		46: "faction",
+		#56: "instance", # col 6 instead of 3
+		57: "item",
+		68: "object",
+		69: "spell",
+		72: "object",
+		73: "creature",
+		75: "skill",
+		110: "spell",
+		112: "skill",
+	}
+	
+	def load(self):
+		self.file = wdbc.get(self.fname, build)
+		self.criteria = wdbc.get("Achievement_Criteria", build)
+		self.index = {}
+		for k in self.criteria: # { achievement_id: [list, of, criteria, ids] }
+			ach_id = self.criteria[k]._raw("achievement")
+			if ach_id in self.index:
+				self.index[ach_id].append(k)
+			else:
+				self.index[ach_id] = [k]
+	
+	def refdict(self, t):
+		icon = utils.get_icon_path(t)
+		d = {
+			"id": t.id,
+			"faction": t.faction,
+			"instance_id": t.instance >= 0 and t.instance or None,
+			"parent_id": t.parent or None,
+			"name": t.name_enus,
+			"points": t.points,
+			"ordering": t.ordering,
+			"statistic": t.flags.statistic,
+			"serverfirst": t.flags.serverfirst,
+			"hidden": t.flags.hidden,
+			"icon": icon,
+			"reward": t.reward_enus,
+			"objective": t.objective_enus,
+			"category_id": t.category,
+			
+			"build": build,
+			"slug": utils.slugify(t.name_enus),
+		}
+		
+		return d, {}
+
+	def postupdate(self, p, t):
+		p.criteria.clear()
+		if t.id in self.index:
+			index = self.index[t.id]
+			i = 0
+			for criteria in index:
+				i += 1
+				f = self.criteria[criteria]
+				if f.type in self.CRITERIATYPES:
+					q = models.AchievementCriteria(
+						id=criteria,
+						achievement=p,
+						content_type=ContentType.objects.get(model=self.CRITERIATYPES[f.type]),
+						object_id=f.value1,
+						type=f.type,
+						name=f.name_enus,
+						required_amount=f.value2,
+						timer=f.timer,
+						ordering=i
+					)
+				else:
+					q = models.AchievementCriteria(
+						id=criteria,
+						achievement=p,
+						type=f.type,
+						name=f.name_enus,
+						required_amount=f.value2,
+						timer=f.timer,
+						ordering=i
+					)
+				q.save()
+
+
+class DBAchievementCategory(DjangoModel):
+	Model = models.AchievementCategory
+	fname = "Achievement_Category.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		parent = t._raw("parent")
+		if parent == -1: parent = None
+		d = {
+			"id": t.id,
+			"parent_id": parent,
+			"name": t.name_enus,
+			"ordering": t.ordering,
+		}
+		
+		return d, {}
+
+
+class DBCreatureCache(DjangoModel):
+	Model = models.Creature
+	fname = "creaturecache.wdb"
+	
+	QUEST_ITEMS = (
+		"quest_item_1", "quest_item_2",
+		"quest_item_3", "quest_item_4",
+	)
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"name": t.name,
+			"title": t.title,
+			"cursor": t.cursor,
+			"category": t._raw("category"),
+			"family": t.family or 0,
+			"type": t.type,
+			"display_id": t.model_1 or 0,
+			"leader": t.leader,
+			
+			"build": build,
+			"slug": utils.slugify(t.name),
+		}
+		
+		return d, { "quest_drops": [t._raw(k) for k in self.QUEST_ITEMS if t._raw(k)]}
+
+
+class DBCreatureFamily(DjangoModel):
+	Model = models.CreatureFamily
+	fname = "CreatureFamily.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		icon = utils.get_icon_path(t.icon)
+		d = {
+			"id": t.id,
+			"min_scale": t.min_scale,
+			"min_scale_level": t.min_scale_level,
+			"max_scale": t.max_scale,
+			"max_scale_level": t.max_scale_level,
+			"skill_tree_id": t.skill_tree or None,
+			"skill_tree_generic_id": t.skill_tree_generic or None,
+			"pet_food_mask": t._raw("pet_food_mask"),
+			"talent_type": t.talent_type,
+			"name": t.name_enus,
+			"icon": icon,
+		}
+		return d, {}
+
+
+class DBCurrency(DjangoModel):
+	Model = models.Currency
+	fname = "CurrencyTypes.dbc"
+	RECORD_ADDITIONS = False
+	
+	def update(self):
+		if build < 11927:
+			print "Skipping DBCurrency update, outdated build"
+			return
+		return super(DBCurrency, self).update()
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"category": t.category,
+			"ordering": t.ordering,
+			"name": t.name,
+			"icon": t.icon,
+			"unknown": t.unknown,
+			"unknown_1": t.unknown_1,
+			"unknown_2": t.unknown_2,
+			"unknown_3": t.unknown_3,
+			"unknown_4": t.unknown_4,
+		}
+		return d, {}
+
+
+class DBEnchant(DjangoModel):
+	Model = models.Enchant
+	fname = "SpellItemEnchantment.dbc"
+	
+	EFFECTS = (
+		("type_effect_1", "amount_min_effect_1", "effect_1"),
+		("type_effect_2", "amount_min_effect_2", "effect_2"),
+		("type_effect_3", "amount_min_effect_3", "effect_3"),
+	)
+	
+	CONDITIONS = (
+		("gem_color_1", "operand_1", "comparator_1", "compare_color_1", "value_1", "logic_1"),
+		("gem_color_2", "operand_2", "comparator_2", "compare_color_2", "value_2", "logic_2"),
+		("gem_color_3", "operand_3", "comparator_3", "compare_color_3", "value_3", "logic_3"),
+		("gem_color_4", "operand_4", "comparator_4", "compare_color_4", "value_4", "logic_4"),
+		("gem_color_5", "operand_5", "comparator_5", "compare_color_5", "value_5", "logic_5"),
+	)
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"charges": t.charges,
+			"name": t.name_enus,
+			"gem_id": t.gem or None,
+			"required_skill_id": t.required_skill or None,
+			"required_skill_level": t.required_skill_level,
+			"required_level": t.required_level,
+			
+			"build": build,
+			"slug": utils.slugify(t.name_enus),
+		}
+		
+		return d, {}
+	
+	def postupdate(self, p, t):
+		p.effects.clear()
+		for k in self.EFFECTS:
+			if getattr(t, k[0]):
+				spell_id = getattr(t, k[0]) in (1, 3, 7) and getattr(t, k[2]) or None
+				stat_id = not spell_id and getattr(t, k[2]) or None
+				q = models.EnchantEffect(enchant_id=t.id, spell_id=spell_id, stat_id=stat_id, type=getattr(t, k[0]), amount=getattr(t, k[1]))
+				q.save()
+		
+		p.conditions.clear()
+		if t.conditions:
+			row = t.conditions
+			i = 0
+			for k in self.CONDITIONS:
+				i += 1
+				if getattr(row, k[0]):
+					condition = models.EnchantCondition(
+						gem_color=2**(getattr(row, k[0])-1), # Normalize to multiple colors
+						operand=getattr(row, k[1]),
+						comparator=getattr(row, k[2]),
+						compare_color=2**(getattr(row, k[3])-1), # Normalize to multiple colors
+						value=getattr(row, k[4]),
+						logic=getattr(row, k[5]),
+					)
+					condition.save()
+					q = models.EnchantConditionProperty(enchant_id=t.id, condition=condition, ordering=i)
+					q.save()
+	
+	def finish_update(self):
+		# Clean up dead rows
+		models.EnchantCondition.objects.filter(enchantconditionproperty_enchantcondition=None).delete()
+
+
+class DBEncounter(DjangoModel):
+	Model = models.Encounter
+	fname = "DungeonEncounter.dbc"
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"instance_id": t.instance,
+			"difficulty": t.difficulty,
+			"ordering": t.ordering,
+			"name": t.name_enus,
+			
+			"slug": utils.slugify(t.name_enus),
+		}
+		
+		return d, {}
+
+
+class DBFaction(DjangoModel):
+	Model = models.Faction
+	fname = "Faction.dbc"
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+			"description": t.description_enus,
+			"parent_id": t.parent_faction or None,
+			
+			"slug": utils.slugify(t.name_enus),
+		}
+		
+		return d, {}
+
+
+class DBGameObjectCache(DjangoModel):
+	Model = models.Object
+	fname = "gameobjectcache.wdb"
+	
+	QUEST_ITEMS = (
+		"quest_item_1", "quest_item_2",
+		"quest_item_3", "quest_item_4",
+		"quest_item_5", "quest_item_6",
+	)
+	
+	GAME_OBJECT_TYPES = {
+		0: "GameObject_Door",
+		1: "GameObject_Button",
+		2: "GameObject_QuestGiver",
+		3: "GameObject_Chest",
+		#4: "GameObject_Binder",
+		5: "GameObject_Generic",
+		6: "GameObject_Trap",
+		7: "GameObject_Chair",
+		8: "GameObject_SpellFocus",
+		9: "GameObject_Text",
+		10: "GameObject_Goober",
+		11: "GameObject_Transport",
+		12: "GameObject_AreaDamage",
+		13: "GameObject_Camera",
+		#14: "GameObject_MapObject",
+		15: "GameObject_MOTransport",
+		#16: "GameObject_DuelFlag",
+		#17: "GameObject_FishingNode",
+		18: "GameObject_SummoningRitual",
+		#19: "GameObject_Mailbox",
+		#20: "GameObject_DoNotUse",
+		21: "GameObject_GuardPost",
+		22: "GameObject_SpellCaster",
+		23: "GameObject_MeetingStone",
+		24: "GameObject_FlagStand",
+		25: "GameObject_FishingHole",
+		26: "GameObject_FlagDrop",
+		27: "GameObject_MiniGame",
+		28: None,
+		29: "GameObject_CapturePoint",
+		30: "GameObject_AuraGenerator",
+		31: "GameObject_DungeonDifficulty",
+		32: "GameObject_BarberChair",
+		33: "GameObject_DestructibleBuilding",
+		34: "GameObject_GuildBank",
+		35: "GameObject_TrapDoor",
+	}
+	
+	TYPE_RELATIONS = { # id: ((wdb_row, django_row), ...)
+		0: (
+			("start_open", "start_open"),
+			("lock", "lock_id"),
+			("auto_close_timer", "auto_close_timer"),
+		),
+		1: (
+			("start_open", "start_open"),
+			("lock", "lock_id"),
+			("auto_close_timer", "auto_close_timer"),
+			("trap", "trap_id"),
+		),
+		2: (
+			("lock", "lock_id"),
+			("quest_list", "quest_list"),
+			("material", "material_id"),
+			("gossip", "gossip_id"),
+			("custom_animation", "custom_animation_id"),
+		),
+		3: (
+			("lock", "lock_id"),
+			("loot", "loot_id"),
+			("restock_time", "restock_time"),
+			("consumable", "consumable"),
+			("min_openings", "min_openings"),
+			("max_openings", "max_openings"),
+			("loot_event", "loot_event_id"),
+			("trap", "trap_id"),
+			("quest", "quest_id"),
+			("level", "level"),
+			("leave_loot", "leave_loot"),
+			("unusable_in_combat", "unusable_in_combat"),
+			("group_loot_rules", "group_loot_rules"),
+		),
+		5: (
+			("server_only", "server_only"),
+			("float_on_water", "float_on_water"),
+			("quest", "quest_id"),
+		),
+		6: (
+			("lock", "lock_id"),
+			("level", "level"),
+			("radius", "radius"),
+			("spell", "spell_id"),
+			("charges", "charges"),
+			("cooldown", "cooldown"),
+			("auto_close_timer", "auto_close_timer"),
+			("start_delay", "start_delay"),
+			("server_only", "server_only"),
+			("stealthed", "stealthed"),
+		),
+		7: (
+			("slots", "slots"),
+			("height", "height"),
+			("creator_use_only", "creator_use_only"),
+			("event", "event_id"),
+		),
+		8: (
+			("focus", "focus_id"),
+			("range", "range"),
+			("trap", "trap_id"),
+			("server_only", "server_only"),
+			("quest", "quest_id"),
+		),
+		9: (
+			("page", "page_id"),
+			("language", "language_id"),
+			("material", "material_id"),
+		),
+		10: (
+			("lock", "lock_id"),
+			("quest", "quest_id"),
+			("event", "event_id"),
+			("auto_close_timer", "auto_close_timer"),
+			("custom_animation", "custom_animation_id"),
+			("consumable", "consumable"),
+			("cooldown", "cooldown"),
+			("page", "page_id"),
+			("language", "language_id"),
+			("material", "material_id"),
+			("spell", "spell_id"),
+			("trap", "trap_id"),
+			("gossip", "gossip_id"),
+		),
+		11: (
+			("pause", "pause"),
+			("start_open", "start_open"),
+			("auto_close_timer", "auto_close_timer"),
+			("pause_event_1", "pause_event_1_id"),
+			("pause_event_2", "pause_event_2_id"),
+		),
+		12: (
+			("lock", "lock_id"),
+			("radius", "radius"),
+			("damage_min", "damage_min"),
+			("damage_max", "damage_max"),
+			("damage_school", "damage_school"),
+			("auto_close_timer", "auto_close_timer"),
+		),
+		13: (
+			("lock", "lock_id"),
+			("cinematic", "cinematic_id"),
+			("event", "event_id"),
+		),
+		15: (
+			("taxi", "taxi_id"),
+			("move_speed", "move_speed"),
+			("acceleration", "acceleration"),
+			("start_event", "start_event_id"),
+			("stop_event", "stop_event_id"),
+			("transport_physics", "transport_physics"),
+			("map", "map_id"),
+			("world_state", "world_state"),
+		),
+		18: (
+			("required_players", "required_players"),
+			("spell", "spell_id"),
+			("party_only", "party_only"),
+			("no_target_check", "no_target_check"),
+		),
+		21: (
+			("creature", "creature_id"),
+			("charges", "charges"),
+		),
+		22: (
+			("spell", "spell_id"),
+			("charges", "charges"),
+			("party_only", "party_only"),
+		),
+		23: (
+			("min_level", "min_level"),
+			("max_level", "max_level"),
+			("zone", "zone_id"),
+		),
+		24: (
+			("lock", "lock_id"),
+			("spell", "spell_id"),
+			("radius", "radius"),
+			("return_aura", "return_aura_id"),
+			("return_spell", "return_spell_id"),
+		),
+		25: (
+			("radius", "radius"),
+			("loot", "loot_id"),
+			("min_openings", "min_openings"),
+			("max_openings", "max_openings"),
+			("lock", "lock_id"),
+		),
+		26: (
+			("lock", "lock_id"),
+			("event", "event_id"),
+			("spell", "spell_id"),
+		),
+		27: (
+			("game_type", "game_type"),
+		),
+		29: (
+			("radius", "radius"),
+			("spell", "spell_id"),
+		),
+		30: (
+			("start_open", "start_open"),
+			("radius", "radius"),
+			("aura_1", "aura_1_id"),
+			("condition_1", "condition_id")
+		),
+		31: (
+			("instance", "instance_id"),
+			("difficulty", "difficulty"),
+		),
+		32: (
+			("height", "height"),
+			("offset", "offset"),
+		),
+		33: (
+			("intact_health", "health"),
+		),
+		35: (
+			("pause", "pause"),
+			("start_open", "start_open"),
+			("auto_close", "auto_close"),
+		),
+	}
+	
+	def dict_for_row(self, row):
+		k = self.TYPE_RELATIONS[row.type]
+		ret = {"id": row._id}
+		for field in k:
+			try:
+				value = getattr(row.data, field[0])
+			except wdbc.structures.RelationError:
+				value = row.data._raw(field[0])
+				if (not value or value == -1) and field[0] not in ("material", "language", "gossip"):
+					value = None
+			ret[field[1]] = value
+		return ret
+	
+	def refdict(self, t):
+		try:
+			self.content_type = ContentType.objects.get(model=self.GAME_OBJECT_TYPES[t.type].lower())
+		except KeyError:
+			self.content_type = None
+		d = {
+			"id": t.id,
+			"type": t.type,
+			"display_id": t._raw("display"),
+			"name": t.name,
+			"cursor": t.cursor,
+			
+			"object_id": t.id,
+			"content_type": self.content_type,
+			
+			"build": build,
+			"slug": utils.slugify(t.name),
+		}
+		
+		return d, { "quest_items": [t._raw(k) for k in self.QUEST_ITEMS if hasattr(t, k) and t._raw(k)] }
+
+	def postupdate(self, p, t):
+		if self.content_type:
+			cls = self.content_type.model_class()
+			current_object = cls.objects.get(id=t.id)
+			if current_object:
+				current_object.delete() # get rid of it if it already exists
+			current_object = cls(**self.dict_for_row(t))
+			current_object.save()
+
+
+class DBGemProperties(DjangoModel):
+	Model = models.GemProperty
+	fname = "GemProperties.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"enchant_id": t.enchant,
+			"unknown": t.unknown,
+			"unique_equipped": t.unique_equipped,
+			"color": t.color,
+			"required_item_level": t.required_item_level,
+		}
+		
+		return d, {}
+
+
+class DBGlyph(DjangoModel):
+	Model = models.Glyph
+	fname = "GlyphProperties.dbc"
+	
+	def refdict(self, t):
+		name = t.spell and t.spell.name_enus or ""
+		icon = utils.get_icon_path(t)
+		d = {
+			"id": t.id,
+			"name": name,
+			"spell_id": t.spell or None,
+			"flags": t.type,
+			"icon": icon,
+			
+			"slug": utils.slugify(name),
+		}
+		
+		return d, {}
+
+
+class DBHoliday(DjangoModel):
+	Model = models.Holiday
+	fname = "Holidays.dbc"
+	
+	def refdict(self, t):
+		name = t.name and t.name.name_enus or ""
+		d = {
+			"id": t.id,
+			"name": name,
+			"description": t.description and t.description.description_enus or "",
+			"icon": t.icon.lower(),
+			"slug": utils.slugify(name)
+		}
+		
+		return d, {}
+
+
+class DBInstance(DjangoModel):
+	Model = models.Instance
+	fname = "Map.dbc"
+	
+	def get_loading_screen(self, path):
+		path = path.lower().replace("\\", "/") # standardize the path
+		path = path.replace("interface/glues/loadingscreens/", "").replace(".blp", "") # remove cruft!
+		return path
+	
+	def refdict(self, t):
+		loading_screen = t.loading_screen and self.get_loading_screen(t.loading_screen.path) or ""
+		d = {
+			"id": t.id,
+			"type": t.type,
+			"internal_name": t.internal_name,
+			"name": t.name_enus,
+			"zone_id": t.zone or None,
+			"description_horde": t.description_horde_enus,
+			"description_alliance": t.description_alliance_enus,
+			"loading_screen": loading_screen,
+			"continent_id": t.entrance_x and t.continent or None, # does it have an entrance?
+			"entrance_x": t.entrance_x,
+			"entrance_y": t.entrance_y,
+			"expansion": t.expansion,
+			"max_players": t.max_players,
+			"phasing_parent_id": getattr(t, "phasing_parent", None),
+			"slug": utils.slugify(t.name_enus),
+		}
+		
+		return d, {}
+
+
+class DBItem(DjangoModel):
+	Model = models.Item
+	fname = "Item.db2"
+	RECORD_ADDITIONS = False
+	
+	def do_update(self, row):
+		p = self.Model.objects.get(id=row._id)
+		if p and not p.stub:
+			print "Passing..."
+			return True
+		name = p and p.name or ""
+		d, sets = self.refdict(row)
+		p = self.Model(name=name, **d)
+		p.save()
+		return True
+	
+	def refdict(self, t):
+		icon = t.display and t.display.icon.lower() or ""
+		d = {
+			"id": t.id,
+			"stub": True,
+			"icon": icon,
+			"subclass_id": "%i.%i" % (t.category, t.subcategory),
+			"slot": t.slot,
+			
+			"build": build,
+		}
+		
+		return d, {}
+
+
+class DBItemNameCache(DjangoModel):
+	Model = models.Item
+	fname = "itemnamecache.wdb"
+	RECORD_ADDITIONS = False
+	
+	def do_update(self, row):
+		p = self.Model.objects.get(id=row._id)
+		if not p or not p.stub:
+			print "Passing..."
+			return True
+		p.name = row.name
+		p.slug = utils.slugify(row.name)
+		p.save()
+		return True
+
+
+class DBItemLimitCategory(DjangoModel):
+	Model = models.ItemUniqueCategory
+	fname = "ItemLimitCategory.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+			"amount": t.amount,
+		}
+		
+		return d, {}
+
+
+RACES = [1,2,3,4,5,6,7,8,10,11]
+CLASSES = [1,2,3,4,5,6,7,8,9,11]
+class DBItemCache(DjangoModel):
+	Model = models.Item
+	fname = "Item-sparse.db2"
+	only_update = True
+	
+	STATS = (
+		("stats_id_1", "stats_amount_1", "stats_unk1_1", "stats_unk2_1"),
+		("stats_id_2", "stats_amount_2", "stats_unk1_2", "stats_unk2_2"),
+		("stats_id_3", "stats_amount_3", "stats_unk1_3", "stats_unk2_3"),
+		("stats_id_4", "stats_amount_4", "stats_unk1_4", "stats_unk2_4"),
+		("stats_id_5", "stats_amount_5", "stats_unk1_5", "stats_unk2_5"),
+		("stats_id_6", "stats_amount_6", "stats_unk1_6", "stats_unk2_6"),
+		("stats_id_7", "stats_amount_7", "stats_unk1_7", "stats_unk2_7"),
+		("stats_id_8", "stats_amount_8", "stats_unk1_8", "stats_unk2_8"),
+		("stats_id_9", "stats_amount_9", "stats_unk1_9", "stats_unk2_9"),
+		("stats_id_10", "stats_amount_10", "stats_unk1_10", "stats_unk2_10"),
+	)
+	SPELLS = (
+		("spell_1", "spell_trigger_1", "spell_charges_1", "spell_cooldown_1"),
+		("spell_2", "spell_trigger_2", "spell_charges_2", "spell_cooldown_2"),
+		("spell_3", "spell_trigger_3", "spell_charges_3", "spell_cooldown_3"),
+		("spell_4", "spell_trigger_4", "spell_charges_4", "spell_cooldown_4"),
+		("spell_5", "spell_trigger_5", "spell_charges_5", "spell_cooldown_5"),
+	)
+	RESISTS = (
+		"arcane_resist", "fire_resist", "frost_resist", "shadow_resist",
+		"budget_modifier",
+	)
+	
+	qualities = ("poor", "common", "uncommon", "rare", "epic", "legendary", "artifact")
+	types = ("no_armor", "cloth", "leather", "mail", "plate")
+	
+	def do_update(self, row):
+		d, sets = self.refdict(row)
+		p = self.Model.objects.get(id=d["id"])
+		
+		if self.check_for_existence(p):
+			if armory and not p.armory:
+				return True
+			if args.only_new:
+				return True
+			if self.ignore_build(p, build):
+				return True
+			self.Model.objects.filter(id=p.id).update(**d)
+		
+		else:
+			self.Model.objects.filter(id=p.id).update(**d)
+			if self.addition:
+				self.record_addition(d["id"])
+		
+		self.postupdate(p, row)
+		return True
+	
+	def check_for_existence(self, p):
+		assert p, "Item #%i not found! Push an Item.dbc/Item.db2, or manually insert it first." % (build)
+		if p and not p.stub:
+			return p
+	
+	def get_armor(self, row):
+		if hasattr(row, "armor"):
+			return row.armor
+		
+		itemdb = wdbc.get("Item", build)[row.id]
+		category, subcategory, slot = itemdb._raw("category"), itemdb.subcategory, itemdb.slot
+		return getArmor(row.level, category, subcategory, row.quality, slot)
+	
+	def get_damage(self, row):
+		if hasattr(row, "damage_min"):
+			return row.damage_min, row.damage_max
+		
+		itemdb = wdbc.get("Item", build)[row.id]
+		category, subcategory, slot = itemdb._raw("category"), itemdb.subcategory, itemdb.slot
+		return getDamage(row.level, category, subcategory, row.quality, slot, row.flags, row.speed)
+	
+	def refdict(self, t):
+		prospectable = t.required_skill_level if t.flags.prospectable and t.required_skill == 755 else 0
+		millable = t.required_skill_level if t.flags.millable and t.required_skill == 773 else 0
+		account_bound = t.flags.account_bound and 5
+		teaches_spell_id = None
+		
+		horde = t.flags_2.horde
+		alliance = t.flags_2.alliance
+		sell_extended_price = t.flags_2.sell_extended_price
+		need_roll_disabled = t.flags_2.need_roll_disabled
+		caster_weapon = t.flags_2.caster_weapon
+		
+		if t.spell_trigger_1 == 6:
+			teaches_spell_id = t.spell_1
+		elif t.spell_trigger_2 == 6:
+			teaches_spell_id = t.spell_2
+		elif t.spell_trigger_3 == 6:
+			teaches_spell_id = t.spell_3
+		elif t.spell_trigger_4 == 6:
+			teaches_spell_id = t.spell_4
+		
+		itemdb = wdbc.get("Item", build)
+		if t.id in itemdb and itemdb[t.id].display:
+			icon = itemdb[t.id].display.icon.lower()
+		else:
+			print "WARNING: Item #%i not in Item.db" % (t.id)
+			icon = DEFAULT_ICON
+		
+		damage_min, damage_max = self.get_damage(t)
+		
+		d = {
+			"id": t.id,
+			"name": t.name,
+			"icon": icon,
+			"quality": t.quality,
+			"conjured": t.flags.conjured,
+			"openable": t.flags.openable,
+			"heroic": t.flags.heroic,
+			"totem": t.flags.totem,
+			"group_loot": t.flags.group_loot,
+			"refundable": t.flags.refundable,
+			"chart": t.flags.chart,
+			"prospecting": prospectable,
+			"unique_equipped": t.flags.unique_equipped,
+			"usable_in_arena": t.flags.usable_in_arena,
+			"enchant_scroll": t.flags.enchant_scroll,
+			"milling": millable,
+			"bop_tradeable": t.flags.bop_tradeable,
+			"horde": horde,
+			"alliance": alliance,
+			"sell_extended_price": sell_extended_price,
+			"need_roll_disabled": need_roll_disabled,
+			"caster_weapon": caster_weapon,
+			"buy_price": t.buy_price,
+			"sell_price": t.sell_price,
+			"slot": t.slot,
+			"class_mask": t.class_mask,
+			"race_mask": t.race_mask,
+			"level": t.level,
+			"required_level": t.required_level > 1 and t.required_level or 0,
+			"required_skill_id": not prospectable and not millable and t.required_skill or None,
+			"required_skill_level": not prospectable and not millable and t.required_skill_level,
+			"required_spell_id": t.required_spell or None,
+			#rankreq, superrankreq
+			"required_faction_id": t.required_faction or None,
+			"required_reputation": t.required_reputation,
+			"unique": t.unique,
+			"stack": t.stack,
+			"bag_slots": t.bag_slots,
+			"scaling_stats_id": t.scaling_stats or None,
+			"damage_min": damage_min,
+			"damage_max": damage_max,
+			"damage_type": t.damage_type,
+			"armor": self.get_armor(t),
+			"speed": float(t.speed) / 1000,
+			"teaches_spell_id": teaches_spell_id,
+			"bind": account_bound or t.bind,
+			"note": t.note,
+			"page_id": t.page,
+			"starts_quest_id": t.starts_quest or None,
+			"lock_id": t.lock or None,
+			"random_enchantment": bool((t._raw("random_enchantment") or 0) + (t._raw("random_suffix") or 0)),
+			"random_enchantment_id": t.random_enchantment or None,
+			"random_suffix_id": t.random_suffix or None,
+			"itemset_id": t.itemset or None,
+			"durability": t.durability,
+			"zone_bind_id": t.required_zone or None,
+			"instance_bind_id": t._raw("required_instance") or None,
+			"bag_category": t.bag_category,
+			"tool_category_id": t._raw("tool_category"),
+			"socket1": t.socket_1,
+			"socket2": t.socket_2,
+			"socket3": t.socket_3,
+			"socket_bonus_id": t.socket_bonus or None,
+			"gem_properties_id": t.gem_properties and t.gem_properties.enchant or None,
+			"gem_color": t.gem_properties and t.gem_properties.color or None,
+			"duration": t.duration,
+			"unique_category_id": t.unique_category or None,
+			"required_holiday_id": t.required_holiday or None,
+			"scaling_factor": t.scaling_factor,
+			
+			"slug": utils.slugify(t.name),
+			"build": build,
+			"stub": False,
+			"armory": armory,
+		}
+		
+		return d, {}
+
+	def postupdate(self, p, t):
+		i = 0
+		p.stats.clear()
+		for id, amount, unk1, unk2 in self.STATS:
+			if getattr(t, id) > 0:
+				i += 1
+				q = models.ItemStat(
+					item_id = t.id,
+					stat_id = getattr(t, id),
+					amount = getattr(t, amount),
+					unknown_1 = getattr(t, unk1),
+					unknown_2 = getattr(t, unk2),
+					ordering = i,
+				)
+				q.save()
+		
+		# Convert resistances and budget modifier to stats
+		if hasattr(t, "fire_resist"): # Check whether we have resist fields (one is enough)
+			resist_lookups = {
+				"arcane_resist": ITEM_MOD_ARCANE_RESISTANCE,
+				"fire_resist": ITEM_MOD_FIRE_RESISTANCE,
+				"frost_resist": ITEM_MOD_FROST_RESISTANCE,
+				"shadow_resist": ITEM_MOD_SHADOW_RESISTANCE,
+				"nature_resist": ITEM_MOD_NATURE_RESISTANCE,
+				"budget_modifier": ITEM_MOD_EXTRA_ARMOR,
+			}
+			for k in self.RESISTS:
+				value = getattr(t, k)
+				if value:
+					# Check if it's a valid armor bonus (value > 0 and has armor)
+					if k == "budget_modifer" and (value < 0 or not t.armor):
+						continue
+					i += 1
+					q = models.ItemStat(
+						item_id = t.id,
+						stat_id = resist_lookups[k],
+						amount = value,
+						unknown_1 = 0,
+						unknown_2 = 0,
+						ordering = i,
+					)
+					q.save()
+		
+		i = 0
+		p.spells.clear()
+		for k in self.SPELLS:
+			if getattr(t, k[0]) > 0:
+				i += 1
+				q = models.ItemSpell(
+					item_id = t.id,
+					spell_id = getattr(t, k[0]),
+					trigger = getattr(t, k[1]),
+					charges = getattr(t, k[2]),
+					cooldown = getattr(t, k[3]),
+					ordering = i,
+				)
+				q.save()
+
+
+class DBItemClass(DjangoModel):
+	Model = models.ItemClass
+	fname = "ItemSubClass.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": "%i.%i" % (t.id, t.id_1),
+			"id1": t.id,
+			"id2": t.id_1,
+			"hands": t.hands,
+			"name": t.name_enus,
+			"category": t.categoryname_enus,
+		}
+		
+		return d, {}
+
+
+class DBItemSet(DjangoModel):
+	Model = models.ItemSet
+	fname = "ItemSet.dbc"
+	
+	ITEMS = (
+		"item_1", "item_2", "item_3",
+		"item_4", "item_5", "item_6",
+		"item_7", "item_8", "item_9",
+		"item_10"
+	)
+	
+	BONUSES = (
+		("bonus_1", "required_items_1"),
+		("bonus_2", "required_items_2"),
+		("bonus_3", "required_items_3"),
+		("bonus_4", "required_items_4"),
+		("bonus_5", "required_items_5"),
+		("bonus_6", "required_items_6"),
+		("bonus_7", "required_items_7"),
+		("bonus_8", "required_items_8"),
+	)
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+			"required_skill_id": t.required_skill or None,
+			"required_skill_level": t.required_skill_level,
+			
+			"build": build,
+			"slug": utils.slugify(t.name_enus),
+		}
+		return d, {}
+	
+	def postupdate(self, p, t):
+		p.items.clear()
+		i = 0
+		for k in self.ITEMS:
+			if getattr(t, k):
+				i += 1
+				q = models.ItemSetItem(itemset_id=t.id, item_id=getattr(t, k), ordering=i)
+				q.save()
+		
+		p.bonuses.clear()
+		for k in self.BONUSES:
+			if getattr(t, k[0]):
+				q = models.ItemSetBonus(itemset_id=t.id, spell_id=getattr(t, k[0]), required_amount=getattr(t, k[1]))
+				q.save()
+
+
+class DBLock(DjangoModel):
+	Model = models.Lock
+	fname = "Lock.dbc"
+	RECORD_ADDITIONS = False
+	
+	LOCK_PROPERTIES = (
+		("type_1", "properties_1", "required_skill_level_1", "action_1"),
+		("type_2", "properties_2", "required_skill_level_2", "action_2"),
+		("type_3", "properties_3", "required_skill_level_3", "action_3"),
+		("type_4", "properties_4", "required_skill_level_4", "action_4"),
+		("type_5", "properties_5", "required_skill_level_5", "action_5"),
+		("type_6", "properties_6", "required_skill_level_6", "action_6"),
+		("type_7", "properties_7", "required_skill_level_7", "action_7"),
+		("type_8", "properties_8", "required_skill_level_8", "action_8"),
+	)
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+		}
+		
+		return d, {}
+	
+	def postupdate(self, p, t):
+		models.LockProperty.objects.filter(lock_id=t.id).delete()
+		for i, k in enumerate(self.LOCK_PROPERTIES):
+			type = getattr(t, k[0])
+			property = t._raw(k[1])
+			q = models.LockProperty(
+				lock_id = t.id,
+				ordering = i,
+				type = type,
+				item_id = type == 1 and property or None,
+				lock_type_id = type == 2 and property or 0,
+				required_skill_level = getattr(t, k[2]),
+				action = getattr(t, k[3]),
+			)
+			q.save()
+
+
+class DBMail(DjangoModel):
+	Model = models.Mail
+	fname = "MailTemplate.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		text = utils.replace_inline_vars(t.text_enus).strip()
+		
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+			"text": text,
+			"slug": utils.slugify(t.name_enus)
+		}
+		return d, {}
+
+
+class DBPageTextCache(DjangoModel):
+	Model = models.Page
+	fname = "pagetextcache.wdb"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		text = t.text
+		html = text.find("HTML>") != -1 or text.find("BODY>") != -1
+		text = text.replace("\r\n", "\n").replace("\r", "\n") # normalize to unix EOL
+		if html:
+			text = utils.clean_page_html(text)
+		text = text.replace("$B", "\n").replace("<BR/>", "\n")
+		name = utils.page_to_name(text)
+		if not html:
+			text = text.replace("<", "&lt;").replace(">", "&gt;")
+		text = text.strip().replace("\n", "<br/>")
+		
+		d = {
+			"id": t.id,
+			"name": name,
+			"text": text,
+			"next_page_id": t.next_page or None,
+			
+			"build": build,
+			"slug": utils.slugify(name),
+		}
+		
+		return d, {}
+
+
+class DBQuestCache(DjangoModel):
+	Model = models.Quest
+	fname = "questcache.wdb"
+	
+	ITEM_REWARDS = (
+		("item_reward_1", "item_reward_amount_1"),
+		("item_reward_2", "item_reward_amount_2"),
+		("item_reward_3", "item_reward_amount_3"),
+		("item_reward_4", "item_reward_amount_4"),
+	)
+	
+	ITEM_CHOICES = (
+		("item_choice_reward_1", "item_choice_reward_amount_1"),
+		("item_choice_reward_2", "item_choice_reward_amount_2"),
+		("item_choice_reward_3", "item_choice_reward_amount_3"),
+		("item_choice_reward_4", "item_choice_reward_amount_4"),
+		("item_choice_reward_5", "item_choice_reward_amount_5"),
+		("item_choice_reward_6", "item_choice_reward_amount_6"),
+		("item_choice_reward_7", "item_choice_reward_amount_7"),
+	)
+	
+	FACTION_REWARDS = (
+		("faction_reward_1", "reputation_reward_1", "reputation_override_1"),
+		("faction_reward_2", "reputation_reward_2", "reputation_override_2"),
+		("faction_reward_3", "reputation_reward_3", "reputation_override_3"),
+		("faction_reward_4", "reputation_reward_4", "reputation_override_4"),
+		("faction_reward_5", "reputation_reward_5", "reputation_override_5"),
+	)
+	
+	FACTION_REQUIREMENTS = (
+		("required_faction_1", "required_reputation_1"),
+		("required_faction_2", "required_reputation_2"),
+	)
+	
+	NPC_REQUIREMENTS = (
+		("required_kill_1", "required_kill_amount_1", "objective_text_1"),
+		("required_kill_2", "required_kill_amount_2", "objective_text_2"),
+		("required_kill_3", "required_kill_amount_3", "objective_text_3"),
+		("required_kill_4", "required_kill_amount_4", "objective_text_4"),
+	)
+	ITEM_REQUIREMENTS = (
+		("required_item_1", "required_item_amount_1"),
+		("required_item_2", "required_item_amount_2"),
+		("required_item_3", "required_item_amount_3"),
+		("required_item_4", "required_item_amount_4"),
+		("required_item_5", "required_item_amount_5"),
+		("required_item_6", "required_item_amount_6"),
+	)
+	QUEST_ITEMS = (
+		"quest_item_1",
+		"quest_item_2",
+		"quest_item_3",
+		"quest_item_4",
+	)
+	
+	def refdict(self, t):
+		
+		d = {
+			"id": t.id,
+			"name": t.name,
+			"level": t.level,
+			"required_level": getattr(t, "required_level", 0),
+			"category": t.category < 1 and abs(t.category) or None,
+			"suggested_players": t.suggested_players,
+			"zone_id": t.category > 0 and t.category or None,
+			"type": t.type,
+			"followup_id": t.followup or None,
+			"experience_reward": t.experience_reward or 0,
+			"money_reward": max(0, t.money_reward),
+			"money_reward_cap": t.money_reward_cap,
+			"required_money": t.money_reward < 0 and abs(t.money_reward) or 0,
+			"spell_reward_id": t.spell_reward or None,
+			"spell_trigger_id": t.spell_trigger or None,
+			"honor_reward_multiplier": getattr(t, "honor_reward_multiplier", 0.0),
+			"arena_reward": t.arena_reward,
+			"skill_reward_id": t.skill_reward,
+			"skill_points_reward": t.skill_points_reward,
+			"provided_item_id": t.provided_item or None,
+			"sharable": t.flags.sharable,
+			"daily": t.flags.daily,
+			"flags_pvp": t.flags.flags_pvp,
+			"raid": t.flags.raid,
+			"weekly": t.flags.weekly,
+			"title_reward_id": t.title_reward or None,
+			"required_player_kills": t.required_player_kills,
+			"talents_reward": t.bonus_talents,
+			"objective": utils.replace_inline_vars(t.objective),
+			"description": utils.replace_inline_vars(t.description),
+			"summary": t.summary,
+			"quick_summary": getattr(t, "quick_summary", ""),
+			"npcframe_accept_text": getattr(t, "npcframe_accept_text", ""),
+			"npcframe_handin_text": getattr(t, "npcframe_handin_text", ""),
+			
+			"build": build,
+			"slug": utils.slugify(t.name),
+		}
+		
+		return d, { "quest_items": [t._raw(k) for k in self.QUEST_ITEMS if t._raw(k)]}
+
+	def postupdate(self, p, t):
+		p.items_reward.clear()
+		for k in self.ITEM_REWARDS:
+			if getattr(t, k[0]):
+				q = models.QuestRewardItem(quest_id=t.id, item_id=getattr(t, k[0]), amount=getattr(t, k[1]), choice=False)
+				q.save()
+		
+		for k in self.ITEM_CHOICES:
+			if getattr(t, k[0], False):
+				q = models.QuestRewardItem(quest_id=t.id, item_id=getattr(t, k[0]), amount=getattr(t, k[1]), choice=True)
+				q.save()
+		
+		if build >= 10522:
+			p.reputation_reward.clear()
+			for k in self.FACTION_REWARDS:
+				if getattr(t, k[0]):
+					q = models.QuestRewardFaction(quest_id=t.id, faction_id=getattr(t, k[0]), amount=getattr(t, k[1]))
+					q.save()
+		
+		i = 0
+		p.requirements.clear()
+		for k in self.ITEM_REQUIREMENTS:
+			if hasattr(t, k[0]) and getattr(t, k[0]):
+				i += 1
+				q = models.QuestRequirement(quest_id=t.id, content_type=ContentType.objects.get(model="item"), object_id=getattr(t, k[0]), amount=getattr(t, k[1]), ordering=i)
+				q.save()
+		
+		for k in self.FACTION_REQUIREMENTS:
+			if getattr(t, k[0]):
+				i += 1
+				rep = utils.get_reputation_level(getattr(t, k[1]))
+				q = models.QuestRequirement(quest_id=t.id, content_type=ContentType.objects.get(model="faction"), object_id=getattr(t, k[0]), amount=rep, ordering=i)
+				q.save()
+		
+		for k in self.NPC_REQUIREMENTS:
+			val = t._raw(k[0])
+			if val:
+				if t._field(k[0]).get_relation(val) == "creaturecache":
+					model = "creature"
+				else:
+					model = "object"
+				
+				i += 1
+				q = models.QuestRequirement(
+					quest_id=t.id,
+					content_type=ContentType.objects.get(model=model),
+					object_id=val,
+					amount=getattr(t, k[1]),
+					text=getattr(t, k[2]),
+					ordering=i,
+				)
+				q.save()
+
+
+class DBShapeShift(DjangoModel):
+	Model = models.ShapeShift
+	fname = "SpellShapeshiftForm.dbc"
+	
+	SPELLS = (
+		"spell_1", "spell_2",
+		"spell_3", "spell_4",
+		"spell_5", "spell_6",
+		"spell_7", "spell_8",
+	)
+	
+	def refdict(self, t):
+		icon = utils.get_icon_path(t)
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+			"icon": icon,
+		}
+		
+		return d, { "spells": [t._raw(k) for k in self.SPELLS if t._raw(k)]}
+
+
+class DBSkill(DjangoModel):
+	Model = models.Skill
+	fname = "SkillLine.dbc"
+	
+	def refdict(self, t):
+		icon = utils.get_icon_path(t) or "temp"
+		category = t.category > 0 and t.category or 0
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+			"description": t.description_enus,
+			"icon": icon,
+			"is_tradeskill": bool(t.tradeskill),
+			"slug": utils.slugify(t.name_enus),
+			"category": category,
+		}
+		
+		return d, {}
+
+
+class DBSkillLineAbility(DjangoModel):
+	Model = models.SkillSpell
+	fname = "SkillLineAbility.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"skill_id": t.skill,
+			"spell_id": t._raw("spell"),
+			"required_races": t.required_races,
+			"required_classes": t.required_classes,
+			"excluded_races": t.excluded_races,
+			"excluded_classes": t.excluded_classes,
+			# "parent_spell_id": t.parent, m2m, cant have two spells ...
+			"required_skill_level": t.required_skill_level,
+			"acquire_method": t.acquire_method,
+			"turns_grey": t.turns_grey,
+			"turns_yellow": t.turns_yellow,
+			"turns_green": utils.average(t.turns_yellow, t.turns_grey),
+			"unknown_11927": t.unknown_11927,
+			"unknown_12266": t.unknown_12266,
+		}
+		
+		return d, {}
+
+class DBSpell(DjangoModel):
+	Model = models.Spell
+	fname = "Spell.dbc"
+	
+	REAGENTS = (
+		("reagents__reagent_1", "reagents__amount_1"),
+		("reagents__reagent_2", "reagents__amount_2"),
+		("reagents__reagent_3", "reagents__amount_3"),
+		("reagents__reagent_4", "reagents__amount_4"),
+		("reagents__reagent_5", "reagents__amount_5"),
+		("reagents__reagent_6", "reagents__amount_6"),
+		("reagents__reagent_7", "reagents__amount_7"),
+		("reagents__reagent_8", "reagents__amount_8"),
+	)
+	
+	def load(self):
+		self.file = wdbc.get(self.fname, build)
+		self.skilldict = {}
+		print "Building skill m2m dict"
+		dbc = wdbc.get("SkillLineAbility", build)
+		for k in dbc:
+			row = dbc[k]
+			self.skilldict[row._raw("spell")] = row._raw("skill")
+	
+	created_items_effects = (24, 157)
+	glyph_effect = 74
+	
+	def refdict(self, t):
+		effects = t.spelleffect__spell
+		created_item = (effects and [k.type or None for k in effects if k.effect in self.created_items_effects] or [None])[0]
+		glyph = (effects and [k.misc_value_1 or None for k in effects if k.effect == self.glyph_effect] or [None])[0]
+		primary_skill = t.id in self.skilldict and self.skilldict[t.id] or None
+		
+		duration_1, duration_2, duration_3 = None, None, None
+		if t.duration:
+			duration_1 = t.duration.duration_1
+			duration_2 = t.duration.duration_2
+			duration_3 = t.duration.duration_3
+		
+		range_min, range_min_friendly, range_max, range_max_friendly, range_flags = None, None, None, None, None
+		if t.range:
+			range_min = t.range.range_min
+			range_min_friendly = t.range.range_min_friendly
+			range_max = t.range.range_max
+			range_max_friendly = t.range.range_max_friendly
+			range_flags = t.range.flags
+		
+		rune_cost_blood, rune_cost_frost, rune_cost_unholy, runic_power_gain = None, None, None, None
+		if t.rune_cost:
+			rune_cost_blood = t.rune_cost.blood
+			rune_cost_frost = t.rune_cost.frost
+			rune_cost_unholy = t.rune_cost.unholy
+			runic_power_gain = t.rune_cost.runic_power
+		
+		power_type = t.power_type
+		power_display = t.power and t.power._raw("power_display") or 0
+		if power_display > 0:
+			power_type = -power_display
+		
+		d = {
+			"id": t.id,
+			"flags_1": t.flags_1,
+			"flags_2": t.flags_2,
+			"flags_3": t.flags_3,
+			"flags_4": t.flags_4,
+			"flags_5": t.flags_5,
+			"flags_6": t.flags_6,
+			"flags_7": t.flags_7,
+			"flags_8": t.flags_8,
+			"flags_8": t.flags_9,
+			"cast_time": t.cast_time and t.cast_time.cast_time or 0,
+			"duration_1": duration_1 or 0,
+			"duration_2": duration_2 or 0,
+			"duration_3": duration_3 or 0,
+			"power_type": power_type,
+			"range_min": range_min,
+			"range_min_friendly": range_min_friendly,
+			"range_max": range_max,
+			"range_max_friendly": range_max_friendly,
+			"range_flags": range_flags,
+			"icon": utils.get_icon_path(t),
+			"buff_icon": utils.get_icon_path(t, attr="buff_icon"),
+			"name": t.name_enus,
+			"rank": t.rank_enus.decode("ascii", "ignore"),
+			"raw_description": t.description_enus.decode("ascii", "ignore"),
+			"raw_buff_description": t.buff_description_enus.decode("ascii", "ignore"),
+			"school_flags": t.school_flags,
+			"rune_cost_blood": rune_cost_blood or 0,
+			"rune_cost_frost": rune_cost_frost or 0,
+			"rune_cost_unholy": rune_cost_unholy or 0,
+			"runic_power_gain": runic_power_gain or 0,
+			"description_variables_id": t.description_variables or None,
+			
+			# SpellAuraOptions.dbc
+			"stack": getattr(t.aura_options, "stack", 0),
+			"proc_chance": getattr(t.aura_options, "proc_chance", 0),
+			"proc_charges": getattr(t.aura_options, "proc_charges", 0),
+			"proc_type_flags": getattr(t.aura_options, "proc_type_flags", 0),
+			
+			# SpellAuraRestrictions.dbc
+			"required_caster_aura": getattr(t.aura_restrictions, "required_caster_aura", 0),
+			"required_target_aura": getattr(t.aura_restrictions, "required_target_aura", 0),
+			"excluded_caster_aura": getattr(t.aura_restrictions, "excluded_caster_aura", 0),
+			"excluded_target_aura": getattr(t.aura_restrictions, "excluded_target_aura", 0),
+			"required_caster_spell_id": getattr(t.aura_restrictions, "required_caster_spell", None),
+			"required_target_spell_id": getattr(t.aura_restrictions, "required_target_spell", None),
+			"excluded_caster_spell_id": getattr(t.aura_restrictions, "excluded_caster_spell", None),
+			"excluded_target_spell_id": getattr(t.aura_restrictions, "excluded_target_spell", None),
+			
+			# SpellCastingRequirements.dbc
+			"facing_flags": getattr(t.casting_requirements, "facing_flags", 0),
+			"required_faction_id": getattr(t.casting_requirements, "required_faction", None),
+			"required_reputation": getattr(t.casting_requirements, "required_reputation", 0),
+			"required_area_group_id": getattr(t.casting_requirements, "required_area_group", 0),
+			"required_aura_vision": getattr(t.casting_requirements, "required_aura_vision", 0),
+			"required_spell_focus": getattr(t.casting_requirements, "required_spell_focus", 0) or 0,
+			
+			# SpellCategories.dbc
+			"category": getattr(t.categories, "category", 0) or 0,
+			"defense_type": getattr(t.categories, "defense_type", 0),
+			"dispel_type": getattr(t.categories, "dispel_type", 0),
+			"mechanic": getattr(t.categories, "mechanic", 0) or 0,
+			"prevention_type": getattr(t.categories, "prevention_type", 0),
+			"recovery_category": getattr(t.categories, "recovery_category", 0) or 0,
+			
+			# SpellClassOptions.dbc
+			"next_spell_id": getattr(t.class_options, "next_spell", 0),
+			"spell_class_flags_1": getattr(t.class_options, "spell_class_flags_1", 0),
+			"spell_class_flags_2": getattr(t.class_options, "spell_class_flags_2", 0),
+			"spell_class_flags_3": getattr(t.class_options, "spell_class_flags_3", 0),
+			"spell_class_set": getattr(t.class_options, "spell_class_set", 0),
+			
+			# SpellCooldowns.dbc
+			"cooldown": getattr(t.cooldowns, "cooldown", 0),
+			"category_cooldown": getattr(t.cooldowns, "category_cooldown", 0),
+			"cooldown_start": getattr(t.cooldowns, "cooldown_start", 0),
+			
+			# SpellEquippedItems.dbc
+			"required_item_category": getattr(t.equipped_items, "required_item_category", 0),
+			"required_item_slots": getattr(t.equipped_items, "required_item_slots", 0),
+			"required_item_subclasses": getattr(t.equipped_items, "required_item_subclasses", 0),
+			
+			# SpellInterrupts.dbc
+			"aura_interrupt_flags": getattr(t.interrupts, "aura_interrupt_flags", 0),
+			"channeling_interrupt_flags": getattr(t.interrupts, "channeling_interrupt_flags", 0),
+			"interrupt_flags": getattr(t.interrupts, "interrupt_flags", 0),
+			
+			# SpellLevels.dbc
+			"base_level": getattr(t.levels, "base_level", 0),
+			"max_level": getattr(t.levels, "max_level", 0),
+			"level": getattr(t.levels, "level", 0),
+			
+			# SpellPower.dbc
+			"power_amount": getattr(t.power, "power_amount", 0),
+			"power_per_level": getattr(t.power, "power_per_level", 0),
+			"power_percent": getattr(t.power, "power_percent", 0),
+			"power_per_second": getattr(t.power, "power_per_second", 0),
+			
+			# SpellShapeshifts.dbc
+			"required_stances": getattr(t.shapeshift, "required_stances", 0),
+			"excluded_stances": getattr(t.shapeshift, "excluded_stances", 0),
+			
+			# SpellTargetRestrictions.dbc
+			"required_target": getattr(t.target_restrictions, "required_target", 0),
+			"max_targets": getattr(t.target_restrictions, "max_targets", 0),
+			"max_target_level": getattr(t.target_restrictions, "max_target_level", 0),
+			"required_target_type": getattr(t.target_restrictions, "required_target_type", 0),
+			
+			"passive": t.flags_1.passive,
+			"next_melee": t.flags_1.next_melee or t.flags_1.next_melee_2,
+			"tradespell": t.flags_1.tradespell,
+			"usable_while_sitting": t.flags_1.usable_while_sitting,
+			"not_usable_in_combat": t.flags_1.not_usable_in_combat,
+			"channeled": t.flags_2.channeled or t.flags_2.channeled_2,
+			"cannot_be_stolen": t.flags_5.cannot_be_stolen,
+			"no_reagents_during_preparation": t.flags_6.no_reagents_during_preparation,
+			
+			"created_item_id": created_item,
+			"glyph_id": glyph,
+			"primary_skill_id": primary_skill,
+			"build": build,
+			"slug": utils.slugify(t.name_enus),
+		}
+		
+		return d, {}
+	
+	def postupdate(self, p, t):
+		i = 0
+		p.reagents.clear()
+		if t.reagents:
+			for key, amount in self.REAGENTS:
+				if getattr(t, key) > 0:
+					i += 1
+					q = models.SpellReagent(
+						spell_id=t.id,
+						item_id=getattr(t, key),
+						amount=abs(getattr(t, amount)), # XXX abs: 44864 -1
+						ordering=i,
+					)
+					q.save()
+		
+		#i = 0
+		#p.required_tools.clear()
+		#for k in self.TOOLS:
+			#if getattr(t, k):
+				#i += 1
+				#q = models.SpellTool(spell_id=t.id, content_type=ContentType.objects.get(model="item"), object_id=t._raw(k), ordering=i)
+				#q.save()
+		
+		#for k in self.TOOLCATEGORIES:
+			#if getattr(t, k):
+				#i += 1
+				#q = models.SpellTool(spell_id=t.id, content_type=ContentType.objects.get(model="toolcategory"), object_id=t._raw(k), ordering=i)
+				#q.save()
+
+
+class DBSpellEffectProperty(DjangoModel):
+	Model = models.SpellEffectProperty
+	fname = "SpellEffect.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		
+		if not t.spell:
+			raise KeyError(t._raw("spell"))
+		
+		d = {
+			"id": t.id,
+			"effect_id": t.effect,
+			"amplitude": t.amplitude,
+			"aura_id": t.aura,
+			"aura_interval": t.aura_interval,
+			"damage_base": t.damage_base,
+			"scaling": t.scaling,
+			"chain_amplitude": t.chain_amplitude,
+			"chain_targets": t.chain_targets,
+			"die_sides": t.die_sides,
+			"type": t.type,
+			"mechanic": t.mechanic,
+			"misc_value_1": t.misc_value_1,
+			"misc_value_2": t.misc_value_2,
+			"points_combo": t.points_combo,
+			"radius_min": t.radius_min and t.radius_min.radius_min or 0,
+			"radius_max": t.radius_max and t.radius_max.radius_min or 0,
+			"dice_real_per_level": t.dice_real_per_level,
+			"class_flags_1": t.class_flags_1,
+			"class_flags_2": t.class_flags_2,
+			"class_flags_3": t.class_flags_3,
+			"trigger_spell_id": t.trigger_spell,
+			"implicit_target_1": t.implicit_target_1,
+			"implicit_target_2": t.implicit_target_2,
+			"spell_id": t.spell,
+			"ordering": t.ordering,
+		}
+		
+		return d, {}
+
+
+class DBSpellAura(DjangoModel):
+	Model = models.SpellAura
+	fname = "SpellAuraNames.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"internal_name": t.internal_name,
+			"name": t.name_enus,
+		}
+		
+		return d, {}
+
+
+class DBSpellDescriptionVariable(DjangoModel):
+	Model = models.SpellDescriptionVariable
+	fname = "SpellDescriptionVariables.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"variables": t.variables,
+		}
+		
+		return d, {}
+
+
+class DBSpellEffect(DjangoModel):
+	Model = models.SpellEffect
+	fname = "SpellEffectNames.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+		}
+		
+		return d, {}
+
+
+class DBTalent(DjangoModel):
+	Model = models.Talent
+	fname = "Talent.dbc"
+	
+	RANKS = (
+		"rank_1", "rank_2",
+		"rank_3", "rank_4",
+		"rank_5",
+	)
+	DEPENDENCIES = (
+		("depends", "depends_count"),
+		("depends_right", "depends_right_count"),
+		("depends_left", "depends_left_count"),
+	)
+	
+	def refdict(self, t):
+		name = t.rank_1 and t.rank_1.name_enus or ""
+		icon = utils.get_icon_path(t.rank_1)
+		d = {
+			"id": t.id,
+			"tab_id": t._raw("tab"),
+			"row": t.row,
+			"column": t.column,
+			"active": t.active,
+			"unknown_pet_1": t.unknown_pet_1,
+			"unknown_pet_2": t.unknown_pet_2,
+			"name": name,
+			"icon": icon,
+			
+			"build": build,
+			"slug": utils.slugify(name),
+		}
+		
+		return d, {}
+	
+	def postupdate(self, p, t):
+		p.ranks.clear()
+		i = 0
+		for k in self.RANKS:
+			if getattr(t, k):
+				i += 1
+				q = models.TalentRank(talent_id=t.id, spell_id=getattr(t, k), rank=i)
+				q.save()
+		
+		p.dependencies.clear()
+		i = 0
+		for key, count in self.DEPENDENCIES:
+			i += 1
+			if getattr(t, key):
+				q = models.TalentDependency(talent_id=t.id, dependency_id=getattr(t, key), count=getattr(t, count), type=i)
+				q.save()
+
+class DBTalentTab(DjangoModel):
+	Model = models.TalentTab
+	fname = "TalentTab.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		icon = utils.get_icon_path(t)
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+			"icon": icon,
+			"class_mask": t.class_mask,
+			"pet_mask": t.pet_mask,
+			"page": t.page,
+			"internal_name": t.internal_name,
+			"description": getattr(t, "description_enus"),
+			
+			"build": build,
+		}
+		
+		return d, {}
+
+
+class DBTitle(DjangoModel):
+	Model = models.Title
+	fname = "CharTitles.dbc"
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"title": t.title_enus,
+			"index": t.ordering,
+			"cataclysm_flag": getattr(t, "cataclysm_flag", False),
+		}
+		
+		return d, {}
+
+
+class DBTaxiNode(DjangoModel):
+	Model = models.TaxiNode
+	fname = "TaxiNodes.dbc"
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"map_id": t._raw("map"),
+			"x": t.x,
+			"y": t.y,
+			"z": t.z,
+			"name": t.name_enus,
+			"mount_horde_id": t.mount_horde or None,
+			"mount_alliance_id": t.mount_alliance or None,
+		}
+		
+		return d, {}
+
+
+class DBTotemCategory(DjangoModel):
+	Model = models.ToolCategory
+	fname = "TotemCategory.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+		}
+		
+		return d, {}
+
+class DBDungeonMap(DjangoModel):
+	Model = models.DungeonMap
+	fname = "DungeonMap.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		if t.instance:
+			instance = models.WorldMap.objects.get(dungeon_map_id=t.id)
+			if not instance:
+				instance_id = t._raw("instance")
+				if instance_id == 571:
+					instance = models.WorldMap.objects.get(id=504) # Dalaran
+				elif instance_id == 1:
+					instance = None
+				elif instance_id:
+					instance = models.WorldMap.objects.get(instance_id=instance_id)
+			
+			if instance: # row 28, instance 43... sigh
+				globalstring = "DUNGEON_FLOOR_%s%i" % (instance.name.upper(), t.floor)
+				try:
+					name = getattr(dungeon_floors, globalstring)
+				except AttributeError:
+					name = globalstring
+			else:
+				name = ""
+		else:
+			name = ""
+		d = {
+			"id": t.id,
+			"instance_id": t.instance,
+			"floor": t.floor,
+			"name": name,
+			"y_1": t.y_1,
+			"y_2": t.y_2,
+			"x_1": t.x_1,
+			"x_2": t.x_2,
+		}
+		
+		return d, {}
+
+class DBWorldMap(DjangoModel):
+	Model = models.WorldMap
+	fname = "WorldMapArea.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		virtual_map = t.virtual_map >= 0 and t.virtual_map or None
+		instance_id = t.instance >= 0 and t.instance or None
+		d = {
+			"id": t.id,
+			"instance_id": instance_id,
+			"area_id": t.area or None,
+			"name": t.name,
+			"y_1": t.y_1,
+			"y_2": t.y_2,
+			"x_1": t.x_1,
+			"x_2": t.x_2,
+			"virtual_map_id": virtual_map,
+			"dungeon_map_id": t.dungeon_map,
+		}
+		
+		return d, {}
+
+class DBZone(DjangoModel):
+	Model = models.Zone
+	fname = "AreaTable.dbc"
+	
+	def load(self):
+		self.file = wdbc.get(self.fname, build)
+		worldmaparea = wdbc.get("WorldMapArea", build)
+		self.index = dict((worldmaparea[k]._raw("area"), worldmaparea[k]) for k in worldmaparea if worldmaparea[k].name) # {area_id: worldmap_row}
+	
+	def refdict(self, t):
+		try:
+			map = self.index[t.id].name.lower()
+		except KeyError:
+			map = ""
+		
+		d = {
+			"id": t.id,
+			"parent_area_id": t.parent_area or None,
+			"level": max(0, t.level),
+			"name": t.name_enus,
+			"territory": t.territory_flags,
+			"map": map,
+			"floors": 0,
+			"slug": utils.slugify(t.name_enus),
+		}
+		
+		return d, {}
+
+
+class DBWMOAreaTable(DjangoModel):
+	Model = models.WMOAreaTable
+	fname = "WMOAreaTable.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"name": t.name_enus,
+			"zone_id": t.zone or None,
+			"slug": utils.slugify(t.name_enus),
+		}
+		
+		return d, {}
+
+
+class DBScalingStatDistribution(DjangoModel):
+	Model = models.ScalingStatDistribution
+	fname = "ScalingStatDistribution.dbc"
+	RECORD_ADDITIONS = False
+	
+	STATS = (
+		("stat_1", "modifier_1"),
+		("stat_2", "modifier_2"),
+		("stat_3", "modifier_3"),
+		("stat_4", "modifier_4"),
+		("stat_5", "modifier_5"),
+		("stat_6", "modifier_6"),
+		("stat_7", "modifier_7"),
+		("stat_8", "modifier_8"),
+		("stat_9", "modifier_9"),
+		("stat_10", "modifier_10"),
+	)
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"max_level": t.max_level,
+		}
+		
+		return d, {}
+	
+	def postupdate(self, p, t):
+		i = 0
+		p.stats.clear()
+		for k in self.STATS:
+			if getattr(t, k[0]) and getattr(t, k[0]) != -1:
+				i += 1
+				q = models.ScalingStat(distribution_id=t.id, stat_id=getattr(t, k[0]), modifier=float(getattr(t, k[1])) / 10000, ordering=i)
+				q.save()
+
+
+class DBScalingStatValues(DjangoModel):
+	Model = models.ScalingStatValues
+	fname = "ScalingStatValues.dbc"
+	RECORD_ADDITIONS = False
+	
+	def refdict(self, t):
+		d = {
+			"id": t.id,
+			"level": t.level,
+			"coefficient_1": t.coefficient_1,
+			"coefficient_2": t.coefficient_2,
+			"coefficient_3": t.coefficient_3,
+			"coefficient_4": t.coefficient_4,
+			"coefficient_5": t.coefficient_5,
+			"coefficient_6": t.coefficient_6,
+			"armor_modifier_1": t.armor_modifier_1,
+			"armor_modifier_2": t.armor_modifier_2,
+			"armor_modifier_3": t.armor_modifier_3,
+			"armor_modifier_4": t.armor_modifier_4,
+			"dps_modifier_1": t.dps_modifier_1,
+			"dps_modifier_2": t.dps_modifier_2,
+			"dps_modifier_3": t.dps_modifier_3,
+			"dps_modifier_4": t.dps_modifier_4,
+			"dps_modifier_5": t.dps_modifier_5,
+			"dps_modifier_6": t.dps_modifier_6,
+			"spellpower": t.spellpower,
+			"cloth": t.cloth,
+			"leather": t.leather,
+			"mail": t.mail,
+			"plate": t.plate,
+		}
+		
+		return d, {}
+
+
+def main():
+	if args.caches:
+		classlist = caches
+	elif args.common:
+		classlist = common
+	elif args.itemdbc:
+		classlist = itemdbc
+	else:
+		classlist = classes
+	
+	for cls in classlist:
+		instance = cls()
+		try:
+			instance.update()
+		except Exception, e: # Wrap exceptions to properly remove empty additions
+			print "CRITICAL:", e
+			if args.debug:
+				raise
+			else:
+				try:
+					instance.end_addition()
+				except Exception, e2:
+					print "Could not cleanly exit"
+					raise
+				finally:
+					raise
+	print "Update complete."
+
+
+# Automatically updated when --common arg is given
+common = (
+	## Do not uncomment
+	#DBItemClass,
+	#DBScalingStatDistribution,
+	#DBScalingStatValues,
+	
+	DBCreatureFamily,
+	DBTitle,
+	DBHoliday,
+	DBTotemCategory,
+	DBItemLimitCategory,
+	#DBCurrency,
+	DBEncounter,
+	DBMail,
+	DBShapeShift,
+	DBSpellDescriptionVariable,
+	DBTalentTab,
+	DBAchievementCategory,
+	DBLock,
+)
+
+# Updated when --itemdbc arg is given
+itemdbc = (
+	DBItem,
+)
+
+# Automatically updated when no arg is given
+classes = (
+	DBFaction,
+	DBSkill,
+	DBZone,
+	DBWMOAreaTable,
+	DBInstance,
+	DBWorldMap,
+	##DBDungeonMap, # get() returned more than one WorldMap -- it returned 2! Lookup parameters were {'instance_id': 249}
+	DBTaxiNode,
+	DBGlyph,
+	DBSpell,
+	DBSpellEffectProperty,
+	DBSkillLineAbility,
+	DBEnchant,
+	DBGemProperties,
+	DBTalent,
+	DBItemSet,
+	DBAchievement,
+)
+
+# Automatically updated when --caches arg is given
+caches = (
+	#DBQuestCache,
+	#DBCreatureCache,
+	#DBPageTextCache,
+	DBItemCache,
+	#DBItemNameCache,
+	#DBGameObjectCache,
+)
+
+
+if __name__ == "__main__":
+	main()

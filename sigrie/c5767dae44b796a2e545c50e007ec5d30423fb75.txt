@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+
+from pywow import spellstrings
+from models import SpellEffectProperty
+
+class SigrieProxy(object):
+	@classmethod
+	def get_value(self, instance, spell, value):
+		return getattr(spell, value)
+	
+	@classmethod
+	def get_effect(self, instance, spell, effect, ordering):
+		effectprop = SpellEffectProperty.objects.filter(spell=spell, ordering=ordering-1)
+		if not effectprop:
+			return 0
+		return getattr(effectprop[0], effect) or 0
+	
+	@classmethod
+	def get_spell(self, instance, id):
+		spell_id = instance.spell.id
+		id = id or spell_id
+		if id == spell_id:
+			return instance.spell
+		return instance.spell.__class__.objects.get(id=id)
+
+
+class SpellString(spellstrings.SpellString):
+	def format(self, *pargs, **kwargs):
+		return super(SpellString, self).format(*pargs, proxy=SigrieProxy, **kwargs)

@@ -1,0 +1,197 @@
+# -*- coding: utf-8 -*-
+
+import os
+from django.core.management.base import NoArgsCommand
+from pywow import wdbc
+from pywow.game.glyphs import Glyph
+from pywow.game.spells import Spell
+from pywow.game.talents import TalentTab
+from sigrie import utils
+from sigrie.settings import MEDIA_ROOT
+from sigrie.owdb import models, choices
+from sigrie.owdb.templatetags import extratags
+from sigrie.owdb.paperdoll import Paperdoll
+
+CLASSES = dict((2**(k-1), v.upper().replace(" ", "")) for k, v in choices.CLASSES.items()) # HACK
+CLASSES_STR = dict((v.lower().replace(" ", ""), k) for k, v in choices.CLASSES.items())
+TALENTS_DIR = MEDIA_ROOT + "js/talents/"
+
+def getSpellTooltip(id):
+	return str(models.Spell.objects.get(id=id).tooltip(paperdoll={"character": Paperdoll()}))
+
+class JSBool(object):
+	def __init__(self, value=None):
+		self.value = bool(value)
+	
+	def __repr__(self):
+		return self.value and "true" or "false"
+
+glyphClassSets = {
+	3: "mage",
+	4: "warrior",
+	5: "warlock",
+	6: "priest",
+	7: "druid",
+	8: "rogue",
+	9: "hunter",
+	10: "paladin",
+	11: "shaman",
+	15: "deathknight",
+}
+
+class Command(NoArgsCommand):
+	def run_from_argv(self, argv):
+		build = int(raw_input("What's the current build number? "))
+		tabs = wdbc.get("TalentTab", build=build)
+		primaries = wdbc.get("TalentTreePrimarySpells", build=build)
+		
+		print "Loading tab structure"
+		tabs_out = {}
+		for id in tabs:
+			tab = TalentTab(id)
+			chrclass = tab.getClasses()
+			if chrclass:
+				chrclass = chrclass[0].getInternalName()
+			else:
+				chrclass = ""
+			
+			masteries = []
+			for mastery in tab.getMasteries():
+				masteries.append({
+					"id": mastery.id,
+					"name": mastery.getName(),
+					"description": mastery.getDescription(),
+					"required_stances": "",
+				})
+			
+			tabs_out[id] = {
+				"name": tab.getName(),
+				"class": chrclass,
+				"icon": tab.getIcon(),
+				"page": tab.getPage(),
+				"internal_name": tab.getInternalName(),
+				"description": extratags.genderinline(tab.getDescription()),
+				"roles": tab.getRoles(),
+				"masteries": masteries,
+			}
+		
+		print "Loading primary spells"
+		primaries_out = []
+		primaries_cache = {}
+		for id, row in primaries.items():
+			tab = row._raw("tab")
+			spell = Spell(row._raw("spell"))
+			if tab not in primaries_cache:
+				# this is for tooltips.. might be a bit hacky
+				primaries_cache[tab] = []
+			primaries_cache[tab].append(spell.id)
+			primaries_out.append({
+				"id": id,
+				"tab": tab,
+				"spell": spell.id,
+				"name": spell.getName(),
+				"icon": spell.getIcon(),
+			})
+		
+		print "Loading glyphs"
+		glyphs_out = {}
+		for classId, className in glyphClassSets.items():
+			#cls = CLASSES_STR[className]
+			cls = CLASSES[2**(CLASSES_STR[className]-1)]
+			glyphs = Glyph.getAllForClass(classId)
+			glyphs_out[cls] = {}
+			for spell in glyphs:
+				glyph = spell.getGlyphLearned()
+				glyphs_out[cls][spell.id] = {
+					"name": glyph.getName(),
+					"spell_name": spell.getName(),
+					"icon": glyph.getSpell().getIcon(),
+					"description": glyph.getDescription(),
+					"type": glyph.getType(),
+					"glyph_id": glyph.id,
+				}
+		
+		print "Loading levels"
+		talentsatlevel = wdbc.get("NumTalentsAtLevel.dbc", build=build)
+		levels_out = dict((id, int(row.points)) for id, row in talentsatlevel.items())
+		
+		if not os.path.exists(TALENTS_DIR):
+			os.makedirs(TALENTS_DIR)
+		f = open(TALENTS_DIR + "base.js", "w")
+		f.write('if (typeof(talent_definitions) != "object") talent_definitions = {};\n')
+		f.write('talent_definitions["latest"] = %i\n' % (build))
+		f.write('talent_definitions["tabs"] = %s\n' % (tabs_out))
+		f.write('talent_definitions["primarySpells"] = %s\n' % (primaries_out))
+		f.write('talent_definitions["glyphs"] = %s\n' % (glyphs_out))
+		f.write('talent_definitions["talentsAtLevel"] = %s\n' % (levels_out))
+		f.close()
+		
+		talents = models.Talent.objects
+		talents_out = {}
+		tooltips_out = {}
+		_primaries_out = {}
+		tabs = tabs_out
+		
+		for tab_id, tab in tabs.items():
+			cls = tab["class"]
+			if not cls:
+				continue
+			
+			print "Prefetching...", tab["internal_name"]
+			if cls not in talents_out:
+				talents_out[cls] = {}
+				tooltips_out[cls] = {}
+				_primaries_out[cls] = {}
+			
+			for id in primaries_cache[tab_id]:
+				_primaries_out[id] = getSpellTooltip(id)
+			
+			for talent in talents.filter(tab_id=tab_id).exclude(build__lt=build):
+				dependencies = talent.talentdependency_talent.all()
+				if dependencies:
+					depends_id = dependencies[0].dependency_id
+					depends_count = dependencies[0].count
+				else:
+					depends_id, depends_count = 0, 0
+				
+				talents_out[cls][talent.id] = {
+					"name": str(talent.name),
+					"row": talent.row,
+					"column": talent.column,
+					"max_ranks": talent.max_ranks,
+					"depends": depends_id,
+					"depends_count": depends_count,
+					"tab": tab_id,
+					"icon": str(talent.icon),
+					"active": JSBool(talent.active)
+				}
+				
+				for rank in talent.talentrank_talent.all():
+					if talent.id not in tooltips_out:
+						tooltips_out[talent.id] = {}
+					
+					if talent.active:
+						paperdoll = {
+							"rank": rank.rank-1,
+							"character": Paperdoll(),
+						}
+						tooltip = str(rank.spell.tooltip(paperdoll=paperdoll))
+					else:
+						id = rank.spell_id
+						tooltip = str(Spell(id).getDescription())
+					tooltips_out[talent.id][rank.rank] = tooltip
+		
+		for cls in talents_out:
+			tooltips = dict((k, tooltips_out.get(k) or {}) for k in talents_out[cls])
+			talents = talents_out[cls]
+			cls = cls.lower()
+			f = open(TALENTS_DIR + "%i-%s.js" % (build, cls), "w")
+			
+			f.write('if (typeof(talent_definitions) != "object") talent_definitions = {};\n')
+			f.write('if (typeof(talent_definitions["%s"]) != "object") talent_definitions["%s"] = {};\n' % (cls, cls))
+			f.write('talent_definitions["%s"][%i] = {};\n' % (cls, build))
+			f.write('talent_definitions["%s"][%i]["talents"] = %s;\n' % (cls, build, talents))
+			f.write('talent_definitions["%s"][%i]["tooltips"] = %s;\n' % (cls, build, tooltips))
+			f.write('talent_definitions["%s"][%i]["primaries"] = %s;\n' % (cls, build, _primaries_out))
+			
+			f.close()

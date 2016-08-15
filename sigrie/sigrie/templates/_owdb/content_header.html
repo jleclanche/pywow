@@ -1,0 +1,5 @@
+<div id="content-header">
+{% block header_searchbox %}{% include "owdb/searchbox.html" %}{% endblock %}
+<h1>{% block icon %}{{obj.get_icon|safe}}{% endblock %}{% block header_title %}{{ obj }}{% endblock %}</h1>
+</div>
+<div id="content-border"> </div>

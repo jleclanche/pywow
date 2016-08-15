@@ -1,0 +1,27 @@
+{% extends "owdb/detailview.html" %}
+{% load extratags %}
+
+{% block quickfactscont %}
+<ul>
+<li><span>Type: {{obj.get_type_display}}</span></li>
+{% if obj.max_players %}<li><span>Max players: {{obj.max_players}}</span></li>{% endif %}
+{% if obj.continent %}<li><span>Continent: {{obj.continent|url}}</span></li>{% endif %}
+{% if obj.zone %}<li><span>Zone: {{obj.zone|url}}</span></li>{% endif %}
+</ul>
+{% endblock %}
+
+{% block subcontent %}
+
+{% if obj.map %}
+<h4>Map</h4>
+<a href="/static/img/maps/{{obj.map}}.png"><img width="488" height="325" alt="Map of {{ obj }}" src="/static/img/maps/{{obj.map}}.png" style="border: 2px solid #333;"/></a>
+{% else %}{% if obj.parent_area and obj.parent_area.map %}
+<h4>Map of {{ obj.parent_area|url }}</h4>
+<a href="/static/img/maps/{{obj.parent_area.map}}.png"><img width="488" height="325" alt="Map of {{ obj.parent_area }}" src="/static/img/maps/{{obj.parent_area.map}}.png" style="border: 2px solid #333;"/></a>
+{% endif %}
+{% endif %}
+
+{% sigrielisting InstanceContinent obj.instance_continent %}
+{% sigrielisting InstanceEncounter obj.encounter_instance %}
+{% sigrielisting InstanceEncounterHeroic obj.encounter_instance %}
+{% endblock %}

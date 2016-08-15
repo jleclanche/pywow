@@ -1,0 +1,23 @@
+# -*- coding: utf-8 -*-
+from django.db.models import Model, IntegerField, PositiveIntegerField, PositiveSmallIntegerField, FloatField, ForeignKey, CharField
+from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+
+class Node(Model):
+	content_type = ForeignKey(ContentType)
+	object_id = PositiveIntegerField()
+	real_object = GenericForeignKey()
+	zone = ForeignKey("owdb.Zone", related_name="node_zone")
+	x = FloatField()
+	y = FloatField()
+	floor = PositiveSmallIntegerField()
+	seen_count = PositiveIntegerField(default=0)
+	quest_poi_id = IntegerField(default=0)
+	poi_name = CharField(max_length=64, blank=True)
+	
+	def __unicode__(self):
+		return "%s: %2g, %2g" % (self.zone, self.x, self.y)
+	
+	def get_json(self, rel):
+		return self.real_object.get_json(rel)

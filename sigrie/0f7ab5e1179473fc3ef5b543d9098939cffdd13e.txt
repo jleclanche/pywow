@@ -1,0 +1,155 @@
+# -*- coding: utf-8 -*-
+"""
+Eventually, this will make django trunk
+Eventually...
+"""
+from datetime import timedelta
+from django.utils.datastructures import SortedDict as OrderedDict
+from django.utils.encoding import force_unicode
+from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
+
+
+# django.utils.timestring
+
+values_in_microseconds = OrderedDict((
+    # Uncomment the following two lines for year and month support
+    # ('y', 31556925993600), # 52.177457 * (7*24*60*60*1000*1000)
+    # ('m', 2629743832800), # 4.34812141 * (7*24*60*60*1000*1000)
+    ('w', 604800000000), # 7*24*60*60*1000*1000
+    ('d', 86400000000), # 24*60*60*1000*1000
+    ('h', 3600000000), # 60*60*1000*1000
+    ('min', 60000000), # 60*1000*1000
+    ('s',  1000000), # 1000*1000
+    ('ms', 1000),
+    ('us', 1),
+))
+
+def to_timedelta(value):
+    chunks = []
+    for b in value.lower().split():
+        for index, char in enumerate(b):
+            if not char.isdigit():
+                chunks.append((b[:index], b[index:])) # digits, letters
+                break
+
+    microseconds = 0
+    for digits, chars in chunks:
+        if not digits or not chars in values_in_microseconds:
+            raise ValueError('Incorrect timestring pair')
+        microseconds += int(digits) * values_in_microseconds[chars]
+
+    return timedelta(microseconds=microseconds)
+
+def from_timedelta(value):
+    if not value:
+        return u'0s'
+
+    if not isinstance(value, timedelta):
+        raise ValueError('to_timestring argument must be a datetime.timedelta instance')
+
+    chunks = []
+    microseconds = value.days * 24 * 3600 * 1000000 + value.seconds * 1000000 + value.microseconds
+    for k in values_in_microseconds:
+        if microseconds >= values_in_microseconds[k]:
+            diff, microseconds = divmod(microseconds, values_in_microseconds[k])
+            chunks.append('%d%s' % (diff, k))
+    return u' '.join(chunks)
+
+
+# django.forms.widgets
+from django.forms.widgets import TextInput
+
+class DurationInput(TextInput):
+    def render(self, name, value, attrs=None):
+        if value is None: value = ''
+        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
+        if value != '':
+            # Only add the 'value' attribute if a value is non-empty.
+            if isinstance(value, int) or isinstance(value, long): # Database backends serving different types
+                value = from_timedelta(timedelta(microseconds=value))
+            final_attrs['value'] = force_unicode(value)
+        return mark_safe(u'<input%s />' % flatatt(final_attrs))
+
+
+# django.forms.fields
+from django.forms.util import flatatt
+import django.forms.fields
+
+class DurationFieldForm(django.forms.fields.Field):
+    widget = DurationInput
+    default_error_messages = {
+        'invalid': u'Enter a valid duration.',
+        'max_value': u'Ensure this value is less than or equal to %(limit_value)s.',
+        'min_value': u'Ensure this value is greater than or equal to %(limit_value)s.',
+    }
+
+    def __init__(self, min_value=None, max_value=None, *args, **kwargs):
+        super(DurationFieldForm, self).__init__(*args, **kwargs)
+
+        if max_value is not None:
+            self.validators.append(validators.MaxValueValidator(max_value))
+        if min_value is not None:
+            self.validators.append(validators.MinValueValidator(min_value))
+
+    def clean(self, value):
+        """
+        Validates max_value and min_value.
+        Returns a datetime.timedelta object.
+        """
+        try:
+            return to_timedelta(value)
+        except ValueError, e:
+            raise ValidationError(e)
+
+        if self.max_value is not None and value > self.max_value:
+            raise ValidationError(self.error_messages['max_value'] % {'max': self.max_value})
+
+        if self.min_value is not None and value < self.min_value:
+            raise ValidationError(self.error_messages['min_value'] % {'min': self.min_value})
+
+        return value
+
+    def to_python(self, value):
+        try:
+            return to_timedelta(value)
+        except ValueError, e:
+            raise ValidationError(e)
+
+
+# django.db.fields
+
+import django.db.models.fields
+
+class DurationField(django.db.models.fields.Field):
+    def __init__(self, *args, **kwargs):
+        super(DurationField, self).__init__(*args, **kwargs)
+        self.max_digits, self.decimal_places = 20, 6
+
+    def get_internal_type(self):
+        return "BigIntegerField"
+
+    #def contribute_to_class(self, cls, name):
+        #super(DurationField, self).contribute_to_class(cls, name)
+        #setattr(cls, name, DurationProxy(self))
+
+    def get_db_prep_save(self, value):
+        if value is None:
+            return None # db NULL
+        if isinstance(value, int) or isinstance(value, long):
+            value = timedelta(microseconds=value)
+        return value.days * 24 * 3600 * 1000000 + value.seconds * 1000000 + value.microseconds
+
+    def to_python(self, value):
+        return value
+        #if isinstance(value, TimeDelta):
+            #return value
+        #try:
+            #return TimeDelta(value=float(value))
+        #except TypeError:
+            #raise ValidationError('The value must be an integer.')
+        #except OverflowError:
+            #raise ValidationError('The maximum allowed value is %s' % TimeDelta.max)
+
+    def formfield(self, form_class=DurationFieldForm, **kwargs):
+        return super(DurationField, self).formfield(form_class, **kwargs)
