@@ -1,0 +1,9 @@
+## Interface: 60000
+## Title: MMOCViewer
+## Author: Simca
+## Version: r3
+## Notes: MMOC's custom player/item/creature/spell/animation viewer.
+
+MMOCViewer.lua
+MMOCAnimationList.lua
+MMOCUI.lua

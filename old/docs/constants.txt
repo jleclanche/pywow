@@ -1,0 +1,324 @@
+public enum SocketColorBitmask
+
+    {
+
+        None = 0,
+
+        [Description("Meta Socket")]
+
+        Meta = 1,
+
+        [Description("Red Socket")]
+
+        Red = 2,
+
+        [Description("Yellow Socket")]
+
+        Yellow = 4,
+
+        [Description("Blue Socket")]
+
+        Blue = 8,
+
+        [Description("Prismatic Socket")]
+
+        Prismatic = 14,
+
+        [Description("Sha-Touched")]
+
+        [Name("Sha-Touched")]
+
+        ShaTouched = 16,
+
+        [Description("Cogwheel Socket")]
+
+        Cogwheel = 32
+
+    }
+
+public enum ItemStat
+
+    {
+
+        [Name("Mana")]
+
+        Mana = 0,               // 0
+
+        [Name("Health")]
+
+        Health,
+
+        [Name("Endurance")]
+
+        Endurance,
+
+        [Name("Agility")]
+
+        Agility,
+
+        [Name("Strength")]
+
+        Strength,
+
+        [Name("Intellect")]
+
+        Intellect,              // 5
+
+        [Name("Spirit")]
+
+        Spirit,
+
+        [Name("Stamina")]
+
+        Stamina,
+
+        [Name("Energy")]
+
+        Energy,
+
+        [Name("Rage")]
+
+        Rage,
+
+        [Name("Focus")]
+
+        Focus,                  // 10
+
+        [Name("Weapon")]
+
+        WeaponSkillRating,
+
+        [Name("Defense")]
+
+        DefenseSkillRating,
+
+        [Name("Dodge")]
+
+        DodgeRating,
+
+        [Name("Parry")]
+
+        ParryRating,
+
+        [Name("Block")]
+
+        BlockRating,            // 15
+
+        [Name("Hit (Melee)")]
+
+        HitMeleeRating,
+
+        [Name("Hit (Ranged)")]
+
+        HitRangedRating,
+
+        [Name("Hit (Spell)")]
+
+        HitSpellRating,
+
+        [Name("Critical Strike (Melee)")]
+
+        CritMeleeRating,
+
+        [Name("Critical Strike (Ranged)")]
+
+        CritRangedRating,       // 20
+
+        [Name("Critical Strike (Spell)")]
+
+        CritSpellRating,
+
+        [Name("Hit Avoidance (Melee)")]
+
+        HitTakenMeleeRating,
+
+        [Name("Hit Avoidance (Ranged)")]
+
+        HitTakenRangedRating,
+
+        [Name("Hit Avoidance (Spell)")]
+
+        HitTakenSpellRating,
+
+        [Name("Critical Strike Avoidance (Melee)")]
+
+        CritTakenMeleeRating,   // 25
+
+        [Name("Critical Strike Avoidance (Ranged)")]
+
+        CritTakenRangedRating,
+
+        [Name("Critical Strike Avoidance (Spell)")]
+
+        CritTakenSpellRating,
+
+        [Name("Haste (Melee)")]
+
+        HasteMeleeRating,
+
+        [Name("Haste (Ranged)")]
+
+        HasteRangedRating,
+
+        [Name("Haste (Spell)")]
+
+        HasteSpellRating,       // 30
+
+        [Name("Hit")]
+
+        HitRating,
+
+        [Name("Critical Strike")]
+
+        CritRating,
+
+        [Name("Hit Avoidance")]
+
+        HitTakenRating,
+
+        [Name("Critical Strike Avoidance")]
+
+        CritTakenRating,
+
+        [Name("PvP Resilience")]
+
+        PvpResilienceRating,       // 35
+
+        [Name("Haste")]
+
+        HasteRating,
+
+        [Name("Expertise")]
+
+        ExpertiseRating,
+
+        [Name("Attack Power")]
+
+        AttackPower,
+
+        [Name("Ranged Attack Power")]
+
+        RangedAttackPower,
+
+        Unused,        // 40
+
+        [Name("Bonus Healing")]
+
+        HealingDone,
+
+        [Name("Bonus Damage")]
+
+        SpellDamageDone,
+
+        [Name("Mana Regeneration")]
+
+        ManaRegeneration,
+
+        [Name("Armor Pentration")]
+
+        ArmorPenetrationRating,
+
+        [Name("Spell Power")]
+
+        SpellPower,             // 45
+
+        [Name("Health Per 5 Sec.")]
+
+        HealthRegen,
+
+        [Name("Spell Penetration")]
+
+        SpellPenetration,
+
+        [Name("Block Value")]
+
+        BlockValue,
+
+        [Name("Mastery")]
+
+        MasteryRating,
+
+        [Name("Armor")]
+
+        Armor,                  // 50
+
+        [Name("Fire Resistance")]
+
+        FireResistance,
+
+        [Name("Frost Resistance")]
+
+        FrostResistance,
+
+        [Name("Holy Resistance")]
+
+        HolyResistance,
+
+        [Name("Shadow Resistance")]
+
+        ShadowResistance,
+
+        [Name("Nature Resistance")]
+
+        NatureResistance,       // 55
+
+        [Name("Arcane Resistance")]
+
+        ArcaneResistance,
+
+        [Name("PvP Power")]
+
+        PvpPowerRating,       // 57
+
+        [Name("Amplify")]
+
+        Amplify,
+
+        [Name("Multistrike")]
+
+        Multistrike,
+
+        [Name("Readiness")]
+
+        Readiness,
+
+        [Name("Speed")]
+
+        Speed,
+
+        [Name("Lifesteal")]
+
+        Lifesteal,
+
+        [Name("Avoidance")]
+
+        Avoidance,
+
+        [Name("Sturdiness")]
+
+        Sturdiness,
+
+        Unused7,
+
+        [Name("Cleave")]
+
+        Cleave,
+
+        [Name("Strength/Agility")]
+
+        StrengthAgility = 72,
+
+        [Name("Agility/Intellect")]
+
+        AgilityIntellect = 73,
+
+        [Name("Strength/Intellect")]
+
+        StrengthIntellect = 74,
+
+        [Name("All Resistances")]
+
+        AllResistances = 1000, // Custom
+
+    }
+

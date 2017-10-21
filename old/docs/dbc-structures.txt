@@ -1,0 +1,3440 @@
+struct Achievement_CategoryRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_parent; // +0x4, size 0x4, type 0
+    char* m_name_lang; // +0x8, size 0x4, type 2
+    DWORD m_ui_order; // +0xC, size 0x4, type 0
+};
+
+struct AchievementRec // sizeof(0x3C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_faction; // +0x4, size 0x4, type 0
+    DWORD m_instance_id; // +0x8, size 0x4, type 0
+    DWORD m_supercedes; // +0xC, size 0x4, type 0
+    char* m_title_lang; // +0x10, size 0x4, type 2
+    char* m_description_lang; // +0x14, size 0x4, type 2
+    DWORD m_category; // +0x18, size 0x4, type 0
+    DWORD m_points; // +0x1C, size 0x4, type 0
+    DWORD m_ui_order; // +0x20, size 0x4, type 0
+    DWORD m_flags; // +0x24, size 0x4, type 0
+    DWORD m_iconID; // +0x28, size 0x4, type 0
+    char* m_reward_lang; // +0x2C, size 0x4, type 2
+    DWORD m_minimum_criteria; // +0x30, size 0x4, type 0
+    DWORD m_shares_criteria; // +0x34, size 0x4, type 0
+    DWORD m_criteria_tree; // +0x38, size 0x4, type 0
+};
+
+struct AnimKitBoneSetAliasRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_boneDataID; // +0x4, size 0x4, type 0
+    DWORD m_animKitBoneSetID; // +0x8, size 0x4, type 0
+};
+
+struct AnimKitBoneSetRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    DWORD m_boneDataID; // +0x8, size 0x4, type 0
+    DWORD m_parentAnimKitBoneSetID; // +0xC, size 0x4, type 0
+    DWORD m_extraBoneCount; // +0x10, size 0x4, type 0
+    DWORD m_altAnimKitBoneSetID; // +0x14, size 0x4, type 0
+};
+
+struct AnimKitConfigBoneSetRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_parentAnimKitConfigID; // +0x4, size 0x4, type 0
+    DWORD m_animKitBoneSetID; // +0x8, size 0x4, type 0
+    DWORD m_animKitPriorityID; // +0xC, size 0x4, type 0
+};
+
+struct AnimKitConfigRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_configFlags; // +0x4, size 0x4, type 0
+};
+
+struct AnimKitPriorityRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_priority; // +0x4, size 0x4, type 0
+};
+
+struct AnimKitRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_oneShotDuration; // +0x4, size 0x4, type 0
+    DWORD m_oneShotStopAnimKitID; // +0x8, size 0x4, type 0
+    DWORD m_lowDefAnimKitID; // +0xC, size 0x4, type 0
+};
+
+struct AnimKitSegmentRec // sizeof(0x44)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_parentAnimKitID; // +0x4, size 0x4, type 0
+    DWORD m_orderIndex; // +0x8, size 0x4, type 0
+    DWORD m_animID; // +0xC, size 0x4, type 0
+    DWORD m_animStartTime; // +0x10, size 0x4, type 0
+    DWORD m_animKitConfigID; // +0x14, size 0x4, type 0
+    DWORD m_startCondition; // +0x18, size 0x4, type 0
+    DWORD m_startConditionParam; // +0x1C, size 0x4, type 0
+    DWORD m_startConditionDelay; // +0x20, size 0x4, type 0
+    DWORD m_endCondition; // +0x24, size 0x4, type 0
+    DWORD m_endConditionParam; // +0x28, size 0x4, type 0
+    DWORD m_endConditionDelay; // +0x2C, size 0x4, type 0
+    float m_speed; // +0x30, size 0x4, type 3
+    DWORD m_segmentFlags; // +0x34, size 0x4, type 0
+    DWORD m_forcedVariation; // +0x38, size 0x4, type 0
+    DWORD m_overrideConfigFlags; // +0x3C, size 0x4, type 0
+    DWORD m_loopToSegmentIndex; // +0x40, size 0x4, type 0
+};
+
+struct AnimReplacementRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_srcAnimID; // +0x4, size 0x4, type 0
+    DWORD m_dstAnimID; // +0x8, size 0x4, type 0
+    DWORD m_parentAnimReplacementSetID; // +0xC, size 0x4, type 0
+};
+
+struct AnimReplacementSetRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_execOrder; // +0x4, size 0x4, type 0
+};
+
+struct AreaAssignmentRec // sizeof(0x14)
+{
+    DWORD m_MapID; // +0x4, size 0x4, type 0
+    DWORD m_AreaID; // +0x8, size 0x4, type 0
+    DWORD m_ChunkX; // +0xC, size 0x4, type 0
+    DWORD m_ChunkY; // +0x10, size 0x4, type 0
+};
+
+struct AreaGroupRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_areaID[6]; // +0x4, size 0x18, type 0
+    DWORD m_nextAreaID; // +0x1C, size 0x4, type 0
+};
+
+struct AreaPOIRec // sizeof(0x5C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_importance; // +0x4, size 0x4, type 0
+    DWORD m_icon[9]; // +0x8, size 0x24, type 0
+    DWORD m_factionID; // +0x2C, size 0x4, type 0
+    float m_pos[2]; // +0x30, size 0x8, type 3
+    DWORD m_continentID; // +0x38, size 0x4, type 0
+    DWORD m_flags; // +0x3C, size 0x4, type 0
+    DWORD m_areaID; // +0x40, size 0x4, type 0
+    char* m_name_lang; // +0x44, size 0x4, type 2
+    char* m_description_lang; // +0x48, size 0x4, type 2
+    DWORD m_worldStateID; // +0x4C, size 0x4, type 0
+    DWORD m_playerConditionID; // +0x50, size 0x4, type 0
+    DWORD m_worldMapLink; // +0x54, size 0x4, type 0
+    DWORD m_portLocID; // +0x58, size 0x4, type 0
+};
+
+struct AreaTriggerActionSetRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+};
+
+struct AreaTriggerBoxRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_extents[3]; // +0x4, size 0xC, type 3
+};
+
+struct AreaTriggerCylinderRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_radius; // +0x4, size 0x4, type 3
+    float m_height; // +0x8, size 0x4, type 3
+};
+
+struct AreaTriggerRec // sizeof(0x44)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_ContinentID; // +0x4, size 0x4, type 0
+    float m_pos[3]; // +0x8, size 0xC, type 3
+    DWORD m_phaseUseFlags; // +0x14, size 0x4, type 0
+    DWORD m_phaseID; // +0x18, size 0x4, type 0
+    DWORD m_phaseGroupID; // +0x1C, size 0x4, type 0
+    float m_radius; // +0x20, size 0x4, type 3
+    float m_box_length; // +0x24, size 0x4, type 3
+    float m_box_width; // +0x28, size 0x4, type 3
+    float m_box_height; // +0x2C, size 0x4, type 3
+    float m_box_yaw; // +0x30, size 0x4, type 3
+    DWORD m_shapeType; // +0x34, size 0x4, type 0
+    DWORD m_shapeID; // +0x38, size 0x4, type 0
+    DWORD m_areaTriggerActionSetID; // +0x3C, size 0x4, type 0
+    DWORD m_flags; // +0x40, size 0x4, type 0
+};
+
+struct AreaTriggerSphereRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_maxRadius; // +0x4, size 0x4, type 3
+};
+
+struct ArmorLocationRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_clothmodifier; // +0x4, size 0x4, type 3
+    float m_leathermodifier; // +0x8, size 0x4, type 3
+    float m_chainmodifier; // +0xC, size 0x4, type 3
+    float m_platemodifier; // +0x10, size 0x4, type 3
+    float m_modifier; // +0x14, size 0x4, type 3
+};
+
+struct AuctionHouseRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_factionID; // +0x4, size 0x4, type 0
+    DWORD m_depositRate; // +0x8, size 0x4, type 0
+    DWORD m_consignmentRate; // +0xC, size 0x4, type 0
+    char* m_name_lang; // +0x10, size 0x4, type 2
+};
+
+struct BankBagSlotPricesRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Cost; // +0x4, size 0x4, type 0
+};
+
+struct BannedAddOnsRec // sizeof(0x2C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_nameMD5_[4]; // +0x4, size 0x10, type 0
+    DWORD m_versionMD5_[4]; // +0x14, size 0x10, type 0
+    DWORD m_lastModified; // +0x24, size 0x4, type 0
+    DWORD m_flags; // +0x28, size 0x4, type 0
+};
+
+struct BarberShopStyleRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_type; // +0x4, size 0x4, type 0
+    char* m_DisplayName_lang; // +0x8, size 0x4, type 2
+    char* m_Description_lang; // +0xC, size 0x4, type 2
+    float m_Cost_Modifier; // +0x10, size 0x4, type 3
+    DWORD m_race; // +0x14, size 0x4, type 0
+    DWORD m_sex; // +0x18, size 0x4, type 0
+    DWORD m_data; // +0x1C, size 0x4, type 0
+};
+
+struct BattlemasterListRec // sizeof(0x78)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID[16]; // +0x4, size 0x40, type 0
+    DWORD m_instanceType; // +0x44, size 0x4, type 0
+    DWORD m_groupsAllowed; // +0x48, size 0x4, type 0
+    char* m_name_lang; // +0x4C, size 0x4, type 2
+    DWORD m_maxGroupSize; // +0x50, size 0x4, type 0
+    DWORD m_holidayWorldState; // +0x54, size 0x4, type 0
+    DWORD m_minlevel; // +0x58, size 0x4, type 0
+    DWORD m_maxlevel; // +0x5C, size 0x4, type 0
+    DWORD m_ratedPlayers; // +0x60, size 0x4, type 0
+    DWORD m_minPlayers; // +0x64, size 0x4, type 0
+    DWORD m_maxPlayers; // +0x68, size 0x4, type 0
+    DWORD m_flags; // +0x6C, size 0x4, type 0
+    DWORD m_iconFileDataID; // +0x70, size 0x4, type 0
+    char* m_gametype_lang; // +0x74, size 0x4, type 2
+};
+
+struct CameraModeRec // sizeof(0x44)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    DWORD m_type; // +0x8, size 0x4, type 0
+    DWORD m_flags; // +0xC, size 0x4, type 0
+    float m_positionOffset[3]; // +0x10, size 0xC, type 3
+    float m_targetOffset[3]; // +0x1C, size 0xC, type 3
+    float m_positionSmoothing; // +0x28, size 0x4, type 3
+    float m_rotationSmoothing; // +0x2C, size 0x4, type 3
+    float m_fieldOfView; // +0x30, size 0x4, type 3
+    DWORD m_lockedPositionOffsetBase; // +0x34, size 0x4, type 0
+    DWORD m_lockedPositionOffsetDirection; // +0x38, size 0x4, type 0
+    DWORD m_lockedTargetOffsetBase; // +0x3C, size 0x4, type 0
+    DWORD m_lockedTargetOffsetDirection; // +0x40, size 0x4, type 0
+};
+
+struct CameraShakesRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_shakeType; // +0x4, size 0x4, type 0
+    DWORD m_direction; // +0x8, size 0x4, type 0
+    float m_amplitude; // +0xC, size 0x4, type 3
+    float m_frequency; // +0x10, size 0x4, type 3
+    float m_duration; // +0x14, size 0x4, type 3
+    float m_phase; // +0x18, size 0x4, type 3
+    float m_coefficient; // +0x1C, size 0x4, type 3
+    DWORD m_flags; // +0x20, size 0x4, type 0
+};
+
+struct CastableRaidBuffsRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_castingSpellID; // +0x8, size 0x4, type 0
+};
+
+struct Cfg_CategoriesRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_localeMask; // +0x4, size 0x4, type 0
+    DWORD m_create_charsetMask; // +0x8, size 0x4, type 0
+    DWORD m_existing_charsetMask; // +0xC, size 0x4, type 0
+    DWORD m_flags; // +0x10, size 0x4, type 0
+    char* m_name_lang; // +0x14, size 0x4, type 2
+};
+
+struct Cfg_ConfigsRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x4, size 0x4, type 0
+    DWORD m_realmType; // +0x8, size 0x4, type 0
+    DWORD m_playerKillingAllowed; // +0xC, size 0x4, type 0
+    DWORD m_roleplaying; // +0x10, size 0x4, type 0
+    DWORD m_playerAttackSpeedBase; // +0x14, size 0x4, type 0
+    DWORD m_maxDamageReductionPctPhysical; // +0x18, size 0x4, type 0
+};
+
+struct Cfg_RegionsRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_tag; // +0x4, size 0x4, type 2
+    DWORD m_region_group_mask; // +0x8, size 0x4, type 0
+    DWORD m_rulesetID; // +0xC, size 0x4, type 0
+};
+
+struct CharacterFacialHairStylesRec // sizeof(0x24)
+{
+    DWORD m_raceID; // +0x4, size 0x4, type 0
+    DWORD m_sexID; // +0x8, size 0x4, type 0
+    DWORD m_VariationID; // +0xC, size 0x4, type 0
+    DWORD m_Geoset[5]; // +0x10, size 0x14, type 0
+};
+
+struct CharacterLoadoutItemRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_characterLoadoutID; // +0x4, size 0x4, type 0
+    DWORD m_itemID; // +0x8, size 0x4, type 0
+    DWORD m_itemDisplayInfoID; // +0xC, size 0x4, type 0
+    DWORD m_itemInventoryType; // +0x10, size 0x4, type 0
+};
+
+struct CharacterLoadoutRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_chrClassID; // +0x4, size 0x4, type 0
+    DWORD m_purpose; // +0x8, size 0x4, type 0
+    DWORD m_racemask; // +0xC, size 0x4, type 0
+};
+
+struct CharBaseInfoRec // sizeof(0x8)
+{
+    BYTE m_raceID; // +0x4, size 0x1, type 0
+    BYTE m_classID; // +0x5, size 0x1, type 0
+};
+
+struct CharBaseSectionRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_fallbackID; // +0x4, size 0x4, type 0
+    DWORD m_layoutResType; // +0x8, size 0x4, type 0
+};
+
+struct CharComponentTextureLayoutsRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_width; // +0x4, size 0x4, type 0
+    DWORD m_height; // +0x8, size 0x4, type 0
+};
+
+struct CharComponentTextureSectionsRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_charComponentTextureLayoutID; // +0x4, size 0x4, type 0
+    DWORD m_sectionType; // +0x8, size 0x4, type 0
+    DWORD m_x; // +0xC, size 0x4, type 0
+    DWORD m_y; // +0x10, size 0x4, type 0
+    DWORD m_width; // +0x14, size 0x4, type 0
+    DWORD m_height; // +0x18, size 0x4, type 0
+};
+
+struct CharHairGeosetsRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_RaceID; // +0x4, size 0x4, type 0
+    DWORD m_SexID; // +0x8, size 0x4, type 0
+    DWORD m_VariationID; // +0xC, size 0x4, type 0
+    DWORD m_VariationType; // +0x10, size 0x4, type 0
+    DWORD m_GeosetID; // +0x14, size 0x4, type 0
+    DWORD m_GeosetType; // +0x18, size 0x4, type 0
+    DWORD m_Showscalp; // +0x1C, size 0x4, type 0
+    DWORD m_ColorIndex; // +0x20, size 0x4, type 0
+};
+
+struct CharSectionsRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_raceID; // +0x4, size 0x4, type 0
+    DWORD m_sexID; // +0x8, size 0x4, type 0
+    DWORD m_baseSection; // +0xC, size 0x4, type 0
+    char* m_TextureName[3]; // +0x10, size 0xC, type 2
+    DWORD m_flags; // +0x1C, size 0x4, type 0
+    DWORD m_variationIndex; // +0x20, size 0x4, type 0
+    DWORD m_colorIndex; // +0x24, size 0x4, type 0
+};
+
+struct CharStartOutfitRec // sizeof(0x130)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    BYTE m_raceID; // +0x4, size 0x1, type 0
+    BYTE m_classID; // +0x5, size 0x1, type 0
+    BYTE m_sexID; // +0x6, size 0x1, type 0
+    BYTE m_outfitID; // +0x7, size 0x1, type 0
+    DWORD m_ItemID[24]; // +0x8, size 0x60, type 0
+    DWORD m_DisplayItemID[24]; // +0x68, size 0x60, type 0
+    DWORD m_InventoryType[24]; // +0xC8, size 0x60, type 0
+    DWORD m_petDisplayID; // +0x128, size 0x4, type 0
+    DWORD m_petFamilyID; // +0x12C, size 0x4, type 0
+};
+
+struct CharTitlesRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Condition_ID; // +0x4, size 0x4, type 0
+    char* m_name_lang; // +0x8, size 0x4, type 2
+    char* m_name1_lang; // +0xC, size 0x4, type 2
+    DWORD m_mask_ID; // +0x10, size 0x4, type 0
+    DWORD m_flags; // +0x14, size 0x4, type 0
+};
+
+struct ChatChannelsRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_factionGroup; // +0x8, size 0x4, type 0
+    char* m_name_lang; // +0xC, size 0x4, type 2
+    char* m_shortcut_lang; // +0x10, size 0x4, type 2
+};
+
+struct ChatProfanityRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_text; // +0x4, size 0x4, type 2
+    DWORD m_Language; // +0x8, size 0x4, type 0
+};
+
+struct ChrClassesRec // sizeof(0x48)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_DisplayPower; // +0x4, size 0x4, type 0
+    char* m_petNameToken; // +0x8, size 0x4, type 2
+    char* m_name_lang; // +0xC, size 0x4, type 2
+    char* m_name_female_lang; // +0x10, size 0x4, type 2
+    char* m_name_male_lang; // +0x14, size 0x4, type 2
+    char* m_filename; // +0x18, size 0x4, type 2
+    DWORD m_spellClassSet; // +0x1C, size 0x4, type 0
+    DWORD m_flags; // +0x20, size 0x4, type 0
+    DWORD m_cinematicSequenceID; // +0x24, size 0x4, type 0
+    DWORD m_attackPowerPerStrength; // +0x28, size 0x4, type 0
+    DWORD m_attackPowerPerAgility; // +0x2C, size 0x4, type 0
+    DWORD m_rangedAttackPowerPerAgility; // +0x30, size 0x4, type 0
+    DWORD m_defaultSpec; // +0x34, size 0x4, type 0
+    DWORD m_createScreenFileDataID; // +0x38, size 0x4, type 0
+    DWORD m_selectScreenFileDataID; // +0x3C, size 0x4, type 0
+    DWORD m_lowResScreenFileDataID; // +0x40, size 0x4, type 0
+    DWORD m_iconFileDataID; // +0x44, size 0x4, type 0
+};
+
+struct ChrClassesXPowerTypesRec // sizeof(0xC)
+{
+    DWORD m_classID; // +0x4, size 0x4, type 0
+    DWORD m_powerType; // +0x8, size 0x4, type 0
+};
+
+struct ChrRacesRec // sizeof(0x9C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_factionID; // +0x8, size 0x4, type 0
+    DWORD m_ExplorationSoundID; // +0xC, size 0x4, type 0
+    DWORD m_MaleDisplayId; // +0x10, size 0x4, type 0
+    DWORD m_FemaleDisplayId; // +0x14, size 0x4, type 0
+    char* m_ClientPrefix; // +0x18, size 0x4, type 2
+    DWORD m_BaseLanguage; // +0x1C, size 0x4, type 0
+    DWORD m_creatureType; // +0x20, size 0x4, type 0
+    DWORD m_ResSicknessSpellID; // +0x24, size 0x4, type 0
+    DWORD m_SplashSoundID; // +0x28, size 0x4, type 0
+    char* m_clientFileString; // +0x2C, size 0x4, type 2
+    DWORD m_cinematicSequenceID; // +0x30, size 0x4, type 0
+    DWORD m_alliance; // +0x34, size 0x4, type 0
+    char* m_name_lang; // +0x38, size 0x4, type 2
+    char* m_name_female_lang; // +0x3C, size 0x4, type 2
+    char* m_name_male_lang; // +0x40, size 0x4, type 2
+    char* m_facialHairCustomization[2]; // +0x44, size 0x8, type 2
+    char* m_hairCustomization; // +0x4C, size 0x4, type 2
+    DWORD m_race_related; // +0x50, size 0x4, type 0
+    DWORD m_unalteredVisualRaceID; // +0x54, size 0x4, type 0
+    DWORD m_uaMaleCreatureSoundDataID; // +0x58, size 0x4, type 0
+    DWORD m_uaFemaleCreatureSoundDataID; // +0x5C, size 0x4, type 0
+    DWORD m_charComponentTextureLayoutID; // +0x60, size 0x4, type 0
+    DWORD m_defaultClassID; // +0x64, size 0x4, type 0
+    DWORD m_createScreenFileDataID; // +0x68, size 0x4, type 0
+    DWORD m_selectScreenFileDataID; // +0x6C, size 0x4, type 0
+    float m_maleCustomizeOffset[3]; // +0x70, size 0xC, type 3
+    float m_femaleCustomizeOffset[3]; // +0x7C, size 0xC, type 3
+    DWORD m_neutralRaceID; // +0x88, size 0x4, type 0
+    DWORD m_lowResScreenFileDataID; // +0x8C, size 0x4, type 0
+    DWORD m_HighResMaleDisplayId; // +0x90, size 0x4, type 0
+    DWORD m_HighResFemaleDisplayId; // +0x94, size 0x4, type 0
+    DWORD m_charComponentTexLayoutHiResID; // +0x98, size 0x4, type 0
+};
+
+struct ChrSpecializationRec // sizeof(0x44)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_backgroundFile; // +0x4, size 0x4, type 2
+    DWORD m_classID; // +0x8, size 0x4, type 0
+    DWORD m_masterySpellID[2]; // +0xC, size 0x8, type 0
+    DWORD m_orderIndex; // +0x14, size 0x4, type 0
+    DWORD m_petTalentType; // +0x18, size 0x4, type 0
+    DWORD m_role; // +0x1C, size 0x4, type 0
+    DWORD m_spellIconID; // +0x20, size 0x4, type 0
+    DWORD m_raidBuffs; // +0x24, size 0x4, type 0
+    DWORD m_flags; // +0x28, size 0x4, type 0
+    char* m_name_lang; // +0x2C, size 0x4, type 2
+    char* m_description_lang; // +0x30, size 0x4, type 2
+    DWORD m_maxBuffs; // +0x34, size 0x4, type 0
+    DWORD m_primaryStatOrder[3]; // +0x38, size 0xC, type 0
+};
+
+struct CinematicCameraRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_model; // +0x4, size 0x4, type 2
+    DWORD m_soundID; // +0x8, size 0x4, type 0
+    float m_origin[3]; // +0xC, size 0xC, type 3
+    float m_originFacing; // +0x18, size 0x4, type 3
+};
+
+struct CinematicSequencesRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_soundID; // +0x4, size 0x4, type 0
+    DWORD m_camera[8]; // +0x8, size 0x20, type 0
+};
+
+struct CombatConditionRec // sizeof(0x48)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_worldStateExpressionID; // +0x4, size 0x4, type 0
+    DWORD m_selfConditionID; // +0x8, size 0x4, type 0
+    DWORD m_targetConditionID; // +0xC, size 0x4, type 0
+    DWORD m_friendConditionID[2]; // +0x10, size 0x8, type 0
+    DWORD m_friendConditionOp[2]; // +0x18, size 0x8, type 0
+    DWORD m_friendConditionCount[2]; // +0x20, size 0x8, type 0
+    DWORD m_friendConditionLogic; // +0x28, size 0x4, type 0
+    DWORD m_enemyConditionID[2]; // +0x2C, size 0x8, type 0
+    DWORD m_enemyConditionOp[2]; // +0x34, size 0x8, type 0
+    DWORD m_enemyConditionCount[2]; // +0x3C, size 0x8, type 0
+    DWORD m_enemyConditionLogic; // +0x44, size 0x4, type 0
+};
+
+struct ConsoleScriptsRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    char* m_script; // +0x8, size 0x4, type 2
+};
+
+struct CreatureDisplayInfoExtraRec // sizeof(0x58)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_DisplayRaceID; // +0x4, size 0x4, type 0
+    DWORD m_DisplaySexID; // +0x8, size 0x4, type 0
+    DWORD m_SkinID; // +0xC, size 0x4, type 0
+    DWORD m_FaceID; // +0x10, size 0x4, type 0
+    DWORD m_HairStyleID; // +0x14, size 0x4, type 0
+    DWORD m_HairColorID; // +0x18, size 0x4, type 0
+    DWORD m_FacialHairID; // +0x1C, size 0x4, type 0
+    DWORD m_NPCItemDisplay[11]; // +0x20, size 0x2C, type 0
+    DWORD m_flags; // +0x4C, size 0x4, type 0
+    DWORD m_fileDataID; // +0x50, size 0x4, type 0
+    DWORD m_hdFileDataID; // +0x54, size 0x4, type 0
+};
+
+struct CreatureDisplayInfoRec // sizeof(0x54)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_modelID; // +0x4, size 0x4, type 0
+    DWORD m_soundID; // +0x8, size 0x4, type 0
+    DWORD m_extendedDisplayInfoID; // +0xC, size 0x4, type 0
+    float m_creatureModelScale; // +0x10, size 0x4, type 3
+    DWORD m_creatureModelAlpha; // +0x14, size 0x4, type 0
+    char* m_textureVariation[3]; // +0x18, size 0xC, type 2
+    char* m_portraitTextureName; // +0x24, size 0x4, type 2
+    DWORD m_portraitCreatureDisplayInfoID; // +0x28, size 0x4, type 0
+    DWORD m_sizeClass; // +0x2C, size 0x4, type 0
+    DWORD m_bloodID; // +0x30, size 0x4, type 0
+    DWORD m_NPCSoundID; // +0x34, size 0x4, type 0
+    DWORD m_particleColorID; // +0x38, size 0x4, type 0
+    DWORD m_creatureGeosetData; // +0x3C, size 0x4, type 0
+    DWORD m_objectEffectPackageID; // +0x40, size 0x4, type 0
+    DWORD m_animReplacementSetID; // +0x44, size 0x4, type 0
+    DWORD m_flags; // +0x48, size 0x4, type 0
+    DWORD m_gender; // +0x4C, size 0x4, type 0
+    DWORD m_stateSpellVisualKitID; // +0x50, size 0x4, type 0
+};
+
+struct CreatureFamilyRec // sizeof(0x30)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_minScale; // +0x4, size 0x4, type 3
+    DWORD m_minScaleLevel; // +0x8, size 0x4, type 0
+    float m_maxScale; // +0xC, size 0x4, type 3
+    DWORD m_maxScaleLevel; // +0x10, size 0x4, type 0
+    DWORD m_skillLine[2]; // +0x14, size 0x8, type 0
+    DWORD m_petFoodMask; // +0x1C, size 0x4, type 0
+    DWORD m_petTalentType; // +0x20, size 0x4, type 0
+    DWORD m_categoryEnumID; // +0x24, size 0x4, type 0
+    char* m_name_lang; // +0x28, size 0x4, type 2
+    char* m_iconFile; // +0x2C, size 0x4, type 2
+};
+
+struct CreatureImmunitiesRec // sizeof(0x78)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_school; // +0x4, size 0x4, type 0
+    DWORD m_dispelType; // +0x8, size 0x4, type 0
+    DWORD m_mechanicsAllowed; // +0xC, size 0x4, type 0
+    DWORD m_mechanic; // +0x10, size 0x4, type 0
+    DWORD m_effectsAllowed; // +0x14, size 0x4, type 0
+    DWORD m_effect[7]; // +0x18, size 0x1C, type 0
+    DWORD m_statesAllowed; // +0x34, size 0x4, type 0
+    DWORD m_state[15]; // +0x38, size 0x3C, type 0
+    DWORD m_flags; // +0x74, size 0x4, type 0
+};
+
+struct CreatureModelDataRec // sizeof(0x88)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_fileDataID; // +0x8, size 0x4, type 0
+    DWORD m_sizeClass; // +0xC, size 0x4, type 0
+    float m_modelScale; // +0x10, size 0x4, type 3
+    DWORD m_bloodID; // +0x14, size 0x4, type 0
+    DWORD m_footprintTextureID; // +0x18, size 0x4, type 0
+    float m_footprintTextureLength; // +0x1C, size 0x4, type 3
+    float m_footprintTextureWidth; // +0x20, size 0x4, type 3
+    float m_footprintParticleScale; // +0x24, size 0x4, type 3
+    DWORD m_foleyMaterialID; // +0x28, size 0x4, type 0
+    DWORD m_footstepShakeSize; // +0x2C, size 0x4, type 0
+    DWORD m_deathThudShakeSize; // +0x30, size 0x4, type 0
+    DWORD m_soundID; // +0x34, size 0x4, type 0
+    float m_collisionWidth; // +0x38, size 0x4, type 3
+    float m_collisionHeight; // +0x3C, size 0x4, type 3
+    float m_mountHeight; // +0x40, size 0x4, type 3
+    float m_geoBoxMin[3]; // +0x44, size 0xC, type 3
+    float m_geoBoxMax[3]; // +0x50, size 0xC, type 3
+    float m_worldEffectScale; // +0x5C, size 0x4, type 3
+    float m_attachedEffectScale; // +0x60, size 0x4, type 3
+    float m_missileCollisionRadius; // +0x64, size 0x4, type 3
+    float m_missileCollisionPush; // +0x68, size 0x4, type 3
+    float m_missileCollisionRaise; // +0x6C, size 0x4, type 3
+    float m_overrideLootEffectScale; // +0x70, size 0x4, type 3
+    float m_overrideNameScale; // +0x74, size 0x4, type 3
+    float m_overrideSelectionRadius; // +0x78, size 0x4, type 3
+    float m_tamedPetBaseScale; // +0x7C, size 0x4, type 3
+    DWORD m_creatureGeosetDataID; // +0x80, size 0x4, type 0
+    float m_hoverHeight; // +0x84, size 0x4, type 3
+};
+
+struct CreatureMovementInfoRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_smoothFacingChaseRate; // +0x4, size 0x4, type 3
+};
+
+struct CreatureSoundDataRec // sizeof(0xA0)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_soundExertionID; // +0x4, size 0x4, type 0
+    DWORD m_soundExertionCriticalID; // +0x8, size 0x4, type 0
+    DWORD m_soundInjuryID; // +0xC, size 0x4, type 0
+    DWORD m_soundInjuryCriticalID; // +0x10, size 0x4, type 0
+    DWORD m_soundInjuryCrushingBlowID; // +0x14, size 0x4, type 0
+    DWORD m_soundDeathID; // +0x18, size 0x4, type 0
+    DWORD m_soundStunID; // +0x1C, size 0x4, type 0
+    DWORD m_soundStandID; // +0x20, size 0x4, type 0
+    DWORD m_soundFootstepID; // +0x24, size 0x4, type 0
+    DWORD m_soundAggroID; // +0x28, size 0x4, type 0
+    DWORD m_soundWingFlapID; // +0x2C, size 0x4, type 0
+    DWORD m_soundWingGlideID; // +0x30, size 0x4, type 0
+    DWORD m_soundAlertID; // +0x34, size 0x4, type 0
+    DWORD m_soundFidget[5]; // +0x38, size 0x14, type 0
+    DWORD m_customAttack[4]; // +0x4C, size 0x10, type 0
+    DWORD m_NPCSoundID; // +0x5C, size 0x4, type 0
+    DWORD m_loopSoundID; // +0x60, size 0x4, type 0
+    DWORD m_creatureImpactType; // +0x64, size 0x4, type 0
+    DWORD m_soundJumpStartID; // +0x68, size 0x4, type 0
+    DWORD m_soundJumpEndID; // +0x6C, size 0x4, type 0
+    DWORD m_soundPetAttackID; // +0x70, size 0x4, type 0
+    DWORD m_soundPetOrderID; // +0x74, size 0x4, type 0
+    DWORD m_soundPetDismissID; // +0x78, size 0x4, type 0
+    float m_fidgetDelaySecondsMin; // +0x7C, size 0x4, type 3
+    float m_fidgetDelaySecondsMax; // +0x80, size 0x4, type 3
+    DWORD m_birthSoundID; // +0x84, size 0x4, type 0
+    DWORD m_spellCastDirectedSoundID; // +0x88, size 0x4, type 0
+    DWORD m_submergeSoundID; // +0x8C, size 0x4, type 0
+    DWORD m_submergedSoundID; // +0x90, size 0x4, type 0
+    DWORD m_creatureSoundDataIDPet; // +0x94, size 0x4, type 0
+    DWORD m_transformSoundID; // +0x98, size 0x4, type 0
+    DWORD m_transformAnimatedSoundID; // +0x9C, size 0x4, type 0
+};
+
+struct CreatureSpellDataRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spells[4]; // +0x4, size 0x10, type 0
+    DWORD m_availability[4]; // +0x14, size 0x10, type 0
+};
+
+struct CreatureTypeRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_flags; // +0x8, size 0x4, type 0
+};
+
+struct CriteriaRec // sizeof(0x30)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_type; // +0x4, size 0x4, type 0
+    DWORD m_asset; // +0x8, size 0x4, type 0
+    DWORD m_start_event; // +0xC, size 0x4, type 0
+    DWORD m_start_asset; // +0x10, size 0x4, type 0
+    DWORD m_start_timer; // +0x14, size 0x4, type 0
+    DWORD m_fail_event; // +0x18, size 0x4, type 0
+    DWORD m_fail_asset; // +0x1C, size 0x4, type 0
+    DWORD m_modifier_tree_id; // +0x20, size 0x4, type 0
+    DWORD m_flags; // +0x24, size 0x4, type 0
+    DWORD m_eligibility_world_state_ID; // +0x28, size 0x4, type 0
+    DWORD m_eligibility_world_state_value; // +0x2C, size 0x4, type 0
+};
+
+struct CriteriaTreeRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_criteriaID; // +0x4, size 0x4, type 0
+    float m_amount[2]; // +0x8, size 0x8, type 1
+    DWORD m_operator; // +0x10, size 0x4, type 0
+    DWORD m_parent; // +0x14, size 0x4, type 0
+    DWORD m_flags; // +0x18, size 0x4, type 0
+    char* m_description_lang; // +0x1C, size 0x4, type 2
+    DWORD m_orderIndex; // +0x20, size 0x4, type 0
+};
+
+struct CriteriaTreeXEffectRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_criteriaTreeID; // +0x4, size 0x4, type 0
+    DWORD m_worldEffectID; // +0x8, size 0x4, type 0
+};
+
+struct CurrencyCategoryRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    char* m_name_lang; // +0x8, size 0x4, type 2
+};
+
+struct CurrencyTypesRec // sizeof(0x30)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_categoryID; // +0x4, size 0x4, type 0
+    char* m_name_lang; // +0x8, size 0x4, type 2
+    char* m_inventoryIcon[2]; // +0xC, size 0x8, type 2
+    DWORD m_spellWeight; // +0x14, size 0x4, type 0
+    DWORD m_spellCategory; // +0x18, size 0x4, type 0
+    DWORD m_maxQty; // +0x1C, size 0x4, type 0
+    DWORD m_maxEarnablePerWeek; // +0x20, size 0x4, type 0
+    DWORD m_flags; // +0x24, size 0x4, type 0
+    DWORD m_quality; // +0x28, size 0x4, type 0
+    char* m_description_lang; // +0x2C, size 0x4, type 2
+};
+
+struct DeathThudLookupsRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_SizeClass; // +0x4, size 0x4, type 0
+    DWORD m_TerrainTypeSoundID; // +0x8, size 0x4, type 0
+    DWORD m_SoundEntryID; // +0xC, size 0x4, type 0
+    DWORD m_SoundEntryIDWater; // +0x10, size 0x4, type 0
+};
+
+struct DeclinedWordCasesRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_declinedWordID; // +0x4, size 0x4, type 0
+    DWORD m_caseIndex; // +0x8, size 0x4, type 0
+    char* m_declinedWord; // +0xC, size 0x4, type 2
+};
+
+struct DeclinedWordRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_word; // +0x4, size 0x4, type 2
+};
+
+struct DestructibleModelDataRec // sizeof(0x60)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_state0Wmo; // +0x4, size 0x4, type 0
+    DWORD m_state0ImpactEffectDoodadSet; // +0x8, size 0x4, type 0
+    DWORD m_state0AmbientDoodadSet; // +0xC, size 0x4, type 0
+    DWORD m_state0NameSet; // +0x10, size 0x4, type 0
+    DWORD m_state1Wmo; // +0x14, size 0x4, type 0
+    DWORD m_state1DestructionDoodadSet; // +0x18, size 0x4, type 0
+    DWORD m_state1ImpactEffectDoodadSet; // +0x1C, size 0x4, type 0
+    DWORD m_state1AmbientDoodadSet; // +0x20, size 0x4, type 0
+    DWORD m_state1NameSet; // +0x24, size 0x4, type 0
+    DWORD m_state2Wmo; // +0x28, size 0x4, type 0
+    DWORD m_state2DestructionDoodadSet; // +0x2C, size 0x4, type 0
+    DWORD m_state2ImpactEffectDoodadSet; // +0x30, size 0x4, type 0
+    DWORD m_state2AmbientDoodadSet; // +0x34, size 0x4, type 0
+    DWORD m_state2NameSet; // +0x38, size 0x4, type 0
+    DWORD m_state3Wmo; // +0x3C, size 0x4, type 0
+    DWORD m_state3InitDoodadSet; // +0x40, size 0x4, type 0
+    DWORD m_state3AmbientDoodadSet; // +0x44, size 0x4, type 0
+    DWORD m_state3NameSet; // +0x48, size 0x4, type 0
+    DWORD m_ejectDirection; // +0x4C, size 0x4, type 0
+    DWORD m_repairGroundFx; // +0x50, size 0x4, type 0
+    DWORD m_doNotHighlight; // +0x54, size 0x4, type 0
+    DWORD m_healEffect; // +0x58, size 0x4, type 0
+    DWORD m_healEffectSpeed; // +0x5C, size 0x4, type 0
+};
+
+struct DifficultyRec // sizeof(0x30)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_fallbackDifficultyID; // +0x4, size 0x4, type 0
+    DWORD m_instanceType; // +0x8, size 0x4, type 0
+    DWORD m_minPlayers; // +0xC, size 0x4, type 0
+    DWORD m_maxPlayers; // +0x10, size 0x4, type 0
+    DWORD m_oldEnumValue; // +0x14, size 0x4, type 0
+    DWORD m_flags; // +0x18, size 0x4, type 0
+    DWORD m_toggleDifficultyID; // +0x1C, size 0x4, type 0
+    DWORD m_groupSizeHealthCurveID; // +0x20, size 0x4, type 0
+    DWORD m_groupSizeDmgCurveID; // +0x24, size 0x4, type 0
+    DWORD m_groupSizeSpellPointsCurveID; // +0x28, size 0x4, type 0
+    char* m_name_lang; // +0x2C, size 0x4, type 2
+};
+
+struct DungeonEncounterRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_orderIndex; // +0xC, size 0x4, type 0
+    DWORD m_Bit; // +0x10, size 0x4, type 0
+    char* m_name_lang; // +0x14, size 0x4, type 2
+    DWORD m_CreatureDisplayID; // +0x18, size 0x4, type 0
+    DWORD m_spellIconID; // +0x1C, size 0x4, type 0
+    DWORD m_flags; // +0x20, size 0x4, type 0
+};
+
+struct DungeonMapChunkRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_wmoGroupID; // +0x8, size 0x4, type 0
+    DWORD m_dungeonMapID; // +0xC, size 0x4, type 0
+    float m_minZ; // +0x10, size 0x4, type 3
+    DWORD m_doodadPlacementID; // +0x14, size 0x4, type 0
+};
+
+struct DungeonMapRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_floorIndex; // +0x8, size 0x4, type 0
+    float m_min[2]; // +0xC, size 0x8, type 3
+    float m_max[2]; // +0x14, size 0x8, type 3
+    DWORD m_parentWorldMapID; // +0x1C, size 0x4, type 0
+    DWORD m_flags; // +0x20, size 0x4, type 0
+};
+
+struct DurabilityCostsRec // sizeof(0x78)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_weaponSubClassCost[21]; // +0x4, size 0x54, type 0
+    DWORD m_armorSubClassCost[8]; // +0x58, size 0x20, type 0
+};
+
+struct DurabilityQualityRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct EmotesRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_EmoteSlashCommand; // +0x4, size 0x4, type 2
+    DWORD m_AnimID; // +0x8, size 0x4, type 0
+    DWORD m_EmoteFlags; // +0xC, size 0x4, type 0
+    DWORD m_EmoteSpecProc; // +0x10, size 0x4, type 0
+    DWORD m_EmoteSpecProcParam; // +0x14, size 0x4, type 0
+    DWORD m_EventSoundID; // +0x18, size 0x4, type 0
+    DWORD m_SpellVisualKitID; // +0x1C, size 0x4, type 0
+};
+
+struct EmotesTextDataRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_text_lang; // +0x4, size 0x4, type 2
+};
+
+struct EmotesTextRec // sizeof(0x4C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    DWORD m_emoteID; // +0x8, size 0x4, type 0
+    DWORD m_emoteText[16]; // +0xC, size 0x40, type 0
+};
+
+struct EmotesTextSoundRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_emotesTextID; // +0x4, size 0x4, type 0
+    DWORD m_raceID; // +0x8, size 0x4, type 0
+    DWORD m_sexID; // +0xC, size 0x4, type 0
+    DWORD m_soundID; // +0x10, size 0x4, type 0
+};
+
+struct EnvironmentalDamageRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_EnumID; // +0x4, size 0x4, type 0
+    DWORD m_VisualkitID; // +0x8, size 0x4, type 0
+};
+
+struct ExhaustionRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_xp; // +0x4, size 0x4, type 0
+    float m_factor; // +0x8, size 0x4, type 3
+    float m_outdoorHours; // +0xC, size 0x4, type 3
+    float m_innHours; // +0x10, size 0x4, type 3
+    char* m_name_lang; // +0x14, size 0x4, type 2
+    float m_threshold; // +0x18, size 0x4, type 3
+    char* m_combatLogText; // +0x1C, size 0x4, type 2
+};
+
+struct FactionGroupRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_maskID; // +0x4, size 0x4, type 0
+    char* m_internalName; // +0x8, size 0x4, type 2
+    char* m_name_lang; // +0xC, size 0x4, type 2
+};
+
+struct FactionRec // sizeof(0x70)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_reputationIndex; // +0x4, size 0x4, type 0
+    DWORD m_reputationRaceMask[4]; // +0x8, size 0x10, type 0
+    DWORD m_reputationClassMask[4]; // +0x18, size 0x10, type 0
+    DWORD m_reputationBase[4]; // +0x28, size 0x10, type 0
+    DWORD m_reputationFlags[4]; // +0x38, size 0x10, type 0
+    DWORD m_parentFactionID; // +0x48, size 0x4, type 0
+    float m_parentFactionMod[2]; // +0x4C, size 0x8, type 3
+    DWORD m_parentFactionCap[2]; // +0x54, size 0x8, type 0
+    char* m_name_lang; // +0x5C, size 0x4, type 2
+    char* m_description_lang; // +0x60, size 0x4, type 2
+    DWORD m_expansion; // +0x64, size 0x4, type 0
+    DWORD m_flags; // +0x68, size 0x4, type 0
+    DWORD m_friendshipRepID; // +0x6C, size 0x4, type 0
+};
+
+struct FactionTemplateRec // sizeof(0x38)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_faction; // +0x4, size 0x4, type 0
+    DWORD m_flags; // +0x8, size 0x4, type 0
+    DWORD m_factionGroup; // +0xC, size 0x4, type 0
+    DWORD m_friendGroup; // +0x10, size 0x4, type 0
+    DWORD m_enemyGroup; // +0x14, size 0x4, type 0
+    DWORD m_enemies[4]; // +0x18, size 0x10, type 0
+    DWORD m_friend[4]; // +0x28, size 0x10, type 0
+};
+
+struct FootstepTerrainLookupRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_CreatureFootstepID; // +0x4, size 0x4, type 0
+    DWORD m_TerrainSoundID; // +0x8, size 0x4, type 0
+    DWORD m_SoundID; // +0xC, size 0x4, type 0
+    DWORD m_SoundIDSplash; // +0x10, size 0x4, type 0
+};
+
+struct FriendshipRepReactionRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_friendshipRepID; // +0x4, size 0x4, type 0
+    DWORD m_reactionThreshold; // +0x8, size 0x4, type 0
+    char* m_reaction_lang; // +0xC, size 0x4, type 2
+};
+
+struct FriendshipReputationRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_factionID; // +0x4, size 0x4, type 0
+    DWORD m_textureFileID; // +0x8, size 0x4, type 0
+    char* m_description_lang; // +0xC, size 0x4, type 2
+};
+
+struct GameObjectArtKitRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_textureVariation[3]; // +0x4, size 0xC, type 2
+    char* m_attachModel[4]; // +0x10, size 0x10, type 2
+};
+
+struct GameObjectDiffAnimMapRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_gameObjectDiffAnimID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_animation; // +0xC, size 0x4, type 0
+    DWORD m_attachmentDisplayID; // +0x10, size 0x4, type 0
+};
+
+struct GameObjectDisplayInfoRec // sizeof(0x54)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_fileDataID; // +0x4, size 0x4, type 0
+    DWORD m_Sound[10]; // +0x8, size 0x28, type 0
+    float m_geoBoxMin[3]; // +0x30, size 0xC, type 3
+    float m_geoBoxMax[3]; // +0x3C, size 0xC, type 3
+    DWORD m_objectEffectPackageID; // +0x48, size 0x4, type 0
+    float m_overrideLootEffectScale; // +0x4C, size 0x4, type 3
+    float m_overrideNameScale; // +0x50, size 0x4, type 3
+};
+
+struct GameTablesRec // sizeof(0x10)
+{
+    char* m_name; // +0x4, size 0x4, type 2
+    DWORD m_numRows; // +0x8, size 0x4, type 0
+    DWORD m_numColumns; // +0xC, size 0x4, type 0
+};
+
+struct GameTipsRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_text_lang; // +0x4, size 0x4, type 2
+    DWORD m_min_level; // +0x8, size 0x4, type 0
+    DWORD m_max_level; // +0xC, size 0x4, type 0
+};
+
+struct GarrUiAnimClassInfoRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_garrClassSpecID; // +0x4, size 0x4, type 0
+    DWORD m_spellVisualID; // +0x8, size 0x4, type 0
+    DWORD m_movementType; // +0xC, size 0x4, type 0
+    float m_impactDelaySecs; // +0x10, size 0x4, type 3
+};
+
+struct GarrUiAnimRaceInfoRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_chrRaceID; // +0x4, size 0x4, type 0
+    float m_scale; // +0x8, size 0x4, type 3
+    float m_height; // +0xC, size 0x4, type 3
+    float m_singleModelScale; // +0x10, size 0x4, type 3
+    float m_singleModelHeight; // +0x14, size 0x4, type 3
+};
+
+struct GemPropertiesRec // sizeof(0x18)
+{
+    DWORD m_id; // +0x0, size 0x4, type 0
+    DWORD m_enchant_id; // +0x4, size 0x4, type 0
+    DWORD m_maxcount_inv; // +0x8, size 0x4, type 0
+    DWORD m_maxcount_item; // +0xC, size 0x4, type 0
+    DWORD m_type; // +0x10, size 0x4, type 0
+    DWORD m_min_item_level; // +0x14, size 0x4, type 0
+};
+
+struct GlueScreenEmoteRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_classId; // +0x4, size 0x4, type 0
+    DWORD m_raceId; // +0x8, size 0x4, type 0
+    DWORD m_sexId; // +0xC, size 0x4, type 0
+    DWORD m_leftHandItemType; // +0x10, size 0x4, type 0
+    DWORD m_rightHandItemType; // +0x14, size 0x4, type 0
+    DWORD m_animKitId; // +0x18, size 0x4, type 0
+    DWORD m_spellVisualKitId; // +0x1C, size 0x4, type 0
+};
+
+struct GlyphPropertiesRec // sizeof(0x14)
+{
+    DWORD m_id; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_glyphType; // +0x8, size 0x4, type 0
+    DWORD m_spellIconID; // +0xC, size 0x4, type 0
+    DWORD m_glyphExclusiveCategoryID; // +0x10, size 0x4, type 0
+};
+
+struct GlyphSlotRec // sizeof(0xC)
+{
+    DWORD m_id; // +0x0, size 0x4, type 0
+    DWORD m_type; // +0x4, size 0x4, type 0
+    DWORD m_tooltip; // +0x8, size 0x4, type 0
+};
+
+struct GMSurveyAnswersRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Sort_Index; // +0x4, size 0x4, type 0
+    DWORD m_GMSurveyQuestionID; // +0x8, size 0x4, type 0
+    char* m_Answer_lang; // +0xC, size 0x4, type 2
+};
+
+struct GMSurveyCurrentSurveyRec // sizeof(0x8)
+{
+    DWORD m_LANGID; // +0x0, size 0x4, type 0
+    DWORD m_GMSURVEY_ID; // +0x4, size 0x4, type 0
+};
+
+struct GMSurveyQuestionsRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Question_lang; // +0x4, size 0x4, type 2
+};
+
+struct GMSurveySurveysRec // sizeof(0x40)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Q[15]; // +0x4, size 0x3C, type 0
+};
+
+struct GMTicketCategoryRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_category_lang; // +0x4, size 0x4, type 2
+};
+
+struct GroundEffectTextureRec // sizeof(0x2C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_doodadId[4]; // +0x4, size 0x10, type 0
+    DWORD m_doodadWeight[4]; // +0x14, size 0x10, type 0
+    DWORD m_density; // +0x24, size 0x4, type 0
+    DWORD m_sound; // +0x28, size 0x4, type 0
+};
+
+struct gtArmorMitigationByLvlRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtBarberShopCostBaseRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtBattlePetTypeDamageModRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtBattlePetXPRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtChanceToMeleeCritBaseRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtChanceToMeleeCritRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtChanceToSpellCritBaseRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtChanceToSpellCritRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtCombatRatingsRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtItemSocketCostPerLevelRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtNPCManaCostScalerRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtOCTBaseHPByClassRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtOCTBaseMPByClassRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtOCTClassCombatRatingScalarRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtOCTHpPerStaminaRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtOCTLevelExperienceRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtRegenMPPerSptRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtResilienceDRRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct gtSpellScalingRec // sizeof(0x8)
+{
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct GuildColorBackgroundRec // sizeof(0x8)
+{
+    DWORD m_colorID; // +0x0, size 0x4, type 0
+    BYTE m_red; // +0x4, size 0x1, type 0
+    BYTE m_green; // +0x5, size 0x1, type 0
+    BYTE m_blue; // +0x6, size 0x1, type 0
+};
+
+struct GuildColorBorderRec // sizeof(0x8)
+{
+    DWORD m_colorID; // +0x0, size 0x4, type 0
+    BYTE m_red; // +0x4, size 0x1, type 0
+    BYTE m_green; // +0x5, size 0x1, type 0
+    BYTE m_blue; // +0x6, size 0x1, type 0
+};
+
+struct GuildColorEmblemRec // sizeof(0x8)
+{
+    DWORD m_colorID; // +0x0, size 0x4, type 0
+    BYTE m_red; // +0x4, size 0x1, type 0
+    BYTE m_green; // +0x5, size 0x1, type 0
+    BYTE m_blue; // +0x6, size 0x1, type 0
+};
+
+struct GuildPerkSpellsRec // sizeof(0xC)
+{
+    DWORD m_id; // +0x0, size 0x4, type 0
+    DWORD m_guildLevel; // +0x4, size 0x4, type 0
+    DWORD m_spellID; // +0x8, size 0x4, type 0
+};
+
+struct HelmetAnimScalingRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_helmetGeosetVisDataID; // +0x4, size 0x4, type 0
+    DWORD m_raceID; // +0x8, size 0x4, type 0
+    float m_amount; // +0xC, size 0x4, type 3
+};
+
+struct HelmetGeosetVisDataRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_hideGeoset[7]; // +0x4, size 0x1C, type 0
+};
+
+struct HolidayDescriptionsRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_description_lang; // +0x4, size 0x4, type 2
+};
+
+struct HolidayNamesRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+};
+
+struct HolidaysRec // sizeof(0xDC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_duration[10]; // +0x4, size 0x28, type 0
+    DWORD m_date[26]; // +0x2C, size 0x68, type 0
+    DWORD m_region; // +0x94, size 0x4, type 0
+    DWORD m_looping; // +0x98, size 0x4, type 0
+    DWORD m_calendarFlags[10]; // +0x9C, size 0x28, type 0
+    DWORD m_holidayNameID; // +0xC4, size 0x4, type 0
+    DWORD m_holidayDescriptionID; // +0xC8, size 0x4, type 0
+    char* m_textureFilename; // +0xCC, size 0x4, type 2
+    DWORD m_priority; // +0xD0, size 0x4, type 0
+    DWORD m_calendarFilterType; // +0xD4, size 0x4, type 0
+    DWORD m_flags; // +0xD8, size 0x4, type 0
+};
+
+struct ImportPriceArmorRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_ClothModifier; // +0x4, size 0x4, type 3
+    float m_LeatherModifier; // +0x8, size 0x4, type 3
+    float m_ChainModifier; // +0xC, size 0x4, type 3
+    float m_PlateModifier; // +0x10, size 0x4, type 3
+};
+
+struct ImportPriceQualityRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct ImportPriceShieldRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct ImportPriceWeaponRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_data; // +0x4, size 0x4, type 3
+};
+
+struct ItemArmorQualityRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_qualitymod[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemArmorShieldRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_itemLevel; // +0x4, size 0x4, type 0
+    float m_quality[7]; // +0x8, size 0x1C, type 3
+};
+
+struct ItemArmorTotalRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_itemLevel; // +0x4, size 0x4, type 0
+    float m_cloth; // +0x8, size 0x4, type 3
+    float m_leather; // +0xC, size 0x4, type 3
+    float m_mail; // +0x10, size 0x4, type 3
+    float m_plate; // +0x14, size 0x4, type 3
+};
+
+struct ItemBagFamilyRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+};
+
+struct ItemClassRec // sizeof(0x10)
+{
+    DWORD m_classID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    float m_priceModifier; // +0x8, size 0x4, type 3
+    char* m_className_lang; // +0xC, size 0x4, type 2
+};
+
+struct ItemDamageAmmoRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_quality[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemDamageOneHandCasterRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_quality[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemDamageOneHandRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_quality[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemDamageRangedRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_quality[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemDamageThrownRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_quality[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemDamageTwoHandCasterRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_quality[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemDamageTwoHandRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_quality[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemDamageWandRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_quality[7]; // +0x4, size 0x1C, type 3
+    DWORD m_itemLevel; // +0x20, size 0x4, type 0
+};
+
+struct ItemDisenchantLootRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_class; // +0x4, size 0x4, type 0
+    DWORD m_subclass; // +0x8, size 0x4, type 0
+    DWORD m_quality; // +0xC, size 0x4, type 0
+    DWORD m_minLevel; // +0x10, size 0x4, type 0
+    DWORD m_maxLevel; // +0x14, size 0x4, type 0
+    DWORD m_skillRequired; // +0x18, size 0x4, type 0
+};
+
+struct ItemDisplayInfoRec // sizeof(0x5C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_modelName[2]; // +0x4, size 0x8, type 2
+    char* m_modelTexture[2]; // +0xC, size 0x8, type 2
+    DWORD m_geosetGroup[3]; // +0x14, size 0xC, type 0
+    DWORD m_flags; // +0x20, size 0x4, type 0
+    DWORD m_spellVisualID; // +0x24, size 0x4, type 0
+    DWORD m_helmetGeosetVis[2]; // +0x28, size 0x8, type 0
+    char* m_texture[9]; // +0x30, size 0x24, type 2
+    DWORD m_itemVisual; // +0x54, size 0x4, type 0
+    DWORD m_particleColorID; // +0x58, size 0x4, type 0
+};
+
+struct ItemGroupSoundsRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_sound[4]; // +0x4, size 0x10, type 0
+};
+
+struct ItemLimitCategoryRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_quantity; // +0x8, size 0x4, type 0
+    DWORD m_flags; // +0xC, size 0x4, type 0
+};
+
+struct ItemNameDescriptionRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_description_lang; // +0x4, size 0x4, type 2
+    DWORD m_color; // +0x8, size 0x4, type 0
+};
+
+struct ItemPetFoodRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Name_lang; // +0x4, size 0x4, type 2
+};
+
+struct ItemPriceBaseRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_itemLevel; // +0x4, size 0x4, type 0
+    float m_armor; // +0x8, size 0x4, type 3
+    float m_weapon; // +0xC, size 0x4, type 3
+};
+
+struct ItemPurchaseGroupRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_itemID[8]; // +0x4, size 0x20, type 0
+    char* m_name_lang; // +0x24, size 0x4, type 2
+};
+
+struct ItemRandomPropertiesRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Name; // +0x4, size 0x4, type 2
+    DWORD m_Enchantment[5]; // +0x8, size 0x14, type 0
+    char* m_name_lang; // +0x1C, size 0x4, type 2
+};
+
+struct ItemRandomSuffixRec // sizeof(0x34)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    char* m_internalName; // +0x8, size 0x4, type 2
+    DWORD m_enchantment[5]; // +0xC, size 0x14, type 0
+    DWORD m_allocationPct[5]; // +0x20, size 0x14, type 0
+};
+
+struct ItemSetRec // sizeof(0x54)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_itemID[17]; // +0x8, size 0x44, type 0
+    DWORD m_requiredSkill; // +0x4C, size 0x4, type 0
+    DWORD m_requiredSkillRank; // +0x50, size 0x4, type 0
+};
+
+struct ItemSetSpellRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_itemSetID; // +0x4, size 0x4, type 0
+    DWORD m_spellID; // +0x8, size 0x4, type 0
+    DWORD m_threshold; // +0xC, size 0x4, type 0
+    DWORD m_chrSpecID; // +0x10, size 0x4, type 0
+};
+
+struct ItemSpecOverrideRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_itemID; // +0x4, size 0x4, type 0
+    DWORD m_specID; // +0x8, size 0x4, type 0
+};
+
+struct ItemSpecRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_minLevel; // +0x4, size 0x4, type 0
+    DWORD m_maxLevel; // +0x8, size 0x4, type 0
+    DWORD m_itemType; // +0xC, size 0x4, type 0
+    DWORD m_primaryStat; // +0x10, size 0x4, type 0
+    DWORD m_secondaryStat; // +0x14, size 0x4, type 0
+    DWORD m_specializationID; // +0x18, size 0x4, type 0
+};
+
+struct ItemSubClassMaskRec // sizeof(0x10)
+{
+    DWORD m_classID; // +0x4, size 0x4, type 0
+    DWORD m_mask; // +0x8, size 0x4, type 0
+    char* m_name_lang; // +0xC, size 0x4, type 2
+};
+
+struct ItemSubClassRec // sizeof(0x34)
+{
+    DWORD m_classID; // +0x4, size 0x4, type 0
+    DWORD m_subClassID; // +0x8, size 0x4, type 0
+    DWORD m_prerequisiteProficiency; // +0xC, size 0x4, type 0
+    DWORD m_postrequisiteProficiency; // +0x10, size 0x4, type 0
+    DWORD m_flags; // +0x14, size 0x4, type 0
+    DWORD m_displayFlags; // +0x18, size 0x4, type 0
+    DWORD m_weaponParrySeq; // +0x1C, size 0x4, type 0
+    DWORD m_weaponReadySeq; // +0x20, size 0x4, type 0
+    DWORD m_weaponAttackSeq; // +0x24, size 0x4, type 0
+    DWORD m_WeaponSwingSize; // +0x28, size 0x4, type 0
+    char* m_displayName_lang; // +0x2C, size 0x4, type 2
+    char* m_verboseName_lang; // +0x30, size 0x4, type 2
+};
+
+struct ItemUpgradePathRec // sizeof(0x4)
+{
+    DWORD m_id; // +0x0, size 0x4, type 0
+};
+
+struct ItemVisualEffectsRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Model; // +0x4, size 0x4, type 2
+};
+
+struct ItemVisualsRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Slot[5]; // +0x4, size 0x14, type 0
+};
+
+struct JournalEncounterCreatureRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_journalEncounterID; // +0x4, size 0x4, type 0
+    DWORD m_creatureDisplayInfoID; // +0x8, size 0x4, type 0
+    DWORD m_orderIndex; // +0xC, size 0x4, type 0
+    DWORD m_fileDataID; // +0x10, size 0x4, type 0
+    char* m_name_lang; // +0x14, size 0x4, type 2
+    char* m_description_lang; // +0x18, size 0x4, type 2
+};
+
+struct JournalEncounterItemRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_journalEncounterID; // +0x4, size 0x4, type 0
+    DWORD m_itemID; // +0x8, size 0x4, type 0
+    DWORD m_difficultyMask; // +0xC, size 0x4, type 0
+    DWORD m_factionMask; // +0x10, size 0x4, type 0
+    DWORD m_flags; // +0x14, size 0x4, type 0
+};
+
+struct JournalEncounterRec // sizeof(0x30)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_dungeonMapID; // +0x4, size 0x4, type 0
+    DWORD m_worldMapAreaID; // +0x8, size 0x4, type 0
+    float m_map[2]; // +0xC, size 0x8, type 3
+    DWORD m_firstSectionID; // +0x14, size 0x4, type 0
+    DWORD m_journalInstanceID; // +0x18, size 0x4, type 0
+    DWORD m_orderIndex; // +0x1C, size 0x4, type 0
+    DWORD m_difficultyMask; // +0x20, size 0x4, type 0
+    char* m_name_lang; // +0x24, size 0x4, type 2
+    char* m_description_lang; // +0x28, size 0x4, type 2
+    DWORD m_flags; // +0x2C, size 0x4, type 0
+};
+
+struct JournalEncounterSectionRec // sizeof(0x3C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_journalEncounterID; // +0x4, size 0x4, type 0
+    DWORD m_nextSiblingSectionID; // +0x8, size 0x4, type 0
+    DWORD m_firstChildSectionID; // +0xC, size 0x4, type 0
+    DWORD m_parentSectionID; // +0x10, size 0x4, type 0
+    DWORD m_orderIndex; // +0x14, size 0x4, type 0
+    DWORD m_type; // +0x18, size 0x4, type 0
+    DWORD m_flags; // +0x1C, size 0x4, type 0
+    DWORD m_iconFlags; // +0x20, size 0x4, type 0
+    char* m_title_lang; // +0x24, size 0x4, type 2
+    char* m_bodyText_lang; // +0x28, size 0x4, type 2
+    DWORD m_difficultyMask; // +0x2C, size 0x4, type 0
+    DWORD m_iconCreatureDisplayInfoID; // +0x30, size 0x4, type 0
+    DWORD m_spellID; // +0x34, size 0x4, type 0
+    DWORD m_iconFileDataID; // +0x38, size 0x4, type 0
+};
+
+struct JournalEncounterXDifficultyRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_journalEncounterID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+};
+
+struct JournalInstanceRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_areaID; // +0x8, size 0x4, type 0
+    DWORD m_buttonFiledataID; // +0xC, size 0x4, type 0
+    DWORD m_buttonSmallFileDataID; // +0x10, size 0x4, type 0
+    DWORD m_backgroundFiledataID; // +0x14, size 0x4, type 0
+    DWORD m_loreFileDataID; // +0x18, size 0x4, type 0
+    char* m_name_lang; // +0x1C, size 0x4, type 2
+    char* m_description_lang; // +0x20, size 0x4, type 2
+};
+
+struct JournalItemXDifficultyRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_journalEncounterItemID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+};
+
+struct JournalSectionXDifficultyRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_journalEncounterSectionID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+};
+
+struct JournalTierRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+};
+
+struct JournalTierXInstanceRec // sizeof(0x8)
+{
+    DWORD m_journalTierID; // +0x0, size 0x4, type 0
+    DWORD m_journalInstanceID; // +0x4, size 0x4, type 0
+};
+
+struct LanguagesRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+};
+
+struct LanguageWordsRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_languageID; // +0x4, size 0x4, type 0
+    char* m_word; // +0x8, size 0x4, type 2
+};
+
+struct LfgDungeonExpansionRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_lfg_id; // +0x4, size 0x4, type 0
+    DWORD m_expansion_level; // +0x8, size 0x4, type 0
+    DWORD m_random_id; // +0xC, size 0x4, type 0
+    DWORD m_hard_level_min; // +0x10, size 0x4, type 0
+    DWORD m_hard_level_max; // +0x14, size 0x4, type 0
+    DWORD m_target_level_min; // +0x18, size 0x4, type 0
+    DWORD m_target_level_max; // +0x1C, size 0x4, type 0
+};
+
+struct LfgDungeonGroupRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_order_index; // +0x8, size 0x4, type 0
+    DWORD m_parent_group_id; // +0xC, size 0x4, type 0
+    DWORD m_typeid; // +0x10, size 0x4, type 0
+};
+
+struct LfgDungeonsGroupingMapRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_lfgDungeonsID; // +0x4, size 0x4, type 0
+    DWORD m_random_lfgDungeonsID; // +0x8, size 0x4, type 0
+    DWORD m_group_id; // +0xC, size 0x4, type 0
+};
+
+struct LfgDungeonsRec // sizeof(0x74)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_minLevel; // +0x8, size 0x4, type 0
+    DWORD m_maxLevel; // +0xC, size 0x4, type 0
+    DWORD m_target_level; // +0x10, size 0x4, type 0
+    DWORD m_target_level_min; // +0x14, size 0x4, type 0
+    DWORD m_target_level_max; // +0x18, size 0x4, type 0
+    DWORD m_mapID; // +0x1C, size 0x4, type 0
+    DWORD m_difficultyID; // +0x20, size 0x4, type 0
+    DWORD m_flags; // +0x24, size 0x4, type 0
+    DWORD m_typeID; // +0x28, size 0x4, type 0
+    DWORD m_faction; // +0x2C, size 0x4, type 0
+    char* m_textureFilename; // +0x30, size 0x4, type 2
+    DWORD m_expansionLevel; // +0x34, size 0x4, type 0
+    DWORD m_order_index; // +0x38, size 0x4, type 0
+    DWORD m_group_id; // +0x3C, size 0x4, type 0
+    char* m_description_lang; // +0x40, size 0x4, type 2
+    DWORD m_random_id; // +0x44, size 0x4, type 0
+    DWORD m_count_tank; // +0x48, size 0x4, type 0
+    DWORD m_count_healer; // +0x4C, size 0x4, type 0
+    DWORD m_count_damage; // +0x50, size 0x4, type 0
+    DWORD m_min_count_tank; // +0x54, size 0x4, type 0
+    DWORD m_min_count_healer; // +0x58, size 0x4, type 0
+    DWORD m_min_count_damage; // +0x5C, size 0x4, type 0
+    DWORD m_scenarioID; // +0x60, size 0x4, type 0
+    DWORD m_subtype; // +0x64, size 0x4, type 0
+    DWORD m_bonus_reputation_amount; // +0x68, size 0x4, type 0
+    DWORD m_mentorCharLevel; // +0x6C, size 0x4, type 0
+    DWORD m_mentorItemLevel; // +0x70, size 0x4, type 0
+};
+
+struct LoadingScreensRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    char* m_fileName; // +0x8, size 0x4, type 2
+    DWORD m_hasWideScreen; // +0xC, size 0x4, type 0
+};
+
+struct LoadingScreenTaxiSplinesRec // sizeof(0x60)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_PathID; // +0x4, size 0x4, type 0
+    float m_Locx[10]; // +0x8, size 0x28, type 3
+    float m_Locy[10]; // +0x30, size 0x28, type 3
+    DWORD m_LegIndex; // +0x58, size 0x4, type 0
+    DWORD m_LoadingScreenID; // +0x5C, size 0x4, type 0
+};
+
+struct LockRec // sizeof(0x84)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Type[8]; // +0x4, size 0x20, type 0
+    DWORD m_Index[8]; // +0x24, size 0x20, type 0
+    DWORD m_Skill[8]; // +0x44, size 0x20, type 0
+    DWORD m_Action[8]; // +0x64, size 0x20, type 0
+};
+
+struct LockTypeRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    char* m_resourceName_lang; // +0x8, size 0x4, type 2
+    char* m_verb_lang; // +0xC, size 0x4, type 2
+    char* m_cursorName; // +0x10, size 0x4, type 2
+};
+
+struct MailTemplateRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_subject_lang; // +0x4, size 0x4, type 2
+    char* m_body_lang; // +0x8, size 0x4, type 2
+};
+
+struct ManifestInterfaceActionIconRec // sizeof(0x4)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+};
+
+struct ManifestInterfaceDataRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_FilePath; // +0x4, size 0x4, type 2
+    char* m_FileName; // +0x8, size 0x4, type 2
+};
+
+struct ManifestInterfaceItemIconRec // sizeof(0x4)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+};
+
+struct ManifestInterfaceTOCDataRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_FilePath; // +0x4, size 0x4, type 2
+};
+
+struct MapDifficultyRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    char* m_message_lang; // +0xC, size 0x4, type 2
+    DWORD m_raidDuration; // +0x10, size 0x4, type 0
+    DWORD m_maxPlayers; // +0x14, size 0x4, type 0
+    DWORD m_lockID; // +0x18, size 0x4, type 0
+};
+
+struct MaterialRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_foleySoundID; // +0x8, size 0x4, type 0
+    DWORD m_sheatheSoundID; // +0xC, size 0x4, type 0
+    DWORD m_unsheatheSoundID; // +0x10, size 0x4, type 0
+};
+
+struct MinorTalentRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_chrSpecializationID; // +0x4, size 0x4, type 0
+    DWORD m_spellID; // +0x8, size 0x4, type 0
+    DWORD m_orderIndex; // +0xC, size 0x4, type 0
+};
+
+struct ModifierTreeRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_type; // +0x4, size 0x4, type 0
+    DWORD m_asset; // +0x8, size 0x4, type 0
+    DWORD m_secondaryAsset; // +0xC, size 0x4, type 0
+    DWORD m_operator; // +0x10, size 0x4, type 0
+    DWORD m_amount; // +0x14, size 0x4, type 0
+    DWORD m_parent; // +0x18, size 0x4, type 0
+};
+
+struct MountCapabilityRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_reqRidingSkill; // +0x8, size 0x4, type 0
+    DWORD m_reqAreaID; // +0xC, size 0x4, type 0
+    DWORD m_reqSpellAuraID; // +0x10, size 0x4, type 0
+    DWORD m_reqSpellKnownID; // +0x14, size 0x4, type 0
+    DWORD m_modSpellAuraID; // +0x18, size 0x4, type 0
+    DWORD m_reqMapID; // +0x1C, size 0x4, type 0
+};
+
+struct MountTypeRec // sizeof(0x64)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_capability[24]; // +0x4, size 0x60, type 0
+};
+
+struct MovieFileDataRec // sizeof(0x8)
+{
+    DWORD m_FileDataID; // +0x0, size 0x4, type 0
+    DWORD m_resolution; // +0x4, size 0x4, type 0
+};
+
+struct MovieOverlaysRec // sizeof(0x14)
+{
+    DWORD m_movieID; // +0x4, size 0x4, type 0
+    DWORD m_localeMask; // +0x8, size 0x4, type 0
+    DWORD m_overlayRangeBegin; // +0xC, size 0x4, type 0
+    DWORD m_overlayRangeEnd; // +0x10, size 0x4, type 0
+};
+
+struct MovieRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_volume; // +0x4, size 0x4, type 0
+    DWORD m_keyID; // +0x8, size 0x4, type 0
+    DWORD m_audioFileDataID; // +0xC, size 0x4, type 0
+    DWORD m_subtitleFileDataID; // +0x10, size 0x4, type 0
+};
+
+struct MovieVariationRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_movieID; // +0x4, size 0x4, type 0
+    DWORD m_fileDataID; // +0x8, size 0x4, type 0
+    DWORD m_OverlayFileDataID; // +0xC, size 0x4, type 0
+};
+
+struct NameGenRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    DWORD m_raceID; // +0x8, size 0x4, type 0
+    DWORD m_sex; // +0xC, size 0x4, type 0
+};
+
+struct NamesProfanityRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Name; // +0x4, size 0x4, type 2
+    DWORD m_Language; // +0x8, size 0x4, type 0
+};
+
+struct NamesReservedLocaleRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Name; // +0x4, size 0x4, type 2
+    DWORD m_LocaleMask; // +0x8, size 0x4, type 0
+};
+
+struct NamesReservedRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Name; // +0x4, size 0x4, type 2
+};
+
+struct NPCSoundsRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_SoundID[4]; // +0x4, size 0x10, type 0
+};
+
+struct ObjectEffectGroupRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+};
+
+struct ObjectEffectModifierRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_inputType; // +0x4, size 0x4, type 0
+    DWORD m_mapType; // +0x8, size 0x4, type 0
+    DWORD m_outputType; // +0xC, size 0x4, type 0
+    float m_param[4]; // +0x10, size 0x10, type 3
+};
+
+struct ObjectEffectPackageElemRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_objectEffectPackageID; // +0x4, size 0x4, type 0
+    DWORD m_objectEffectGroupID; // +0x8, size 0x4, type 0
+    DWORD m_stateType; // +0xC, size 0x4, type 0
+};
+
+struct ObjectEffectPackageRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+};
+
+struct ObjectEffectRec // sizeof(0x30)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    DWORD m_objectEffectGroupID; // +0x8, size 0x4, type 0
+    DWORD m_triggerType; // +0xC, size 0x4, type 0
+    DWORD m_eventType; // +0x10, size 0x4, type 0
+    DWORD m_effectRecType; // +0x14, size 0x4, type 0
+    DWORD m_effectRecID; // +0x18, size 0x4, type 0
+    DWORD m_attachment; // +0x1C, size 0x4, type 0
+    float m_offset[3]; // +0x20, size 0xC, type 3
+    DWORD m_objectEffectModifierID; // +0x2C, size 0x4, type 0
+};
+
+struct OverrideSpellDataRec // sizeof(0x34)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spells[10]; // +0x4, size 0x28, type 0
+    DWORD m_flags; // +0x2C, size 0x4, type 0
+    DWORD m_playerActionbarFileDataID; // +0x30, size 0x4, type 0
+};
+
+struct PackageRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_icon; // +0x4, size 0x4, type 2
+    DWORD m_cost; // +0x8, size 0x4, type 0
+    char* m_name_lang; // +0xC, size 0x4, type 2
+};
+
+struct PageTextMaterialRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+};
+
+struct PaperDollItemFrameRec // sizeof(0x10)
+{
+    char* m_ItemButtonName; // +0x4, size 0x4, type 2
+    char* m_SlotIcon; // +0x8, size 0x4, type 2
+    DWORD m_SlotNumber; // +0xC, size 0x4, type 0
+};
+
+struct ParticleColorRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_start[3]; // +0x4, size 0xC, type 0
+    DWORD m_mid[3]; // +0x10, size 0xC, type 0
+    DWORD m_end[3]; // +0x1C, size 0xC, type 0
+};
+
+struct PhaseRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    DWORD m_flags; // +0x8, size 0x4, type 0
+};
+
+struct PhaseShiftZoneSoundsRec // sizeof(0x38)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_AreaID; // +0x4, size 0x4, type 0
+    DWORD m_WMOAreaID; // +0x8, size 0x4, type 0
+    DWORD m_PhaseID; // +0xC, size 0x4, type 0
+    DWORD m_PhaseGroupID; // +0x10, size 0x4, type 0
+    DWORD m_PhaseUseFlags; // +0x14, size 0x4, type 0
+    DWORD m_ZoneIntroMusicID; // +0x18, size 0x4, type 0
+    DWORD m_ZoneMusicID; // +0x1C, size 0x4, type 0
+    DWORD m_SoundAmbienceID; // +0x20, size 0x4, type 0
+    DWORD m_SoundProviderPreferencesID; // +0x24, size 0x4, type 0
+    DWORD m_UWZoneIntroMusicID; // +0x28, size 0x4, type 0
+    DWORD m_UWZoneMusicID; // +0x2C, size 0x4, type 0
+    DWORD m_UWSoundAmbienceID; // +0x30, size 0x4, type 0
+    DWORD m_UWSoundProviderPreferencesID; // +0x34, size 0x4, type 0
+};
+
+struct PhaseXPhaseGroupRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_phaseID; // +0x4, size 0x4, type 0
+    DWORD m_phaseGroupID; // +0x8, size 0x4, type 0
+};
+
+struct PlayerConditionRec // sizeof(0x220)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_minLevel; // +0x8, size 0x4, type 0
+    DWORD m_maxLevel; // +0xC, size 0x4, type 0
+    DWORD m_raceMask; // +0x10, size 0x4, type 0
+    DWORD m_classMask; // +0x14, size 0x4, type 0
+    DWORD m_gender; // +0x18, size 0x4, type 0
+    DWORD m_nativeGender; // +0x1C, size 0x4, type 0
+    DWORD m_skillID[4]; // +0x20, size 0x10, type 0
+    DWORD m_minSkill[4]; // +0x30, size 0x10, type 0
+    DWORD m_maxSkill[4]; // +0x40, size 0x10, type 0
+    DWORD m_skillLogic; // +0x50, size 0x4, type 0
+    DWORD m_languageID; // +0x54, size 0x4, type 0
+    DWORD m_minLanguage; // +0x58, size 0x4, type 0
+    DWORD m_maxLanguage; // +0x5C, size 0x4, type 0
+    DWORD m_minFactionID[3]; // +0x60, size 0xC, type 0
+    DWORD m_maxFactionID; // +0x6C, size 0x4, type 0
+    DWORD m_minReputation[3]; // +0x70, size 0xC, type 0
+    DWORD m_maxReputation; // +0x7C, size 0x4, type 0
+    DWORD m_reputationLogic; // +0x80, size 0x4, type 0
+    DWORD m_minPVPRank; // +0x84, size 0x4, type 0
+    DWORD m_maxPVPRank; // +0x88, size 0x4, type 0
+    DWORD m_pvpMedal; // +0x8C, size 0x4, type 0
+    DWORD m_prevQuestLogic; // +0x90, size 0x4, type 0
+    DWORD m_prevQuestID[4]; // +0x94, size 0x10, type 0
+    DWORD m_currQuestLogic; // +0xA4, size 0x4, type 0
+    DWORD m_currQuestID[4]; // +0xA8, size 0x10, type 0
+    DWORD m_currentCompletedQuestLogic; // +0xB8, size 0x4, type 0
+    DWORD m_currentCompletedQuestID[4]; // +0xBC, size 0x10, type 0
+    DWORD m_spellLogic; // +0xCC, size 0x4, type 0
+    DWORD m_spellID[4]; // +0xD0, size 0x10, type 0
+    DWORD m_itemLogic; // +0xE0, size 0x4, type 0
+    DWORD m_itemID[4]; // +0xE4, size 0x10, type 0
+    DWORD m_itemCount[4]; // +0xF4, size 0x10, type 0
+    DWORD m_itemFlags; // +0x104, size 0x4, type 0
+    DWORD m_explored[2]; // +0x108, size 0x8, type 0
+    DWORD m_time[2]; // +0x110, size 0x8, type 0
+    DWORD m_auraSpellLogic; // +0x118, size 0x4, type 0
+    DWORD m_auraSpellID[4]; // +0x11C, size 0x10, type 0
+    DWORD m_worldStateExpressionID; // +0x12C, size 0x4, type 0
+    DWORD m_weatherID; // +0x130, size 0x4, type 0
+    DWORD m_partyStatus; // +0x134, size 0x4, type 0
+    DWORD m_lifetimeMaxPVPRank; // +0x138, size 0x4, type 0
+    DWORD m_achievementLogic; // +0x13C, size 0x4, type 0
+    DWORD m_achievement[4]; // +0x140, size 0x10, type 0
+    DWORD m_lfgLogic; // +0x150, size 0x4, type 0
+    DWORD m_lfgStatus[4]; // +0x154, size 0x10, type 0
+    DWORD m_lfgCompare[4]; // +0x164, size 0x10, type 0
+    DWORD m_lfgValue[4]; // +0x174, size 0x10, type 0
+    DWORD m_areaLogic; // +0x184, size 0x4, type 0
+    DWORD m_areaID[4]; // +0x188, size 0x10, type 0
+    DWORD m_currencyLogic; // +0x198, size 0x4, type 0
+    DWORD m_currencyID[4]; // +0x19C, size 0x10, type 0
+    DWORD m_currencyCount[4]; // +0x1AC, size 0x10, type 0
+    DWORD m_questKillID; // +0x1BC, size 0x4, type 0
+    DWORD m_questKillLogic; // +0x1C0, size 0x4, type 0
+    DWORD m_questKillMonster[4]; // +0x1C4, size 0x10, type 0
+    DWORD m_minExpansionLevel; // +0x1D4, size 0x4, type 0
+    DWORD m_maxExpansionLevel; // +0x1D8, size 0x4, type 0
+    DWORD m_minExpansionTier; // +0x1DC, size 0x4, type 0
+    DWORD m_maxExpansionTier; // +0x1E0, size 0x4, type 0
+    DWORD m_minGuildLevel; // +0x1E4, size 0x4, type 0
+    DWORD m_maxGuildLevel; // +0x1E8, size 0x4, type 0
+    DWORD m_phaseUseFlags; // +0x1EC, size 0x4, type 0
+    DWORD m_phaseID; // +0x1F0, size 0x4, type 0
+    DWORD m_phaseGroupID; // +0x1F4, size 0x4, type 0
+    DWORD m_minAvgItemLevel; // +0x1F8, size 0x4, type 0
+    DWORD m_maxAvgItemLevel; // +0x1FC, size 0x4, type 0
+    DWORD m_minAvgEquippedItemLevel; // +0x200, size 0x4, type 0
+    DWORD m_maxAvgEquippedItemLevel; // +0x204, size 0x4, type 0
+    DWORD m_chrSpecializationIndex; // +0x208, size 0x4, type 0
+    DWORD m_chrSpecializationRole; // +0x20C, size 0x4, type 0
+    char* m_failure_description_lang; // +0x210, size 0x4, type 2
+    DWORD m_powerType; // +0x214, size 0x4, type 0
+    DWORD m_powerTypeComp; // +0x218, size 0x4, type 0
+    DWORD m_powerTypeValue; // +0x21C, size 0x4, type 0
+};
+
+struct PowerDisplayRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_actualType; // +0x4, size 0x4, type 0
+    char* m_globalStringBaseTag; // +0x8, size 0x4, type 2
+    BYTE m_red; // +0xC, size 0x1, type 0
+    BYTE m_green; // +0xD, size 0x1, type 0
+    BYTE m_blue; // +0xE, size 0x1, type 0
+};
+
+struct PvpDifficultyRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_rangeIndex; // +0x8, size 0x4, type 0
+    DWORD m_minLevel; // +0xC, size 0x4, type 0
+    DWORD m_maxLevel; // +0x10, size 0x4, type 0
+};
+
+struct QuestFactionRewardRec // sizeof(0x2C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Difficulty[10]; // +0x4, size 0x28, type 0
+};
+
+struct QuestFeedbackEffectRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_fileDataID; // +0x4, size 0x4, type 0
+    DWORD m_attachPoint; // +0x8, size 0x4, type 0
+    DWORD m_minimapobject; // +0xC, size 0x4, type 0
+    DWORD m_priority; // +0x10, size 0x4, type 0
+    DWORD m_flags; // +0x14, size 0x4, type 0
+};
+
+struct QuestInfoRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_InfoName_lang; // +0x4, size 0x4, type 2
+};
+
+struct QuestMoneyRewardRec // sizeof(0x2C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_difficulty[10]; // +0x4, size 0x28, type 0
+};
+
+struct QuestPOIBlobRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_NumPoints; // +0x4, size 0x4, type 0
+    DWORD m_MapID; // +0x8, size 0x4, type 0
+    DWORD m_WorldMapAreaID; // +0xC, size 0x4, type 0
+};
+
+struct QuestPOIPointRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_X; // +0x4, size 0x4, type 0
+    DWORD m_Y; // +0x8, size 0x4, type 0
+    DWORD m_QuestPOIBlobID; // +0xC, size 0x4, type 0
+};
+
+struct QuestSortRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_SortName_lang; // +0x4, size 0x4, type 2
+};
+
+struct QuestV2Rec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_UniqueBitFlag; // +0x4, size 0x4, type 0
+};
+
+struct QuestXPRec // sizeof(0x2C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_difficulty[10]; // +0x4, size 0x28, type 0
+};
+
+struct RacialMountsRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_race; // +0x4, size 0x4, type 0
+    DWORD m_spell_id; // +0x8, size 0x4, type 0
+};
+
+struct RandPropPointsRec // sizeof(0x40)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Epic[5]; // +0x4, size 0x14, type 0
+    DWORD m_Superior[5]; // +0x18, size 0x14, type 0
+    DWORD m_Good[5]; // +0x2C, size 0x14, type 0
+};
+
+struct ResearchBranchRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_researchFieldID; // +0x8, size 0x4, type 0
+    DWORD m_currencyID; // +0xC, size 0x4, type 0
+    char* m_texture; // +0x10, size 0x4, type 2
+    DWORD m_itemID; // +0x14, size 0x4, type 0
+};
+
+struct ResearchFieldRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_slot; // +0x8, size 0x4, type 0
+};
+
+struct ResearchProjectRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    char* m_description_lang; // +0x8, size 0x4, type 2
+    DWORD m_rarity; // +0xC, size 0x4, type 0
+    DWORD m_researchBranchID; // +0x10, size 0x4, type 0
+    DWORD m_spellID; // +0x14, size 0x4, type 0
+    DWORD m_numSockets; // +0x18, size 0x4, type 0
+    char* m_texture; // +0x1C, size 0x4, type 2
+    DWORD m_requiredWeight; // +0x20, size 0x4, type 0
+};
+
+struct ResearchSiteRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_QuestPOIBlobID; // +0x8, size 0x4, type 0
+    char* m_name_lang; // +0xC, size 0x4, type 2
+    DWORD m_areaPOIIconEnum; // +0x10, size 0x4, type 0
+};
+
+struct ResistancesRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Flags; // +0x4, size 0x4, type 0
+    DWORD m_FizzleSoundID; // +0x8, size 0x4, type 0
+    char* m_name_lang; // +0xC, size 0x4, type 2
+};
+
+struct RulesetRaidOverrideRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_rulesetID; // +0xC, size 0x4, type 0
+    DWORD m_sharedLock; // +0x10, size 0x4, type 0
+    DWORD m_raidduration; // +0x14, size 0x4, type 0
+};
+
+struct ScalingStatDistributionRec // sizeof(0x5C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_statID[10]; // +0x4, size 0x28, type 0
+    DWORD m_bonus[10]; // +0x2C, size 0x28, type 0
+    DWORD m_minlevel; // +0x54, size 0x4, type 0
+    DWORD m_maxlevel; // +0x58, size 0x4, type 0
+};
+
+struct ScalingStatValuesRec // sizeof(0xC4)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_charlevel; // +0x4, size 0x4, type 0
+    DWORD m_effectiveLevel; // +0x8, size 0x4, type 0
+    DWORD m_weaponDPS1H; // +0xC, size 0x4, type 0
+    DWORD m_weaponDPS2H; // +0x10, size 0x4, type 0
+    DWORD m_spellcasterDPS1H; // +0x14, size 0x4, type 0
+    DWORD m_spellcasterDPS2H; // +0x18, size 0x4, type 0
+    DWORD m_rangedDPS; // +0x1C, size 0x4, type 0
+    DWORD m_wandDPS; // +0x20, size 0x4, type 0
+    DWORD m_spellPower; // +0x24, size 0x4, type 0
+    DWORD m_budgetPrimary; // +0x28, size 0x4, type 0
+    DWORD m_budgetSecondary; // +0x2C, size 0x4, type 0
+    DWORD m_budgetTertiary; // +0x30, size 0x4, type 0
+    DWORD m_budgetSub; // +0x34, size 0x4, type 0
+    DWORD m_budgetTrivial; // +0x38, size 0x4, type 0
+    DWORD m_armorShoulder[4]; // +0x3C, size 0x10, type 0
+    DWORD m_armorChest[4]; // +0x4C, size 0x10, type 0
+    DWORD m_armorHead[4]; // +0x5C, size 0x10, type 0
+    DWORD m_armorLegs[4]; // +0x6C, size 0x10, type 0
+    DWORD m_armorFeet[4]; // +0x7C, size 0x10, type 0
+    DWORD m_armorWaist[4]; // +0x8C, size 0x10, type 0
+    DWORD m_armorHands[4]; // +0x9C, size 0x10, type 0
+    DWORD m_armorWrists[4]; // +0xAC, size 0x10, type 0
+    DWORD m_armorBack; // +0xBC, size 0x4, type 0
+    DWORD m_armorShield; // +0xC0, size 0x4, type 0
+};
+
+struct ScenarioEventEntryRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_triggerType; // +0x4, size 0x4, type 0
+    DWORD m_triggerAsset; // +0x8, size 0x4, type 0
+};
+
+struct ScenarioRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_flags; // +0x8, size 0x4, type 0
+};
+
+struct ScenarioStepRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_criteriatreeid; // +0x4, size 0x4, type 0
+    DWORD m_scenarioID; // +0x8, size 0x4, type 0
+    DWORD m_orderIndex; // +0xC, size 0x4, type 0
+    char* m_description_lang; // +0x10, size 0x4, type 2
+    char* m_title_lang; // +0x14, size 0x4, type 2
+    DWORD m_flags; // +0x18, size 0x4, type 0
+    DWORD m_relatedStep; // +0x1C, size 0x4, type 0
+    DWORD m_supersedes; // +0x20, size 0x4, type 0
+    DWORD m_rewardQuestID; // +0x24, size 0x4, type 0
+};
+
+struct ScreenEffectRec // sizeof(0x3C)
+{
+    DWORD m_id; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+    DWORD m_effect; // +0x8, size 0x4, type 0
+    DWORD m_param[4]; // +0xC, size 0x10, type 0
+    DWORD m_lightParamsID; // +0x1C, size 0x4, type 0
+    DWORD m_lightParamsFadeIn; // +0x20, size 0x4, type 0
+    DWORD m_lightParamsFadeOut; // +0x24, size 0x4, type 0
+    DWORD m_lightFlags; // +0x28, size 0x4, type 0
+    DWORD m_soundAmbienceID; // +0x2C, size 0x4, type 0
+    DWORD m_zoneMusicID; // +0x30, size 0x4, type 0
+    DWORD m_timeOfDayOverride; // +0x34, size 0x4, type 0
+    DWORD m_effectMask; // +0x38, size 0x4, type 0
+};
+
+struct ScreenLocationRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+};
+
+struct ServerMessagesRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Text_lang; // +0x4, size 0x4, type 2
+};
+
+struct SkillLineAbilityRec // sizeof(0x34)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_skillLine; // +0x4, size 0x4, type 0
+    DWORD m_spell; // +0x8, size 0x4, type 0
+    DWORD m_raceMask; // +0xC, size 0x4, type 0
+    DWORD m_classMask; // +0x10, size 0x4, type 0
+    DWORD m_minSkillLineRank; // +0x14, size 0x4, type 0
+    DWORD m_supercedesSpell; // +0x18, size 0x4, type 0
+    DWORD m_acquireMethod; // +0x1C, size 0x4, type 0
+    DWORD m_trivialSkillLineRankHigh; // +0x20, size 0x4, type 0
+    DWORD m_trivialSkillLineRankLow; // +0x24, size 0x4, type 0
+    DWORD m_numSkillUps; // +0x28, size 0x4, type 0
+    DWORD m_uniqueBit; // +0x2C, size 0x4, type 0
+    DWORD m_tradeSkillCategoryID; // +0x30, size 0x4, type 0
+};
+
+struct SkillLineAbilitySortedSpellRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spell; // +0x4, size 0x4, type 0
+};
+
+struct SkillLineRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_categoryID; // +0x4, size 0x4, type 0
+    char* m_displayName_lang; // +0x8, size 0x4, type 2
+    char* m_description_lang; // +0xC, size 0x4, type 2
+    DWORD m_spellIconID; // +0x10, size 0x4, type 0
+    char* m_alternateVerb_lang; // +0x14, size 0x4, type 2
+    DWORD m_canLink; // +0x18, size 0x4, type 0
+    DWORD m_parentSkillLineID; // +0x1C, size 0x4, type 0
+    DWORD m_flags; // +0x20, size 0x4, type 0
+};
+
+struct SkillRaceClassInfoRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_skillID; // +0x4, size 0x4, type 0
+    DWORD m_raceMask; // +0x8, size 0x4, type 0
+    DWORD m_classMask; // +0xC, size 0x4, type 0
+    DWORD m_flags; // +0x10, size 0x4, type 0
+    DWORD m_availability; // +0x14, size 0x4, type 0
+    DWORD m_minLevel; // +0x18, size 0x4, type 0
+    DWORD m_skillTierID; // +0x1C, size 0x4, type 0
+};
+
+struct SkillTiersRec // sizeof(0x44)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_value[16]; // +0x4, size 0x40, type 0
+};
+
+struct SoundAmbienceFlavorRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_SoundAmbienceID; // +0x4, size 0x4, type 0
+    DWORD m_SoundEntriesIDDay; // +0x8, size 0x4, type 0
+    DWORD m_SoundEntriesIDNight; // +0xC, size 0x4, type 0
+};
+
+struct SoundAmbienceRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_AmbienceID[2]; // +0x4, size 0x8, type 0
+    DWORD m_flags; // +0xC, size 0x4, type 0
+};
+
+struct SoundFilterElemRec // sizeof(0x34)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_soundFilterID; // +0x4, size 0x4, type 0
+    DWORD m_orderIndex; // +0x8, size 0x4, type 0
+    DWORD m_filterType; // +0xC, size 0x4, type 0
+    float m_params[9]; // +0x10, size 0x24, type 3
+};
+
+struct SoundFilterRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name; // +0x4, size 0x4, type 2
+};
+
+struct SoundOverrideRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_WowEditLock; // +0x4, size 0x4, type 0
+    char* m_WowEditLockUser; // +0x8, size 0x4, type 2
+    DWORD m_ZoneIntroMusicID; // +0xC, size 0x4, type 0
+    DWORD m_ZoneMusicID; // +0x10, size 0x4, type 0
+    DWORD m_SoundAmbienceID; // +0x14, size 0x4, type 0
+    DWORD m_SoundProviderPreferencesID; // +0x18, size 0x4, type 0
+};
+
+struct SoundProviderPreferencesRec // sizeof(0x60)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Description; // +0x4, size 0x4, type 2
+    DWORD m_Flags; // +0x8, size 0x4, type 0
+    DWORD m_EAXEnvironmentSelection; // +0xC, size 0x4, type 0
+    float m_EAXDecayTime; // +0x10, size 0x4, type 3
+    float m_EAX2EnvironmentSize; // +0x14, size 0x4, type 3
+    float m_EAX2EnvironmentDiffusion; // +0x18, size 0x4, type 3
+    DWORD m_EAX2Room; // +0x1C, size 0x4, type 0
+    DWORD m_EAX2RoomHF; // +0x20, size 0x4, type 0
+    float m_EAX2DecayHFRatio; // +0x24, size 0x4, type 3
+    DWORD m_EAX2Reflections; // +0x28, size 0x4, type 0
+    float m_EAX2ReflectionsDelay; // +0x2C, size 0x4, type 3
+    DWORD m_EAX2Reverb; // +0x30, size 0x4, type 0
+    float m_EAX2ReverbDelay; // +0x34, size 0x4, type 3
+    float m_EAX2RoomRolloff; // +0x38, size 0x4, type 3
+    float m_EAX2AirAbsorption; // +0x3C, size 0x4, type 3
+    DWORD m_EAX3RoomLF; // +0x40, size 0x4, type 0
+    float m_EAX3DecayLFRatio; // +0x44, size 0x4, type 3
+    float m_EAX3EchoTime; // +0x48, size 0x4, type 3
+    float m_EAX3EchoDepth; // +0x4C, size 0x4, type 3
+    float m_EAX3ModulationTime; // +0x50, size 0x4, type 3
+    float m_EAX3ModulationDepth; // +0x54, size 0x4, type 3
+    float m_EAX3HFReference; // +0x58, size 0x4, type 3
+    float m_EAX3LFReference; // +0x5C, size 0x4, type 3
+};
+
+struct SpamMessagesRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_text; // +0x4, size 0x4, type 2
+};
+
+struct SpecializationSpellsRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_specID; // +0x4, size 0x4, type 0
+    DWORD m_spellID; // +0x8, size 0x4, type 0
+    DWORD m_overridesSpellID; // +0xC, size 0x4, type 0
+    char* m_description_lang; // +0x10, size 0x4, type 2
+};
+
+struct SpellActivationOverlayRec // sizeof(0x30)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_overlayFileDataID; // +0x8, size 0x4, type 0
+    DWORD m_screenLocationID; // +0xC, size 0x4, type 0
+    DWORD m_color; // +0x10, size 0x4, type 0
+    float m_scale; // +0x14, size 0x4, type 3
+    DWORD m_iconHighlightSpellClassMask[4]; // +0x18, size 0x10, type 0
+    DWORD m_triggerType; // +0x28, size 0x4, type 0
+    DWORD m_soundEntriesID; // +0x2C, size 0x4, type 0
+};
+
+struct SpellAuraOptionsRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_cumulativeAura; // +0xC, size 0x4, type 0
+    DWORD m_procChance; // +0x10, size 0x4, type 0
+    DWORD m_procCharges; // +0x14, size 0x4, type 0
+    DWORD m_procTypeMask; // +0x18, size 0x4, type 0
+    DWORD m_procCategoryRecovery; // +0x1C, size 0x4, type 0
+    DWORD m_spellProcsPerMinuteID; // +0x20, size 0x4, type 0
+};
+
+struct SpellAuraVisibilityRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_type; // +0x8, size 0x4, type 0
+    DWORD m_flags; // +0xC, size 0x4, type 0
+};
+
+struct SpellAuraVisXChrSpecRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellAuraVisibilityID; // +0x4, size 0x4, type 0
+    DWORD m_chrSpecializationID; // +0x8, size 0x4, type 0
+};
+
+struct SpellCastingRequirementsRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_facingCasterFlags; // +0x4, size 0x4, type 0
+    DWORD m_minFactionID; // +0x8, size 0x4, type 0
+    DWORD m_minReputation; // +0xC, size 0x4, type 0
+    DWORD m_requiredAreasID; // +0x10, size 0x4, type 0
+    DWORD m_requiredAuraVision; // +0x14, size 0x4, type 0
+    DWORD m_requiresSpellFocus; // +0x18, size 0x4, type 0
+};
+
+struct SpellCastTimesRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_base; // +0x4, size 0x4, type 0
+    DWORD m_perLevel; // +0x8, size 0x4, type 0
+    DWORD m_minimum; // +0xC, size 0x4, type 0
+};
+
+struct SpellCategoriesRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_category; // +0xC, size 0x4, type 0
+    DWORD m_defenseType; // +0x10, size 0x4, type 0
+    DWORD m_dispelType; // +0x14, size 0x4, type 0
+    DWORD m_mechanic; // +0x18, size 0x4, type 0
+    DWORD m_preventionType; // +0x1C, size 0x4, type 0
+    DWORD m_startRecoveryCategory; // +0x20, size 0x4, type 0
+    DWORD m_chargeCategory; // +0x24, size 0x4, type 0
+};
+
+struct SpellCategoryRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    BYTE m_usesPerWeek; // +0x8, size 0x1, type 0
+    char* m_name_lang; // +0xC, size 0x4, type 2
+    DWORD m_maxCharges; // +0x10, size 0x4, type 0
+    DWORD m_chargeRecoveryTime; // +0x14, size 0x4, type 0
+};
+
+struct SpellCooldownsRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_categoryRecoveryTime; // +0xC, size 0x4, type 0
+    DWORD m_recoveryTime; // +0x10, size 0x4, type 0
+    DWORD m_startRecoveryTime; // +0x14, size 0x4, type 0
+};
+
+struct SpellDescriptionVariablesRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_variables; // +0x4, size 0x4, type 2
+};
+
+struct SpellDispelTypeRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_mask; // +0x8, size 0x4, type 0
+    DWORD m_immunityPossible; // +0xC, size 0x4, type 0
+    char* m_internalName; // +0x10, size 0x4, type 2
+};
+
+struct SpellDurationRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_duration; // +0x4, size 0x4, type 0
+    DWORD m_durationPerLevel; // +0x8, size 0x4, type 0
+    DWORD m_maxDuration; // +0xC, size 0x4, type 0
+};
+
+struct SpellEffectRec // sizeof(0x7C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_difficultyID; // +0x4, size 0x4, type 0
+    DWORD m_effect; // +0x8, size 0x4, type 0
+    float m_effectAmplitude; // +0xC, size 0x4, type 3
+    DWORD m_effectAura; // +0x10, size 0x4, type 0
+    DWORD m_effectAuraPeriod; // +0x14, size 0x4, type 0
+    DWORD m_effectBasePoints; // +0x18, size 0x4, type 0
+    float m_effectBonusCoefficient; // +0x1C, size 0x4, type 3
+    float m_effectChainAmplitude; // +0x20, size 0x4, type 3
+    DWORD m_effectChainTargets; // +0x24, size 0x4, type 0
+    DWORD m_effectDieSides; // +0x28, size 0x4, type 0
+    DWORD m_effectItemType; // +0x2C, size 0x4, type 0
+    DWORD m_effectMechanic; // +0x30, size 0x4, type 0
+    DWORD m_effectMiscValue[2]; // +0x34, size 0x8, type 0
+    float m_effectPointsPerResource; // +0x3C, size 0x4, type 3
+    DWORD m_effectRadiusIndex[2]; // +0x40, size 0x8, type 0
+    float m_effectRealPointsPerLevel; // +0x48, size 0x4, type 3
+    DWORD m_effectSpellClassMask[4]; // +0x4C, size 0x10, type 0
+    DWORD m_effectTriggerSpell; // +0x5C, size 0x4, type 0
+    float m_effectPos_facing; // +0x60, size 0x4, type 3
+    DWORD m_implicitTarget[2]; // +0x64, size 0x8, type 0
+    DWORD m_spellID; // +0x6C, size 0x4, type 0
+    DWORD m_effectIndex; // +0x70, size 0x4, type 0
+    DWORD m_effectAttributes; // +0x74, size 0x4, type 0
+    float m_bonusCoefficientFromAP; // +0x78, size 0x4, type 3
+};
+
+struct SpellEffectScalingRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_coefficient; // +0x4, size 0x4, type 3
+    float m_variance; // +0x8, size 0x4, type 3
+    float m_resourceCoefficient; // +0xC, size 0x4, type 3
+    DWORD m_spellEffectID; // +0x10, size 0x4, type 0
+};
+
+struct SpellEquippedItemsRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_equippedItemClass; // +0xC, size 0x4, type 0
+    DWORD m_equippedItemInvTypes; // +0x10, size 0x4, type 0
+    DWORD m_equippedItemSubclass; // +0x14, size 0x4, type 0
+};
+
+struct SpellFlyoutItemRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellFlyoutID; // +0x4, size 0x4, type 0
+    DWORD m_spellID; // +0x8, size 0x4, type 0
+    DWORD m_slot; // +0xC, size 0x4, type 0
+};
+
+struct SpellFlyoutRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_raceMask; // +0x8, size 0x4, type 0
+    DWORD m_classMask; // +0xC, size 0x4, type 0
+    DWORD m_spellIconID; // +0x10, size 0x4, type 0
+    char* m_name_lang; // +0x14, size 0x4, type 2
+    char* m_description_lang; // +0x18, size 0x4, type 2
+};
+
+struct SpellFocusObjectRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+};
+
+struct SpellIconRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_textureFilename; // +0x4, size 0x4, type 2
+};
+
+struct SpellInterruptsRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_auraInterruptFlags[2]; // +0xC, size 0x8, type 0
+    DWORD m_channelInterruptFlags[2]; // +0x14, size 0x8, type 0
+    DWORD m_interruptFlags; // +0x1C, size 0x4, type 0
+};
+
+struct SpellItemEnchantmentConditionRec // sizeof(0x48)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_lt_operandType[1]; // +0x4, size 0x5, type 0
+    DWORD m_lt_operand[5]; // +0xC, size 0x14, type 0
+    DWORD m_operator[1]; // +0x20, size 0x5, type 0
+    DWORD m_rt_operandType[1]; // +0x25, size 0x5, type 0
+    DWORD m_rt_operand[5]; // +0x2C, size 0x14, type 0
+    DWORD m_logic[1]; // +0x40, size 0x5, type 0
+};
+
+struct SpellItemEnchantmentRec // sizeof(0x68)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_charges; // +0x4, size 0x4, type 0
+    DWORD m_effect[3]; // +0x8, size 0xC, type 0
+    DWORD m_effectPointsMin[3]; // +0x14, size 0xC, type 0
+    DWORD m_effectArg[3]; // +0x20, size 0xC, type 0
+    char* m_name_lang; // +0x2C, size 0x4, type 2
+    DWORD m_itemVisual; // +0x30, size 0x4, type 0
+    DWORD m_flags; // +0x34, size 0x4, type 0
+    DWORD m_src_itemID; // +0x38, size 0x4, type 0
+    DWORD m_condition_id; // +0x3C, size 0x4, type 0
+    DWORD m_requiredSkillID; // +0x40, size 0x4, type 0
+    DWORD m_requiredSkillRank; // +0x44, size 0x4, type 0
+    DWORD m_minLevel; // +0x48, size 0x4, type 0
+    DWORD m_maxLevel; // +0x4C, size 0x4, type 0
+    DWORD m_itemLevel; // +0x50, size 0x4, type 0
+    DWORD m_scalingClass; // +0x54, size 0x4, type 0
+    DWORD m_scalingClassRestricted; // +0x58, size 0x4, type 0
+    float m_effectScalingPoints[3]; // +0x5C, size 0xC, type 3
+};
+
+struct SpellKeyboundOverrideRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_function; // +0x4, size 0x4, type 2
+};
+
+struct SpellLearnSpellRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_learnSpellID; // +0x4, size 0x4, type 0
+    DWORD m_overridesSpellID; // +0x8, size 0x4, type 0
+    DWORD m_spellID; // +0xC, size 0x4, type 0
+};
+
+struct SpellLevelsRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_baseLevel; // +0xC, size 0x4, type 0
+    DWORD m_maxLevel; // +0x10, size 0x4, type 0
+    DWORD m_spellLevel; // +0x14, size 0x4, type 0
+};
+
+struct SpellMechanicRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_stateName_lang; // +0x4, size 0x4, type 2
+};
+
+struct SpellMiscRec // sizeof(0x68)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    DWORD m_attributes[14]; // +0xC, size 0x38, type 0
+    DWORD m_castingTimeIndex; // +0x44, size 0x4, type 0
+    DWORD m_durationIndex; // +0x48, size 0x4, type 0
+    DWORD m_rangeIndex; // +0x4C, size 0x4, type 0
+    float m_speed; // +0x50, size 0x4, type 3
+    DWORD m_spellVisualID[2]; // +0x54, size 0x8, type 0
+    DWORD m_spellIconID; // +0x5C, size 0x4, type 0
+    DWORD m_activeIconID; // +0x60, size 0x4, type 0
+    DWORD m_schoolMask; // +0x64, size 0x4, type 0
+};
+
+struct SpellProcsPerMinuteModRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_type; // +0x4, size 0x4, type 0
+    DWORD m_param; // +0x8, size 0x4, type 0
+    float m_coeff; // +0xC, size 0x4, type 3
+    DWORD m_spellProcsPerMinuteID; // +0x10, size 0x4, type 0
+};
+
+struct SpellProcsPerMinuteRec // sizeof(0xC)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_baseProcRate; // +0x4, size 0x4, type 3
+    DWORD m_flags; // +0x8, size 0x4, type 0
+};
+
+struct SpellRadiusRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_radius; // +0x4, size 0x4, type 3
+    float m_radiusPerLevel; // +0x8, size 0x4, type 3
+    float m_radiusMin; // +0xC, size 0x4, type 3
+    float m_radiusMax; // +0x10, size 0x4, type 3
+};
+
+struct SpellRangeRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_rangeMin[2]; // +0x4, size 0x8, type 3
+    float m_rangeMax[2]; // +0xC, size 0x8, type 3
+    DWORD m_flags; // +0x14, size 0x4, type 0
+    char* m_displayName_lang; // +0x18, size 0x4, type 2
+    char* m_displayNameShort_lang; // +0x1C, size 0x4, type 2
+};
+
+struct SpellRec // sizeof(0x60)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    char* m_nameSubtext_lang; // +0x8, size 0x4, type 2
+    char* m_description_lang; // +0xC, size 0x4, type 2
+    char* m_auraDescription_lang; // +0x10, size 0x4, type 2
+    DWORD m_runeCostID; // +0x14, size 0x4, type 0
+    DWORD m_spellMissileID; // +0x18, size 0x4, type 0
+    DWORD m_descriptionVariablesID; // +0x1C, size 0x4, type 0
+    DWORD m_scalingID; // +0x20, size 0x4, type 0
+    DWORD m_auraOptionsID; // +0x24, size 0x4, type 0
+    DWORD m_auraRestrictionsID; // +0x28, size 0x4, type 0
+    DWORD m_castingRequirementsID; // +0x2C, size 0x4, type 0
+    DWORD m_categoriesID; // +0x30, size 0x4, type 0
+    DWORD m_classOptionsID; // +0x34, size 0x4, type 0
+    DWORD m_cooldownsID; // +0x38, size 0x4, type 0
+    DWORD m_equippedItemsID; // +0x3C, size 0x4, type 0
+    DWORD m_interruptsID; // +0x40, size 0x4, type 0
+    DWORD m_levelsID; // +0x44, size 0x4, type 0
+    DWORD m_reagentsID; // +0x48, size 0x4, type 0
+    DWORD m_shapeshiftID; // +0x4C, size 0x4, type 0
+    DWORD m_targetRestrictionsID; // +0x50, size 0x4, type 0
+    DWORD m_totemsID; // +0x54, size 0x4, type 0
+    DWORD m_requiredProjectID; // +0x58, size 0x4, type 0
+    DWORD m_miscID; // +0x5C, size 0x4, type 0
+};
+
+struct SpellRuneCostRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_blood; // +0x4, size 0x4, type 0
+    DWORD m_unholy; // +0x8, size 0x4, type 0
+    DWORD m_frost; // +0xC, size 0x4, type 0
+    DWORD m_chromatic; // +0x10, size 0x4, type 0
+    DWORD m_runicPower; // +0x14, size 0x4, type 0
+};
+
+struct SpellScalingRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_castTimeMin; // +0x4, size 0x4, type 0
+    DWORD m_castTimeMax; // +0x8, size 0x4, type 0
+    DWORD m_castTimeMaxLevel; // +0xC, size 0x4, type 0
+    DWORD m_class; // +0x10, size 0x4, type 0
+    float m_nerfFactor; // +0x14, size 0x4, type 3
+    DWORD m_nerfMaxLevel; // +0x18, size 0x4, type 0
+    DWORD m_maxScalingLevel; // +0x1C, size 0x4, type 0
+    DWORD m_scalesFromItemLevel; // +0x20, size 0x4, type 0
+};
+
+struct SpellShapeshiftFormRec // sizeof(0x54)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_bonusActionBar; // +0x4, size 0x4, type 0
+    char* m_name_lang; // +0x8, size 0x4, type 2
+    DWORD m_flags; // +0xC, size 0x4, type 0
+    DWORD m_creatureType; // +0x10, size 0x4, type 0
+    DWORD m_attackIconID; // +0x14, size 0x4, type 0
+    DWORD m_combatRoundTime; // +0x18, size 0x4, type 0
+    DWORD m_creatureDisplayID[4]; // +0x1C, size 0x10, type 0
+    DWORD m_presetSpellID[8]; // +0x2C, size 0x20, type 0
+    DWORD m_mountTypeID; // +0x4C, size 0x4, type 0
+    DWORD m_exitSoundEntriesID; // +0x50, size 0x4, type 0
+};
+
+struct SpellShapeshiftRec // sizeof(0x18)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_shapeshiftExclude[2]; // +0x4, size 0x8, type 0
+    DWORD m_shapeshiftMask[2]; // +0xC, size 0x8, type 0
+    DWORD m_stanceBarOrder; // +0x14, size 0x4, type 0
+};
+
+struct SpellSpecialUnitEffectRec // sizeof(0x8)
+{
+    DWORD m_enumID; // +0x0, size 0x4, type 0
+    DWORD m_spellVisualEffectNameID; // +0x4, size 0x4, type 0
+};
+
+struct SpellTargetRestrictionsRec // sizeof(0x24)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_spellID; // +0x4, size 0x4, type 0
+    DWORD m_difficultyID; // +0x8, size 0x4, type 0
+    float m_coneAngle; // +0xC, size 0x4, type 3
+    float m_width; // +0x10, size 0x4, type 3
+    DWORD m_maxTargets; // +0x14, size 0x4, type 0
+    DWORD m_maxTargetLevel; // +0x18, size 0x4, type 0
+    DWORD m_targetCreatureType; // +0x1C, size 0x4, type 0
+    DWORD m_targets; // +0x20, size 0x4, type 0
+};
+
+struct SpellTotemsRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_requiredTotemCategoryID[2]; // +0x4, size 0x8, type 0
+    DWORD m_totem[2]; // +0xC, size 0x8, type 0
+};
+
+struct StationeryRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_itemID; // +0x4, size 0x4, type 0
+    char* m_texture; // +0x8, size 0x4, type 2
+    DWORD m_flags; // +0xC, size 0x4, type 0
+};
+
+struct StringLookupsRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_String; // +0x4, size 0x4, type 2
+};
+
+struct SummonPropertiesRec // sizeof(0x18)
+{
+    DWORD m_id; // +0x0, size 0x4, type 0
+    DWORD m_control; // +0x4, size 0x4, type 0
+    DWORD m_faction; // +0x8, size 0x4, type 0
+    DWORD m_title; // +0xC, size 0x4, type 0
+    DWORD m_slot; // +0x10, size 0x4, type 0
+    DWORD m_flags; // +0x14, size 0x4, type 0
+};
+
+struct TalentRec // sizeof(0x2C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_specID; // +0x4, size 0x4, type 0
+    DWORD m_tierID; // +0x8, size 0x4, type 0
+    DWORD m_columnIndex; // +0xC, size 0x4, type 0
+    DWORD m_spellID; // +0x10, size 0x4, type 0
+    DWORD m_flags; // +0x14, size 0x4, type 0
+    DWORD m_categoryMask[2]; // +0x18, size 0x8, type 0
+    DWORD m_classID; // +0x20, size 0x4, type 0
+    DWORD m_overridesSpellID; // +0x24, size 0x4, type 0
+    char* m_description_lang; // +0x28, size 0x4, type 2
+};
+
+struct TaxiNodesRec // sizeof(0x30)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_ContinentID; // +0x4, size 0x4, type 0
+    float m_pos[3]; // +0x8, size 0xC, type 3
+    char* m_Name_lang; // +0x14, size 0x4, type 2
+    DWORD m_MountCreatureID[2]; // +0x18, size 0x8, type 0
+    DWORD m_conditionID; // +0x20, size 0x4, type 0
+    DWORD m_Flags; // +0x24, size 0x4, type 0
+    float m_MapOffset[2]; // +0x28, size 0x8, type 3
+};
+
+struct TaxiPathNodeRec // sizeof(0x2C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_PathID; // +0x4, size 0x4, type 0
+    DWORD m_NodeIndex; // +0x8, size 0x4, type 0
+    DWORD m_ContinentID; // +0xC, size 0x4, type 0
+    float m_Loc[3]; // +0x10, size 0xC, type 3
+    DWORD m_flags; // +0x1C, size 0x4, type 0
+    DWORD m_delay; // +0x20, size 0x4, type 0
+    DWORD m_arrivalEventID; // +0x24, size 0x4, type 0
+    DWORD m_departureEventID; // +0x28, size 0x4, type 0
+};
+
+struct TaxiPathRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_FromTaxiNode; // +0x4, size 0x4, type 0
+    DWORD m_ToTaxiNode; // +0x8, size 0x4, type 0
+    DWORD m_Cost; // +0xC, size 0x4, type 0
+};
+
+struct TerrainTypeSoundsRec // sizeof(0x4)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+};
+
+struct TotemCategoryRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_totemCategoryType; // +0x8, size 0x4, type 0
+    DWORD m_totemCategoryMask; // +0xC, size 0x4, type 0
+};
+
+struct TradeSkillCategoryRec // sizeof(0x18)
+{
+    DWORD m_id; // +0x0, size 0x4, type 0
+    DWORD m_skilllineid; // +0x4, size 0x4, type 0
+    DWORD m_parenttradeskillcategoryid; // +0x8, size 0x4, type 0
+    DWORD m_orderindex; // +0xC, size 0x4, type 0
+    char* m_name_lang; // +0x10, size 0x4, type 2
+    DWORD m_flags; // +0x14, size 0x4, type 0
+};
+
+struct TransportAnimationRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_TransportID; // +0x4, size 0x4, type 0
+    DWORD m_TimeIndex; // +0x8, size 0x4, type 0
+    float m_Pos[3]; // +0xC, size 0xC, type 3
+    DWORD m_SequenceID; // +0x18, size 0x4, type 0
+};
+
+struct TransportPhysicsRec // sizeof(0x2C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    float m_waveAmp; // +0x4, size 0x4, type 3
+    float m_waveTimeScale; // +0x8, size 0x4, type 3
+    float m_rollAmp; // +0xC, size 0x4, type 3
+    float m_rollTimeScale; // +0x10, size 0x4, type 3
+    float m_pitchAmp; // +0x14, size 0x4, type 3
+    float m_pitchTimeScale; // +0x18, size 0x4, type 3
+    float m_maxBank; // +0x1C, size 0x4, type 3
+    float m_maxBankTurnSpeed; // +0x20, size 0x4, type 3
+    float m_speedDampThresh; // +0x24, size 0x4, type 3
+    float m_speedDamp; // +0x28, size 0x4, type 3
+};
+
+struct TransportRotationRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_GameObjectsID; // +0x4, size 0x4, type 0
+    DWORD m_TimeIndex; // +0x8, size 0x4, type 0
+    float m_Rot[4]; // +0xC, size 0x10, type 3
+};
+
+struct UnitBloodLevelsRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_Violencelevel[3]; // +0x4, size 0xC, type 0
+};
+
+struct UnitBloodRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_CombatBloodSpurtFront[2]; // +0x4, size 0x8, type 0
+    DWORD m_CombatBloodSpurtBack[2]; // +0xC, size 0x8, type 0
+    char* m_GroundBlood[5]; // +0x14, size 0x14, type 2
+};
+
+struct UnitConditionRec // sizeof(0x68)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_variable[8]; // +0x8, size 0x20, type 0
+    DWORD m_op[8]; // +0x28, size 0x20, type 0
+    DWORD m_value[8]; // +0x48, size 0x20, type 0
+};
+
+struct UnitPowerBarRec // sizeof(0x6C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_minPower; // +0x4, size 0x4, type 0
+    DWORD m_maxPower; // +0x8, size 0x4, type 0
+    DWORD m_startPower; // +0xC, size 0x4, type 0
+    DWORD m_centerPower; // +0x10, size 0x4, type 0
+    float m_regenerationPeace; // +0x14, size 0x4, type 3
+    float m_regenerationCombat; // +0x18, size 0x4, type 3
+    DWORD m_barType; // +0x1C, size 0x4, type 0
+    DWORD m_fileDataID[6]; // +0x20, size 0x18, type 0
+    DWORD m_color[6]; // +0x38, size 0x18, type 0
+    DWORD m_flags; // +0x50, size 0x4, type 0
+    char* m_name_lang; // +0x54, size 0x4, type 2
+    char* m_cost_lang; // +0x58, size 0x4, type 2
+    char* m_outOfError_lang; // +0x5C, size 0x4, type 2
+    char* m_toolTip_lang; // +0x60, size 0x4, type 2
+    float m_startInset; // +0x64, size 0x4, type 3
+    float m_endInset; // +0x68, size 0x4, type 3
+};
+
+struct VehicleRec // sizeof(0xA4)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_flagsB; // +0x8, size 0x4, type 0
+    float m_turnSpeed; // +0xC, size 0x4, type 3
+    float m_pitchSpeed; // +0x10, size 0x4, type 3
+    float m_pitchMin; // +0x14, size 0x4, type 3
+    float m_pitchMax; // +0x18, size 0x4, type 3
+    DWORD m_seatID[8]; // +0x1C, size 0x20, type 0
+    float m_mouseLookOffsetPitch; // +0x3C, size 0x4, type 3
+    float m_cameraFadeDistScalarMin; // +0x40, size 0x4, type 3
+    float m_cameraFadeDistScalarMax; // +0x44, size 0x4, type 3
+    float m_cameraPitchOffset; // +0x48, size 0x4, type 3
+    float m_facingLimitRight; // +0x4C, size 0x4, type 3
+    float m_facingLimitLeft; // +0x50, size 0x4, type 3
+    float m_msslTrgtTurnLingering; // +0x54, size 0x4, type 3
+    float m_msslTrgtPitchLingering; // +0x58, size 0x4, type 3
+    float m_msslTrgtMouseLingering; // +0x5C, size 0x4, type 3
+    float m_msslTrgtEndOpacity; // +0x60, size 0x4, type 3
+    float m_msslTrgtArcSpeed; // +0x64, size 0x4, type 3
+    float m_msslTrgtArcRepeat; // +0x68, size 0x4, type 3
+    float m_msslTrgtArcWidth; // +0x6C, size 0x4, type 3
+    float m_msslTrgtImpactRadius[2]; // +0x70, size 0x8, type 3
+    char* m_msslTrgtArcTexture; // +0x78, size 0x4, type 2
+    char* m_msslTrgtImpactTexture; // +0x7C, size 0x4, type 2
+    char* m_msslTrgtImpactModel[2]; // +0x80, size 0x8, type 2
+    float m_cameraYawOffset; // +0x88, size 0x4, type 3
+    DWORD m_uiLocomotionType; // +0x8C, size 0x4, type 0
+    float m_msslTrgtImpactTexRadius; // +0x90, size 0x4, type 3
+    DWORD m_vehicleUIIndicatorID; // +0x94, size 0x4, type 0
+    DWORD m_powerDisplayID[3]; // +0x98, size 0xC, type 0
+};
+
+struct VehicleSeatRec // sizeof(0x108)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_flags; // +0x4, size 0x4, type 0
+    DWORD m_attachmentID; // +0x8, size 0x4, type 0
+    float m_attachmentOffset[3]; // +0xC, size 0xC, type 3
+    float m_enterPreDelay; // +0x18, size 0x4, type 3
+    float m_enterSpeed; // +0x1C, size 0x4, type 3
+    float m_enterGravity; // +0x20, size 0x4, type 3
+    float m_enterMinDuration; // +0x24, size 0x4, type 3
+    float m_enterMaxDuration; // +0x28, size 0x4, type 3
+    float m_enterMinArcHeight; // +0x2C, size 0x4, type 3
+    float m_enterMaxArcHeight; // +0x30, size 0x4, type 3
+    DWORD m_enterAnimStart; // +0x34, size 0x4, type 0
+    DWORD m_enterAnimLoop; // +0x38, size 0x4, type 0
+    DWORD m_rideAnimStart; // +0x3C, size 0x4, type 0
+    DWORD m_rideAnimLoop; // +0x40, size 0x4, type 0
+    DWORD m_rideUpperAnimStart; // +0x44, size 0x4, type 0
+    DWORD m_rideUpperAnimLoop; // +0x48, size 0x4, type 0
+    float m_exitPreDelay; // +0x4C, size 0x4, type 3
+    float m_exitSpeed; // +0x50, size 0x4, type 3
+    float m_exitGravity; // +0x54, size 0x4, type 3
+    float m_exitMinDuration; // +0x58, size 0x4, type 3
+    float m_exitMaxDuration; // +0x5C, size 0x4, type 3
+    float m_exitMinArcHeight; // +0x60, size 0x4, type 3
+    float m_exitMaxArcHeight; // +0x64, size 0x4, type 3
+    DWORD m_exitAnimStart; // +0x68, size 0x4, type 0
+    DWORD m_exitAnimLoop; // +0x6C, size 0x4, type 0
+    DWORD m_exitAnimEnd; // +0x70, size 0x4, type 0
+    float m_passengerYaw; // +0x74, size 0x4, type 3
+    float m_passengerPitch; // +0x78, size 0x4, type 3
+    float m_passengerRoll; // +0x7C, size 0x4, type 3
+    DWORD m_passengerAttachmentID; // +0x80, size 0x4, type 0
+    DWORD m_vehicleEnterAnim; // +0x84, size 0x4, type 0
+    DWORD m_vehicleExitAnim; // +0x88, size 0x4, type 0
+    DWORD m_vehicleRideAnimLoop; // +0x8C, size 0x4, type 0
+    DWORD m_vehicleEnterAnimBone; // +0x90, size 0x4, type 0
+    DWORD m_vehicleExitAnimBone; // +0x94, size 0x4, type 0
+    DWORD m_vehicleRideAnimLoopBone; // +0x98, size 0x4, type 0
+    float m_vehicleEnterAnimDelay; // +0x9C, size 0x4, type 3
+    float m_vehicleExitAnimDelay; // +0xA0, size 0x4, type 3
+    DWORD m_vehicleAbilityDisplay; // +0xA4, size 0x4, type 0
+    DWORD m_enterUISoundID; // +0xA8, size 0x4, type 0
+    DWORD m_exitUISoundID; // +0xAC, size 0x4, type 0
+    DWORD m_flagsB; // +0xB0, size 0x4, type 0
+    float m_cameraEnteringDelay; // +0xB4, size 0x4, type 3
+    float m_cameraEnteringDuration; // +0xB8, size 0x4, type 3
+    float m_cameraExitingDelay; // +0xBC, size 0x4, type 3
+    float m_cameraExitingDuration; // +0xC0, size 0x4, type 3
+    float m_cameraOffset[3]; // +0xC4, size 0xC, type 3
+    float m_cameraPosChaseRate; // +0xD0, size 0x4, type 3
+    float m_cameraFacingChaseRate; // +0xD4, size 0x4, type 3
+    float m_cameraEnteringZoom; // +0xD8, size 0x4, type 3
+    float m_cameraSeatZoomMin; // +0xDC, size 0x4, type 3
+    float m_cameraSeatZoomMax; // +0xE0, size 0x4, type 3
+    DWORD m_enterAnimKitID; // +0xE4, size 0x4, type 0
+    DWORD m_rideAnimKitID; // +0xE8, size 0x4, type 0
+    DWORD m_exitAnimKitID; // +0xEC, size 0x4, type 0
+    DWORD m_vehicleEnterAnimKitID; // +0xF0, size 0x4, type 0
+    DWORD m_vehicleRideAnimKitID; // +0xF4, size 0x4, type 0
+    DWORD m_vehicleExitAnimKitID; // +0xF8, size 0x4, type 0
+    DWORD m_cameraModeID; // +0xFC, size 0x4, type 0
+    DWORD m_flagsC; // +0x100, size 0x4, type 0
+    DWORD m_uiSkinFileDataID; // +0x104, size 0x4, type 0
+};
+
+struct VehicleUIIndicatorRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_backgroundTexture; // +0x4, size 0x4, type 2
+};
+
+struct VehicleUIIndSeatRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_vehicleUIIndicatorID; // +0x4, size 0x4, type 0
+    DWORD m_virtualSeatIndex; // +0x8, size 0x4, type 0
+    float m_xPos; // +0xC, size 0x4, type 3
+    float m_yPos; // +0x10, size 0x4, type 3
+};
+
+struct VocalUISoundsRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_vocalUIEnum; // +0x4, size 0x4, type 0
+    DWORD m_raceID; // +0x8, size 0x4, type 0
+    DWORD m_NormalSoundID[2]; // +0xC, size 0x8, type 0
+    DWORD m_PissedSoundID[2]; // +0x14, size 0x8, type 0
+};
+
+struct WeaponImpactSoundsRec // sizeof(0x5C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_WeaponSubClassID; // +0x4, size 0x4, type 0
+    DWORD m_ParrySoundType; // +0x8, size 0x4, type 0
+    DWORD m_impactSoundID[10]; // +0xC, size 0x28, type 0
+    DWORD m_critImpactSoundID[10]; // +0x34, size 0x28, type 0
+};
+
+struct WeaponSwingSounds2Rec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_SwingType; // +0x4, size 0x4, type 0
+    DWORD m_Crit; // +0x8, size 0x4, type 0
+    DWORD m_SoundID; // +0xC, size 0x4, type 0
+};
+
+struct World_PVP_AreaRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_area_ID; // +0x4, size 0x4, type 0
+    DWORD m_next_time_worldstate; // +0x8, size 0x4, type 0
+    DWORD m_game_time_worldstate; // +0xC, size 0x4, type 0
+    DWORD m_battle_populate_time; // +0x10, size 0x4, type 0
+    DWORD m_min_level; // +0x14, size 0x4, type 0
+    DWORD m_max_level; // +0x18, size 0x4, type 0
+};
+
+struct WorldChunkSoundsRec // sizeof(0x1C)
+{
+    DWORD m_MapID; // +0x4, size 0x4, type 0
+    DWORD m_ChunkX; // +0x8, size 0x4, type 0
+    DWORD m_ChunkY; // +0xC, size 0x4, type 0
+    DWORD m_SubchunkX; // +0x10, size 0x4, type 0
+    DWORD m_SubchunkY; // +0x14, size 0x4, type 0
+    DWORD m_SoundOverrideID; // +0x18, size 0x4, type 0
+};
+
+struct WorldEffectRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_targetType; // +0x4, size 0x4, type 0
+    DWORD m_targetAsset; // +0x8, size 0x4, type 0
+    DWORD m_questFeedbackEffectID; // +0xC, size 0x4, type 0
+    DWORD m_playerConditionID; // +0x10, size 0x4, type 0
+    DWORD m_combatConditionID; // +0x14, size 0x4, type 0
+    DWORD m_whenToDisplay; // +0x18, size 0x4, type 0
+};
+
+struct WorldElapsedTimerRec // sizeof(0x10)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_name_lang; // +0x4, size 0x4, type 2
+    DWORD m_flags; // +0x8, size 0x4, type 0
+    DWORD m_type; // +0xC, size 0x4, type 0
+};
+
+struct WorldMapAreaRec // sizeof(0x38)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_areaID; // +0x8, size 0x4, type 0
+    char* m_areaName; // +0xC, size 0x4, type 2
+    float m_locLeft; // +0x10, size 0x4, type 3
+    float m_locRight; // +0x14, size 0x4, type 3
+    float m_locTop; // +0x18, size 0x4, type 3
+    float m_locBottom; // +0x1C, size 0x4, type 3
+    DWORD m_displayMapID; // +0x20, size 0x4, type 0
+    DWORD m_defaultDungeonFloor; // +0x24, size 0x4, type 0
+    DWORD m_parentWorldMapID; // +0x28, size 0x4, type 0
+    DWORD m_flags; // +0x2C, size 0x4, type 0
+    DWORD m_levelRangeMin; // +0x30, size 0x4, type 0
+    DWORD m_levelRangeMax; // +0x34, size 0x4, type 0
+};
+
+struct WorldMapContinentRec // sizeof(0x38)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_leftBoundary; // +0x8, size 0x4, type 0
+    DWORD m_rightBoundary; // +0xC, size 0x4, type 0
+    DWORD m_topBoundary; // +0x10, size 0x4, type 0
+    DWORD m_bottomBoundary; // +0x14, size 0x4, type 0
+    float m_continentOffset[2]; // +0x18, size 0x8, type 3
+    float m_scale; // +0x20, size 0x4, type 3
+    float m_taxiMin[2]; // +0x24, size 0x8, type 3
+    float m_taxiMax[2]; // +0x2C, size 0x8, type 3
+    DWORD m_worldMapID; // +0x34, size 0x4, type 0
+};
+
+struct WorldMapOverlayRec // sizeof(0x40)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapAreaID; // +0x4, size 0x4, type 0
+    DWORD m_areaID[4]; // +0x8, size 0x10, type 0
+    char* m_textureName; // +0x18, size 0x4, type 2
+    DWORD m_textureWidth; // +0x1C, size 0x4, type 0
+    DWORD m_textureHeight; // +0x20, size 0x4, type 0
+    DWORD m_offsetX; // +0x24, size 0x4, type 0
+    DWORD m_offsetY; // +0x28, size 0x4, type 0
+    DWORD m_hitRectTop; // +0x2C, size 0x4, type 0
+    DWORD m_hitRectLeft; // +0x30, size 0x4, type 0
+    DWORD m_hitRectBottom; // +0x34, size 0x4, type 0
+    DWORD m_hitRectRight; // +0x38, size 0x4, type 0
+    DWORD m_playerConditionID; // +0x3C, size 0x4, type 0
+};
+
+struct WorldMapTransformsRec // sizeof(0x3C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    float m_regionMin[3]; // +0x8, size 0xC, type 3
+    float m_regionMax[3]; // +0x14, size 0xC, type 3
+    DWORD m_newMapID; // +0x20, size 0x4, type 0
+    float m_regionOffset[2]; // +0x24, size 0x8, type 3
+    DWORD m_newDungeonMapID; // +0x2C, size 0x4, type 0
+    DWORD m_flags; // +0x30, size 0x4, type 0
+    DWORD m_newAreaID; // +0x34, size 0x4, type 0
+    float m_regionScale; // +0x38, size 0x4, type 3
+};
+
+struct WorldSafeLocsRec // sizeof(0x1C)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_continent; // +0x4, size 0x4, type 0
+    float m_loc[3]; // +0x8, size 0xC, type 3
+    float m_facing; // +0x14, size 0x4, type 3
+    char* m_areaName_lang; // +0x18, size 0x4, type 2
+};
+
+struct WorldStateExpressionRec // sizeof(0x8)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_expression; // +0x4, size 0x4, type 2
+};
+
+struct WorldStateRec // sizeof(0x4)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+};
+
+struct WorldStateUIRec // sizeof(0x44)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_mapID; // +0x4, size 0x4, type 0
+    DWORD m_areaID; // +0x8, size 0x4, type 0
+    DWORD m_phaseUseFlags; // +0xC, size 0x4, type 0
+    DWORD m_phaseID; // +0x10, size 0x4, type 0
+    DWORD m_phaseGroupID; // +0x14, size 0x4, type 0
+    char* m_icon; // +0x18, size 0x4, type 2
+    char* m_string_lang; // +0x1C, size 0x4, type 2
+    char* m_tooltip_lang; // +0x20, size 0x4, type 2
+    DWORD m_stateVariable; // +0x24, size 0x4, type 0
+    DWORD m_type; // +0x28, size 0x4, type 0
+    char* m_dynamicIcon; // +0x2C, size 0x4, type 2
+    char* m_dynamicTooltip_lang; // +0x30, size 0x4, type 2
+    char* m_extendedUI; // +0x34, size 0x4, type 2
+    DWORD m_extendedUIStateVariable[3]; // +0x38, size 0xC, type 0
+};
+
+struct WorldStateZoneSoundsRec // sizeof(0x24)
+{
+    DWORD m_WorldStateID; // +0x4, size 0x4, type 0
+    DWORD m_WorldStateValue; // +0x8, size 0x4, type 0
+    DWORD m_AreaID; // +0xC, size 0x4, type 0
+    DWORD m_WMOAreaID; // +0x10, size 0x4, type 0
+    DWORD m_ZoneIntroMusicID; // +0x14, size 0x4, type 0
+    DWORD m_ZoneMusicID; // +0x18, size 0x4, type 0
+    DWORD m_SoundAmbienceID; // +0x1C, size 0x4, type 0
+    DWORD m_SoundProviderPreferencesID; // +0x20, size 0x4, type 0
+};
+
+struct ZoneIntroMusicTableRec // sizeof(0x14)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_Name; // +0x4, size 0x4, type 2
+    DWORD m_SoundID; // +0x8, size 0x4, type 0
+    DWORD m_Priority; // +0xC, size 0x4, type 0
+    DWORD m_MinDelayMinutes; // +0x10, size 0x4, type 0
+};
+
+struct ZoneMusicRec // sizeof(0x20)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    char* m_SetName; // +0x4, size 0x4, type 2
+    DWORD m_SilenceIntervalMin[2]; // +0x8, size 0x8, type 0
+    DWORD m_SilenceIntervalMax[2]; // +0x10, size 0x8, type 0
+    DWORD m_Sounds[2]; // +0x18, size 0x8, type 0
+};
